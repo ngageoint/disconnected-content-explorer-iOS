@@ -1,3 +1,7 @@
+# DICE
+
+##Disconnected Interactive Content Explorer##
+
 Disconnected Interactive Content Explorer (DICE) is an app for iOS, Andriod, and Windows that allows users to load interactive content generated in HTML, CSS, and Javascript to a mobile device so the device can display interactive content without a network connection.
 
 DICE can be used by disaster response and search and rescue personnel that need interactive content to assist with their task but the cell towers may be down.  No content is included in the app.  It must be loaded.  The app merely is a container that can parse and display interactive content in a web browser on a disconnected device.
