@@ -1,0 +1,500 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C0E3F60806C443D79389587D /* libPods-InteractiveReports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC63C8C3A5584AA4A5E44F92 /* libPods-InteractiveReports.a */; };
+		E3011597184FE4FD00C18CFD /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */; };
+		E30753E8195CC33E0087F90A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E30753E7195CC33E0087F90A /* Images.xcassets */; };
+		E32C6C2D17D7C1AB00D694C5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E32C6C2C17D7C1AB00D694C5 /* libz.dylib */; };
+		E337BCC21811AD7B00D987F9 /* Report.m in Sources */ = {isa = PBXBuildFile; fileRef = E337BCC11811AD7B00D987F9 /* Report.m */; };
+		E39DF1AA18C69DEB00B13D46 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E39DF1A918C69DEB00B13D46 /* SettingsViewController.m */; };
+		E3A5200118D7579700CE30DD /* ReportAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = E3A5200018D7579700CE30DD /* ReportAPI.m */; };
+		E3A5200418D759BF00CE30DD /* LocalReportManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E3A5200318D759BF00CE30DD /* LocalReportManager.m */; };
+		E3A73FC01855585200035C76 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3A73FBF1855585200035C76 /* MapViewController.m */; };
+		E3A73FC3185559FC00035C76 /* ReportMapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = E3A73FC2185559FC00035C76 /* ReportMapAnnotation.m */; };
+		E3A73FC518558F7A00035C76 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3A73FC418558F7A00035C76 /* MapKit.framework */; };
+		E3AC40FB198ADA3900DE8F41 /* OfflineMapUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = E3AC40FA198ADA3900DE8F41 /* OfflineMapUtility.m */; };
+		E3AC40FD198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E3AC40FC198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson */; };
+		E3AC40FF198ADCC700DE8F41 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3AC40FE198ADCC700DE8F41 /* CoreLocation.framework */; };
+		E3BC6EE1192E7A7B00096EE5 /* ListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3BC6EE0192E7A7B00096EE5 /* ListViewController.m */; };
+		E3BC6EE4192E7A8700096EE5 /* ReportViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3BC6EE3192E7A8700096EE5 /* ReportViewController.m */; };
+		E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D7820A18516C6A001BB04B /* TileViewController.m */; };
+		E3D7820E18517375001BB04B /* ReportViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D7820D18517375001BB04B /* ReportViewCell.m */; };
+		E3F3A44E1857D0DE00253290 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3F3A44D1857D0DE00253290 /* NoteViewController.m */; };
+		E3FBB30617C9527000E133D6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3FBB30517C9527000E133D6 /* UIKit.framework */; };
+		E3FBB30817C9527000E133D6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3FBB30717C9527000E133D6 /* Foundation.framework */; };
+		E3FBB30A17C9527000E133D6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3FBB30917C9527000E133D6 /* CoreGraphics.framework */; };
+		E3FBB31017C9527000E133D6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E3FBB30E17C9527000E133D6 /* InfoPlist.strings */; };
+		E3FBB31217C9527000E133D6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E3FBB31117C9527000E133D6 /* main.m */; };
+		E3FBB31617C9527000E133D6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E3FBB31517C9527000E133D6 /* AppDelegate.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		49DDF90B432A49C9A63BD956 /* Pods-InteractiveReports.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractiveReports.xcconfig"; path = "Pods/Pods-InteractiveReports.xcconfig"; sourceTree = "<group>"; };
+		E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainStoryboard.storyboard; path = ../MainStoryboard.storyboard; sourceTree = "<group>"; };
+		E30753E7195CC33E0087F90A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		E32C6C2C17D7C1AB00D694C5 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		E337BCC01811AD7B00D987F9 /* Report.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Report.h; sourceTree = "<group>"; };
+		E337BCC11811AD7B00D987F9 /* Report.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Report.m; sourceTree = "<group>"; };
+		E39DF1A818C69DEB00B13D46 /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
+		E39DF1A918C69DEB00B13D46 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
+		E3A51FFF18D7579700CE30DD /* ReportAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportAPI.h; sourceTree = "<group>"; };
+		E3A5200018D7579700CE30DD /* ReportAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportAPI.m; sourceTree = "<group>"; };
+		E3A5200218D759BF00CE30DD /* LocalReportManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalReportManager.h; sourceTree = "<group>"; };
+		E3A5200318D759BF00CE30DD /* LocalReportManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalReportManager.m; sourceTree = "<group>"; };
+		E3A73FBE1855585200035C76 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
+		E3A73FBF1855585200035C76 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
+		E3A73FC1185559FC00035C76 /* ReportMapAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportMapAnnotation.h; sourceTree = "<group>"; };
+		E3A73FC2185559FC00035C76 /* ReportMapAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportMapAnnotation.m; sourceTree = "<group>"; };
+		E3A73FC418558F7A00035C76 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		E3AC40F9198ADA3900DE8F41 /* OfflineMapUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OfflineMapUtility.h; sourceTree = "<group>"; };
+		E3AC40FA198ADA3900DE8F41 /* OfflineMapUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OfflineMapUtility.m; sourceTree = "<group>"; };
+		E3AC40FC198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ne_50m_land.simplify0.2.geojson; sourceTree = "<group>"; };
+		E3AC40FE198ADCC700DE8F41 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		E3BC6EDF192E7A7B00096EE5 /* ListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListViewController.h; sourceTree = "<group>"; };
+		E3BC6EE0192E7A7B00096EE5 /* ListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListViewController.m; sourceTree = "<group>"; };
+		E3BC6EE2192E7A8700096EE5 /* ReportViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewController.h; sourceTree = "<group>"; };
+		E3BC6EE3192E7A8700096EE5 /* ReportViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportViewController.m; sourceTree = "<group>"; };
+		E3D7820918516C6A001BB04B /* TileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileViewController.h; sourceTree = "<group>"; };
+		E3D7820A18516C6A001BB04B /* TileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileViewController.m; sourceTree = "<group>"; };
+		E3D7820C18517375001BB04B /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
+		E3D7820D18517375001BB04B /* ReportViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportViewCell.m; sourceTree = "<group>"; };
+		E3F3A44C1857D0DE00253290 /* NoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteViewController.h; sourceTree = "<group>"; };
+		E3F3A44D1857D0DE00253290 /* NoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteViewController.m; sourceTree = "<group>"; };
+		E3FBB30217C9527000E133D6 /* DICE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DICE.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E3FBB30517C9527000E133D6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		E3FBB30717C9527000E133D6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E3FBB30917C9527000E133D6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		E3FBB30D17C9527000E133D6 /* InteractiveReports-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "InteractiveReports-Info.plist"; sourceTree = "<group>"; };
+		E3FBB30F17C9527000E133D6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E3FBB31117C9527000E133D6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		E3FBB31317C9527000E133D6 /* InteractiveReports-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "InteractiveReports-Prefix.pch"; sourceTree = "<group>"; };
+		E3FBB31417C9527000E133D6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		E3FBB31517C9527000E133D6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		FC63C8C3A5584AA4A5E44F92 /* libPods-InteractiveReports.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-InteractiveReports.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E3FBB2FF17C9527000E133D6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E3AC40FF198ADCC700DE8F41 /* CoreLocation.framework in Frameworks */,
+				E3A73FC518558F7A00035C76 /* MapKit.framework in Frameworks */,
+				E32C6C2D17D7C1AB00D694C5 /* libz.dylib in Frameworks */,
+				E3FBB30617C9527000E133D6 /* UIKit.framework in Frameworks */,
+				E3FBB30817C9527000E133D6 /* Foundation.framework in Frameworks */,
+				E3FBB30A17C9527000E133D6 /* CoreGraphics.framework in Frameworks */,
+				C0E3F60806C443D79389587D /* libPods-InteractiveReports.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E361E45A18D3AA6900E09C1B /* API */ = {
+			isa = PBXGroup;
+			children = (
+				E3A51FFF18D7579700CE30DD /* ReportAPI.h */,
+				E3A5200018D7579700CE30DD /* ReportAPI.m */,
+				E3A5200218D759BF00CE30DD /* LocalReportManager.h */,
+				E3A5200318D759BF00CE30DD /* LocalReportManager.m */,
+			);
+			name = API;
+			sourceTree = "<group>";
+		};
+		E361E45B18D3AA7B00E09C1B /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				E337BCC01811AD7B00D987F9 /* Report.h */,
+				E337BCC11811AD7B00D987F9 /* Report.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		E39DF1A718C69DCF00B13D46 /* Settings View */ = {
+			isa = PBXGroup;
+			children = (
+				E39DF1A818C69DEB00B13D46 /* SettingsViewController.h */,
+				E39DF1A918C69DEB00B13D46 /* SettingsViewController.m */,
+			);
+			name = "Settings View";
+			sourceTree = "<group>";
+		};
+		E3AC40F8198ADA3900DE8F41 /* utilities */ = {
+			isa = PBXGroup;
+			children = (
+				E3AC40F9198ADA3900DE8F41 /* OfflineMapUtility.h */,
+				E3AC40FA198ADA3900DE8F41 /* OfflineMapUtility.m */,
+			);
+			path = utilities;
+			sourceTree = "<group>";
+		};
+		E3F3A4481857CDB600253290 /* Tile View */ = {
+			isa = PBXGroup;
+			children = (
+				E3D7820C18517375001BB04B /* ReportViewCell.h */,
+				E3D7820D18517375001BB04B /* ReportViewCell.m */,
+				E3D7820918516C6A001BB04B /* TileViewController.h */,
+				E3D7820A18516C6A001BB04B /* TileViewController.m */,
+			);
+			name = "Tile View";
+			sourceTree = "<group>";
+		};
+		E3F3A4491857CDD600253290 /* Map View */ = {
+			isa = PBXGroup;
+			children = (
+				E3A73FBE1855585200035C76 /* MapViewController.h */,
+				E3A73FBF1855585200035C76 /* MapViewController.m */,
+				E3A73FC1185559FC00035C76 /* ReportMapAnnotation.h */,
+				E3A73FC2185559FC00035C76 /* ReportMapAnnotation.m */,
+			);
+			name = "Map View";
+			sourceTree = "<group>";
+		};
+		E3F3A44A1857CDE400253290 /* Report View */ = {
+			isa = PBXGroup;
+			children = (
+				E3BC6EE2192E7A8700096EE5 /* ReportViewController.h */,
+				E3BC6EE3192E7A8700096EE5 /* ReportViewController.m */,
+				E3F3A44C1857D0DE00253290 /* NoteViewController.h */,
+				E3F3A44D1857D0DE00253290 /* NoteViewController.m */,
+			);
+			name = "Report View";
+			sourceTree = "<group>";
+		};
+		E3F3A44B1857CDF100253290 /* List View */ = {
+			isa = PBXGroup;
+			children = (
+				E3BC6EDF192E7A7B00096EE5 /* ListViewController.h */,
+				E3BC6EE0192E7A7B00096EE5 /* ListViewController.m */,
+			);
+			name = "List View";
+			sourceTree = "<group>";
+		};
+		E3FBB2F917C9527000E133D6 = {
+			isa = PBXGroup;
+			children = (
+				E3FBB30B17C9527000E133D6 /* InteractiveReports */,
+				E3FBB30417C9527000E133D6 /* Frameworks */,
+				E3FBB30317C9527000E133D6 /* Products */,
+				49DDF90B432A49C9A63BD956 /* Pods-InteractiveReports.xcconfig */,
+			);
+			sourceTree = "<group>";
+		};
+		E3FBB30317C9527000E133D6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E3FBB30217C9527000E133D6 /* DICE.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E3FBB30417C9527000E133D6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E32C6C2C17D7C1AB00D694C5 /* libz.dylib */,
+				E3AC40FE198ADCC700DE8F41 /* CoreLocation.framework */,
+				E3A73FC418558F7A00035C76 /* MapKit.framework */,
+				E3FBB30517C9527000E133D6 /* UIKit.framework */,
+				E3FBB30717C9527000E133D6 /* Foundation.framework */,
+				E3FBB30917C9527000E133D6 /* CoreGraphics.framework */,
+				FC63C8C3A5584AA4A5E44F92 /* libPods-InteractiveReports.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E3FBB30B17C9527000E133D6 /* InteractiveReports */ = {
+			isa = PBXGroup;
+			children = (
+				E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */,
+				E3FBB31417C9527000E133D6 /* AppDelegate.h */,
+				E3FBB31517C9527000E133D6 /* AppDelegate.m */,
+				E3AC40F8198ADA3900DE8F41 /* utilities */,
+				E361E45B18D3AA7B00E09C1B /* Model */,
+				E361E45A18D3AA6900E09C1B /* API */,
+				E39DF1A718C69DCF00B13D46 /* Settings View */,
+				E3F3A4481857CDB600253290 /* Tile View */,
+				E3F3A44B1857CDF100253290 /* List View */,
+				E3F3A4491857CDD600253290 /* Map View */,
+				E3F3A44A1857CDE400253290 /* Report View */,
+				E30753E7195CC33E0087F90A /* Images.xcassets */,
+				E3FBB30C17C9527000E133D6 /* Supporting Files */,
+			);
+			path = InteractiveReports;
+			sourceTree = "<group>";
+		};
+		E3FBB30C17C9527000E133D6 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				E3FBB30D17C9527000E133D6 /* InteractiveReports-Info.plist */,
+				E3AC40FC198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson */,
+				E3FBB30E17C9527000E133D6 /* InfoPlist.strings */,
+				E3FBB31117C9527000E133D6 /* main.m */,
+				E3FBB31317C9527000E133D6 /* InteractiveReports-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E3FBB30117C9527000E133D6 /* InteractiveReports */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E3FBB32B17C9527000E133D6 /* Build configuration list for PBXNativeTarget "InteractiveReports" */;
+			buildPhases = (
+				66865F0E56CA411BA0814D2A /* Check Pods Manifest.lock */,
+				E3FBB2FE17C9527000E133D6 /* Sources */,
+				E3FBB2FF17C9527000E133D6 /* Frameworks */,
+				E3FBB30017C9527000E133D6 /* Resources */,
+				7BD0A6ABA149474EAF5B7878 /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = InteractiveReports;
+			productName = InteractiveReports;
+			productReference = E3FBB30217C9527000E133D6 /* DICE.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E3FBB2FA17C9527000E133D6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = mil.nga;
+				TargetAttributes = {
+					E3FBB30117C9527000E133D6 = {
+						DevelopmentTeam = PDRAS7XQ3Y;
+					};
+				};
+			};
+			buildConfigurationList = E3FBB2FD17C9527000E133D6 /* Build configuration list for PBXProject "InteractiveReports" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E3FBB2F917C9527000E133D6;
+			productRefGroup = E3FBB30317C9527000E133D6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E3FBB30117C9527000E133D6 /* InteractiveReports */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E3FBB30017C9527000E133D6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E3FBB31017C9527000E133D6 /* InfoPlist.strings in Resources */,
+				E30753E8195CC33E0087F90A /* Images.xcassets in Resources */,
+				E3AC40FD198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson in Resources */,
+				E3011597184FE4FD00C18CFD /* MainStoryboard.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		66865F0E56CA411BA0814D2A /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		7BD0A6ABA149474EAF5B7878 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-InteractiveReports-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E3FBB2FE17C9527000E133D6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E3FBB31217C9527000E133D6 /* main.m in Sources */,
+				E3FBB31617C9527000E133D6 /* AppDelegate.m in Sources */,
+				E3D7820E18517375001BB04B /* ReportViewCell.m in Sources */,
+				E39DF1AA18C69DEB00B13D46 /* SettingsViewController.m in Sources */,
+				E337BCC21811AD7B00D987F9 /* Report.m in Sources */,
+				E3A73FC01855585200035C76 /* MapViewController.m in Sources */,
+				E3BC6EE4192E7A8700096EE5 /* ReportViewController.m in Sources */,
+				E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */,
+				E3AC40FB198ADA3900DE8F41 /* OfflineMapUtility.m in Sources */,
+				E3F3A44E1857D0DE00253290 /* NoteViewController.m in Sources */,
+				E3BC6EE1192E7A7B00096EE5 /* ListViewController.m in Sources */,
+				E3A5200418D759BF00CE30DD /* LocalReportManager.m in Sources */,
+				E3A5200118D7579700CE30DD /* ReportAPI.m in Sources */,
+				E3A73FC3185559FC00035C76 /* ReportMapAnnotation.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		E3FBB30E17C9527000E133D6 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E3FBB30F17C9527000E133D6 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		E3FBB32917C9527000E133D6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E3FBB32A17C9527000E133D6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E3FBB32C17C9527000E133D6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 49DDF90B432A49C9A63BD956 /* Pods-InteractiveReports.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "InteractiveReports/InteractiveReports-Prefix.pch";
+				INFOPLIST_FILE = "InteractiveReports/InteractiveReports-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				PRODUCT_NAME = DICE;
+				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		E3FBB32D17C9527000E133D6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 49DDF90B432A49C9A63BD956 /* Pods-InteractiveReports.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "InteractiveReports/InteractiveReports-Prefix.pch";
+				INFOPLIST_FILE = "InteractiveReports/InteractiveReports-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				PRODUCT_NAME = DICE;
+				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E3FBB2FD17C9527000E133D6 /* Build configuration list for PBXProject "InteractiveReports" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E3FBB32917C9527000E133D6 /* Debug */,
+				E3FBB32A17C9527000E133D6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E3FBB32B17C9527000E133D6 /* Build configuration list for PBXNativeTarget "InteractiveReports" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E3FBB32C17C9527000E133D6 /* Debug */,
+				E3FBB32D17C9527000E133D6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E3FBB2FA17C9527000E133D6 /* Project object */;
+}
