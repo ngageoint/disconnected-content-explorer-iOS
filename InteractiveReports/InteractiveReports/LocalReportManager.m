@@ -42,7 +42,7 @@
  */
 - (void)loadReports
 {
-    NSArray *extensions = [NSArray arrayWithObjects:@"zip", @"pdf", nil];
+    NSArray *extensions = [NSArray arrayWithObjects:@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx", nil];
     NSArray *fileList = [fileManager contentsOfDirectoryAtPath:documentsDirectory error: nil];
     NSArray *reportTitles = [fileList filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pathExtension IN %@", extensions]];
     
@@ -63,7 +63,7 @@
                 dispatch_async(backgroundQueue, ^(void){
                     [self processZip:reportName atFilePath:filePath atIndex:i];
                 });
-            } else if ( [fileExtension caseInsensitiveCompare:@"pdf"] == NSOrderedSame ) {
+            } else { // PDFs and office files
                 dispatch_async(backgroundQueue, ^(void){
                     Report *report = [Report reportWithTitle:reportName];
                     report.url = [NSURL URLWithString:documentsDirectory];
@@ -71,7 +71,7 @@
                     report.isEnabled = YES;
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEReportUpdatedNotification"
                                                                         object:report
-                                                                  userInfo:@{@"index": [NSString stringWithFormat:@"%d", i], @"report": report}];
+                                                                      userInfo:@{@"index": [NSString stringWithFormat:@"%d", i], @"report": report}];
                 });
             }
         }

@@ -1,0 +1,1 @@
+../../vfrReader/Sources/ThumbsViewController.h

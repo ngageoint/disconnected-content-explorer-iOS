@@ -1,0 +1,1 @@
+../../vfrReader/Sources/ReaderThumbRender.h

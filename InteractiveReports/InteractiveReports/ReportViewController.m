@@ -141,7 +141,10 @@
             @catch (NSException *exception) {
                 NSLog(@"Problem loading URL %@. Report name: %@", [exception reason], self.reportName);
             }
-        } else if ( [self.report.fileExtension caseInsensitiveCompare:@"pdf"] == NSOrderedSame ) {
+        } else if ( [self.report.fileExtension caseInsensitiveCompare:@"pdf"] == NSOrderedSame ) { // hook up vfrReader here
+            NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@", self.report.url, self.report.title]];
+            [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+        } else {
             NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@", self.report.url, self.report.title]];
             [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
         }
@@ -204,5 +207,6 @@
         [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:[NSString stringWithFormat:@"%@ of %@ unzipped", notification.userInfo[@"progress"], notification.userInfo[@"totalNumberOfFiles"]] waitUntilDone:NO];
     }
 }
+
 
 @end

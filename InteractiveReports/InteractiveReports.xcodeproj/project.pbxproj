@@ -25,6 +25,10 @@
 		E3BC6EE4192E7A8700096EE5 /* ReportViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3BC6EE3192E7A8700096EE5 /* ReportViewController.m */; };
 		E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D7820A18516C6A001BB04B /* TileViewController.m */; };
 		E3D7820E18517375001BB04B /* ReportViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D7820D18517375001BB04B /* ReportViewCell.m */; };
+		E3E133C719D6095000C2D37E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3E133C619D6095000C2D37E /* QuartzCore.framework */; };
+		E3E133C919D6095900C2D37E /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3E133C819D6095900C2D37E /* ImageIO.framework */; };
+		E3E133CB19D6096300C2D37E /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3E133CA19D6096300C2D37E /* MessageUI.framework */; };
+		E3E133CD19D6708300C2D37E /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3E133CC19D6708300C2D37E /* QuickLook.framework */; };
 		E3F3A44E1857D0DE00253290 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3F3A44D1857D0DE00253290 /* NoteViewController.m */; };
 		E3FBB30617C9527000E133D6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3FBB30517C9527000E133D6 /* UIKit.framework */; };
 		E3FBB30817C9527000E133D6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3FBB30717C9527000E133D6 /* Foundation.framework */; };
@@ -64,6 +68,10 @@
 		E3D7820A18516C6A001BB04B /* TileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileViewController.m; sourceTree = "<group>"; };
 		E3D7820C18517375001BB04B /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
 		E3D7820D18517375001BB04B /* ReportViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportViewCell.m; sourceTree = "<group>"; };
+		E3E133C619D6095000C2D37E /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		E3E133C819D6095900C2D37E /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		E3E133CA19D6096300C2D37E /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		E3E133CC19D6708300C2D37E /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		E3F3A44C1857D0DE00253290 /* NoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteViewController.h; sourceTree = "<group>"; };
 		E3F3A44D1857D0DE00253290 /* NoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteViewController.m; sourceTree = "<group>"; };
 		E3FBB30217C9527000E133D6 /* DICE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DICE.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -84,6 +92,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E3E133CD19D6708300C2D37E /* QuickLook.framework in Frameworks */,
+				E3E133CB19D6096300C2D37E /* MessageUI.framework in Frameworks */,
+				E3E133C919D6095900C2D37E /* ImageIO.framework in Frameworks */,
+				E3E133C719D6095000C2D37E /* QuartzCore.framework in Frameworks */,
 				E3AC40FF198ADCC700DE8F41 /* CoreLocation.framework in Frameworks */,
 				E3A73FC518558F7A00035C76 /* MapKit.framework in Frameworks */,
 				E32C6C2D17D7C1AB00D694C5 /* libz.dylib in Frameworks */,
@@ -198,6 +210,10 @@
 		E3FBB30417C9527000E133D6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E3E133CC19D6708300C2D37E /* QuickLook.framework */,
+				E3E133CA19D6096300C2D37E /* MessageUI.framework */,
+				E3E133C819D6095900C2D37E /* ImageIO.framework */,
+				E3E133C619D6095000C2D37E /* QuartzCore.framework */,
 				E32C6C2C17D7C1AB00D694C5 /* libz.dylib */,
 				E3AC40FE198ADCC700DE8F41 /* CoreLocation.framework */,
 				E3A73FC418558F7A00035C76 /* MapKit.framework */,

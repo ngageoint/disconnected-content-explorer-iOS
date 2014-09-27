@@ -6,8 +6,10 @@
 #import <UIKit/UIKit.h>
 #import "Report.h"
 #import "NoteViewController.h"
+#import "ReaderViewController.h"
+#import <QuickLook/QuickLook.h>
 
-@interface ReportViewController : UIViewController <UISplitViewControllerDelegate, UIScrollViewDelegate>
+@interface ReportViewController : UIViewController <UISplitViewControllerDelegate, UIScrollViewDelegate, ReaderViewControllerDelegate>
 {
 
 }

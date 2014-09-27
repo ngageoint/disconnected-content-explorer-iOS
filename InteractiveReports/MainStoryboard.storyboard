@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="VhL-cC-Fz8">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="13E28" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="VhL-cC-Fz8">
     <dependencies>
-        <deployment defaultVersion="1536" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
     </dependencies>
     <scenes>
         <!--Settings View Controller-->
@@ -19,14 +18,12 @@
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="37U-HF-GNS" userLabel="Version Label">
                                 <rect key="frame" x="20" y="40" width="300" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" showsHorizontalScrollIndicator="NO" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="G17-6k-bdu" userLabel="Attribution Text">
                                 <rect key="frame" x="20" y="69" width="450" height="253"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <string key="text">Attribution:
 Objective-zip used under the new BSD license
@@ -72,7 +69,6 @@ Info designed by NAS from thenounproject.com</string>
                         <subviews>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DMo-NG-YGs">
                                 <rect key="frame" x="0.0" y="22" width="768" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
                                     <barButtonItem style="plain" id="6zZ-aA-lfY" userLabel="Segmented control">
                                         <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="lYG-em-zxe">
@@ -98,11 +94,9 @@ Info designed by NAS from thenounproject.com</string>
                             </toolbar>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Kbg-f6-Ntp">
                                 <rect key="frame" x="0.0" y="66" width="768" height="1012"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="k2q-1a-aXo">
                                         <rect key="frame" x="0.0" y="0.0" width="768" height="967"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="XN2-DV-E6T">
                                             <size key="itemSize" width="271" height="252"/>
@@ -120,11 +114,9 @@ Info designed by NAS from thenounproject.com</string>
                                                     <subviews>
                                                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="XNY-oK-5L1">
                                                             <rect key="frame" x="0.0" y="6" width="291" height="266"/>
-                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         </imageView>
                                                         <textView clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.74999999999999978" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HZu-eH-ezg">
                                                             <rect key="frame" x="0.0" y="147" width="271" height="105"/>
-                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                             <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="105" id="FI7-x6-ma2"/>
@@ -203,12 +195,10 @@ Info designed by NAS from thenounproject.com</string>
                         <subviews>
                             <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gu9-pE-Oo9">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </webView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2ry-v9-eFl">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
                                     <barButtonItem title="Back" id="99O-3z-f7a" userLabel="Back button">
                                         <color key="tintColor" red="0.63529413940000001" green="0.023529414089999999" blue="0.058823533359999999" alpha="1" colorSpace="deviceRGB"/>
@@ -261,7 +251,6 @@ Info designed by NAS from thenounproject.com</string>
                         <subviews>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dld-VJ-GIw">
                                 <rect key="frame" x="0.0" y="22" width="768" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
                                     <barButtonItem style="plain" id="xx1-wn-yg8" userLabel="Segmented control">
                                         <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" segmentControlStyle="bar" selectedSegmentIndex="0" id="Ftu-zH-WEa">
@@ -287,11 +276,9 @@ Info designed by NAS from thenounproject.com</string>
                             </toolbar>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8">
                                 <rect key="frame" x="0.0" y="66" width="768" height="958"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="70" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="XIc-nD-IWA">
                                         <rect key="frame" x="0.0" y="0.0" width="768" height="967"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <prototypes>
                                             <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="Cell" textLabel="SFt-vc-fal" detailTextLabel="KeG-cG-sEN" style="IBUITableViewCellStyleSubtitle" id="Chi-bg-s8a">
@@ -370,7 +357,6 @@ Info designed by NAS from thenounproject.com</string>
                         <subviews>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zDZ-Iu-xzy">
                                 <rect key="frame" x="0.0" y="22" width="768" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
                                     <barButtonItem style="plain" id="Agt-rY-E35" userLabel="Segmented control">
                                         <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="z9v-se-zhX">
@@ -396,7 +382,6 @@ Info designed by NAS from thenounproject.com</string>
                             </toolbar>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ysV-dQ-vF9">
                                 <rect key="frame" x="0.0" y="65" width="768" height="959"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             </mapView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -436,7 +421,6 @@ Info designed by NAS from thenounproject.com</string>
                         <subviews>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OYV-kl-aN1">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
                                     <barButtonItem title="Notes" id="fx4-NA-yoG" userLabel="Notes label"/>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="Alh-Fn-e3M" userLabel="Flexible space"/>
@@ -455,7 +439,6 @@ Info designed by NAS from thenounproject.com</string>
                             </toolbar>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8iy-KY-Xqa">
                                 <rect key="frame" x="0.0" y="44" width="768" height="980"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -494,10 +477,10 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="Jiy-et-MLe"/>
-        <segue reference="wCE-yz-1fJ"/>
-        <segue reference="Xtb-eT-fZ3"/>
+        <segue reference="JJo-ri-aqD"/>
         <segue reference="zhJ-Mj-Hm7"/>
-        <segue reference="BZL-NU-5hz"/>
+        <segue reference="JAa-GU-m4v"/>
+        <segue reference="wwW-tN-M6Q"/>
+        <segue reference="7dY-RO-ENq"/>
     </inferredMetricsTieBreakers>
 </document>
