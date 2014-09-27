@@ -1,1 +1,0 @@
-../../vfrReader/Sources/ReaderThumbQueue.h
