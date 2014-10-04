@@ -2,6 +2,5 @@
 
 target "InteractiveReports" do
     pod 'objective-zip', '0.8.3'
-    pod 'vfrReader', '2.7.3'
 end
 

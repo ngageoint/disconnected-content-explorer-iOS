@@ -237,6 +237,24 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="1402" y="802"/>
         </scene>
+        <!--View Controller-->
+        <scene sceneID="gRb-E5-DFA">
+            <objects>
+                <viewController id="2Jc-79-puh" customClass="PDFViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="DmP-GB-0Az"/>
+                        <viewControllerLayoutGuide type="bottom" id="OGi-fo-sM0"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="t2q-EN-au7">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="PJP-fF-KGR" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1381" y="2109"/>
+        </scene>
         <!--List View Controller-->
         <scene sceneID="QNX-QI-qFn">
             <objects>
@@ -306,6 +324,30 @@ Info designed by NAS from thenounproject.com</string>
                                                 </tableViewCellContentView>
                                                 <connections>
                                                     <segue destination="dNd-r1-5KN" kind="modal" identifier="showDetail" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="m5N-FG-O0a"/>
+                                                </connections>
+                                            </tableViewCell>
+                                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="pdfCell" textLabel="pEF-41-gqK" detailTextLabel="nZ0-GH-flH" style="IBUITableViewCellStyleSubtitle" id="KIY-h2-Wmm">
+                                                <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KIY-h2-Wmm" id="fih-vf-Lxd">
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <subviews>
+                                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="pEF-41-gqK">
+                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Subtitle" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="nZ0-GH-flH">
+                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                            <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                    </subviews>
+                                                </tableViewCellContentView>
+                                                <connections>
+                                                    <segue destination="2Jc-79-puh" kind="modal" identifier="showPDF" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="wZZ-iA-FWU"/>
                                                 </connections>
                                             </tableViewCell>
                                         </prototypes>
@@ -477,10 +519,10 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="JJo-ri-aqD"/>
-        <segue reference="zhJ-Mj-Hm7"/>
         <segue reference="JAa-GU-m4v"/>
-        <segue reference="wwW-tN-M6Q"/>
+        <segue reference="zhJ-Mj-Hm7"/>
         <segue reference="7dY-RO-ENq"/>
+        <segue reference="wwW-tN-M6Q"/>
+        <segue reference="m5N-FG-O0a"/>
     </inferredMetricsTieBreakers>
 </document>

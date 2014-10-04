@@ -174,9 +174,15 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
-
+    
     Report *report = reports[indexPath.row];
+    UITableViewCell *cell;
+    
+    if ([report.fileExtension isEqualToString:@"pdf"]) {
+        cell = [self.tableView dequeueReusableCellWithIdentifier:@"pdfCell" forIndexPath:indexPath];
+    } else {
+        cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
+    }
     
     if ( [report.thumbnail isKindOfClass:[NSString class]]) {
         NSString *thumbnailString = [NSString stringWithFormat:@"%@%@", report.url, report.thumbnail];
@@ -281,15 +287,20 @@
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
+    NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
+    Report *selectedReport = [reports objectAtIndex:indexPath.row];
+    
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
         ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
-        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        reportViewController.report = [reports objectAtIndex:indexPath.row];
+        reportViewController.report = selectedReport;
         
         if (_srcScheme) {
             reportViewController.srcScheme = _srcScheme;
             reportViewController.urlParams = _urlParams;
         }
+    } else if ([[segue identifier] isEqualToString:@"showPDF"]) {
+        PDFViewController *pdfViewController = (PDFViewController *)segue.destinationViewController;
+        pdfViewController.report = selectedReport;
     } else if ([[segue identifier] isEqualToString:@"listToTile"]) {
         TileViewController *collectionViewController = (TileViewController *)segue.destinationViewController;
         collectionViewController.reports = reports;

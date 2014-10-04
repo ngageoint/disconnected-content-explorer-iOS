@@ -67,6 +67,7 @@
                 dispatch_async(backgroundQueue, ^(void){
                     Report *report = [Report reportWithTitle:reportName];
                     report.url = [NSURL URLWithString:documentsDirectory];
+                    report.reportID = reportName;
                     report.fileExtension = fileExtension;
                     report.isEnabled = YES;
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEReportUpdatedNotification"
