@@ -55,6 +55,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:@"DICEReportUnzipProgressNotification" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleURLRequest:) name:@"DICEURLOpened" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearSrcScheme:) name:@"DICEClearSrcScheme" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportsRefreshed:) name:@"DICEReportsRefreshed" object:nil];
 }
 
 
@@ -107,10 +108,17 @@
     Report *report = notification.userInfo[@"report"];
     
     NSLog(@"%@ message recieved", [report title]);
-    [reports replaceObjectAtIndex:index withObject:report];
-    [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-    if (reports.count == 1) {
+    
+    if (reports.count > 0) {
+        [reports replaceObjectAtIndex:index withObject:report];
+        [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+        if (reports.count == 1) {
+            self.singleReportLoaded = YES;
+        }
+    } else {
+        [reports addObject:report];
         self.singleReportLoaded = YES;
+        
     }
 }
 
@@ -155,6 +163,13 @@
 {
     _srcScheme = @"";
     _didBecomeActive = NO;
+}
+
+
+- (void)reportsRefreshed:(NSNotification *)notification
+{
+    reports = [[ReportAPI sharedInstance] getReports];
+    [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
 
@@ -288,9 +303,9 @@
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-    Report *selectedReport = [reports objectAtIndex:indexPath.row];
     
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
+        Report *selectedReport = [reports objectAtIndex:indexPath.row];
         ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
         reportViewController.report = selectedReport;
         
@@ -299,6 +314,7 @@
             reportViewController.urlParams = _urlParams;
         }
     } else if ([[segue identifier] isEqualToString:@"showPDF"]) {
+        Report *selectedReport = [reports objectAtIndex:indexPath.row];
         PDFViewController *pdfViewController = (PDFViewController *)segue.destinationViewController;
         pdfViewController.report = selectedReport;
     } else if ([[segue identifier] isEqualToString:@"listToTile"]) {

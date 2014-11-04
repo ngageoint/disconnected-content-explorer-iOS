@@ -80,6 +80,13 @@
 }
 
 
+- (void)loadReportsWithCompletionHandler:(void(^) (void))completionHandler
+{
+    [self loadReports];
+    completionHandler();
+}
+
+
 /* 
  * Unzip the report, if there is a metadata.json file included, spruce up the object so it displays fancier
  * in the list, grid, and map views. Otherwise, note the error and send back an error placeholder object.

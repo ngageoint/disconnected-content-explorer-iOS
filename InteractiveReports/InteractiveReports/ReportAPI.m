@@ -57,4 +57,11 @@
 }
 
 
+- (void)loadReportsWithCompletionHandler:(void(^) (void))completionHandler
+{
+    [localReportManager loadReportsWithCompletionHandler:^{
+        completionHandler();
+    }];
+}
+
 @end
