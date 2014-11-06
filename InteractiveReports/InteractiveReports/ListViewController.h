@@ -7,6 +7,7 @@
 #import "ReportViewController.h"
 #import "TileViewController.h"
 #import "MapViewController.h"
+#import "PDFViewController.h"
 #import "ReportAPI.h"
 #import "Report.h"
 

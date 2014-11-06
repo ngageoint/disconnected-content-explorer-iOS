@@ -12,5 +12,6 @@
 + (ReportAPI*)sharedInstance;
 - (NSMutableArray*)getReports;
 - (void)loadReports;
+- (void)loadReportsWithCompletionHandler:(void(^) (void))completionHandler;
 
 @end

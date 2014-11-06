@@ -73,7 +73,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self loadReportContent];
+    
+    if (![self.report.fileExtension isEqualToString:@"pdf"])
+        [self loadReportContent];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleNotification:) name:@"DICEReportUpdatedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:@"DICEReportUnzipProgressNotification" object:nil];
@@ -125,6 +127,10 @@
         _unzipStatusLabel.center = self.webView.center;
         [self.webView addSubview:_unzipStatusLabel];
     }
+    
+    if ([self.report.fileExtension isEqualToString:@"pdf"])
+        [self loadReportContent];
+
 }
 
 
@@ -141,7 +147,7 @@
             @catch (NSException *exception) {
                 NSLog(@"Problem loading URL %@. Report name: %@", [exception reason], self.reportName);
             }
-        } else if ( [self.report.fileExtension caseInsensitiveCompare:@"pdf"] == NSOrderedSame ) {
+        } else {
             NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@", self.report.url, self.report.title]];
             [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
         }
@@ -204,5 +210,6 @@
         [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:[NSString stringWithFormat:@"%@ of %@ unzipped", notification.userInfo[@"progress"], notification.userInfo[@"totalNumberOfFiles"]] waitUntilDone:NO];
     }
 }
+
 
 @end

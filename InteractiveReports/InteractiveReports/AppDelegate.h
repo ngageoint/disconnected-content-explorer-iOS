@@ -6,6 +6,7 @@
 #import <UIKit/UIKit.h>
 #import "ListViewController.h"
 #import "OfflineMapUtility.h"
+#import "ReportAPI.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate> {}
 

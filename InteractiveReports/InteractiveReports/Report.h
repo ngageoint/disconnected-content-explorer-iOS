@@ -25,6 +25,4 @@
 - (id) initWithTitle: (NSString *)title;
 + (id) reportWithTitle:(NSString *)title;
 
-- (NSString *) description;
-
 @end

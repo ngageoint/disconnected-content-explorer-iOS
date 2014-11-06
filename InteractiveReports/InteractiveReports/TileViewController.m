@@ -69,7 +69,6 @@
     
     cell.reportTitle.text = report.title;
     [cell.reportTitle setEditable:NO];
-    [cell.reportTitle setSelectable:NO];
     [cell.reportTitle setUserInteractionEnabled:NO];
     return cell;
 }

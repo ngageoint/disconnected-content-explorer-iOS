@@ -7,6 +7,8 @@
 
 @implementation Report
 
+@synthesize description; // really weird, had to add this after the switch to XCode 6
+
 - (id) initWithTitle:(NSString *)title {
     self = [super init];
     
@@ -32,6 +34,5 @@
 - (NSURL *) thumbnailURL {
     return [NSURL URLWithString:self.thumbnail];
 }
-
 
 @end
