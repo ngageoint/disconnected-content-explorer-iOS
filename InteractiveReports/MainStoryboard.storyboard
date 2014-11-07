@@ -56,10 +56,10 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="-2358" y="771"/>
         </scene>
-        <!--Tile View Controller-->
+        <!--Report Tiles-->
         <scene sceneID="mEv-el-IEt">
             <objects>
-                <viewController id="tRV-dW-I8k" customClass="TileViewController" sceneMemberID="viewController">
+                <viewController title="Report Tiles" id="tRV-dW-I8k" customClass="TileViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="ywt-EK-FXG"/>
                         <viewControllerLayoutGuide type="bottom" id="OXG-Ki-Lz7"/>
@@ -182,10 +182,10 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="-1274" y="771"/>
         </scene>
-        <!--Report View Controller-->
+        <!--Report View-->
         <scene sceneID="JxT-zH-ow0">
             <objects>
-                <viewController id="dNd-r1-5KN" customClass="ReportViewController" sceneMemberID="viewController">
+                <viewController title="Report View" id="dNd-r1-5KN" customClass="ReportViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="BIg-Vu-XvI"/>
                         <viewControllerLayoutGuide type="bottom" id="qa4-gQ-fKO"/>
@@ -238,10 +238,10 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="1402" y="802"/>
         </scene>
-        <!--View Controller-->
+        <!--PDF View-->
         <scene sceneID="gRb-E5-DFA">
             <objects>
-                <viewController id="2Jc-79-puh" customClass="PDFViewController" sceneMemberID="viewController">
+                <viewController title="PDF View" id="2Jc-79-puh" customClass="PDFViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="DmP-GB-0Az"/>
                         <viewControllerLayoutGuide type="bottom" id="OGi-fo-sM0"/>
@@ -256,10 +256,10 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="1381" y="2109"/>
         </scene>
-        <!--List View Controller-->
+        <!--Report List-->
         <scene sceneID="QNX-QI-qFn">
             <objects>
-                <viewController id="VhL-cC-Fz8" customClass="ListViewController" sceneMemberID="viewController">
+                <viewController title="Report List" id="VhL-cC-Fz8" customClass="ListViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="LxB-ls-WCA"/>
                         <viewControllerLayoutGuide type="bottom" id="frx-im-O3U"/>
@@ -386,10 +386,31 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="-1262" y="-530"/>
         </scene>
-        <!--Map View Controller-->
+        <!--Globe-->
+        <scene sceneID="Qz0-sc-0S3">
+            <objects>
+                <viewController title="Globe" id="4Ne-hn-cz6" customClass="GlobeViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="1kT-NS-HYM"/>
+                        <viewControllerLayoutGuide type="bottom" id="Z6x-mx-Qro"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="EiU-h0-cyy" userLabel="Globe Widget" customClass="G3MWidget_iOS">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <outlet property="globeView" destination="EiU-h0-cyy" id="fMY-X9-YqV"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="tv5-W2-avg" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-110" y="-1623"/>
+        </scene>
+        <!--Report Map-->
         <scene sceneID="GTL-LY-qIe">
             <objects>
-                <viewController id="0yA-Pc-3Yj" customClass="MapViewController" sceneMemberID="viewController">
+                <viewController title="Report Map" id="0yA-Pc-3Yj" customClass="MapViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="pnh-G5-3hK"/>
                         <viewControllerLayoutGuide type="bottom" id="E3j-ZE-fDY"/>
@@ -450,10 +471,10 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="-1274" y="2027"/>
         </scene>
-        <!--Note View Controller-->
+        <!--Report Notes-->
         <scene sceneID="N8T-wk-RcO">
             <objects>
-                <viewController id="zsx-Cl-7xw" customClass="NoteViewController" sceneMemberID="viewController">
+                <viewController title="Report Notes" id="zsx-Cl-7xw" customClass="NoteViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="z7n-W8-aMi"/>
                         <viewControllerLayoutGuide type="bottom" id="3IX-eE-98f"/>
@@ -520,10 +541,10 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="Jiy-et-MLe"/>
+        <segue reference="m5N-FG-O0a"/>
+        <segue reference="oAm-If-s7K"/>
+        <segue reference="7dY-RO-ENq"/>
         <segue reference="JAa-GU-m4v"/>
-        <segue reference="zhJ-Mj-Hm7"/>
-        <segue reference="Xtb-eT-fZ3"/>
-        <segue reference="BZL-NU-5hz"/>
+        <segue reference="wwW-tN-M6Q"/>
     </inferredMetricsTieBreakers>
 </document>
