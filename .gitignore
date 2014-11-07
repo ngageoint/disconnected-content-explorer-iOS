@@ -2,3 +2,4 @@
 *.xcworkspace
 Podfile.lock
 Pods
+xcuserdata/
