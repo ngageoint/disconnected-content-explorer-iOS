@@ -4,8 +4,9 @@
 //
 
 #import "ListViewController.h"
+#import "GlobeViewController.h"
 
-@interface ListViewController () {
+@interface ListViewController () <GlobeViewDelegate> {
     NSMutableArray *reports;
 }
 @end
@@ -313,17 +314,21 @@
             reportViewController.srcScheme = _srcScheme;
             reportViewController.urlParams = _urlParams;
         }
-    } else if ([[segue identifier] isEqualToString:@"showPDF"]) {
+    }
+    else if ([[segue identifier] isEqualToString:@"showPDF"]) {
         Report *selectedReport = [reports objectAtIndex:indexPath.row];
         PDFViewController *pdfViewController = (PDFViewController *)segue.destinationViewController;
         pdfViewController.report = selectedReport;
-    } else if ([[segue identifier] isEqualToString:@"listToTile"]) {
+    }
+    else if ([[segue identifier] isEqualToString:@"listToTile"]) {
         TileViewController *collectionViewController = (TileViewController *)segue.destinationViewController;
         collectionViewController.reports = reports;
-    } else if ([[segue identifier] isEqualToString:@"listToMap"]) {
+    }
+    else if ([[segue identifier] isEqualToString:@"listToMap"]) {
         MapViewController *mapViewController = (MapViewController *)segue.destinationViewController;
         mapViewController.reports = reports;
-    } else if ([[segue identifier] isEqualToString:@"singleReport"]) {
+    }
+    else if ([[segue identifier] isEqualToString:@"singleReport"]) {
         ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
         reportViewController.srcScheme = _srcScheme;
         reportViewController.urlParams = _urlParams;
@@ -331,6 +336,15 @@
         reportViewController.singleReport = YES;
         reportViewController.unzipComplete = _singleReportLoaded;
     }
+    else if ([[segue identifier] isEqualToString:@"globe"]) {
+        GlobeViewController *globe = segue.destinationViewController;
+        globe.delegate = self;
+    }
+}
+
+
+- (void) dismissGlobeView {
+    [self dismissViewControllerAnimated:(YES) completion:nil];
 }
 
 

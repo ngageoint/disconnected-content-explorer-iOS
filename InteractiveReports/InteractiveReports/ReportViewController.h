@@ -7,7 +7,7 @@
 #import "Report.h"
 #import "NoteViewController.h"
 
-@interface ReportViewController : UIViewController <UISplitViewControllerDelegate, UIScrollViewDelegate >
+@interface ReportViewController : UIViewController <UISplitViewControllerDelegate, UIScrollViewDelegate>
 {
 
 }

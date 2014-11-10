@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Settings View Controller-->
@@ -282,6 +283,11 @@ Info designed by NAS from thenounproject.com</string>
                                             </segments>
                                         </segmentedControl>
                                     </barButtonItem>
+                                    <barButtonItem title="Globe" id="YVu-wY-s7e">
+                                        <connections>
+                                            <segue destination="VQ8-z0-fbG" kind="modal" identifier="globe" id="YlA-fb-sI3"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="1By-Qb-0KW" userLabel="Flexible space"/>
                                     <barButtonItem image="info" id="mjN-ZS-z6r" userLabel="Info button">
                                         <connections>
@@ -386,26 +392,58 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="-1262" y="-530"/>
         </scene>
-        <!--Globe-->
-        <scene sceneID="Qz0-sc-0S3">
+        <!--Globe View Controller-->
+        <scene sceneID="OT1-qX-qfD">
             <objects>
-                <viewController title="Globe" id="4Ne-hn-cz6" customClass="GlobeViewController" sceneMemberID="viewController">
+                <viewController id="VQ8-z0-fbG" customClass="GlobeViewController" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="1kT-NS-HYM"/>
-                        <viewControllerLayoutGuide type="bottom" id="Z6x-mx-Qro"/>
+                        <viewControllerLayoutGuide type="top" id="gUL-VO-EYT"/>
+                        <viewControllerLayoutGuide type="bottom" id="3dy-aJ-C3S"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="EiU-h0-cyy" userLabel="Globe Widget" customClass="G3MWidget_iOS">
+                    <view key="view" contentMode="scaleToFill" id="e1N-28-mtr">
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iBV-yd-Kfc">
+                                <rect key="frame" x="-5" y="20" width="955" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="955" id="dzK-Iv-8VO"/>
+                                </constraints>
+                                <items>
+                                    <barButtonItem title="Done" id="5si-WL-84e">
+                                        <connections>
+                                            <action selector="onDone:" destination="VQ8-z0-fbG" id="9Ox-cG-yje"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="barPosition">
+                                        <integer key="value" value="3"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </toolbar>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vL3-Ls-r3s" userLabel="Globe View" customClass="G3MWidget_iOS">
+                                <rect key="frame" x="2" y="64" width="764" height="980"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="iBV-yd-Kfc" firstAttribute="bottom" secondItem="vL3-Ls-r3s" secondAttribute="top" id="a4m-j9-D7e"/>
+                            <constraint firstItem="vL3-Ls-r3s" firstAttribute="centerX" secondItem="e1N-28-mtr" secondAttribute="centerX" id="ceL-98-hfT"/>
+                            <constraint firstItem="iBV-yd-Kfc" firstAttribute="leading" secondItem="e1N-28-mtr" secondAttribute="leadingMargin" constant="-25" id="kHP-hv-ZFE"/>
+                            <constraint firstItem="iBV-yd-Kfc" firstAttribute="top" secondItem="gUL-VO-EYT" secondAttribute="bottom" id="kw1-39-l5W"/>
+                            <constraint firstItem="vL3-Ls-r3s" firstAttribute="leading" secondItem="e1N-28-mtr" secondAttribute="leadingMargin" constant="-18" id="ocM-sW-aiq"/>
+                            <constraint firstAttribute="bottomMargin" secondItem="vL3-Ls-r3s" secondAttribute="bottom" constant="-20" id="t14-2I-RBZ"/>
+                        </constraints>
                     </view>
                     <connections>
-                        <outlet property="globeView" destination="EiU-h0-cyy" id="fMY-X9-YqV"/>
+                        <outlet property="globeView" destination="vL3-Ls-r3s" id="Aez-1l-bVe"/>
                     </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="tv5-W2-avg" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AUu-bZ-My0" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-110" y="-1623"/>
+            <point key="canvasLocation" x="846" y="-1629"/>
         </scene>
         <!--Report Map-->
         <scene sceneID="GTL-LY-qIe">
@@ -541,9 +579,9 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="m5N-FG-O0a"/>
-        <segue reference="oAm-If-s7K"/>
         <segue reference="7dY-RO-ENq"/>
+        <segue reference="oAm-If-s7K"/>
+        <segue reference="JJo-ri-aqD"/>
         <segue reference="JAa-GU-m4v"/>
         <segue reference="wwW-tN-M6Q"/>
     </inferredMetricsTieBreakers>

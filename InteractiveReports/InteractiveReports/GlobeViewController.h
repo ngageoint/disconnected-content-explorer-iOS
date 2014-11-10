@@ -8,6 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol GlobeViewDelegate
+
+- (void) dismissGlobeView;
+
+@end
+
 @interface GlobeViewController : UIViewController
+
+@property (weak, nonatomic) id<GlobeViewDelegate> delegate;
 
 @end
