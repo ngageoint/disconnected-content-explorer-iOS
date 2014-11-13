@@ -140,9 +140,8 @@
         NSLog(@"DetailView: loading report content");
         if ( [self.report.fileExtension caseInsensitiveCompare:@"zip"] == NSOrderedSame ) {
             @try {
-                NSString *htmlFile = [NSString stringWithFormat:@"%@%@", self.report.url, @"index.html"];
-                NSString* htmlString = [NSString stringWithContentsOfFile:htmlFile encoding:NSUTF8StringEncoding error:nil];
-                [self.webView loadHTMLString:htmlString baseURL:self.report.url];
+                NSURL* indexUrl = [self.report.url URLByAppendingPathComponent: @"index.html"];
+                [self.webView loadRequest: [NSURLRequest requestWithURL:indexUrl]];
             }
             @catch (NSException *exception) {
                 NSLog(@"Problem loading URL %@. Report name: %@", [exception reason], self.reportName);

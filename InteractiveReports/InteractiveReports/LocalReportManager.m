@@ -9,7 +9,7 @@
     dispatch_queue_t backgroundQueue;
     NSMutableArray *reports;
     NSFileManager *fileManager;
-    NSString *documentsDirectory;
+    NSURL *documentsDirectory;
 }
 
 @end
@@ -24,7 +24,8 @@
         reports = [[NSMutableArray alloc] init];
         fileManager = [NSFileManager defaultManager];
         backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-        documentsDirectory = [NSHomeDirectory() stringByAppendingString:@"/Documents/"];
+        NSArray *dirUrls = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
+        documentsDirectory = dirUrls[0];
     }
     
     return self;
@@ -43,38 +44,46 @@
 - (void)loadReports
 {
     NSArray *extensions = [NSArray arrayWithObjects:@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx", nil];
-    NSArray *fileList = [fileManager contentsOfDirectoryAtPath:documentsDirectory error: nil];
-    NSArray *reportTitles = [fileList filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pathExtension IN %@", extensions]];
+    
+    NSDirectoryEnumerator *files = [fileManager enumeratorAtURL:documentsDirectory
+        includingPropertiesForKeys:@[NSURLNameKey, NSURLIsRegularFileKey, NSURLIsReadableKey, NSURLLocalizedNameKey]
+        options:(NSDirectoryEnumerationSkipsPackageDescendants | NSDirectoryEnumerationSkipsSubdirectoryDescendants)
+        errorHandler:nil];
     
     reports = [[NSMutableArray alloc] init];
     
-    if (reportTitles != nil) {
-        for (int i = 0; i < reportTitles.count; i++) {
-            // create a placeholder that will get overwritten once the report is unpackaged
-            Report *placeholderReport = [Report reportWithTitle:[reportTitles objectAtIndex:i]];
+    int i = 0;
+    for (NSURL *file in files) {
+        NSLog(@"enmerating file %@", file);
+        NSNumber* isRegularFile;
+        [file getResourceValue:&isRegularFile forKey: NSURLIsRegularFileKey error: nil];
+        if (isRegularFile.boolValue && [extensions containsObject:file.pathExtension]) {
+            Report *placeholderReport = [Report reportWithTitle:file.lastPathComponent];
             [reports addObject:placeholderReport];
             
-            NSString *reportName = [reportTitles objectAtIndex:i];
-            NSString *fileExtension = [reportName pathExtension];
-            NSString *filePath = [NSString stringWithFormat:@"%@/%@", documentsDirectory, reportName];
+            NSString *reportName = placeholderReport.title;
+            NSString *fileExtension = file.pathExtension;
             
             if ( [fileExtension caseInsensitiveCompare:@"zip"] == NSOrderedSame )
             {
-                dispatch_async(backgroundQueue, ^(void){
-                    [self processZip:reportName atFilePath:filePath atIndex:i];
+                dispatch_async(backgroundQueue, ^(void) {
+                    [self processZip:reportName atFilePath:file atIndex:i];
                 });
             } else { // PDFs and office files
-                dispatch_async(backgroundQueue, ^(void){
+                dispatch_async(backgroundQueue, ^(void) {
                     Report *report = [Report reportWithTitle:reportName];
-                    report.url = [NSURL URLWithString:documentsDirectory];
+                    report.url = file;
                     report.reportID = reportName;
                     report.fileExtension = fileExtension;
                     report.isEnabled = YES;
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEReportUpdatedNotification"
                                                                         object:report
-                                                                      userInfo:@{@"index": [NSString stringWithFormat:@"%d", i], @"report": report}];
+                                                                      userInfo:@{
+                                                                                 @"index": [NSString stringWithFormat:@"%d", i],
+                                                                                 @"report": report}];
                 });
             }
+            i++;
         }
     }
 }
@@ -91,19 +100,19 @@
  * Unzip the report, if there is a metadata.json file included, spruce up the object so it displays fancier
  * in the list, grid, and map views. Otherwise, note the error and send back an error placeholder object.
  */
-- (void)processZip:(NSString*)reportName atFilePath:(NSString *)filePath atIndex:(int)index
+- (void)processZip:(NSString*)reportName atFilePath:(NSURL *)filePath atIndex:(int)index
 {
     Report *report;
     
     @try {
         NSRange rangeOfDot = [reportName rangeOfString:@"."];
         NSString *fileExtension = [reportName pathExtension];
-        NSString *unzippedFolder = (rangeOfDot.location != NSNotFound) ? [reportName substringToIndex:rangeOfDot.location] : nil;
-        NSString *jsonFilePath = [NSString stringWithFormat:@"%@/%@/%@", documentsDirectory, unzippedFolder, @"metadata.json"];
+        NSString *unzipDirName = (rangeOfDot.location != NSNotFound) ? [reportName substringToIndex:rangeOfDot.location] : nil;
+        NSURL *unzipDir = [documentsDirectory URLByAppendingPathComponent: unzipDirName];
+        NSURL *jsonFile = [unzipDir URLByAppendingPathComponent: @"metadata.json"];
         NSError *error = nil;
         
-        if(![fileManager fileExistsAtPath:[NSString stringWithFormat:@"%@/%@", documentsDirectory, unzippedFolder]])
-        {
+        if(![fileManager fileExistsAtPath:unzipDir.path]) {
             @try {
                 [self unzipFileAtPath:filePath withIndex:index toDirectory:documentsDirectory error:&error];
             } @catch (ZipException *ze) {
@@ -114,9 +123,8 @@
         }
         
         // Handle the metadata.json, make the report fancier, if it is available
-        if ( [fileManager fileExistsAtPath:jsonFilePath] && error == nil)
-        {
-            NSString *jsonString = [[NSString alloc] initWithContentsOfFile:jsonFilePath encoding:NSUTF8StringEncoding error:NULL];
+        if ( [fileManager fileExistsAtPath:jsonFile.path] && error == nil) {
+            NSString *jsonString = [[NSString alloc] initWithContentsOfFile:jsonFile.path encoding:NSUTF8StringEncoding error:NULL];
             NSError *error;
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
             
@@ -128,11 +136,11 @@
             report.lon = [[json valueForKey:@"lon"] doubleValue];
             report.reportID = [json valueForKey:@"reportID"];
             report.fileExtension = fileExtension;
-            report.url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@/", documentsDirectory, unzippedFolder]];
+            report.url = unzipDir;
             report.isEnabled = YES;
         } else if (error == nil) {
-            report = [Report reportWithTitle:unzippedFolder];
-            report.url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@/", documentsDirectory, unzippedFolder]];
+            report = [Report reportWithTitle:unzipDirName];
+            report.url = unzipDir;
             report.isEnabled = YES;
         }
     }
@@ -150,19 +158,19 @@
 }
 
 
-- (BOOL)unzipFileAtPath:(NSString *)filePath withIndex:(int)index toDirectory:(NSString *)directory error:(NSError **)error {
+- (BOOL)unzipFileAtPath:(NSURL *)filePath withIndex:(int)index toDirectory:(NSURL *)directory error:(NSError **)error {
     if (error) {
         *error = nil;
     }
     
-    ZipFile *unzipFile = [[ZipFile alloc] initWithFileName:filePath mode:ZipFileModeUnzip];
+    ZipFile *unzipFile = [[ZipFile alloc] initWithFileName:filePath.path mode:ZipFileModeUnzip];
     int totalNumberOfFiles = (int)[unzipFile numFilesInZip];
     [unzipFile goToFirstFileInZip];
     for (int i = 0; i < totalNumberOfFiles; i++) {
         FileInZipInfo *info = [unzipFile getCurrentFileInZipInfo];
         NSString *name = info.name;
         if (![name hasSuffix:@"/"]) {
-            NSString *filePath = [directory stringByAppendingPathComponent:name];
+            NSString *filePath = [directory.path stringByAppendingPathComponent:name];
             NSString *basePath = [filePath stringByDeletingLastPathComponent];
             if (![[NSFileManager defaultManager] createDirectoryAtPath:basePath withIntermediateDirectories:YES attributes:nil error:error]) {
                 [unzipFile close];

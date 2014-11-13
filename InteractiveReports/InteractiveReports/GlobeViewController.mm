@@ -9,6 +9,7 @@
 #import "GlobeViewController.h"
 #import "G3MWidget_iOS.h"
 #import "G3MBuilder_iOS.hpp"
+#import "MeshRenderer.hpp"
 
 //@class G3MWidget_iOS;
 
@@ -16,6 +17,7 @@
 @interface GlobeViewController ()
 
 @property (strong, nonatomic) IBOutlet G3MWidget_iOS *globeView;
+@property (nonatomic) MeshRenderer *meshRenderer;
 
 @end
 
@@ -24,7 +26,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    G3MBuilder_iOS builder([self globeView]);
+    G3MBuilder_iOS builder = G3MBuilder_iOS(self.globeView);
     builder.initializeWidget();
 }
 
@@ -34,22 +36,21 @@
 }
 
 // Start animation when view has appeared
-- (void)viewDidAppear:(BOOL)animated
-{
+- (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     // Start the glob3 render loop
     [self.globeView startAnimation];
 }
+
 // Stop the animation when view has disappeared
-- (void)viewDidDisappear:(BOOL)animated
-{
+- (void)viewDidDisappear:(BOOL)animated {
     // Stop the glob3 render loop
     [self.globeView stopAnimation];
     [super viewDidDisappear:animated];
 }
+
 // Release property
-- (void)viewDidUnload
-{
+- (void)viewDidUnload {
     self.globeView = nil;
 }
 
