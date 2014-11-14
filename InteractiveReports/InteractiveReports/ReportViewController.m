@@ -104,6 +104,7 @@
     _webView.scrollView.contentInset = UIEdgeInsetsMake(self.toolbar.frame.size.height, 0, 0, 0);
     _webView.scrollView.backgroundColor = [UIColor clearColor];
     _webView.backgroundColor = [UIColor clearColor];
+    _webView.scalesPageToFit = YES;
     
     _hidingToolbar = NO;
     [_webView.scrollView setDelegate:self];
