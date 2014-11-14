@@ -14,7 +14,6 @@
 		7D0B491D1A0D49610044236B /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B491C1A0D49610044236B /* libicucore.dylib */; };
 		7D0B491F1A0D49790044236B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B491E1A0D49790044236B /* libsqlite3.dylib */; };
 		7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49201A0D49B50044236B /* OpenGLES.framework */; };
-		7D0B49231A0D81100044236B /* AddStdC++.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B49221A0D81100044236B /* AddStdC++.cpp */; };
 		7D0B49261A0D885A0044236B /* GlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B49251A0D885A0044236B /* GlobeViewController.mm */; };
 		C0E3F60806C443D79389587D /* libPods-InteractiveReports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC63C8C3A5584AA4A5E44F92 /* libPods-InteractiveReports.a */; };
 		E3011597184FE4FD00C18CFD /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */; };
@@ -852,7 +851,6 @@
 		7D0B491C1A0D49610044236B /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		7D0B491E1A0D49790044236B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		7D0B49201A0D49B50044236B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		7D0B49221A0D81100044236B /* AddStdC++.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "AddStdC++.cpp"; path = "InteractiveReports/AddStdC++.cpp"; sourceTree = SOURCE_ROOT; };
 		7D0B49241A0D885A0044236B /* GlobeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeViewController.h; sourceTree = "<group>"; };
 		7D0B49251A0D885A0044236B /* GlobeViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeViewController.mm; sourceTree = "<group>"; };
 		883340C3E7FF849362B84DC6 /* Pods-InteractiveReports.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractiveReports.debug.xcconfig"; path = "Pods/Target Support Files/Pods-InteractiveReports/Pods-InteractiveReports.debug.xcconfig"; sourceTree = "<group>"; };
@@ -2074,7 +2072,6 @@
 			children = (
 				E3AC40F9198ADA3900DE8F41 /* OfflineMapUtility.h */,
 				E3AC40FA198ADA3900DE8F41 /* OfflineMapUtility.m */,
-				7D0B49221A0D81100044236B /* AddStdC++.cpp */,
 			);
 			path = utilities;
 			sourceTree = "<group>";
@@ -2350,7 +2347,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E39D837119DF2B95008357DF /* ReaderThumbCache.m in Sources */,
-				7D0B49231A0D81100044236B /* AddStdC++.cpp in Sources */,
 				E39D837819DF2B95008357DF /* ReaderViewController.m in Sources */,
 				E39D834C19DF2B95008357DF /* ReaderAppDelegate.m in Sources */,
 				E39D837319DF2B95008357DF /* ReaderThumbQueue.m in Sources */,
