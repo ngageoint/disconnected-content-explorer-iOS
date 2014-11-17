@@ -5,8 +5,9 @@
 
 
 #import "ReportViewController.h"
+#import <MobileCoreServices/UTType.h>
 
-@interface ReportViewController () {
+@interface ReportViewController () <UIWebViewDelegate> {
 }
 
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
@@ -108,6 +109,7 @@
     
     _hidingToolbar = NO;
     [_webView.scrollView setDelegate:self];
+    _webView.delegate = self;
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -211,5 +213,46 @@
     }
 }
 
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    NSLog(@"ReportView requesting %@", [request URL]);
+    CFStringRef lasType = CFSTR("org.asprs.las");
+    CFStringRef lasZipType = CFSTR("com.rapidlasso.laszip");
+    NSURL *url = [request URL];
+    NSString *resourceTypeIdStr = nil;
+    CFStringRef resourceTypeId = NULL;
+    [url getResourceValue: &resourceTypeIdStr forKey:NSURLTypeIdentifierKey error: nil];
+    if (!resourceTypeIdStr) {
+        NSString *resourceExt = [url pathExtension];
+        resourceTypeId = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)resourceExt, NULL);
+        resourceTypeIdStr = (__bridge NSString *)resourceTypeId;
+        [url setResourceValue: resourceTypeIdStr forKey: NSURLTypeIdentifierKey error: nil];
+        [url getResourceValue: &resourceTypeIdStr forKey: NSURLTypeIdentifierKey error: nil];
+    }
+    else {
+        resourceTypeId = (__bridge CFStringRef)resourceTypeIdStr;
+    }
+    if ([[UIApplication sharedApplication] canOpenURL: url]) {
+        NSLog(@"somebody can open %@", url);
+    }
+//    if (UTTypeEqual(lasType, resourceTypeId) || UTTypeEqual(lasZipType, resourceTypeId)) {
+//        NSLog(@"opening LAS resource %@", url);
+//        UIDocumentInteractionController *docs = [UIDocumentInteractionController interactionControllerWithURL: url];
+//        NSLog(@"docs controller says uti is %@", docs.UTI);
+//        if (![docs presentOpenInMenuFromRect: _webView.bounds inView: [self view] animated: YES]) {
+//            @throw @"Dammit";
+//        }
+//        [[UIApplication sharedApplication] openURL: url];
+//        return NO;
+//    }
+    return YES;
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    if ([_webView isLoading]) {
+        [_webView stopLoading];
+    }
+    _webView.delegate = nil;
+}
 
 @end
