@@ -7,7 +7,6 @@
 
 @interface ReportAPI () {
     BOOL isOnline;
-    NSMutableArray *reports;
     LocalReportManager *localReportManager;
 }
 @end
@@ -22,8 +21,7 @@
     if (self)
     {
         isOnline = NO;
-        reports = [[NSMutableArray alloc] init];
-        localReportManager = [[LocalReportManager alloc]init];
+        localReportManager = [[LocalReportManager alloc] init];
     }
     
     return self;
@@ -46,8 +44,7 @@
 
 - (NSMutableArray*)getReports
 {
-    reports = [localReportManager getReports];
-    return reports;
+    return [localReportManager getReports];
 }
 
 

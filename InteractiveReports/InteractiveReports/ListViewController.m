@@ -4,8 +4,9 @@
 //
 
 #import "ListViewController.h"
+#import "GlobeViewController.h"
 
-@interface ListViewController () {
+@interface ListViewController () <GlobeViewDelegate> {
     NSMutableArray *reports;
 }
 @end
@@ -30,11 +31,16 @@
 
 - (void)viewDidLoad
 {
-    NSLog(@"In list view, viewDidLoad");
     [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReport:) name:@"DICEReportUpdatedNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:@"DICEReportUnzipProgressNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleURLRequest:) name:@"DICEURLOpened" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearSrcScheme:) name:@"DICEClearSrcScheme" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportsRefreshed:) name:@"DICEReportsRefreshed" object:nil];
+    
     self.title = @"Disconnected Interactive Content Explorer";
     
-    reports = [[NSMutableArray alloc] init];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
@@ -46,16 +52,10 @@
     self.tableViewController.refreshControl = refreshControl;
     self.singleReportLoaded = false;
     
-    [[ReportAPI sharedInstance] loadReports];
     reports = [[ReportAPI sharedInstance] getReports];
+    [[ReportAPI sharedInstance] loadReports];
     
     [self.segmentedControl addTarget:self action:@selector(segmentButtonTapped:) forControlEvents:UIControlEventValueChanged];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReport:) name:@"DICEReportUpdatedNotification" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:@"DICEReportUnzipProgressNotification" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleURLRequest:) name:@"DICEURLOpened" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearSrcScheme:) name:@"DICEClearSrcScheme" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportsRefreshed:) name:@"DICEReportsRefreshed" object:nil];
 }
 
 
@@ -78,7 +78,6 @@
 {
     [_tableViewController.refreshControl endRefreshing];
     [[ReportAPI sharedInstance] loadReports];
-    reports = [[ReportAPI sharedInstance] getReports];
 }
 
 
@@ -89,36 +88,18 @@
 }
 
 
-- (void)insertNewObject:(id)sender
-{
-    if (!reports) {
-        reports = [[NSMutableArray alloc] init];
-    }
-    [reports insertObject:[NSDate date] atIndex:0];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-}
-
 
 
 # pragma mark - Notification handling methods
 - (void)updateReport:(NSNotification *)notification
 {
-    int index = [notification.userInfo[@"index"] intValue];
     Report *report = notification.userInfo[@"report"];
     
-    NSLog(@"%@ message recieved", [report title]);
-    
-    if (reports.count > 0) {
-        [reports replaceObjectAtIndex:index withObject:report];
-        [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-        if (reports.count == 1) {
-            self.singleReportLoaded = YES;
-        }
-    } else {
-        [reports addObject:report];
+    NSLog(@"%@ %@ message recieved", notification, [report title]);
+
+    [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+    if (reports.count == 1) {
         self.singleReportLoaded = YES;
-        
     }
 }
 
@@ -168,7 +149,6 @@
 
 - (void)reportsRefreshed:(NSNotification *)notification
 {
-    reports = [[ReportAPI sharedInstance] getReports];
     [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
@@ -313,17 +293,21 @@
             reportViewController.srcScheme = _srcScheme;
             reportViewController.urlParams = _urlParams;
         }
-    } else if ([[segue identifier] isEqualToString:@"showPDF"]) {
+    }
+    else if ([[segue identifier] isEqualToString:@"showPDF"]) {
         Report *selectedReport = [reports objectAtIndex:indexPath.row];
         PDFViewController *pdfViewController = (PDFViewController *)segue.destinationViewController;
         pdfViewController.report = selectedReport;
-    } else if ([[segue identifier] isEqualToString:@"listToTile"]) {
+    }
+    else if ([[segue identifier] isEqualToString:@"listToTile"]) {
         TileViewController *collectionViewController = (TileViewController *)segue.destinationViewController;
         collectionViewController.reports = reports;
-    } else if ([[segue identifier] isEqualToString:@"listToMap"]) {
+    }
+    else if ([[segue identifier] isEqualToString:@"listToMap"]) {
         MapViewController *mapViewController = (MapViewController *)segue.destinationViewController;
         mapViewController.reports = reports;
-    } else if ([[segue identifier] isEqualToString:@"singleReport"]) {
+    }
+    else if ([[segue identifier] isEqualToString:@"singleReport"]) {
         ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
         reportViewController.srcScheme = _srcScheme;
         reportViewController.urlParams = _urlParams;
@@ -331,6 +315,15 @@
         reportViewController.singleReport = YES;
         reportViewController.unzipComplete = _singleReportLoaded;
     }
+    else if ([[segue identifier] isEqualToString:@"globe"]) {
+        GlobeViewController *globe = segue.destinationViewController;
+        globe.delegate = self;
+    }
+}
+
+
+- (void) dismissGlobeView {
+    [self dismissViewControllerAnimated:(YES) completion:nil];
 }
 
 

@@ -10,19 +10,48 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeIconFiles</key>
+			<array/>
+			<key>CFBundleTypeName</key>
+			<string>com.pkware.zip-archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.pkware.zip-archive</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
 			<array>
 				<string>Icon-76@2x.png</string>
 				<string>Icon-76@2x.png</string>
 			</array>
 			<key>CFBundleTypeName</key>
-			<string>PDF</string>
+			<string>com.adobe.pdf</string>
 			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
+			<string>Viewer</string>
 			<key>LSHandlerRank</key>
-			<string>Owner</string>
+			<string>Alternate</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.adobe.pdf</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
+			<array/>
+			<key>CFBundleTypeName</key>
+			<string>org.asprs.las</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>org.asprs.las</string>
+				<string>com.rapidlasso.laszip</string>
 			</array>
 		</dict>
 	</array>
@@ -33,7 +62,7 @@
 	<key>CFBundleIcons~ipad</key>
 	<dict/>
 	<key>CFBundleIdentifier</key>
-	<string>mil.NGA.${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>mil.nga.giat.$(PRODUCT_NAME:rfc1034identifier)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -41,7 +70,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0</string>
+	<string>0.0.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -50,7 +79,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>mil.NGA.MIIR</string>
+			<string>mil.nga.giat.DICE</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>dice</string>
@@ -58,7 +87,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>8.1</string>
+	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>
@@ -88,6 +117,7 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -95,6 +125,56 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>ASPRS LASer binary format for point cloud data</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.asprs.las</string>
+			<key>UTTypeReferenceURL</key>
+			<string>http://www.asprs.org/Committee-General/LASer-LAS-File-Format-Exchange-Activities.html</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>com.apple.ostype</key>
+				<string>LAS</string>
+				<key>public.filename-extension</key>
+				<array>
+					<string>las</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/las</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+				<string>public.archive</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Compressed LAS point cloud data</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.rapidlasso.laszip</string>
+			<key>UTTypeReferenceURL</key>
+			<string>http://www.laszip.org/</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>application/las+zip</key>
+				<string></string>
+				<key>com.apple.ostype</key>
+				<string>LASZip</string>
+				<key>public.filename-extension</key>
+				<array>
+					<string>laz</string>
+				</array>
+			</dict>
+		</dict>
 	</array>
 </dict>
 </plist>
