@@ -123,10 +123,9 @@
         cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     }
     
-    if ( [report.thumbnail isKindOfClass:[NSString class]]) {
-        NSString *thumbnailString = [NSString stringWithFormat:@"%@%@", report.url, report.thumbnail];
-        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailString];
-        
+    if ([report.thumbnail isKindOfClass:[NSString class]]) {
+        NSURL *thumbnailUrl = [NSURL URLWithString:report.thumbnail relativeToURL:report.url];
+        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailUrl.path];
         CGSize itemSize = CGSizeMake(70, 70);
         UIGraphicsBeginImageContext(itemSize);
         CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);

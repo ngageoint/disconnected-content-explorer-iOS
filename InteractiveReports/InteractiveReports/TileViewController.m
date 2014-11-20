@@ -45,15 +45,14 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ReportViewCell *cell = [self.tileView dequeueReusableCellWithReuseIdentifier:@"reportCell" forIndexPath:indexPath];
-    
     Report *report = self.reports[indexPath.item];
     
-    if ( [report.tileThumbnail isKindOfClass:[NSString class]]) {
-        NSString *thumbnailString = [NSString stringWithFormat:@"%@%@", report.url, report.tileThumbnail];
-        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailString];
-        
+    if ([report.tileThumbnail isKindOfClass:[NSString class]]) {
+        NSURL *thumbnailUrl = [NSURL URLWithString:report.tileThumbnail relativeToURL:report.url];
+        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailUrl.path];
         cell.reportImage.image = image;
-    } else {
+    }
+    else {
         cell.reportImage.image = [UIImage imageNamed:@"dice-default"];
     }
     
