@@ -6,13 +6,14 @@
 #import "ListViewController.h"
 #import "GlobeViewController.h"
 
-@interface ListViewController () {
-    NSMutableArray *reports;
-}
+@interface ListViewController ()
+
 @end
 
 
 @implementation ListViewController
+
+NSMutableArray *reports;
 
 - (void)dealloc
 {
@@ -63,9 +64,7 @@
 - (void)updateReport:(NSNotification *)notification
 {
     Report *report = notification.userInfo[@"report"];
-    
     NSLog(@"%@ %@ message recieved", notification, [report title]);
-
     [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
@@ -73,7 +72,6 @@
 - (void)updateUnzipProgress:(NSNotification *)notification
 {
     int index = [notification.userInfo[@"index"] intValue];
-    
     Report *report = [reports objectAtIndex:index];
     report.totalNumberOfFiles = [notification.userInfo[@"totalNumberOfFiles"] intValue];
     report.progress = [notification.userInfo[@"progress"] intValue];
@@ -87,7 +85,8 @@
     [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
-- (void)handleURLRequest:(NSNotification*)notification {
+- (void)handleURLRequest:(NSNotification*)notification
+{
     NSDictionary *urlParams = notification.userInfo;
     NSString *reportID = urlParams[@"reportID"];
     if (!reportID) {
@@ -124,7 +123,8 @@
     
     if ([report.fileExtension isEqualToString:@"pdf"]) {
         cell = [self.tableView dequeueReusableCellWithIdentifier:@"pdfCell" forIndexPath:indexPath];
-    } else {
+    }
+    else {
         cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     }
     
@@ -138,22 +138,22 @@
         [image drawInRect:imageRect];
         cell.imageView.image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
-        
-        //cell.imageView.image = image;
-    } else {
+    }
+    else {
         cell.imageView.image = [UIImage imageNamed:@"dice-default"];
     }
     
     if (report.isEnabled) {
         cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = YES;
         cell.detailTextLabel.text = report.description;
-    } else if (report.error != nil) {
+    }
+    else if (report.error != nil) {
         cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = NO;
         cell.detailTextLabel.text = report.error;
         cell.imageView.image = [UIImage imageNamed:@"dice-error"];
-    } else {
+    }
+    else {
         cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = NO;
-        
         if (report.totalNumberOfFiles > 0 && report.progress > 0) {
             cell.detailTextLabel.text = [NSString stringWithFormat:@"%d of %d files unzipped", report.progress, report.totalNumberOfFiles ];
         }
@@ -177,7 +177,8 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         [reports removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
+    }
+    else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
     }
 }

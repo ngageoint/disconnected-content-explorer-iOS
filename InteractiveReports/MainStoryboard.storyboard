@@ -280,6 +280,9 @@ Info designed by NAS from thenounproject.com</string>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <connections>
+                        <outlet property="tableView" destination="XIc-nD-IWA" id="Bui-ax-doz"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8Nj-x8-Tpa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -348,7 +351,6 @@ Info designed by NAS from thenounproject.com</string>
                     </view>
                     <connections>
                         <outlet property="collectionSubview" destination="olg-Y4-UG8" id="4Z3-aV-h7Z"/>
-                        <outlet property="tableView" destination="XIc-nD-IWA" id="N15-dN-lea"/>
                         <segue destination="dNd-r1-5KN" kind="modal" identifier="singleReport" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="JJo-ri-aqD"/>
                     </connections>
                 </viewController>
@@ -506,6 +508,6 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="JJo-ri-aqD"/>
+        <segue reference="m5N-FG-O0a"/>
     </inferredMetricsTieBreakers>
 </document>
