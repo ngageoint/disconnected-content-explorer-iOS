@@ -40,11 +40,10 @@ Report *selectedReport;
     
     UIViewController *firstView = views.firstObject;
     [self addChildViewController: firstView];
+    [firstView didMoveToParentViewController: self];
     firstView.view.frame = self.collectionSubview.bounds;
     [self.collectionSubview addSubview: firstView.view];
-    [firstView didMoveToParentViewController: self];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReport:) name:@"DICEReportUpdatedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleURLRequest:) name:@"DICEURLOpened" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearSrcScheme:) name:@"DICEClearSrcScheme" object:nil];
     
