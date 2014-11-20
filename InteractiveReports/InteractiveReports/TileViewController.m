@@ -4,26 +4,22 @@
 //
 
 #import "TileViewController.h"
+#import "ReportAPI.h"
 
 @interface TileViewController ()
 
 @end
 
+
 @implementation TileViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
+NSMutableArray* reports;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    reports = [[ReportAPI sharedInstance] getReports];
     
     [self.tileView setDataSource:self];
     [self.tileView setDelegate:self];
@@ -45,7 +41,7 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return _reports.count;
+    return reports.count;
 }
 
 
@@ -53,7 +49,7 @@
 {
     ReportViewCell *cell = [self.tileView dequeueReusableCellWithReuseIdentifier:@"reportCell" forIndexPath:indexPath];
     
-    Report *report = _reports[indexPath.item];
+    Report *report = reports[indexPath.item];
     
     if ( [report.tileThumbnail isKindOfClass:[NSString class]]) {
         NSString *thumbnailString = [NSString stringWithFormat:@"%@%@", report.url, report.tileThumbnail];
@@ -68,34 +64,6 @@
     [cell.reportTitle setEditable:NO];
     [cell.reportTitle setUserInteractionEnabled:NO];
     return cell;
-}
-
-
-- (void) segmentButtonTapped:(UISegmentedControl*)sender
-{
-    switch ([sender selectedSegmentIndex]) {
-        case 0:
-            [self performSegueWithIdentifier:@"tileToList" sender:self];
-            break;
-        case 1:
-            break;
-        case 2:
-            [self performSegueWithIdentifier:@"tileToMap" sender:self];
-            break;
-    }
-}
-
-
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        NSIndexPath *selectedIndexPath = [[self.tileView indexPathsForSelectedItems] objectAtIndex:0];
-        ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
-        reportViewController.report = [self.reports objectAtIndex:selectedIndexPath.row];
-    } else if ([[segue identifier] isEqualToString:@"tileToMap"]) {
-        MapViewController *mapViewController = (MapViewController *)segue.destinationViewController;
-        mapViewController.reports = self.reports;
-    }
 }
 
 

@@ -127,7 +127,7 @@ Info designed by NAS from thenounproject.com</string>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <connections>
-                        <outlet property="tileView" destination="k2q-1a-aXo" id="rcb-pR-z79"/>
+                        <outlet property="tileView" destination="k2q-1a-aXo" id="ZUX-7G-Tuf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gPx-wQ-lGG" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -508,6 +508,6 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="m5N-FG-O0a"/>
+        <segue reference="Jiy-et-MLe"/>
     </inferredMetricsTieBreakers>
 </document>

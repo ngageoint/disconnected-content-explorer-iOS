@@ -58,33 +58,6 @@
 }
 
 
-- (void) segmentButtonTapped:(UISegmentedControl*)sender
-{
-    switch ([sender selectedSegmentIndex]) {
-        case 0:
-            [self performSegueWithIdentifier:@"mapToList" sender:self];
-            break;
-        case 1:
-            [self performSegueWithIdentifier:@"mapToTile" sender:self];
-            break;
-        case 2:
-            break;
-    }
-}
-
-
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
-        reportViewController.report = _selectedReport;
-    } else if ([[segue identifier] isEqualToString:@"mapToTile"]) {
-        TileViewController *collectionViewController = (TileViewController *)segue.destinationViewController;
-        collectionViewController.reports = self.reports;
-    }
-}
-
-
 #pragma mark Map view delegate methods
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id)annotation {
     if([annotation isKindOfClass:[MKUserLocation class]])
