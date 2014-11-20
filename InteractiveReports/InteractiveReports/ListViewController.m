@@ -13,8 +13,6 @@
 
 @implementation ListViewController
 
-NSMutableArray *reports;
-
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -41,8 +39,6 @@ NSMutableArray *reports;
     UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
     [refreshControl addTarget:self action:@selector(refreshControlValueChanged) forControlEvents:UIControlEventValueChanged];
     self.tableViewController.refreshControl = refreshControl;
-    
-    reports = [[ReportAPI sharedInstance] getReports];
 }
 
 
@@ -72,10 +68,9 @@ NSMutableArray *reports;
 - (void)updateUnzipProgress:(NSNotification *)notification
 {
     int index = [notification.userInfo[@"index"] intValue];
-    Report *report = [reports objectAtIndex:index];
+    Report *report = self.reports[index];
     report.totalNumberOfFiles = [notification.userInfo[@"totalNumberOfFiles"] intValue];
     report.progress = [notification.userInfo[@"progress"] intValue];
-    [reports replaceObjectAtIndex:index withObject:report];
     [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
@@ -92,7 +87,7 @@ NSMutableArray *reports;
     if (!reportID) {
         return;
     }
-    [reports enumerateObjectsUsingBlock:^(Report *report, NSUInteger idx, BOOL *stop) {
+    [self.reports enumerateObjectsUsingBlock:^(Report *report, NSUInteger idx, BOOL *stop) {
         if ([report.reportID isEqualToString: reportID]) {
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
             [_tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
@@ -111,14 +106,14 @@ NSMutableArray *reports;
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return reports.count;
+    return self.reports.count;
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     
-    Report *report = reports[indexPath.row];
+    Report *report = self.reports[indexPath.row];
     UITableViewCell *cell;
     
     if ([report.fileExtension isEqualToString:@"pdf"]) {
@@ -175,7 +170,7 @@ NSMutableArray *reports;
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [reports removeObjectAtIndex:indexPath.row];
+        [self.reports removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
     else if (editingStyle == UITableViewCellEditingStyleInsert) {
@@ -187,6 +182,7 @@ NSMutableArray *reports;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     self.selectedCell = [self.tableView cellForRowAtIndexPath:indexPath];
+    [self.delegate reportSelectedToView:self.reports[indexPath.row]];
 }
 
 

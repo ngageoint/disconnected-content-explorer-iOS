@@ -13,13 +13,10 @@
 
 @implementation TileViewController
 
-NSMutableArray* reports;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    reports = [[ReportAPI sharedInstance] getReports];
     
     [self.tileView setDataSource:self];
     [self.tileView setDelegate:self];
@@ -41,7 +38,7 @@ NSMutableArray* reports;
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return reports.count;
+    return self.reports.count;
 }
 
 
@@ -49,7 +46,7 @@ NSMutableArray* reports;
 {
     ReportViewCell *cell = [self.tileView dequeueReusableCellWithReuseIdentifier:@"reportCell" forIndexPath:indexPath];
     
-    Report *report = reports[indexPath.item];
+    Report *report = self.reports[indexPath.item];
     
     if ( [report.tileThumbnail isKindOfClass:[NSString class]]) {
         NSString *thumbnailString = [NSString stringWithFormat:@"%@%@", report.url, report.tileThumbnail];
@@ -76,6 +73,11 @@ NSMutableArray* reports;
     return CGSizeMake(243.f, 235.f);
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    Report *report = self.reports[indexPath.item];
+    [self.delegate reportSelectedToView:report];
+}
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {

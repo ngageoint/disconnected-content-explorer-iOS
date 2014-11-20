@@ -18,9 +18,3 @@
 @property (strong, nonatomic) NSString *reportID;
 
 @end
-
-@protocol ReportCollectionViewDelegate
-
-- (void)reportSelected:(Report*)report;
-
-@end

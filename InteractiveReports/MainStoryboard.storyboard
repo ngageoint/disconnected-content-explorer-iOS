@@ -114,7 +114,6 @@ Info designed by NAS from thenounproject.com</string>
                                         <connections>
                                             <outlet property="reportImage" destination="XNY-oK-5L1" id="q90-hh-OSd"/>
                                             <outlet property="reportTitle" destination="HZu-eH-ezg" id="2yr-MH-rbO"/>
-                                            <segue destination="dNd-r1-5KN" kind="modal" identifier="showDetail" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="Jiy-et-MLe"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -247,9 +246,6 @@ Info designed by NAS from thenounproject.com</string>
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="dNd-r1-5KN" kind="modal" identifier="showDetail" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="m5N-FG-O0a"/>
-                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="pdfCell" textLabel="pEF-41-gqK" detailTextLabel="nZ0-GH-flH" style="IBUITableViewCellStyleSubtitle" id="KIY-h2-Wmm">
                                         <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
@@ -271,9 +267,6 @@ Info designed by NAS from thenounproject.com</string>
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="2Jc-79-puh" kind="modal" identifier="showPDF" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="wZZ-iA-FWU"/>
-                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
@@ -351,7 +344,9 @@ Info designed by NAS from thenounproject.com</string>
                     </view>
                     <connections>
                         <outlet property="collectionSubview" destination="olg-Y4-UG8" id="4Z3-aV-h7Z"/>
-                        <segue destination="dNd-r1-5KN" kind="modal" identifier="singleReport" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="JJo-ri-aqD"/>
+                        <segue destination="dNd-r1-5KN" kind="modal" identifier="showSingleReport" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="JJo-ri-aqD"/>
+                        <segue destination="dNd-r1-5KN" kind="modal" identifier="showHtmlReport" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="ntg-vh-CNR"/>
+                        <segue destination="2Jc-79-puh" kind="modal" identifier="showPdfReport" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="PgM-0C-e6Z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lML-Cg-qxX" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -431,7 +426,6 @@ Info designed by NAS from thenounproject.com</string>
                     </view>
                     <connections>
                         <outlet property="mapView" destination="ysV-dQ-vF9" id="RVZ-9L-iNt"/>
-                        <segue destination="dNd-r1-5KN" kind="modal" identifier="showDetail" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="8r0-0G-QLy"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FcX-WF-FRT" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -508,6 +502,6 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="Jiy-et-MLe"/>
+        <segue reference="ntg-vh-CNR"/>
     </inferredMetricsTieBreakers>
 </document>

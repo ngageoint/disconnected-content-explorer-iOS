@@ -28,14 +28,11 @@
     [super viewDidLoad];
     self.mapView.delegate = self;
     [self.mapView addOverlays:[OfflineMapUtility getPolygons]];
-    
-    self.segmentedControl.selectedSegmentIndex = 2;
-    [self.segmentedControl addTarget:self action:@selector(segmentButtonTapped:) forControlEvents:UIControlEventValueChanged];
-
 }
 
 
-- (void)viewWillAppear:(BOOL)animated {
+- (void)viewWillAppear:(BOOL)animated
+{
     [super viewWillAppear:animated];
 
     CLLocationCoordinate2D zoomLocation;
@@ -59,7 +56,8 @@
 
 
 #pragma mark Map view delegate methods
-- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id)annotation {
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id)annotation
+{
     if([annotation isKindOfClass:[MKUserLocation class]])
         return nil;
     
@@ -84,8 +82,8 @@
 }
 
 
-- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay {
-    
+- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay
+{
     MKPolygonView *polygonView = [[MKPolygonView alloc] initWithOverlay:overlay];
     
     if ([overlay isKindOfClass:[MKPolygon class]]) {
@@ -95,12 +93,14 @@
             polygonView.strokeColor = [UIColor clearColor];
             polygonView.lineWidth = 0.0;
             polygonView.opaque = TRUE;
-        } else if ([overlay.title isEqualToString:@"feature"]) {
+        }
+        else if ([overlay.title isEqualToString:@"feature"]) {
             polygonView.fillColor = [UIColor colorWithRed:221/255.0 green:221/255.0 blue:221/255.0 alpha:1.0];
             polygonView.strokeColor = [UIColor clearColor];
             polygonView.lineWidth = 0.0;
             polygonView.opaque = TRUE;
-        } else {
+        }
+        else {
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
             NSString *maptype = [defaults stringForKey:@"maptype"];
             if ([@"Offline" isEqual:maptype]) {
@@ -122,7 +122,7 @@
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control
 {
     _selectedReport = ((ReportMapAnnotation *)view.annotation).report;
-    [self performSegueWithIdentifier:@"showDetail" sender:self];
+    [self.delegate reportSelectedToView:_selectedReport];
 }
 
 @end

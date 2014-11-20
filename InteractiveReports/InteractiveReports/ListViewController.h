@@ -4,18 +4,18 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ReportViewController.h"
-#import "TileViewController.h"
-#import "MapViewController.h"
-#import "PDFViewController.h"
-#import "ReportAPI.h"
+
 #import "Report.h"
+#import "ReportAPI.h"
+#import "ReportCollectionView.h"
 
 
 @class ListViewController;
 
-@interface ListViewController : UIViewController <UITableViewDataSource, UITableViewDelegate> {}
+@interface ListViewController : UIViewController <ReportCollectionView, UITableViewDataSource, UITableViewDelegate> {}
 
+@property (strong, nonatomic) NSMutableArray *reports;
+@property (strong, nonatomic) id<ReportCollectionViewDelegate> delegate;
 @property (strong, nonatomic) UITableViewCell *selectedCell;
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @property (strong, nonatomic) UITableViewController *tableViewController;

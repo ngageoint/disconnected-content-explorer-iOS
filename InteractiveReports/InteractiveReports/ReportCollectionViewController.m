@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 mil.nga. All rights reserved.
 //
 
+#import "ReportCollectionView.h"
 #import "ReportCollectionViewController.h"
 #import "ReportViewController.h"
 #import "PDFViewController.h"
@@ -37,8 +38,12 @@ Report *selectedReport;
              [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
              [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"],
              nil];
+    [views enumerateObjectsUsingBlock:^(id<ReportCollectionView> view, NSUInteger idx, BOOL *stop) {
+        view.delegate = self;
+        view.reports = [[ReportAPI sharedInstance] getReports];
+    }];
     
-    UIViewController *firstView = views.firstObject;
+    UIViewController<ReportCollectionViewDelegate> *firstView = views.firstObject;
     [self addChildViewController: firstView];
     [firstView didMoveToParentViewController: self];
     firstView.view.frame = self.collectionSubview.bounds;
@@ -60,11 +65,11 @@ Report *selectedReport;
     if (reports.count == 1) {
         // if we have a srcSchema, then another app called into DICE, open the report
         if ((_srcScheme != nil && ![_srcScheme isEqualToString:@""])) {
-            [self performSegueWithIdentifier:@"singleReport" sender:self];
+            [self performSegueWithIdentifier:@"showSingleReport" sender:self];
         }
         else if (self.didBecomeActive) {
             // TODO: handle in app delegate
-            [self performSegueWithIdentifier:@"singleReport" sender:self];
+            [self performSegueWithIdentifier:@"showSingleReport" sender:self];
         }
         self.didBecomeActive = NO;
     }
@@ -84,8 +89,7 @@ Report *selectedReport;
     [reports enumerateObjectsUsingBlock: ^(Report* report, NSUInteger idx, BOOL *stop) {
         if ([report.reportID isEqualToString:_reportID]) {
             *stop = YES;
-            selectedReport = report;
-            [self performSegueWithIdentifier:@"showDetail" sender:self];
+            [self reportSelectedToView:report];
         }
     }];
 }
@@ -99,7 +103,7 @@ Report *selectedReport;
 #pragma mark - Navigation
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([[segue identifier] isEqualToString:@"showDetail"]) {
+    if ([[segue identifier] isEqualToString:@"showHtmlReport"]) {
         ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
         reportViewController.report = selectedReport;
         if (_srcScheme) {
@@ -107,11 +111,11 @@ Report *selectedReport;
             reportViewController.urlParams = _urlParams;
         }
     }
-    else if ([[segue identifier] isEqualToString:@"showPDF"]) {
+    else if ([[segue identifier] isEqualToString:@"showPdfReport"]) {
         PDFViewController *pdfViewController = (PDFViewController *)segue.destinationViewController;
         pdfViewController.report = selectedReport;
     }
-    else if ([[segue identifier] isEqualToString:@"singleReport"]) {
+    else if ([[segue identifier] isEqualToString:@"showSingleReport"]) {
         ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
         reportViewController.srcScheme = _srcScheme;
         reportViewController.urlParams = _urlParams;
@@ -153,8 +157,17 @@ Report *selectedReport;
             }];
 }
 
-- (void)reportSelected:(Report *)report {
+- (void)reportSelectedToView:(Report *)report {
     selectedReport = report;
+    if ([selectedReport.fileExtension isEqualToString:@"html"]) {
+        [self performSegueWithIdentifier:@"showHtmlReport" sender:self];
+    }
+    else if ([selectedReport.fileExtension isEqualToString:@"pdf"]) {
+        [self performSegueWithIdentifier:@"showPdfReport" sender:self];
+    }
+    else {
+        [self performSegueWithIdentifier:@"showHtmlReport" sender:self];
+    }
 }
 
 @end
