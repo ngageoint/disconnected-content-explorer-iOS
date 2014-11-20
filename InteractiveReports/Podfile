@@ -4,5 +4,6 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 target "InteractiveReports" do
     pod 'objective-zip', '0.8.3'
+    pod 'TSMiniWebBrowser', '1.0.1'
 end
 

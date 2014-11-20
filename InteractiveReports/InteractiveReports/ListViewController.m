@@ -6,7 +6,7 @@
 #import "ListViewController.h"
 #import "GlobeViewController.h"
 
-@interface ListViewController () <GlobeViewDelegate> {
+@interface ListViewController () {
     NSMutableArray *reports;
 }
 @end
@@ -20,15 +20,6 @@
 }
 
 
-- (void)awakeFromNib
-{
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        //self.clearsSelectionOnViewWillAppear = NO;
-    }
-    [super awakeFromNib];
-}
-
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -36,7 +27,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReport:) name:@"DICEReportUpdatedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:@"DICEReportUnzipProgressNotification" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleURLRequest:) name:@"DICEURLOpened" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearSrcScheme:) name:@"DICEClearSrcScheme" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportsRefreshed:) name:@"DICEReportsRefreshed" object:nil];
     
     self.title = @"Disconnected Interactive Content Explorer";
@@ -50,27 +40,8 @@
     UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
     [refreshControl addTarget:self action:@selector(refreshControlValueChanged) forControlEvents:UIControlEventValueChanged];
     self.tableViewController.refreshControl = refreshControl;
-    self.singleReportLoaded = false;
     
     reports = [[ReportAPI sharedInstance] getReports];
-    [[ReportAPI sharedInstance] loadReports];
-    
-    [self.segmentedControl addTarget:self action:@selector(segmentButtonTapped:) forControlEvents:UIControlEventValueChanged];
-}
-
-
-- (void) viewDidAppear:(BOOL)animated
-{
-    // Some special case stuff, if there is only one report, we may want to open it rather than present the list
-    if (reports.count == 1) {
-        // if we have a srcSchema, then another app called into DICE, open the report
-        if((_srcScheme != nil && ![_srcScheme isEqualToString:@""])) {
-            [self performSegueWithIdentifier:@"singleReport" sender:self];
-        } else if (self.didBecomeActive) {
-            [self performSegueWithIdentifier:@"singleReport" sender:self];
-        }
-        self.didBecomeActive = NO;
-    }
 }
 
 
@@ -88,8 +59,6 @@
 }
 
 
-
-
 # pragma mark - Notification handling methods
 - (void)updateReport:(NSNotification *)notification
 {
@@ -98,9 +67,6 @@
     NSLog(@"%@ %@ message recieved", notification, [report title]);
 
     [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-    if (reports.count == 1) {
-        self.singleReportLoaded = YES;
-    }
 }
 
 
@@ -113,43 +79,26 @@
     report.progress = [notification.userInfo[@"progress"] intValue];
     [reports replaceObjectAtIndex:index withObject:report];
     [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-    if (reports.count == 1) {
-        self.singleReportLoaded = YES;
-    }
-}
-
-
-- (void)handleURLRequest:(NSNotification*)notification
-{
-    _urlParams = notification.userInfo;
-    _srcScheme = _urlParams[@"srcScheme"];
-    _reportID = _urlParams[@"reportID"];
-    
-    NSLog(@"URL parameters: srcScheme: %@ reportID: %@", _srcScheme, _reportID);
-    
-    if (_reportID) {
-        for (int i = 0; i < [reports count]; i++) {
-            if ([[[reports objectAtIndex:i] reportID] isEqualToString:_reportID]) {
-                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
-                [_tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
-                [self performSegueWithIdentifier:@"showDetail" sender:self];
-                break;
-            }
-        }
-    }
-}
-
-
-- (void)clearSrcScheme:(NSNotification*)notification
-{
-    _srcScheme = @"";
-    _didBecomeActive = NO;
 }
 
 
 - (void)reportsRefreshed:(NSNotification *)notification
 {
     [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+}
+
+- (void)handleURLRequest:(NSNotification*)notification {
+    NSDictionary *urlParams = notification.userInfo;
+    NSString *reportID = urlParams[@"reportID"];
+    if (!reportID) {
+        return;
+    }
+    [reports enumerateObjectsUsingBlock:^(Report *report, NSUInteger idx, BOOL *stop) {
+        if ([report.reportID isEqualToString: reportID]) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
+            [_tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+        }
+    }];
 }
 
 
@@ -249,95 +198,6 @@
     }
     
     return UITableViewCellEditingStyleNone;
-}
-
-
-#pragma mark - toolbar button handling
-- (void) gridButtonTapped
-{
-    [self performSegueWithIdentifier:@"tableToCollection" sender:self];
-}
-
-
-- (void) mapButtonTapped
-{
-    [self performSegueWithIdentifier:@"tableToMap" sender:self];
-}
-
-
-- (void) segmentButtonTapped:(UISegmentedControl*)sender
-{
-    switch ([sender selectedSegmentIndex]) {
-        case 0:
-            break;
-        case 1:
-            [self performSegueWithIdentifier:@"listToTile" sender:self];
-            break;
-        case 2:
-            [self performSegueWithIdentifier:@"listToMap" sender:self];
-            break;
-    }
-}
-
-
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-    
-    if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        Report *selectedReport = [reports objectAtIndex:indexPath.row];
-        ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
-        reportViewController.report = selectedReport;
-        
-        if (_srcScheme) {
-            reportViewController.srcScheme = _srcScheme;
-            reportViewController.urlParams = _urlParams;
-        }
-    }
-    else if ([[segue identifier] isEqualToString:@"showPDF"]) {
-        Report *selectedReport = [reports objectAtIndex:indexPath.row];
-        PDFViewController *pdfViewController = (PDFViewController *)segue.destinationViewController;
-        pdfViewController.report = selectedReport;
-    }
-    else if ([[segue identifier] isEqualToString:@"listToTile"]) {
-        TileViewController *collectionViewController = (TileViewController *)segue.destinationViewController;
-        collectionViewController.reports = reports;
-    }
-    else if ([[segue identifier] isEqualToString:@"listToMap"]) {
-        MapViewController *mapViewController = (MapViewController *)segue.destinationViewController;
-        mapViewController.reports = reports;
-    }
-    else if ([[segue identifier] isEqualToString:@"singleReport"]) {
-        ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
-        reportViewController.srcScheme = _srcScheme;
-        reportViewController.urlParams = _urlParams;
-        reportViewController.report = [reports objectAtIndex:0];
-        reportViewController.singleReport = YES;
-        reportViewController.unzipComplete = _singleReportLoaded;
-    }
-    else if ([[segue identifier] isEqualToString:@"globe"]) {
-        GlobeViewController *globe = segue.destinationViewController;
-        globe.delegate = self;
-    }
-}
-
-
-- (void) dismissGlobeView {
-    [self dismissViewControllerAnimated:(YES) completion:nil];
-}
-
-
-+ (NSDictionary *) dictionaryWithContentsOfJSONString: (NSString *) filePath
-{
-    NSData *data = [NSData dataWithContentsOfFile: filePath];
-    __autoreleasing NSError *error = nil;
-    id result = [NSJSONSerialization JSONObjectWithData:data
-                                                options:kNilOptions
-                                                  error:&error];
-    if (error != nil)
-        return nil;
-    
-    return result;
 }
 
 @end

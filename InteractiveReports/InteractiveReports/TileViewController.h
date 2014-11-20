@@ -13,10 +13,8 @@
 
 @property (strong, nonatomic) ReportViewController *reportViewController;
 @property (strong, nonatomic) NSMutableArray *reports;
-@property (strong, nonatomic) NSURL *unzippedIndexURL;
 @property (strong, nonatomic) UITableViewCell *selectedCell;
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
-@property (strong, nonatomic) IBOutlet UICollectionView *reportCollectionView;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *segmentedControl;
+@property (strong, nonatomic) IBOutlet UICollectionView *tileView;
 
 @end

@@ -5,11 +5,9 @@
 
 
 #import "AppDelegate.h"
+#import "ReportCollectionViewController.h"
 
 @interface AppDelegate ()
-
-@property (nonatomic, strong) NSString *srcScheme;
-@property (nonatomic, strong) NSString *reportID;
 
 @end
 
@@ -18,11 +16,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    _srcScheme = nil;
-    _reportID = nil;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearSrcScheme:) name:@"DICEClearSrcScheme" object:nil];
-    
     //initializing offline map polygons (potentially thread this)
     NSDictionary *geojson = [OfflineMapUtility dictionaryWithContentsOfJSONString:@"ne_50m_land.simplify0.2"];
     NSMutableArray *featuresArray = [geojson objectForKey:@"features"];
@@ -32,13 +25,12 @@
 }
 
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    // Restart any tasks that were paused (or not yet started) while the application was inactive.
+    // If the application was previously in the background, optionally refresh the user interface.
     self.didBecomeActive = YES;
-    
-    ListViewController *listView = (ListViewController *)self.window.rootViewController;
-    listView.didBecomeActive = YES;
+    ReportCollectionViewController *reportsView = (ReportCollectionViewController *)self.window.rootViewController;
+    reportsView.didBecomeActive = YES;
 }
 
 
@@ -93,12 +85,6 @@
     }
     
     return YES;
-}
-
-
-- (void)clearSrcScheme:(NSNotification*)notification
-{
-    _srcScheme = @"";
 }
 
 @end

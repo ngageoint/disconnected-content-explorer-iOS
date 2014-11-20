@@ -8,9 +8,6 @@
 #import "NoteViewController.h"
 
 @interface ReportViewController : UIViewController <UISplitViewControllerDelegate, UIScrollViewDelegate>
-{
-
-}
 
 @property (strong, nonatomic) id detailItem;
 @property (strong, nonatomic) IBOutlet UIWebView *webView;

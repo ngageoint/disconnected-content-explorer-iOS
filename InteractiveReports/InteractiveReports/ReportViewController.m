@@ -186,6 +186,7 @@
     }
     
     self.srcScheme = @"";
+    // TODO: handle this in app delegate and get rid of all the observers for this notification
     [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEClearSrcScheme" object:nil];
 }
 

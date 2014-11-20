@@ -15,6 +15,7 @@
 		7D0B491F1A0D49790044236B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B491E1A0D49790044236B /* libsqlite3.dylib */; };
 		7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49201A0D49B50044236B /* OpenGLES.framework */; };
 		7D0B49261A0D885A0044236B /* GlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B49251A0D885A0044236B /* GlobeViewController.mm */; };
+		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
 		7DA706B51A152B4700B558EC /* LasReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA706B41A152B4700B558EC /* LasReader.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
 		C0E3F60806C443D79389587D /* libPods-InteractiveReports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC63C8C3A5584AA4A5E44F92 /* libPods-InteractiveReports.a */; };
@@ -855,6 +856,8 @@
 		7D0B49201A0D49B50044236B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		7D0B49241A0D885A0044236B /* GlobeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeViewController.h; sourceTree = "<group>"; };
 		7D0B49251A0D885A0044236B /* GlobeViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeViewController.mm; sourceTree = "<group>"; };
+		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
+		7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
 		7DA706B41A152B4700B558EC /* LasReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LasReader.m; sourceTree = "<group>"; };
 		7DA706B61A158E3800B558EC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		883340C3E7FF849362B84DC6 /* Pods-InteractiveReports.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractiveReports.debug.xcconfig"; path = "Pods/Target Support Files/Pods-InteractiveReports/Pods-InteractiveReports.debug.xcconfig"; sourceTree = "<group>"; };
@@ -2189,6 +2192,8 @@
 				E3F3A44A1857CDE400253290 /* Report View */,
 				E30753E7195CC33E0087F90A /* Images.xcassets */,
 				E3FBB30C17C9527000E133D6 /* Supporting Files */,
+				7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */,
+				7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */,
 			);
 			path = InteractiveReports;
 			sourceTree = "<group>";
@@ -2360,6 +2365,7 @@
 				E3FBB31217C9527000E133D6 /* main.m in Sources */,
 				E3FBB31617C9527000E133D6 /* AppDelegate.m in Sources */,
 				E39D836C19DF2B95008357DF /* ReaderContentView.m in Sources */,
+				7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */,
 				E3D7820E18517375001BB04B /* ReportViewCell.m in Sources */,
 				E39D837419DF2B95008357DF /* ReaderThumbRender.m in Sources */,
 				E39D837719DF2B95008357DF /* ReaderThumbView.m in Sources */,

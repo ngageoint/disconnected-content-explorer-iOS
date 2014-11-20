@@ -25,11 +25,8 @@
 {
     [super viewDidLoad];
     
-    [self.reportCollectionView setDataSource:self];
-    [self.reportCollectionView setDelegate:self];
-    
-    self.segmentedControl.selectedSegmentIndex = 1;
-    [self.segmentedControl addTarget:self action:@selector(segmentButtonTapped:) forControlEvents:UIControlEventValueChanged];
+    [self.tileView setDataSource:self];
+    [self.tileView setDelegate:self];
 }
 
 
@@ -54,7 +51,7 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    ReportViewCell *cell = [self.reportCollectionView dequeueReusableCellWithReuseIdentifier:@"reportCell" forIndexPath:indexPath];
+    ReportViewCell *cell = [self.tileView dequeueReusableCellWithReuseIdentifier:@"reportCell" forIndexPath:indexPath];
     
     Report *report = _reports[indexPath.item];
     
@@ -92,7 +89,7 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        NSIndexPath *selectedIndexPath = [[self.reportCollectionView indexPathsForSelectedItems] objectAtIndex:0];
+        NSIndexPath *selectedIndexPath = [[self.tileView indexPathsForSelectedItems] objectAtIndex:0];
         ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
         reportViewController.report = [self.reports objectAtIndex:selectedIndexPath.row];
     } else if ([[segue identifier] isEqualToString:@"tileToMap"]) {
@@ -114,7 +111,7 @@
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
-    [self.reportCollectionView performBatchUpdates:nil completion:nil];
+    [self.tileView performBatchUpdates:nil completion:nil];
 }
 
 @end
