@@ -69,7 +69,7 @@ Info designed by NAS from thenounproject.com</string>
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="k2q-1a-aXo">
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="k2q-1a-aXo">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="XN2-DV-E6T">
@@ -124,6 +124,12 @@ Info designed by NAS from thenounproject.com</string>
                             </collectionView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="k2q-1a-aXo" secondAttribute="trailing" id="Hqy-91-Juz"/>
+                            <constraint firstItem="k2q-1a-aXo" firstAttribute="bottom" secondItem="OXG-Ki-Lz7" secondAttribute="top" id="Ije-jl-YVA"/>
+                            <constraint firstItem="k2q-1a-aXo" firstAttribute="top" secondItem="zog-jM-qcC" secondAttribute="top" id="j0A-0d-cZB"/>
+                            <constraint firstItem="k2q-1a-aXo" firstAttribute="leading" secondItem="zog-jM-qcC" secondAttribute="leading" id="qmA-yG-KNW"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="tileView" destination="k2q-1a-aXo" id="ZUX-7G-Tuf"/>
@@ -219,7 +225,7 @@ Info designed by NAS from thenounproject.com</string>
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="70" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="XIc-nD-IWA">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="70" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="XIc-nD-IWA">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
@@ -272,6 +278,12 @@ Info designed by NAS from thenounproject.com</string>
                             </tableView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="XIc-nD-IWA" firstAttribute="leading" secondItem="ftL-AU-E5A" secondAttribute="leading" id="2dh-Y8-HKw"/>
+                            <constraint firstItem="XIc-nD-IWA" firstAttribute="top" secondItem="ftL-AU-E5A" secondAttribute="top" id="3Nk-5K-t78"/>
+                            <constraint firstItem="XIc-nD-IWA" firstAttribute="bottom" secondItem="YFd-w6-diW" secondAttribute="top" id="IPe-lY-3gJ"/>
+                            <constraint firstAttribute="trailing" secondItem="XIc-nD-IWA" secondAttribute="trailing" id="f9r-YT-lrs"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="tableView" destination="XIc-nD-IWA" id="Bui-ax-doz"/>
@@ -289,7 +301,7 @@ Info designed by NAS from thenounproject.com</string>
                         <viewControllerLayoutGuide type="top" id="LxB-ls-WCA"/>
                         <viewControllerLayoutGuide type="bottom" id="frx-im-O3U"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="p1D-ia-CCt">
+                    <view key="view" contentMode="scaleToFill" id="p1D-ia-CCt" userLabel="Root View">
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
@@ -326,20 +338,20 @@ Info designed by NAS from thenounproject.com</string>
                                 </items>
                                 <color key="tintColor" red="0.63529413938522339" green="0.023529414087533951" blue="0.058823533356189728" alpha="1" colorSpace="deviceRGB"/>
                             </toolbar>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8" userLabel="Report Collection Subview">
                                 <rect key="frame" x="0.0" y="66" width="768" height="958"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="bottom" secondItem="olg-Y4-UG8" secondAttribute="bottom" id="AcT-Ho-7E9"/>
-                            <constraint firstItem="dld-VJ-GIw" firstAttribute="leading" secondItem="p1D-ia-CCt" secondAttribute="leading" id="EYk-Me-Gcm"/>
-                            <constraint firstItem="dld-VJ-GIw" firstAttribute="top" secondItem="LxB-ls-WCA" secondAttribute="bottom" constant="2" id="FEw-aH-Euc"/>
-                            <constraint firstItem="dld-VJ-GIw" firstAttribute="bottom" secondItem="olg-Y4-UG8" secondAttribute="top" id="VEu-W1-jNk"/>
-                            <constraint firstItem="dld-VJ-GIw" firstAttribute="centerX" secondItem="olg-Y4-UG8" secondAttribute="centerX" id="dca-MC-wSs"/>
-                            <constraint firstItem="dld-VJ-GIw" firstAttribute="centerX" secondItem="p1D-ia-CCt" secondAttribute="centerX" id="hRJ-4I-cwB"/>
-                            <constraint firstItem="olg-Y4-UG8" firstAttribute="leading" secondItem="p1D-ia-CCt" secondAttribute="leading" id="xu5-o6-y2R"/>
+                            <constraint firstItem="olg-Y4-UG8" firstAttribute="leading" secondItem="dld-VJ-GIw" secondAttribute="leading" id="0E7-Re-u0D"/>
+                            <constraint firstItem="dld-VJ-GIw" firstAttribute="top" secondItem="LxB-ls-WCA" secondAttribute="bottom" constant="2" id="81n-yW-dfv" userLabel="Vertical Space - Toolbar Top Anchor"/>
+                            <constraint firstItem="dld-VJ-GIw" firstAttribute="trailing" secondItem="olg-Y4-UG8" secondAttribute="trailing" id="NIl-25-nLX"/>
+                            <constraint firstAttribute="trailing" secondItem="dld-VJ-GIw" secondAttribute="trailing" id="Qef-Fj-V0v"/>
+                            <constraint firstItem="dld-VJ-GIw" firstAttribute="leading" secondItem="p1D-ia-CCt" secondAttribute="leading" id="VA4-TL-0wg"/>
+                            <constraint firstItem="olg-Y4-UG8" firstAttribute="bottom" secondItem="frx-im-O3U" secondAttribute="top" id="c29-De-x7g"/>
+                            <constraint firstItem="olg-Y4-UG8" firstAttribute="top" secondItem="dld-VJ-GIw" secondAttribute="bottom" id="ndp-kW-VTN"/>
                         </constraints>
                     </view>
                     <connections>
@@ -418,12 +430,20 @@ Info designed by NAS from thenounproject.com</string>
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ysV-dQ-vF9">
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ysV-dQ-vF9">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                             </mapView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="ysV-dQ-vF9" secondAttribute="trailing" id="Jbb-fb-LHC"/>
+                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="top" secondItem="76W-pS-RQK" secondAttribute="top" id="R2n-Nx-kck"/>
+                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="leading" secondItem="76W-pS-RQK" secondAttribute="leading" id="y5C-q5-bts"/>
+                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="bottom" secondItem="E3j-ZE-fDY" secondAttribute="top" id="znc-09-73C"/>
+                        </constraints>
                     </view>
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="768" height="1024"/>
                     <connections>
                         <outlet property="mapView" destination="ysV-dQ-vF9" id="RVZ-9L-iNt"/>
                     </connections>

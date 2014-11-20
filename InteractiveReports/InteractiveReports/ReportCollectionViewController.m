@@ -38,9 +38,10 @@ Report *selectedReport;
              [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
              [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"],
              nil];
-    [views enumerateObjectsUsingBlock:^(id<ReportCollectionView> view, NSUInteger idx, BOOL *stop) {
+    [views enumerateObjectsUsingBlock:^(UIViewController<ReportCollectionView> *view, NSUInteger idx, BOOL *stop) {
         view.delegate = self;
         view.reports = [[ReportAPI sharedInstance] getReports];
+        view.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     }];
     
     UIViewController<ReportCollectionViewDelegate> *firstView = views.firstObject;
