@@ -11,21 +11,22 @@
 #import "G3MBuilder_iOS.hpp"
 #import "MeshRenderer.hpp"
 
-//@class G3MWidget_iOS;
-
 
 @interface GlobeViewController ()
 
-@property (strong, nonatomic) IBOutlet G3MWidget_iOS *globeView;
-@property (nonatomic) MeshRenderer *meshRenderer;
+@property (strong, nonatomic) G3MWidget_iOS *globeView;
 
 @end
 
 @implementation GlobeViewController
 
+- (void)loadView {
+    self.view = self.globeView = [[G3MWidget_iOS alloc] init];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+
     G3MBuilder_iOS builder = G3MBuilder_iOS(self.globeView);
     builder.initializeWidget();
 }
@@ -54,20 +55,8 @@
     self.globeView = nil;
 }
 
-- (IBAction)onDone:(id)sender {
-    if (self.delegate != nil) {
-        [self.delegate dismissGlobeView];
-    }
+- (void)handleResource:(NSURL *)resource {
+    NSLog(@"GlobeViewController: loading resource %@", resource);
 }
-
-
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-
 
 @end

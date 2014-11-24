@@ -16,6 +16,10 @@
 		7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49201A0D49B50044236B /* OpenGLES.framework */; };
 		7D0B49261A0D885A0044236B /* GlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B49251A0D885A0044236B /* GlobeViewController.mm */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
+		7D4E1C4B1A1F9475002762B3 /* DICETests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C4A1A1F9475002762B3 /* DICETests.m */; };
+		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
+		7D4E1C551A1FAB44002762B3 /* ReportLinkedResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportLinkedResourceViewController.m */; };
+		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B51A152B4700B558EC /* LasReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA706B41A152B4700B558EC /* LasReader.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
 		C0E3F60806C443D79389587D /* libPods-InteractiveReports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC63C8C3A5584AA4A5E44F92 /* libPods-InteractiveReports.a */; };
@@ -107,6 +111,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = D8EEF3B51577924D003FEB5E;
 			remoteInfo = G3MiOSSDK;
+		};
+		7D4E1C4C1A1F9475002762B3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E3FBB2FA17C9527000E133D6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E3FBB30117C9527000E133D6;
+			remoteInfo = InteractiveReports;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -858,7 +869,15 @@
 		7D0B49251A0D885A0044236B /* GlobeViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeViewController.mm; sourceTree = "<group>"; };
 		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
 		7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
+		7D4E1C461A1F9475002762B3 /* DICETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DICETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7D4E1C491A1F9475002762B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7D4E1C4A1A1F9475002762B3 /* DICETests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DICETests.m; sourceTree = "<group>"; };
+		7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
+		7D4E1C531A1FAB44002762B3 /* ReportLinkedResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportLinkedResourceViewController.h; sourceTree = "<group>"; };
+		7D4E1C541A1FAB44002762B3 /* ReportLinkedResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportLinkedResourceViewController.m; sourceTree = "<group>"; };
 		7DA393EC1A1E6A0A00DE9649 /* ReportCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionView.h; sourceTree = "<group>"; };
+		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
+		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
 		7DA706B41A152B4700B558EC /* LasReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LasReader.m; sourceTree = "<group>"; };
 		7DA706B61A158E3800B558EC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		883340C3E7FF849362B84DC6 /* Pods-InteractiveReports.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractiveReports.debug.xcconfig"; path = "Pods/Target Support Files/Pods-InteractiveReports/Pods-InteractiveReports.debug.xcconfig"; sourceTree = "<group>"; };
@@ -985,6 +1004,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		7D4E1C431A1F9475002762B3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E3FBB2FF17C9527000E133D6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1936,6 +1962,24 @@
 			name = "Globe View";
 			sourceTree = "<group>";
 		};
+		7D4E1C471A1F9475002762B3 /* DICETests */ = {
+			isa = PBXGroup;
+			children = (
+				7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */,
+				7D4E1C4A1A1F9475002762B3 /* DICETests.m */,
+				7D4E1C481A1F9475002762B3 /* Supporting Files */,
+			);
+			path = DICETests;
+			sourceTree = "<group>";
+		};
+		7D4E1C481A1F9475002762B3 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				7D4E1C491A1F9475002762B3 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		9A31FFAB0752B966D88A1AE0 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -2082,6 +2126,8 @@
 				E3AC40F9198ADA3900DE8F41 /* OfflineMapUtility.h */,
 				E3AC40FA198ADA3900DE8F41 /* OfflineMapUtility.m */,
 				7DA706B41A152B4700B558EC /* LasReader.m */,
+				7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */,
+				7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */,
 			);
 			path = utilities;
 			sourceTree = "<group>";
@@ -2117,6 +2163,8 @@
 				E3F3A44D1857D0DE00253290 /* NoteViewController.m */,
 				E39D837C19DF3B8A008357DF /* PDFViewController.h */,
 				E39D837D19DF3B8A008357DF /* PDFViewController.m */,
+				7D4E1C531A1FAB44002762B3 /* ReportLinkedResourceViewController.h */,
+				7D4E1C541A1FAB44002762B3 /* ReportLinkedResourceViewController.m */,
 			);
 			name = "Report View";
 			sourceTree = "<group>";
@@ -2135,6 +2183,7 @@
 			children = (
 				E39D830119DF2B95008357DF /* reader */,
 				E3FBB30B17C9527000E133D6 /* InteractiveReports */,
+				7D4E1C471A1F9475002762B3 /* DICETests */,
 				E3FBB30417C9527000E133D6 /* Frameworks */,
 				E3FBB30317C9527000E133D6 /* Products */,
 				9A31FFAB0752B966D88A1AE0 /* Pods */,
@@ -2145,6 +2194,7 @@
 			isa = PBXGroup;
 			children = (
 				E3FBB30217C9527000E133D6 /* DICE.app */,
+				7D4E1C461A1F9475002762B3 /* DICETests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2216,6 +2266,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		7D4E1C451A1F9475002762B3 /* DICETests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7D4E1C4E1A1F9475002762B3 /* Build configuration list for PBXNativeTarget "DICETests" */;
+			buildPhases = (
+				7D4E1C421A1F9475002762B3 /* Sources */,
+				7D4E1C431A1F9475002762B3 /* Frameworks */,
+				7D4E1C441A1F9475002762B3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7D4E1C4D1A1F9475002762B3 /* PBXTargetDependency */,
+			);
+			name = DICETests;
+			productName = DICETests;
+			productReference = 7D4E1C461A1F9475002762B3 /* DICETests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		E3FBB30117C9527000E133D6 /* InteractiveReports */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E3FBB32B17C9527000E133D6 /* Build configuration list for PBXNativeTarget "InteractiveReports" */;
@@ -2244,6 +2312,10 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = mil.nga;
 				TargetAttributes = {
+					7D4E1C451A1F9475002762B3 = {
+						CreatedOnToolsVersion = 6.1;
+						TestTargetID = E3FBB30117C9527000E133D6;
+					};
 					E3FBB30117C9527000E133D6 = {
 						DevelopmentTeam = PDRAS7XQ3Y;
 					};
@@ -2268,6 +2340,7 @@
 			projectRoot = "";
 			targets = (
 				E3FBB30117C9527000E133D6 /* InteractiveReports */,
+				7D4E1C451A1F9475002762B3 /* DICETests */,
 			);
 		};
 /* End PBXProject section */
@@ -2283,6 +2356,13 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		7D4E1C441A1F9475002762B3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E3FBB30017C9527000E133D6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2356,6 +2436,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		7D4E1C421A1F9475002762B3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7D4E1C4B1A1F9475002762B3 /* DICETests.m in Sources */,
+				7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E3FBB2FE17C9527000E133D6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2369,6 +2458,7 @@
 				E39D836C19DF2B95008357DF /* ReaderContentView.m in Sources */,
 				7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */,
 				E3D7820E18517375001BB04B /* ReportViewCell.m in Sources */,
+				7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */,
 				E39D837419DF2B95008357DF /* ReaderThumbRender.m in Sources */,
 				E39D837719DF2B95008357DF /* ReaderThumbView.m in Sources */,
 				E39D837B19DF2B95008357DF /* UIXToolbarView.m in Sources */,
@@ -2381,6 +2471,7 @@
 				E3A73FC01855585200035C76 /* MapViewController.m in Sources */,
 				E39D837619DF2B95008357DF /* ReaderThumbsView.m in Sources */,
 				E3BC6EE4192E7A8700096EE5 /* ReportViewController.m in Sources */,
+				7D4E1C551A1FAB44002762B3 /* ReportLinkedResourceViewController.m in Sources */,
 				E39D837519DF2B95008357DF /* ReaderThumbRequest.m in Sources */,
 				E39D834D19DF2B95008357DF /* ReaderBookDelegate.m in Sources */,
 				E39D836E19DF2B95008357DF /* ReaderDocumentOutline.m in Sources */,
@@ -2406,6 +2497,14 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		7D4E1C4D1A1F9475002762B3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E3FBB30117C9527000E133D6 /* InteractiveReports */;
+			targetProxy = 7D4E1C4C1A1F9475002762B3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
 		E3FBB30E17C9527000E133D6 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
@@ -2418,6 +2517,71 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		7D4E1C4F1A1F9475002762B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = DICETests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DICE.app/DICE";
+			};
+			name = Debug;
+		};
+		7D4E1C501A1F9475002762B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = DICETests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DICE.app/DICE";
+			};
+			name = Release;
+		};
 		E3FBB32917C9527000E133D6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2525,6 +2689,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		7D4E1C4E1A1F9475002762B3 /* Build configuration list for PBXNativeTarget "DICETests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7D4E1C4F1A1F9475002762B3 /* Debug */,
+				7D4E1C501A1F9475002762B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E3FBB2FD17C9527000E133D6 /* Build configuration list for PBXProject "InteractiveReports" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

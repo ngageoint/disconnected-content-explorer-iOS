@@ -5,7 +5,7 @@
 
 
 #import "ReportViewController.h"
-#import <MobileCoreServices/UTType.h>
+#import "ResourceTypes.h"
 
 @interface ReportViewController () <UIWebViewDelegate> {
 }
@@ -175,13 +175,14 @@
 
 
 // Handle the source url scheme and navigating back to the app that called into DICE,
-// then clear it out so it the user navigates back into DICE they arent jolted back into the report view.
+// then clear it out so if the user navigates back into DICE they arent jolted back into the report view.
 - (IBAction)backButtonTapped:(id)sender
 {
     if (self.srcScheme != nil && ![self.srcScheme isEqualToString:@""]) {
         [self dismissViewControllerAnimated:YES completion:nil];
         [[UIApplication sharedApplication] openURL:_srcURL];
-    } else {
+    }
+    else {
         [self dismissViewControllerAnimated:YES completion:nil];
     }
     
@@ -215,37 +216,15 @@
 }
 
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-    NSLog(@"ReportView requesting %@", [request URL]);
-    CFStringRef lasType = CFSTR("org.asprs.las");
-    CFStringRef lasZipType = CFSTR("com.rapidlasso.laszip");
-    NSURL *url = [request URL];
-    NSString *resourceTypeIdStr = nil;
-    CFStringRef resourceTypeId = NULL;
-    [url getResourceValue: &resourceTypeIdStr forKey:NSURLTypeIdentifierKey error: nil];
-    if (!resourceTypeIdStr) {
-        NSString *resourceExt = [url pathExtension];
-        resourceTypeId = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)resourceExt, NULL);
-        resourceTypeIdStr = (__bridge NSString *)resourceTypeId;
-        [url setResourceValue: resourceTypeIdStr forKey: NSURLTypeIdentifierKey error: nil];
-        [url getResourceValue: &resourceTypeIdStr forKey: NSURLTypeIdentifierKey error: nil];
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    if (navigationType == UIWebViewNavigationTypeLinkClicked && request.URL.isFileURL) {
+        if ([ResourceTypes canOpenResource:request.URL]) {
+            [self performSegueWithIdentifier:@"showLinkedResource" sender:self];
+        }
+        // TODO: add support for linked dice reports - maybe by dice:// url, or just an absolute url as opposed to relative to current report
+        return NO;
     }
-    else {
-        resourceTypeId = (__bridge CFStringRef)resourceTypeIdStr;
-    }
-    if ([[UIApplication sharedApplication] canOpenURL: url]) {
-        NSLog(@"somebody can open %@", url);
-    }
-//    if (UTTypeEqual(lasType, resourceTypeId) || UTTypeEqual(lasZipType, resourceTypeId)) {
-//        NSLog(@"opening LAS resource %@", url);
-//        UIDocumentInteractionController *docs = [UIDocumentInteractionController interactionControllerWithURL: url];
-//        NSLog(@"docs controller says uti is %@", docs.UTI);
-//        if (![docs presentOpenInMenuFromRect: _webView.bounds inView: [self view] animated: YES]) {
-//            @throw @"Dammit";
-//        }
-//        [[UIApplication sharedApplication] openURL: url];
-//        return NO;
-//    }
     return YES;
 }
 

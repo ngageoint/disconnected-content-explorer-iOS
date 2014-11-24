@@ -12,13 +12,14 @@
 			<key>CFBundleTypeIconFiles</key>
 			<array/>
 			<key>CFBundleTypeName</key>
-			<string>com.pkware.zip-archive</string>
+			<string>public.zip-archive</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSHandlerRank</key>
 			<string>Alternate</string>
 			<key>LSItemContentTypes</key>
 			<array>
+				<string>public.zip-archive</string>
 				<string>com.pkware.zip-archive</string>
 			</array>
 		</dict>
@@ -52,6 +53,20 @@
 			<array>
 				<string>org.asprs.las</string>
 				<string>com.rapidlasso.laszip</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
+			<array/>
+			<key>CFBundleTypeName</key>
+			<string>com.glob3mobile.json-pointcloud</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.glob3mobile.json-pointcloud</string>
 			</array>
 		</dict>
 	</array>
@@ -165,14 +180,37 @@
 			<string>http://www.laszip.org/</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
-				<key>application/las+zip</key>
-				<string></string>
 				<key>com.apple.ostype</key>
 				<string>LASZip</string>
 				<key>public.filename-extension</key>
 				<array>
 					<string>laz</string>
 				</array>
+				<key>public.mime-type</key>
+				<string>application/las+zip</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.netscape.javascript-source</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>JSON file containg glob3mobile pointcloud data</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.glob3mobile.json-pointcloud</string>
+			<key>UTTypeReferenceURL</key>
+			<string>http://www.glob3mobile.com/</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>com.apple.ostype</key>
+				<string>G3M_Pointcloud</string>
+				<key>public.filename-extension</key>
+				<array>
+					<string>g3m-pointcloud</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/json+g3m-pointcloud</string>
 			</dict>
 		</dict>
 	</array>

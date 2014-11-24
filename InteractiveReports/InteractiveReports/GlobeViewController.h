@@ -8,14 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol GlobeViewDelegate
+#import "ResourceTypes.h"
 
-- (void) dismissGlobeView;
 
-@end
-
-@interface GlobeViewController : UIViewController
-
-@property (weak, nonatomic) id<GlobeViewDelegate> delegate;
+@interface GlobeViewController : UIViewController <ResourceHandler>
 
 @end
