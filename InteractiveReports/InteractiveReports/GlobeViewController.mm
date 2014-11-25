@@ -16,6 +16,8 @@
 
 @property (weak, nonatomic) IBOutlet G3MWidget_iOS *globeView;
 
+@property (nonatomic) MeshRenderer *meshRenderer;
+
 @end
 
 // TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
@@ -29,6 +31,8 @@
     [super viewDidLoad];
     
     G3MBuilder_iOS builder(self.globeView);
+    self.meshRenderer = new MeshRenderer();
+    builder.addRenderer(self.meshRenderer);
     builder.initializeWidget();
 }
 
@@ -48,16 +52,23 @@
 - (void)viewDidDisappear:(BOOL)animated {
     // Stop the glob3 render loop
     [self.globeView stopAnimation];
+    self.meshRenderer->clearMeshes();
     [super viewDidDisappear:animated];
 }
 
 // Release property
 - (void)viewDidUnload {
-//    self.globeView = nil;
 }
 
 - (void)handleResource:(NSURL *)resource {
-    NSLog(@"GlobeViewController: loading resource %@", resource);
+    float pointSize = 2.0;
+    double deltaHeight = 0.0;
+    MeshLoadListener *loadListener = NULL;
+    bool deleteListener = true;
+    NSString *resourceName = resource.absoluteString;
+    self.meshRenderer->loadJSONPointCloud(
+        URL([resourceName UTF8String]),
+        pointSize, deltaHeight, loadListener, deleteListener);
 }
 
 @end
