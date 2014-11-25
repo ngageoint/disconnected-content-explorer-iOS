@@ -154,40 +154,17 @@ Info designed by NAS from thenounproject.com</string>
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </webView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2ry-v9-eFl">
-                                <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
-                                <items>
-                                    <barButtonItem title="Back" id="99O-3z-f7a" userLabel="Back button">
-                                        <color key="tintColor" red="0.63529413940000001" green="0.023529414089999999" blue="0.058823533359999999" alpha="1" colorSpace="deviceRGB"/>
-                                        <connections>
-                                            <action selector="backButtonTapped:" destination="dNd-r1-5KN" id="NAy-3l-Ad8"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="Xq4-lb-tke" userLabel="Flexible space"/>
-                                    <barButtonItem image="note" id="nRv-qK-WXb" userLabel="Note button">
-                                        <color key="tintColor" red="0.63529413940000001" green="0.023529414089999999" blue="0.058823533359999999" alpha="1" colorSpace="deviceRGB"/>
-                                        <connections>
-                                            <segue destination="zsx-Cl-7xw" kind="modal" identifier="showReportNotes" id="AXe-zN-ES2"/>
-                                        </connections>
-                                    </barButtonItem>
-                                </items>
-                                <color key="tintColor" red="0.63529413940000001" green="0.023529414089999999" blue="0.058823533359999999" alpha="1" colorSpace="deviceRGB"/>
-                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Gu9-pE-Oo9" firstAttribute="leading" secondItem="q7B-Of-kbp" secondAttribute="leading" id="RLI-QP-a7L"/>
                             <constraint firstAttribute="trailing" secondItem="Gu9-pE-Oo9" secondAttribute="trailing" id="WgB-5E-ttt"/>
-                            <constraint firstItem="2ry-v9-eFl" firstAttribute="top" secondItem="Gu9-pE-Oo9" secondAttribute="top" id="Xg1-Sb-S5H"/>
                             <constraint firstAttribute="bottom" secondItem="Gu9-pE-Oo9" secondAttribute="bottom" id="Y4B-BP-8Fl"/>
                             <constraint firstItem="Gu9-pE-Oo9" firstAttribute="top" secondItem="q7B-Of-kbp" secondAttribute="top" id="jc5-xO-u3V"/>
-                            <constraint firstItem="2ry-v9-eFl" firstAttribute="trailing" secondItem="Gu9-pE-Oo9" secondAttribute="trailing" id="xYu-Qq-Wly"/>
-                            <constraint firstItem="2ry-v9-eFl" firstAttribute="leading" secondItem="Gu9-pE-Oo9" secondAttribute="leading" id="y5O-0U-yma"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="1E0-d6-rCn"/>
                     <connections>
-                        <outlet property="toolbar" destination="2ry-v9-eFl" id="WM3-BZ-FZl"/>
                         <outlet property="webView" destination="Gu9-pE-Oo9" id="7KT-A8-JdO"/>
                         <segue destination="TDl-G2-Z3N" kind="push" identifier="showLinkedResource" id="FQF-JS-sPT"/>
                     </connections>
@@ -306,7 +283,7 @@ Info designed by NAS from thenounproject.com</string>
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dld-VJ-GIw">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dld-VJ-GIw">
                                 <rect key="frame" x="0.0" y="22" width="768" height="44"/>
                                 <items>
                                     <barButtonItem style="plain" id="xx1-wn-yg8" userLabel="Segmented control">
@@ -333,24 +310,20 @@ Info designed by NAS from thenounproject.com</string>
                                     </barButtonItem>
                                 </items>
                                 <color key="tintColor" red="0.63529413938522339" green="0.023529414087533951" blue="0.058823533356189728" alpha="1" colorSpace="deviceRGB"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="barPosition">
+                                        <integer key="value" value="3"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                             </toolbar>
-                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8" userLabel="Report Collection Subview">
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8" userLabel="Report Collection Subview">
                                 <rect key="frame" x="0.0" y="66" width="768" height="958"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="olg-Y4-UG8" firstAttribute="leading" secondItem="dld-VJ-GIw" secondAttribute="leading" id="0E7-Re-u0D"/>
-                            <constraint firstItem="dld-VJ-GIw" firstAttribute="top" secondItem="LxB-ls-WCA" secondAttribute="bottom" constant="2" id="81n-yW-dfv" userLabel="Vertical Space - Toolbar Top Anchor"/>
-                            <constraint firstItem="dld-VJ-GIw" firstAttribute="trailing" secondItem="olg-Y4-UG8" secondAttribute="trailing" id="NIl-25-nLX"/>
-                            <constraint firstAttribute="trailing" secondItem="dld-VJ-GIw" secondAttribute="trailing" id="Qef-Fj-V0v"/>
-                            <constraint firstItem="dld-VJ-GIw" firstAttribute="leading" secondItem="p1D-ia-CCt" secondAttribute="leading" id="VA4-TL-0wg"/>
-                            <constraint firstItem="olg-Y4-UG8" firstAttribute="bottom" secondItem="frx-im-O3U" secondAttribute="top" id="c29-De-x7g"/>
-                            <constraint firstItem="olg-Y4-UG8" firstAttribute="top" secondItem="dld-VJ-GIw" secondAttribute="bottom" id="ndp-kW-VTN"/>
-                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="giL-Ye-eZa"/>
+                    <navigationItem key="navigationItem" title="Reports" id="giL-Ye-eZa"/>
                     <connections>
                         <outlet property="collectionSubview" destination="olg-Y4-UG8" id="4Z3-aV-h7Z"/>
                         <segue destination="dNd-r1-5KN" kind="push" identifier="showSingleReport" id="JJo-ri-aqD"/>
@@ -426,14 +399,17 @@ Info designed by NAS from thenounproject.com</string>
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
                                 <rect key="frame" x="0.0" y="64" width="768" height="960"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="bottom" secondItem="hQA-J3-35e" secondAttribute="top" id="5sA-D7-IIR"/>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="leading" secondItem="PNR-M3-edu" secondAttribute="leading" id="FCV-eK-kCA"/>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="bottom" secondItem="hQA-J3-35e" secondAttribute="top" id="NCt-EU-ycE"/>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="top" secondItem="fOb-lm-nr4" secondAttribute="bottom" id="gCm-O7-CvE"/>
+                            <constraint firstAttribute="trailing" secondItem="hE2-pH-C2R" secondAttribute="trailing" id="mft-Z8-8k4"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="R1L-Xw-7la"/>
@@ -524,7 +500,6 @@ Info designed by NAS from thenounproject.com</string>
         <image name="info" width="24" height="24"/>
         <image name="list" width="24" height="24"/>
         <image name="map" width="24" height="24"/>
-        <image name="note" width="32" height="32"/>
         <image name="tile" width="24" height="24"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
