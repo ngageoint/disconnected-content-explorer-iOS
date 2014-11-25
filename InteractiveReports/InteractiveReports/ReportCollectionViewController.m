@@ -146,7 +146,7 @@ Report *selectedReport;
     [current willMoveToParentViewController:nil];
     [self addChildViewController:target];
     
-    [self transitionFromViewController: current toViewController: target duration: 0.5 options: 0
+    [self transitionFromViewController: current toViewController: target duration: 0.25 options: 0
             animations: ^{
                 target.view.frame = currentFrame;
                 current.view.frame = CGRectApplyAffineTransform(currentFrame, slide);
