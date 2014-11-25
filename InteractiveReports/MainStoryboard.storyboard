@@ -187,10 +187,11 @@ Info designed by NAS from thenounproject.com</string>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <navigationItem key="navigationItem" id="c7l-cP-ONR"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PJP-fF-KGR" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-827" y="303"/>
+            <point key="canvasLocation" x="-995" y="-279"/>
         </scene>
         <!--List Collection View-->
         <scene sceneID="PeT-Tg-wzl">
@@ -338,12 +339,12 @@ Info designed by NAS from thenounproject.com</string>
                         <outlet property="collectionSubview" destination="olg-Y4-UG8" id="4Z3-aV-h7Z"/>
                         <segue destination="dNd-r1-5KN" kind="push" identifier="showSingleReport" id="JJo-ri-aqD"/>
                         <segue destination="dNd-r1-5KN" kind="push" identifier="showHtmlReport" id="ntg-vh-CNR"/>
-                        <segue destination="2Jc-79-puh" kind="modal" identifier="showPdfReport" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="PgM-0C-e6Z"/>
+                        <segue destination="2Jc-79-puh" kind="push" identifier="showPdfReport" id="PgM-0C-e6Z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lML-Cg-qxX" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1017" y="-1460"/>
+            <point key="canvasLocation" x="-995" y="-1629"/>
         </scene>
         <!--Map Collection View-->
         <scene sceneID="GTL-LY-qIe">
