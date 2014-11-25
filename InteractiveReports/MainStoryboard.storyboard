@@ -333,7 +333,7 @@ Info designed by NAS from thenounproject.com</string>
                             <constraint firstItem="olg-Y4-UG8" firstAttribute="trailing" secondItem="dld-VJ-GIw" secondAttribute="trailing" id="iLK-zI-rTb"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Reports" id="j1g-A4-UiI"/>
+                    <navigationItem key="navigationItem" title="DICE Reports" id="j1g-A4-UiI"/>
                     <connections>
                         <outlet property="collectionSubview" destination="olg-Y4-UG8" id="4Z3-aV-h7Z"/>
                         <segue destination="dNd-r1-5KN" kind="push" identifier="showSingleReport" id="JJo-ri-aqD"/>
