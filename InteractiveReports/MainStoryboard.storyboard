@@ -167,6 +167,7 @@ Info designed by NAS from thenounproject.com</string>
                     <connections>
                         <outlet property="webView" destination="Gu9-pE-Oo9" id="7KT-A8-JdO"/>
                         <segue destination="TDl-G2-Z3N" kind="push" identifier="showLinkedResource" id="FQF-JS-sPT"/>
+                        <segue destination="zsx-Cl-7xw" kind="modal" identifier="showReportNotes" id="1M6-x7-X4L"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="mZ2-5x-ZNr" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -283,8 +284,8 @@ Info designed by NAS from thenounproject.com</string>
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dld-VJ-GIw">
-                                <rect key="frame" x="0.0" y="22" width="768" height="44"/>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dld-VJ-GIw">
+                                <rect key="frame" x="0.0" y="64" width="768" height="44"/>
                                 <items>
                                     <barButtonItem style="plain" id="xx1-wn-yg8" userLabel="Segmented control">
                                         <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" segmentControlStyle="bar" selectedSegmentIndex="0" id="Ftu-zH-WEa">
@@ -316,14 +317,23 @@ Info designed by NAS from thenounproject.com</string>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </toolbar>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8" userLabel="Report Collection Subview">
-                                <rect key="frame" x="0.0" y="66" width="768" height="958"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8" userLabel="Report Collection Subview">
+                                <rect key="frame" x="0.0" y="108" width="768" height="916"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="dld-VJ-GIw" secondAttribute="trailing" id="1Cj-jk-ebA"/>
+                            <constraint firstItem="dld-VJ-GIw" firstAttribute="top" secondItem="LxB-ls-WCA" secondAttribute="bottom" id="1fn-dT-uzC"/>
+                            <constraint firstItem="olg-Y4-UG8" firstAttribute="top" secondItem="dld-VJ-GIw" secondAttribute="bottom" id="LjE-2A-frX"/>
+                            <constraint firstItem="olg-Y4-UG8" firstAttribute="leading" secondItem="p1D-ia-CCt" secondAttribute="leading" id="Qgh-7k-NNE"/>
+                            <constraint firstItem="olg-Y4-UG8" firstAttribute="bottom" secondItem="frx-im-O3U" secondAttribute="top" id="Vmb-MR-wkf"/>
+                            <constraint firstItem="dld-VJ-GIw" firstAttribute="leading" secondItem="olg-Y4-UG8" secondAttribute="leading" id="YAJ-X0-X0o"/>
+                            <constraint firstItem="olg-Y4-UG8" firstAttribute="trailing" secondItem="dld-VJ-GIw" secondAttribute="trailing" id="iLK-zI-rTb"/>
+                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Reports" id="giL-Ye-eZa"/>
+                    <navigationItem key="navigationItem" title="Reports" id="j1g-A4-UiI"/>
                     <connections>
                         <outlet property="collectionSubview" destination="olg-Y4-UG8" id="4Z3-aV-h7Z"/>
                         <segue destination="dNd-r1-5KN" kind="push" identifier="showSingleReport" id="JJo-ri-aqD"/>
@@ -333,7 +343,7 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lML-Cg-qxX" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1017" y="-1629"/>
+            <point key="canvasLocation" x="-1017" y="-1460"/>
         </scene>
         <!--Map Collection View-->
         <scene sceneID="GTL-LY-qIe">
