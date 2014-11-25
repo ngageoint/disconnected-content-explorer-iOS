@@ -189,7 +189,7 @@ Info designed by NAS from thenounproject.com</string>
                     <connections>
                         <outlet property="toolbar" destination="2ry-v9-eFl" id="WM3-BZ-FZl"/>
                         <outlet property="webView" destination="Gu9-pE-Oo9" id="7KT-A8-JdO"/>
-                        <segue destination="TDl-G2-Z3N" kind="modal" identifier="showLinkedResource" id="SOE-1G-2DP"/>
+                        <segue destination="TDl-G2-Z3N" kind="push" identifier="showLinkedResource" id="SOE-1G-2DP"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="mZ2-5x-ZNr" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -396,6 +396,24 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="-2291" y="2122"/>
         </scene>
+        <!--Globe View Controller-->
+        <scene sceneID="Ktb-aa-jei">
+            <objects>
+                <viewController storyboardIdentifier="globeViewController" title="Globe View Controller" id="4qK-hU-aOe" customClass="GlobeViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="HOL-mx-YRh"/>
+                        <viewControllerLayoutGuide type="bottom" id="6Pk-9a-kv5"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="abo-KT-Tp3" customClass="G3MWidget_iOS">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="SHL-Qk-A92" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1299" y="-3517"/>
+        </scene>
         <!--Report Linked Resource Container-->
         <scene sceneID="YFE-zQ-7hJ">
             <objects>
@@ -408,7 +426,7 @@ Info designed by NAS from thenounproject.com</string>
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xHs-Bl-xix">
+                            <navigationBar contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xHs-Bl-xix">
                                 <rect key="frame" x="0.0" y="20" width="768" height="44"/>
                                 <items>
                                     <navigationItem title="Linked Resource" id="N8O-IF-VVT">
@@ -420,7 +438,7 @@ Info designed by NAS from thenounproject.com</string>
                                     </navigationItem>
                                 </items>
                             </navigationBar>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
+                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
                                 <rect key="frame" x="0.0" y="64" width="768" height="960"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
@@ -436,6 +454,7 @@ Info designed by NAS from thenounproject.com</string>
                             <constraint firstItem="hE2-pH-C2R" firstAttribute="leading" secondItem="xHs-Bl-xix" secondAttribute="leading" id="jk9-Od-ORx"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="Bfp-AD-lEP"/>
                     <connections>
                         <outlet property="resourceView" destination="hE2-pH-C2R" id="btI-IK-YDw"/>
                     </connections>
@@ -532,6 +551,6 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="ntg-vh-CNR"/>
+        <segue reference="JJo-ri-aqD"/>
     </inferredMetricsTieBreakers>
 </document>

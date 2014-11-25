@@ -29,7 +29,8 @@
     // Restart any tasks that were paused (or not yet started) while the application was inactive.
     // If the application was previously in the background, optionally refresh the user interface.
     self.didBecomeActive = YES;
-    ReportCollectionViewController *reportsView = (ReportCollectionViewController *)self.window.rootViewController;
+    UINavigationController *root = (UINavigationController *)self.window.rootViewController;
+    ReportCollectionViewController *reportsView = (ReportCollectionViewController *)root.topViewController;
     reportsView.didBecomeActive = YES;
 }
 

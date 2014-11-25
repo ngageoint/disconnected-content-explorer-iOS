@@ -22,9 +22,9 @@ NSDictionary *resourceViewers;
 
 + (void) initialize {
     resourceViewers = [NSDictionary dictionaryWithObjectsAndKeys:
-        [GlobeViewController class], @"com.glob3mobile.point_cloud",
-        [GlobeViewController class], @"org.asprs.las",
-        [GlobeViewController class], @"com.rapidlasso.laszip",
+        @"globeViewController", @"com.glob3mobile.json-pointcloud",
+        @"globeViewController", @"org.asprs.las",
+        @"globeViewController", @"com.rapidlasso.laszip",
         nil];
 }
 
@@ -59,11 +59,13 @@ NSDictionary *resourceViewers;
 + (UIViewController<ResourceHandler> *)viewerForResource:(NSURL *)resource
 {
     NSString *uti = [self typeUtiOf:resource];
-    Class viewer = resourceViewers[uti];
+    NSString* viewer = resourceViewers[uti];
     if (!viewer) {
         return nil;
     }
-    return [[viewer alloc] init];
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+    UIViewController<ResourceHandler> *viewController = [storyboard instantiateViewControllerWithIdentifier:viewer];
+    return viewController;
 }
 
 @end

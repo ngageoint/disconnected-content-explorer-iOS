@@ -5,17 +5,19 @@
 
 
 #import "ReportViewController.h"
+#import "ReportLinkedResourceViewController.h"
 #import "ResourceTypes.h"
 
-@interface ReportViewController () <UIWebViewDelegate> {
-}
+@interface ReportViewController () <UIWebViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property CGFloat scrollOffset;
 @property BOOL hidingToolbar;
-
+@property NSURL *linkedResource;
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
+
 - (void)configureView;
+
 @end
 
 
@@ -102,14 +104,14 @@
     }
     _toolbar.translucent = YES;
     
+    _webView.delegate = self;
+    _webView.scrollView.delegate = self;
     _webView.scrollView.contentInset = UIEdgeInsetsMake(self.toolbar.frame.size.height, 0, 0, 0);
     _webView.scrollView.backgroundColor = [UIColor clearColor];
     _webView.backgroundColor = [UIColor clearColor];
     _webView.scalesPageToFit = YES;
     
     _hidingToolbar = NO;
-    [_webView.scrollView setDelegate:self];
-    _webView.delegate = self;
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -171,6 +173,11 @@
         NoteViewController *noteViewController = (NoteViewController *)segue.destinationViewController;
         noteViewController.report = self.report;
     }
+    else if ([segue.identifier isEqualToString:@"showLinkedResource"]) {
+        ReportLinkedResourceViewController *resourceViewer = (ReportLinkedResourceViewController *)segue.destinationViewController;
+        resourceViewer.resource = self.linkedResource;
+        self.linkedResource = nil;
+    }
 }
 
 
@@ -220,6 +227,7 @@
 {
     if (navigationType == UIWebViewNavigationTypeLinkClicked && request.URL.isFileURL) {
         if ([ResourceTypes canOpenResource:request.URL]) {
+            self.linkedResource = request.URL;
             [self performSegueWithIdentifier:@"showLinkedResource" sender:self];
         }
         // TODO: add support for linked dice reports - maybe by dice:// url, or just an absolute url as opposed to relative to current report
@@ -232,7 +240,6 @@
     if ([_webView isLoading]) {
         [_webView stopLoading];
     }
-    _webView.delegate = nil;
 }
 
 @end

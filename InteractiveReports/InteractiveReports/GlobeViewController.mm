@@ -14,20 +14,23 @@
 
 @interface GlobeViewController ()
 
-@property (strong, nonatomic) G3MWidget_iOS *globeView;
+@property (readonly, weak, nonatomic, getter=getGlobeView) G3MWidget_iOS *globeView;
+
+- (G3MWidget_iOS *)getGlobeView;
 
 @end
 
+// TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
 @implementation GlobeViewController
 
-- (void)loadView {
-    self.view = self.globeView = [[G3MWidget_iOS alloc] init];
+- (G3MWidget_iOS *)getGlobeView {
+    return (G3MWidget_iOS *)self.view;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    G3MBuilder_iOS builder = G3MBuilder_iOS(self.globeView);
+    
+    G3MBuilder_iOS builder(self.globeView);
     builder.initializeWidget();
 }
 
@@ -52,7 +55,7 @@
 
 // Release property
 - (void)viewDidUnload {
-    self.globeView = nil;
+//    self.globeView = nil;
 }
 
 - (void)handleResource:(NSURL *)resource {
