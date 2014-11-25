@@ -385,14 +385,29 @@ Info designed by NAS from thenounproject.com</string>
             <objects>
                 <viewController storyboardIdentifier="globeViewController" title="Globe View Controller" id="4qK-hU-aOe" customClass="GlobeViewController" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="HOL-mx-YRh"/>
-                        <viewControllerLayoutGuide type="bottom" id="6Pk-9a-kv5"/>
+                        <viewControllerLayoutGuide type="top" id="tRk-qA-1dO"/>
+                        <viewControllerLayoutGuide type="bottom" id="T5G-Lz-BvU"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="abo-KT-Tp3" customClass="G3MWidget_iOS">
+                    <view key="view" contentMode="scaleToFill" id="Fe9-Pg-vAB">
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oC3-pt-CY6" customClass="G3MWidget_iOS">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="oC3-pt-CY6" firstAttribute="leading" secondItem="Fe9-Pg-vAB" secondAttribute="leading" id="C3q-Ag-AE2"/>
+                            <constraint firstItem="oC3-pt-CY6" firstAttribute="top" secondItem="Fe9-Pg-vAB" secondAttribute="top" id="KE7-jf-Rwk"/>
+                            <constraint firstItem="oC3-pt-CY6" firstAttribute="bottom" secondItem="T5G-Lz-BvU" secondAttribute="top" id="dAk-XX-bY6"/>
+                            <constraint firstAttribute="trailing" secondItem="oC3-pt-CY6" secondAttribute="trailing" id="g9k-ai-Lt3"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="globeView" destination="oC3-pt-CY6" id="KIm-Wn-xdL"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SHL-Qk-A92" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -411,16 +426,16 @@ Info designed by NAS from thenounproject.com</string>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
-                                <rect key="frame" x="0.0" y="64" width="768" height="960"/>
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="leading" secondItem="PNR-M3-edu" secondAttribute="leading" id="FCV-eK-kCA"/>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="bottom" secondItem="hQA-J3-35e" secondAttribute="top" id="NCt-EU-ycE"/>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="top" secondItem="fOb-lm-nr4" secondAttribute="bottom" id="gCm-O7-CvE"/>
-                            <constraint firstAttribute="trailing" secondItem="hE2-pH-C2R" secondAttribute="trailing" id="mft-Z8-8k4"/>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="leading" secondItem="PNR-M3-edu" secondAttribute="leading" id="LT0-kQ-15e"/>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="bottom" secondItem="hQA-J3-35e" secondAttribute="top" id="Q1S-lq-x0i"/>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="top" secondItem="fOb-lm-nr4" secondAttribute="bottom" constant="-64" id="WcP-my-F6d"/>
+                            <constraint firstAttribute="trailing" secondItem="hE2-pH-C2R" secondAttribute="trailing" id="st6-CI-prR"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="R1L-Xw-7la"/>
@@ -430,7 +445,7 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NDi-Xi-f4p" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1299" y="-2287"/>
+            <point key="canvasLocation" x="1299" y="-2273"/>
         </scene>
         <!--Report Notes-->
         <scene sceneID="N8T-wk-RcO">
@@ -505,6 +520,23 @@ Info designed by NAS from thenounproject.com</string>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EFu-rt-wXa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-1997" y="-1629"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="2kU-O1-jDY">
+            <objects>
+                <viewController id="dvZ-GU-X25" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ks8-wA-YTo"/>
+                        <viewControllerLayoutGuide type="bottom" id="LAP-i8-eXZ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="k5i-WA-xTn">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="40D-HF-IrI" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
         </scene>
     </scenes>
     <resources>

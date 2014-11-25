@@ -14,9 +14,7 @@
 
 @interface GlobeViewController ()
 
-@property (readonly, weak, nonatomic, getter=getGlobeView) G3MWidget_iOS *globeView;
-
-- (G3MWidget_iOS *)getGlobeView;
+@property (weak, nonatomic) IBOutlet G3MWidget_iOS *globeView;
 
 @end
 
