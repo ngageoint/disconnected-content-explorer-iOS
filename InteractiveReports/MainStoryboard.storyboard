@@ -189,7 +189,7 @@ Info designed by NAS from thenounproject.com</string>
                     <connections>
                         <outlet property="toolbar" destination="2ry-v9-eFl" id="WM3-BZ-FZl"/>
                         <outlet property="webView" destination="Gu9-pE-Oo9" id="7KT-A8-JdO"/>
-                        <segue destination="TDl-G2-Z3N" kind="push" identifier="showLinkedResource" id="SOE-1G-2DP"/>
+                        <segue destination="TDl-G2-Z3N" kind="push" identifier="showLinkedResource" id="FQF-JS-sPT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="mZ2-5x-ZNr" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -426,19 +426,7 @@ Info designed by NAS from thenounproject.com</string>
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <navigationBar contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xHs-Bl-xix">
-                                <rect key="frame" x="0.0" y="20" width="768" height="44"/>
-                                <items>
-                                    <navigationItem title="Linked Resource" id="N8O-IF-VVT">
-                                        <barButtonItem key="leftBarButtonItem" title="Back to Report" id="eoz-tw-YkR">
-                                            <connections>
-                                                <action selector="backButtonTapped:" destination="TDl-G2-Z3N" id="v0f-ep-9oF"/>
-                                            </connections>
-                                        </barButtonItem>
-                                    </navigationItem>
-                                </items>
-                            </navigationBar>
-                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
+                            <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
                                 <rect key="frame" x="0.0" y="64" width="768" height="960"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
@@ -446,15 +434,9 @@ Info designed by NAS from thenounproject.com</string>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="hE2-pH-C2R" firstAttribute="bottom" secondItem="hQA-J3-35e" secondAttribute="top" id="5sA-D7-IIR"/>
-                            <constraint firstItem="xHs-Bl-xix" firstAttribute="leading" secondItem="PNR-M3-edu" secondAttribute="leading" id="8iY-gJ-Y2J"/>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="top" secondItem="xHs-Bl-xix" secondAttribute="bottom" id="BVZ-Pr-QZi"/>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="trailing" secondItem="xHs-Bl-xix" secondAttribute="trailing" id="BaY-B4-rqm"/>
-                            <constraint firstItem="xHs-Bl-xix" firstAttribute="top" secondItem="fOb-lm-nr4" secondAttribute="bottom" id="C4s-xh-leh"/>
-                            <constraint firstAttribute="trailing" secondItem="xHs-Bl-xix" secondAttribute="trailing" id="der-ZM-FDn"/>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="leading" secondItem="xHs-Bl-xix" secondAttribute="leading" id="jk9-Od-ORx"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="Bfp-AD-lEP"/>
+                    <navigationItem key="navigationItem" id="R1L-Xw-7la"/>
                     <connections>
                         <outlet property="resourceView" destination="hE2-pH-C2R" id="btI-IK-YDw"/>
                     </connections>

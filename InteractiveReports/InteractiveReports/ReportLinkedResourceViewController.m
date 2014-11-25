@@ -14,8 +14,6 @@
 @property (weak, nonatomic) UIViewController<ResourceHandler> *resourceViewer;
 @property (weak, nonatomic) IBOutlet UIView *resourceView;
 
-- (IBAction)backButtonTapped:(id)sender;
-
 @end
 
 @implementation ReportLinkedResourceViewController
@@ -50,6 +48,10 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
 /*
 #pragma mark - Navigation
 
@@ -60,8 +62,5 @@
 }
 */
 
-- (IBAction)backButtonTapped:(id)sender {
-    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-}
 
 @end
