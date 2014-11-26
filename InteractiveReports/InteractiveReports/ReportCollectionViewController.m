@@ -52,6 +52,7 @@ Report *selectedReport;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleURLRequest:) name:@"DICEURLOpened" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearSrcScheme:) name:@"DICEClearSrcScheme" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     
     [[ReportAPI sharedInstance] loadReports];
 }
@@ -169,6 +170,10 @@ Report *selectedReport;
     else {
         [self performSegueWithIdentifier:@"showHtmlReport" sender:self];
     }
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
