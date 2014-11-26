@@ -325,11 +325,6 @@ Info designed by NAS from thenounproject.com</string>
                                     </barButtonItem>
                                 </items>
                                 <color key="tintColor" red="0.63529413938522339" green="0.023529414087533951" blue="0.058823533356189728" alpha="1" colorSpace="deviceRGB"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="barPosition">
-                                        <integer key="value" value="3"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
                             </toolbar>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8" userLabel="Report Collection Subview">
                                 <rect key="frame" x="0.0" y="108" width="768" height="916"/>
