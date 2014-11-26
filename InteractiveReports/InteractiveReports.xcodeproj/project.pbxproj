@@ -209,7 +209,7 @@
 		7D0B46711A0D482B0044236B /* FrameTask.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FrameTask.hpp; sourceTree = "<group>"; };
 		7D0B46721A0D482B0044236B /* FrameTasksExecutor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FrameTasksExecutor.cpp; sourceTree = "<group>"; };
 		7D0B46731A0D482B0044236B /* FrameTasksExecutor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FrameTasksExecutor.hpp; sourceTree = "<group>"; };
-		7D0B46741A0D482B0044236B /* G3MWidget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = G3MWidget.cpp; sourceTree = "<group>"; };
+		7D0B46741A0D482B0044236B /* G3MWidget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = G3MWidget.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B46751A0D482B0044236B /* G3MWidget.cpp.orig */ = {isa = PBXFileReference; lastKnownFileType = text; path = G3MWidget.cpp.orig; sourceTree = "<group>"; };
 		7D0B46761A0D482B0044236B /* G3MWidget.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = G3MWidget.hpp; sourceTree = "<group>"; };
 		7D0B46771A0D482B0044236B /* GenericQuadTree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GenericQuadTree.cpp; sourceTree = "<group>"; };
@@ -317,7 +317,7 @@
 		7D0B46DD1A0D482B0044236B /* URL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = URL.hpp; sourceTree = "<group>"; };
 		7D0B46DE1A0D482B0044236B /* WMSBilElevationDataProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WMSBilElevationDataProvider.cpp; sourceTree = "<group>"; };
 		7D0B46DF1A0D482B0044236B /* WMSBilElevationDataProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WMSBilElevationDataProvider.hpp; sourceTree = "<group>"; };
-		7D0B46E11A0D482B0044236B /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
+		7D0B46E11A0D482B0044236B /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B46E21A0D482B0044236B /* Camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Camera.hpp; sourceTree = "<group>"; };
 		7D0B46E31A0D482B0044236B /* CameraDoubleDragHandler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CameraDoubleDragHandler.cpp; sourceTree = "<group>"; };
 		7D0B46E41A0D482B0044236B /* CameraDoubleDragHandler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CameraDoubleDragHandler.hpp; sourceTree = "<group>"; };
@@ -509,7 +509,7 @@
 		7D0B47A21A0D482B0044236B /* GPUVariable.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GPUVariable.hpp; sourceTree = "<group>"; };
 		7D0B47A31A0D482B0044236B /* GPUVariableValueSet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GPUVariableValueSet.cpp; sourceTree = "<group>"; };
 		7D0B47A41A0D482B0044236B /* GPUVariableValueSet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GPUVariableValueSet.hpp; sourceTree = "<group>"; };
-		7D0B47A61A0D482B0044236B /* CachedDownloader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CachedDownloader.cpp; sourceTree = "<group>"; };
+		7D0B47A61A0D482B0044236B /* CachedDownloader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CachedDownloader.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B47A71A0D482B0044236B /* CachedDownloader.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CachedDownloader.hpp; sourceTree = "<group>"; };
 		7D0B47A81A0D482B0044236B /* IByteBuffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IByteBuffer.hpp; sourceTree = "<group>"; };
 		7D0B47A91A0D482B0044236B /* ICameraActivityListener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ICameraActivityListener.hpp; sourceTree = "<group>"; };
