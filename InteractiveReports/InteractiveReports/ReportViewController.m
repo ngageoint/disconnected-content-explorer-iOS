@@ -236,7 +236,8 @@
     return YES;
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
+- (void)viewWillDisappear:(BOOL)animated
+{
     if ([_webView isLoading]) {
         [_webView stopLoading];
     }
