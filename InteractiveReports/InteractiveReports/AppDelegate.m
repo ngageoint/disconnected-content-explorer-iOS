@@ -5,7 +5,8 @@
 
 
 #import "AppDelegate.h"
-#import "ReportCollectionViewController.h"
+#import "OfflineMapUtility.h"
+#import "ReportAPI.h"
 
 @interface AppDelegate ()
 
@@ -28,7 +29,6 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive.
     // If the application was previously in the background, optionally refresh the user interface.
-    self.didBecomeActive = YES;
 }
 
 
@@ -41,7 +41,8 @@
     NSString *URLString = [url absoluteString];
     NSLog(@"Here is the URL DICE got called with: %@ by %@", URLString, sourceApplication);
     
-    if (sourceApplication == nil) { // an open in request with a file:// url
+    if (sourceApplication == nil) {
+        // an "open in" request with a file:// url
         // copy the file into the DICE report folder
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSString *filename = [url lastPathComponent];
@@ -68,7 +69,9 @@
                                                               userInfo:_urlParameters];
         }];
         
-    } else { // some other app opened DICE, lets see what they want to do
+    }
+    else {
+        // some other app opened DICE, lets see what they want to do
         NSArray *parameters = [[url query] componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"=&"]];
         _urlParameters = [NSMutableDictionary dictionary];
         
