@@ -79,7 +79,6 @@
 		E39D837E19DF3B8A008357DF /* PDFViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E39D837D19DF3B8A008357DF /* PDFViewController.m */; };
 		E39DF1AA18C69DEB00B13D46 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E39DF1A918C69DEB00B13D46 /* SettingsViewController.m */; };
 		E3A5200118D7579700CE30DD /* ReportAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = E3A5200018D7579700CE30DD /* ReportAPI.m */; };
-		E3A5200418D759BF00CE30DD /* LocalReportManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E3A5200318D759BF00CE30DD /* LocalReportManager.m */; };
 		E3A73FC01855585200035C76 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3A73FBF1855585200035C76 /* MapViewController.m */; };
 		E3A73FC3185559FC00035C76 /* ReportMapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = E3A73FC2185559FC00035C76 /* ReportMapAnnotation.m */; };
 		E3A73FC518558F7A00035C76 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3A73FC418558F7A00035C76 /* MapKit.framework */; };
@@ -963,8 +962,6 @@
 		E39DF1A918C69DEB00B13D46 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		E3A51FFF18D7579700CE30DD /* ReportAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportAPI.h; sourceTree = "<group>"; };
 		E3A5200018D7579700CE30DD /* ReportAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportAPI.m; sourceTree = "<group>"; };
-		E3A5200218D759BF00CE30DD /* LocalReportManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalReportManager.h; sourceTree = "<group>"; };
-		E3A5200318D759BF00CE30DD /* LocalReportManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalReportManager.m; sourceTree = "<group>"; };
 		E3A73FBE1855585200035C76 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		E3A73FBF1855585200035C76 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		E3A73FC1185559FC00035C76 /* ReportMapAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportMapAnnotation.h; sourceTree = "<group>"; };
@@ -1991,8 +1988,6 @@
 			children = (
 				E3A51FFF18D7579700CE30DD /* ReportAPI.h */,
 				E3A5200018D7579700CE30DD /* ReportAPI.m */,
-				E3A5200218D759BF00CE30DD /* LocalReportManager.h */,
-				E3A5200318D759BF00CE30DD /* LocalReportManager.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -2478,7 +2473,6 @@
 				E3BC6EE1192E7A7B00096EE5 /* ListViewController.m in Sources */,
 				E39D836B19DF2B95008357DF /* ReaderContentTile.m in Sources */,
 				E39D834E19DF2B95008357DF /* ReaderDemoController.m in Sources */,
-				E3A5200418D759BF00CE30DD /* LocalReportManager.m in Sources */,
 				7D0B49261A0D885A0044236B /* GlobeViewController.mm in Sources */,
 				E39D837219DF2B95008357DF /* ReaderThumbFetch.m in Sources */,
 				7DA706B51A152B4700B558EC /* LasReader.m in Sources */,
