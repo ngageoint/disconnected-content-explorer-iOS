@@ -91,6 +91,7 @@
         if ([report.reportID isEqualToString: reportID]) {
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
             [_tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+            *stop = YES;
         }
     }];
 }

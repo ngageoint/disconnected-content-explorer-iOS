@@ -16,6 +16,7 @@
 
 
 @implementation LocalReportManager
+
 - (id)init
 {
     self = [super init];
@@ -25,7 +26,7 @@
         fileManager = [NSFileManager defaultManager];
         backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         NSArray *dirUrls = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
-        documentsDirectory = dirUrls[0];
+        documentsDirectory = dirUrls.firstObject;
     }
     
     return self;
@@ -81,7 +82,7 @@
                                                                       userInfo:@{
                                                                                  @"index": [NSString stringWithFormat:@"%d", i],
                                                                                  @"report": report}];
-                });
+                                                                                });
             }
             i++;
         }

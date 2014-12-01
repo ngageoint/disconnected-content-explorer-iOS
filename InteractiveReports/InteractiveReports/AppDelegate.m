@@ -17,7 +17,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    //initializing offline map polygons (potentially thread this)
+    // initialize offline map polygons
+    // TODO: potentially thread this
     NSDictionary *geojson = [OfflineMapUtility dictionaryWithContentsOfJSONString:@"ne_50m_land.simplify0.2"];
     NSMutableArray *featuresArray = [geojson objectForKey:@"features"];
     [OfflineMapUtility generateExteriorPolygons:featuresArray];
@@ -26,7 +27,8 @@
 }
 
 
-- (void)applicationDidBecomeActive:(UIApplication *)application {
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
     // Restart any tasks that were paused (or not yet started) while the application was inactive.
     // If the application was previously in the background, optionally refresh the user interface.
 }
@@ -39,27 +41,33 @@
     }
     
     NSString *URLString = [url absoluteString];
-    NSLog(@"Here is the URL DICE got called with: %@ by %@", URLString, sourceApplication);
+    NSLog(@"open url request for %@ from app %@", URLString, sourceApplication);
     
-    if (sourceApplication == nil) {
+    if (url.isFileURL) {
         // an "open in" request with a file:// url
-        // copy the file into the DICE report folder
+        // move the file into the DICE report folder
+        // TODO: move this file work to ReportAPI and do in background
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSString *filename = [url lastPathComponent];
-        NSString *documentspath = [NSHomeDirectory() stringByAppendingString:@"/Documents/"];
-        NSString *pathToCopyFrom = [NSString stringWithFormat:@"%@Inbox/%@", documentspath, filename];
+        NSURL *documentsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+        NSString *fileName = url.lastPathComponent;
+        NSURL *destFile = [documentsDir URLByAppendingPathComponent:fileName];
         NSError *error;
-        [fileManager copyItemAtPath:pathToCopyFrom toPath:[NSString stringWithFormat:@"%@%@", documentspath, filename] error:&error];
+        
+        [fileManager moveItemAtURL:url toURL:destFile error:&error];
         
         if (error) {
-            NSLog(@"Something bad happened %@", [error localizedDescription]);
+            NSLog(@"error moving file %@ to documents directory for open request: %@", url, [error localizedDescription]);
         }
         
-        _urlParameters = [NSMutableDictionary dictionary];
-        [_urlParameters setObject:filename forKey:@"reportID"];
         
-        // have the local report manager load the new file
+        // TODO: present progress ui to offer choice go back to requesting app
+        // or view the report when finished, e.g., when downloading reports from Safari
+        
+        _urlParameters = [NSMutableDictionary dictionary];
+        [_urlParameters setObject:fileName forKey:@"reportID"];
+        
         [[ReportAPI sharedInstance] loadReportsWithCompletionHandler:^{
+            // TODO: ensure these notifications are on the main thread
             [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEReportsRefreshed"
                                                                 object:nil
                                                               userInfo:nil];
@@ -72,12 +80,14 @@
     }
     else {
         // some other app opened DICE, lets see what they want to do
-        NSArray *parameters = [[url query] componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"=&"]];
+        NSArray *parameters = [url.query componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"=&"]];
         _urlParameters = [NSMutableDictionary dictionary];
         
-        for (int i = 0; i < [parameters count]; i=i+2) {
-            NSLog(@"Key: %@ Value: %@", [parameters objectAtIndex:i], [parameters objectAtIndex:i+1]);
-            [_urlParameters setObject:[parameters objectAtIndex:i+1] forKey:[parameters objectAtIndex:i]];
+        for (int keyIndex = 0; keyIndex < [parameters count]; keyIndex += 2) {
+            NSString *key = parameters[keyIndex];
+            NSString *value = parameters[keyIndex + 1];
+            NSLog(@"Key: %@ Value: %@", key, value);
+            [_urlParameters setObject:value forKey:key];
         }
         
         [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEURLOpened"

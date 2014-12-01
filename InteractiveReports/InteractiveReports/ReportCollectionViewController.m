@@ -90,8 +90,8 @@ Report *selectedReport;
     
     [reports enumerateObjectsUsingBlock: ^(Report* report, NSUInteger idx, BOOL *stop) {
         if ([report.reportID isEqualToString:_reportID]) {
-            *stop = YES;
             [self reportSelectedToView:report];
+            *stop = YES;
         }
     }];
 }
