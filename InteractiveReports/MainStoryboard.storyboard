@@ -544,4 +544,5 @@ Info designed by NAS from thenounproject.com</string>
     <inferredMetricsTieBreakers>
         <segue reference="JJo-ri-aqD"/>
     </inferredMetricsTieBreakers>
+    <color key="tintColor" red="0.63529413940000001" green="0.023529414089999999" blue="0.058823533359999999" alpha="1" colorSpace="deviceRGB"/>
 </document>
