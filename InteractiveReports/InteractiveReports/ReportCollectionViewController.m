@@ -108,10 +108,6 @@ Report *selectedReport;
     if ([[segue identifier] isEqualToString:@"showHtmlReport"]) {
         ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
         reportViewController.report = selectedReport;
-        if (_srcScheme) {
-            reportViewController.srcScheme = _srcScheme;
-            reportViewController.urlParams = _urlParams;
-        }
     }
     else if ([[segue identifier] isEqualToString:@"showPdfReport"]) {
         PDFViewController *pdfViewController = (PDFViewController *)segue.destinationViewController;
@@ -119,8 +115,6 @@ Report *selectedReport;
     }
     else if ([[segue identifier] isEqualToString:@"showSingleReport"]) {
         ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
-        reportViewController.srcScheme = _srcScheme;
-        reportViewController.urlParams = _urlParams;
         reportViewController.report = [reports objectAtIndex:0];
         reportViewController.singleReport = YES;
         // TODO: make sure this behaves as expected
