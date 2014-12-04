@@ -7,18 +7,42 @@
 //
 
 #import "GlobeViewController.h"
+
+#import "Context.hpp"
 #import "G3MWidget_iOS.h"
+#import "G3MWidget.hpp"
 #import "G3MBuilder_iOS.hpp"
+#import "Mesh.hpp"
 #import "MeshRenderer.hpp"
+#import "Planet.hpp"
+#import "Vector3D.hpp"
 
 
 @interface GlobeViewController ()
 
 @property (weak, nonatomic) IBOutlet G3MWidget_iOS *globeView;
-
 @property (nonatomic) MeshRenderer *meshRenderer;
 
+- (void)onAfterAddMesh:(Mesh*)mesh;
+
 @end
+
+
+class DICEMeshLoadListener : public MeshLoadListener {
+public:
+    DICEMeshLoadListener(GlobeViewController *controller) : _controller(controller) {};
+    virtual ~DICEMeshLoadListener() {
+        _controller = NULL;
+    }
+    virtual void onAfterAddMesh(Mesh *mesh) {
+        [_controller onAfterAddMesh:mesh];
+    }
+    virtual void onBeforeAddMesh(Mesh *mesh) {}
+    virtual void onError(const URL& url) {}
+private:
+    GlobeViewController *_controller;
+};
+
 
 // TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
 @implementation GlobeViewController
@@ -56,19 +80,23 @@
     [super viewDidDisappear:animated];
 }
 
-// Release property
-- (void)viewDidUnload {
-}
-
 - (void)handleResource:(NSURL *)resource {
     float pointSize = 2.0;
     double deltaHeight = 0.0;
-    MeshLoadListener *loadListener = NULL;
+    MeshLoadListener *loadListener = new DICEMeshLoadListener(self);
     bool deleteListener = true;
     NSString *resourceName = resource.absoluteString;
     self.meshRenderer->loadJSONPointCloud(
         URL([resourceName UTF8String]),
         pointSize, deltaHeight, loadListener, deleteListener);
+}
+
+- (void)onAfterAddMesh:(Mesh *)mesh {
+    Vector3D center = mesh->getCenter();
+    const Planet *planet = [self.globeView widget]->getG3MContext()->getPlanet();
+    Geodetic3D geoCenter = planet->toGeodetic3D(center);
+    Geodetic3D lookingAtMesh = Geodetic3D(geoCenter._latitude, geoCenter._longitude, geoCenter._height + 5000.0);
+    [self.globeView setAnimatedCameraPosition:lookingAtMesh];
 }
 
 @end
