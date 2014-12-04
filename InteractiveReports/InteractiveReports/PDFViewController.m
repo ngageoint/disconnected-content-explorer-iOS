@@ -14,7 +14,8 @@
 
 @implementation PDFViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     self.isDismissed = NO;
 }
@@ -24,8 +25,9 @@
 {
     if (self.isDismissed) {
         [self dismissViewControllerAnimated:YES completion:nil];
-    } else {
-        ReaderDocument *document = [ReaderDocument withDocumentFilePath:[NSString stringWithFormat:@"%@%@", self.report.url, self.report.title] password:nil];
+    }
+    else {
+        ReaderDocument *document = [ReaderDocument withDocumentFilePath:self.report.url.path password:nil];
         
         if (document != nil) {
             ReaderViewController *readerViewController = [[ReaderViewController alloc] initWithReaderDocument:document];
@@ -38,7 +40,8 @@
 }
 
 
-- (void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning
+{
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }

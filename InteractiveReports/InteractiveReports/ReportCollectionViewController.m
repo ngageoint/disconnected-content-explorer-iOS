@@ -33,11 +33,11 @@ Report *selectedReport;
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    views = [[NSArray alloc] initWithObjects:
-             [self.storyboard instantiateViewControllerWithIdentifier: @"listCollectionView"],
-             [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
-             [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"],
-             nil];
+    views = @[
+        [self.storyboard instantiateViewControllerWithIdentifier: @"listCollectionView"],
+        [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
+        [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"]
+    ];
     [views enumerateObjectsUsingBlock:^(UIViewController<ReportCollectionView> *view, NSUInteger idx, BOOL *stop) {
         view.delegate = self;
         view.reports = [[ReportAPI sharedInstance] getReports];

@@ -3,7 +3,7 @@
 //  InteractiveReports
 //
 
-
+#import "ReportAPI.h"
 #import "ReportViewController.h"
 #import "ReportLinkedResourceViewController.h"
 #import "ResourceTypes.h"
@@ -16,38 +16,13 @@
 @property NSURL *linkedResource;
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
 
-- (void)configureView;
-
 @end
 
 
 @implementation ReportViewController
 
-#pragma mark - Managing the detail item
-- (void)setDetailItem:(id)newDetailItem
-{
-    if (_detailItem != newDetailItem) {
-        _detailItem = newDetailItem;
-        
-        // Update the view.
-        [self configureView];
-    }
-    
-    if (self.masterPopoverController != nil) {
-        [self.masterPopoverController dismissPopoverAnimated:YES];
-    }
-}
-
-
-- (void)configureView
-{
-    // Update the user interface for the detail item.
-}
-
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    
     CGFloat scrollDifference = _scrollOffset - scrollView.contentOffset.y;
     CGFloat toolbarWillMoveTo = 0.0;
     toolbarWillMoveTo = self.toolbar.frame.origin.y+scrollDifference;
@@ -69,7 +44,6 @@
     [UIView commitAnimations];
     
     _scrollOffset = scrollView.contentOffset.y;
-    
 }
 
 
@@ -77,24 +51,16 @@
 {
     [super viewDidLoad];
     
-    if (![self.report.fileExtension isEqualToString:@"pdf"])
+    if (![self.report.fileExtension isEqualToString:@"pdf"]) {
         [self loadReportContent];
+    }
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleNotification:) name:@"DICEReportUpdatedNotification" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:@"DICEReportUnzipProgressNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportUpdated:) name:[ReportNotification reportUpdated] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:[ReportNotification reportImportProgress] object:nil];
     
     _unzipStatusLabel = [[UILabel alloc] init];
     _unzipComplete = NO;
     
-    _srcURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@://?srcScheme=dice", self.srcScheme]];
-    NSString *aKey;
-    NSEnumerator *keyEnumerator = [_urlParams keyEnumerator];
-    while (aKey = [keyEnumerator nextObject]) {
-        if ([aKey isEqualToString:@"srcScheme"]) {} // do nothing if they passed in a srcScheme, since once they navigate back to their app, DICE would be the src, as we set above
-        else {
-            _srcURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", _srcURL, aKey, _urlParams[aKey]]];
-        }
-    }
     if ([self respondsToSelector:@selector(setNeedsStatusBarAppearanceUpdate)]) {
         // iOS 7
         [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate)];
@@ -113,6 +79,7 @@
     
     _hidingToolbar = NO;
 }
+
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
@@ -151,7 +118,8 @@
             @catch (NSException *exception) {
                 NSLog(@"Problem loading URL %@. Report name: %@", [exception reason], self.reportName);
             }
-        } else {
+        }
+        else {
             NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@", self.report.url, self.report.title]];
             [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
         }
@@ -181,34 +149,14 @@
 }
 
 
-// Handle the source url scheme and navigating back to the app that called into DICE,
-// then clear it out so if the user navigates back into DICE they arent jolted back into the report view.
-- (IBAction)backButtonTapped:(id)sender
-{
-    if (self.srcScheme != nil && ![self.srcScheme isEqualToString:@""]) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-        [[UIApplication sharedApplication] openURL:_srcURL];
-    }
-    else {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
-    
-    self.srcScheme = @"";
-    // TODO: handle this in app delegate and get rid of all the observers for this notification
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEClearSrcScheme" object:nil];
-}
-
-
 # pragma mark - notification handling methods
-- (void)handleNotification:(NSNotification *)notification
+- (void)reportUpdated:(NSNotification *)notification
 {
     if (self.singleReport) {
-        NSLog(@"DetailView: handling notification");
         [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:@"Loading..." waitUntilDone:NO];
         [_unzipStatusLabel removeFromSuperview];
         self.unzipComplete = YES;
         Report *report = notification.userInfo[@"report"];
-        NSLog(@"%@ message recieved", [report title]);
         self.report = report;
         [self loadReportContent];
     }

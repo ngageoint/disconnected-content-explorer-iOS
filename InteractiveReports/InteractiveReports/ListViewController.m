@@ -3,8 +3,8 @@
 //  InteractiveReports
 //
 
+#import "ReportAPI.h"
 #import "ListViewController.h"
-#import "GlobeViewController.h"
 
 @interface ListViewController ()
 
@@ -23,10 +23,9 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReport:) name:@"DICEReportUpdatedNotification" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:@"DICEReportUnzipProgressNotification" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleURLRequest:) name:@"DICEURLOpened" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportsRefreshed:) name:@"DICEReportsRefreshed" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportUpdated] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportsLoaded] object:nil];
     
     self.title = @"Disconnected Interactive Content Explorer";
     
@@ -56,30 +55,17 @@
 }
 
 
-# pragma mark - Notification handling methods
-- (void)updateReport:(NSNotification *)notification
-{
-    Report *report = notification.userInfo[@"report"];
-    NSLog(@"%@ %@ message recieved", notification, [report title]);
-    [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-}
-
-
-- (void)updateUnzipProgress:(NSNotification *)notification
-{
-    int index = [notification.userInfo[@"index"] intValue];
-    Report *report = self.reports[index];
-    report.totalNumberOfFiles = [notification.userInfo[@"totalNumberOfFiles"] intValue];
-    report.progress = [notification.userInfo[@"progress"] intValue];
-    [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-}
-
-
-- (void)reportsRefreshed:(NSNotification *)notification
+- (void)refreshReportList:(NSNotification *)notification
 {
     [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
+// TODO: make a new notification to indicate the last selected report
+// can probably handle setting the selection in viewWillAppear:animated:
+// instead of with a notification
+// we will probably need a report stack when we implement inter-linking
+// reports, so we can just peek at the top of the stack to find the last
+// selected report
 - (void)handleURLRequest:(NSNotification*)notification
 {
     NSDictionary *urlParams = notification.userInfo;

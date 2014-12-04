@@ -10,15 +10,42 @@
 #import "ZipException.h"
 #import "FileInZipInfo.h"
 
-@interface ReportAPI () {
-    dispatch_queue_t backgroundQueue;
-    NSMutableArray *reports;
-    NSFileManager *fileManager;
-    NSURL *documentsDirectory;
+
+@implementation ReportNotification
+
++ (NSString *)reportAdded {
+    return @"DICE.ReportAdded";
+}
++ (NSString *)reportUpdated {
+    return @"DICE.ReportUpdated";
+}
++ (NSString *)reportsLoaded {
+    return @"DICE.ReportsLoaded";
+}
++ (NSString *)reportImportBegan {
+    return @"DICE.ReportImportBegan";
+}
++ (NSString *)reportImportProgress {
+    return @"DICE.ReportImportProgress";
+}
++ (NSString *)reportImportFinished {
+    return @"DICE.ReportImportFinished";
 }
 
 @end
 
+
+@interface ReportAPI () {
+    dispatch_queue_t backgroundQueue;
+    NSMutableArray *reports;
+    NSFileManager *fileManager;
+    NSURL *reportsDir;
+    NSArray *recognizedFileExtensions;
+}
+
+@end
+
+// TODO: implement report content hashing to detect new reports and duplicates
 
 @implementation ReportAPI
 
@@ -40,7 +67,12 @@
         reports = [[NSMutableArray alloc] init];
         fileManager = [NSFileManager defaultManager];
         backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-        documentsDirectory = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+        reportsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+        reportsDir = [reportsDir URLByAppendingPathComponent:@"reports" isDirectory:YES];
+        if (![fileManager fileExistsAtPath:reportsDir.path]) {
+            [fileManager createDirectoryAtPath:reportsDir.path withIntermediateDirectories:YES attributes:nil error:nil];
+        }
+        recognizedFileExtensions = @[@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx"];
     }
     
     return self;
@@ -53,53 +85,29 @@
 }
 
 
+- (Report *)reportForID:(NSString *)reportID
+{
+    return [reports filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"reportID == %@", reportID]].firstObject;
+}
+
+
 /*
  * Load the report zips and PDFs that are stored in the app's Documents directory
  */
 - (void)loadReports
 {
     [reports removeAllObjects];
-    
-    NSArray *extensions = [NSArray arrayWithObjects:@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx", nil];
-    
-    NSDirectoryEnumerator *files = [fileManager enumeratorAtURL:documentsDirectory
-                                     includingPropertiesForKeys:@[NSURLNameKey, NSURLIsRegularFileKey, NSURLIsReadableKey, NSURLLocalizedNameKey]
-                                                        options:(NSDirectoryEnumerationSkipsPackageDescendants | NSDirectoryEnumerationSkipsSubdirectoryDescendants)
-                                                   errorHandler:nil];
-    int i = 0;
+
+    NSDirectoryEnumerator *files = [fileManager enumeratorAtURL:reportsDir
+        includingPropertiesForKeys:@[NSURLNameKey, NSURLIsRegularFileKey, NSURLIsReadableKey, NSURLLocalizedNameKey]
+        options:(NSDirectoryEnumerationSkipsPackageDescendants | NSDirectoryEnumerationSkipsSubdirectoryDescendants)
+        errorHandler:nil];
     
     for (NSURL *file in files) {
-        NSNumber* isRegularFile;
-        [file getResourceValue:&isRegularFile forKey: NSURLIsRegularFileKey error: nil];
-        if (isRegularFile.boolValue && [extensions containsObject:file.pathExtension]) {
-            Report *report = [Report reportWithTitle:file.lastPathComponent];
-            [reports addObject:report];
-            
-            NSString *reportName = report.title;
-            NSString *fileExtension = file.pathExtension;
-            
-            if ( [fileExtension caseInsensitiveCompare:@"zip"] == NSOrderedSame ) {
-                dispatch_async(backgroundQueue, ^(void) {
-                    [self processZip:report atFilePath:file atIndex:i];
-                });
-            }
-            else { // PDFs and office files
-                dispatch_async(backgroundQueue, ^(void) {
-                    Report *report = [Report reportWithTitle:reportName];
-                    report.url = file;
-                    report.reportID = reportName;
-                    report.fileExtension = fileExtension;
-                    report.isEnabled = YES;
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEReportUpdatedNotification"
-                                                                        object:report
-                                                                      userInfo:@{
-                                                                                 @"index": [NSString stringWithFormat:@"%d", i],
-                                                                                 @"report": report}];
-                });
-            }
-            i++;
-        }
+        [self addReportFromFile:file afterComplete:nil];
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportsLoaded] object:self userInfo:nil];
 }
 
 
@@ -110,11 +118,12 @@
 }
 
 
-- (void)importReportFromUrl:(NSURL *)reportUrl afterImport:(void(^)(void))afterImportBlock
+- (void)importReportFromUrl:(NSURL *)reportUrl afterImport:(void(^)(Report *))afterImportBlock
 {
-    NSURL *documentsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+    // TODO: notify import begin
+
     NSString *fileName = reportUrl.lastPathComponent;
-    NSURL *destFile = [documentsDir URLByAppendingPathComponent:fileName];
+    NSURL *destFile = [reportsDir URLByAppendingPathComponent:fileName];
     NSError *error;
     
     [fileManager moveItemAtURL:reportUrl toURL:destFile error:&error];
@@ -122,20 +131,63 @@
     if (error) {
         NSLog(@"error moving file %@ to documents directory for open request: %@", reportUrl, [error localizedDescription]);
     }
+
+    [self addReportFromFile:destFile afterComplete:afterImportBlock];
+}
+
+
+- (void)addReportFromFile:(NSURL *)file afterComplete:(void(^)(Report *))afterCompleteBlock
+{
+    NSNumber* isRegularFile;
+    [file getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
     
-    NSMutableDictionary *urlParameters = [NSMutableDictionary dictionary];
-    [urlParameters setObject:fileName forKey:@"reportID"];
-    
-    [self loadReportsWithCompletionHandler:^{
-        // TODO: ensure these notifications are on the main thread
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEReportsRefreshed"
-                                                            object:nil
-                                                          userInfo:nil];
+    if (isRegularFile.boolValue && [recognizedFileExtensions containsObject:file.pathExtension]) {
+        Report *report = [Report reportWithTitle:file.lastPathComponent];
+        report.sourceFile = file;
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEURLOpened"
-                                                            object:nil
-                                                          userInfo:urlParameters];
-    }];
+        [reports addObject:report];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded]
+                                                            object:self
+                                                          userInfo:@{
+                                                              @"report": report,
+                                                              @"index": [NSString stringWithFormat:@"%lu", reports.count - 1]
+                                                          }];
+        
+        NSString *reportName = report.title;
+        NSString *fileExtension = file.pathExtension;
+        
+        if ( [fileExtension caseInsensitiveCompare:@"zip"] == NSOrderedSame ) {
+            dispatch_async(backgroundQueue, ^(void) {
+                [self processZip:report atIndex:(reports.count - 1)];
+                if (afterCompleteBlock) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        afterCompleteBlock(report);
+                    });
+                }
+            });
+        }
+        else { // PDFs and office files
+            dispatch_async(backgroundQueue, ^(void) {
+                report.url = file;
+                report.reportID = reportName;
+                report.fileExtension = fileExtension;
+                report.isEnabled = YES;
+                [[NSNotificationCenter defaultCenter]
+                    postNotificationName:[ReportNotification reportUpdated]
+                    object:self
+                    userInfo:@{
+                        @"index": [NSString stringWithFormat:@"%lu", reports.count - 1],
+                        @"report": report
+                    }];
+                if (afterCompleteBlock) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        afterCompleteBlock(report);
+                    });
+                }
+            });
+        }
+    }
 }
 
 
@@ -143,28 +195,28 @@
  * Unzip the report, if there is a metadata.json file included, spruce up the object so it displays fancier
  * in the list, grid, and map views. Otherwise, note the error and send back an error placeholder object.
  */
-- (void)processZip:(Report*)report atFilePath:(NSURL *)sourceFile atIndex:(int)index
+- (void)processZip:(Report*)report atIndex:(NSUInteger)index
 {
+    NSURL *sourceFile = report.sourceFile;
     NSString *sourceFileName = sourceFile.lastPathComponent;
     report.title = sourceFile.lastPathComponent;
     @try {
         NSRange rangeOfDot = [sourceFileName rangeOfString:@"."];
         NSString *fileExtension = [sourceFile pathExtension];
-        NSString *unzipDirName = (rangeOfDot.location != NSNotFound) ? [sourceFileName substringToIndex:rangeOfDot.location] : nil;
-        NSURL *unzipDir = [documentsDirectory URLByAppendingPathComponent: unzipDirName];
-        NSURL *jsonFile = [unzipDir URLByAppendingPathComponent: @"metadata.json"];
-        NSError *error = nil;
+        NSString *expectedContentDirName = (rangeOfDot.location != NSNotFound) ? [sourceFileName substringToIndex:rangeOfDot.location] : nil;
+        NSURL *expectedContentDir = [reportsDir URLByAppendingPathComponent: expectedContentDirName];
+        NSURL *jsonFile = [expectedContentDir URLByAppendingPathComponent: @"metadata.json"];
+        NSError *error;
         
-        if(![fileManager fileExistsAtPath:unzipDir.path]) {
-            [self unzipFileAtPath:sourceFile toDirectory:documentsDirectory error:&error];
+        if(![fileManager fileExistsAtPath:expectedContentDir.path]) {
+            [self unzipReportContents:report toDirectory:reportsDir error:&error];
         }
         
         // Handle the metadata.json, make the report fancier, if it is available
         if ( [fileManager fileExistsAtPath:jsonFile.path] && error == nil) {
             NSString *jsonString = [[NSString alloc] initWithContentsOfFile:jsonFile.path encoding:NSUTF8StringEncoding error:NULL];
-            NSError *error;
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
-            
+
             report.title = [json objectForKey:@"title"];
             report.description = [json objectForKey:@"description"];
             report.thumbnail = [json objectForKey:@"thumbnail"];
@@ -173,12 +225,12 @@
             report.lon = [[json valueForKey:@"lon"] doubleValue];
             report.reportID = [json valueForKey:@"reportID"];
             report.fileExtension = fileExtension;
-            report.url = unzipDir;
+            report.url = expectedContentDir;
             report.isEnabled = YES;
         }
         else if (error == nil) {
-            report.title = unzipDirName;
-            report.url = unzipDir;
+            report.title = expectedContentDirName;
+            report.url = expectedContentDir;
             report.isEnabled = YES;
         }
     }
@@ -188,23 +240,26 @@
         report.isEnabled = NO;
     }
     @finally {
-        // Send a message to let the views know that the report list has needs to be updated
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEReportUpdatedNotification"
-                                                            object:report
-                                                          userInfo:@{@"index": [NSString stringWithFormat:@"%d", index], @"report": report}];
+        // Send a message to let the views know that the report list needs to be updated
+        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportUpdated]
+             object:self
+             userInfo:@{
+                 @"index": [NSString stringWithFormat:@"%lu", index],
+                 @"report": report
+             }];
     }
 }
 
 
-- (BOOL)unzipFileAtPath:(NSURL *)filePath toDirectory:(NSURL *)directory error:(NSError **)error {
+- (BOOL)unzipReportContents:(Report *)report toDirectory:(NSURL *)directory error:(NSError **)error {
     if (error) {
         *error = nil;
     }
     
-    ZipFile *unzipFile = [[ZipFile alloc] initWithFileName:filePath.path mode:ZipFileModeUnzip];
+    ZipFile *unzipFile = [[ZipFile alloc] initWithFileName:report.sourceFile.path mode:ZipFileModeUnzip];
     int totalNumberOfFiles = (int)[unzipFile numFilesInZip];
     [unzipFile goToFirstFileInZip];
-    for (int i = 0; i < totalNumberOfFiles; i++) {
+    for (int filesExtracted = 0; filesExtracted < totalNumberOfFiles; filesExtracted++) {
         FileInZipInfo *info = [unzipFile getCurrentFileInZipInfo];
         NSString *name = info.name;
         if (![name hasSuffix:@"/"]) {
@@ -229,14 +284,18 @@
             [handle closeFile];
         }
         
+        report.progress = filesExtracted;
         [unzipFile goToNextFileInZip];
         
-        if (i % 25 == 0) {
+        if (filesExtracted % 25 == 0) {
             [[NSNotificationCenter defaultCenter]
-             postNotificationName:@"DICEReportUnzipProgressNotification" object:nil
-             userInfo:@{
-                        @"progress": [NSString stringWithFormat:@"%d", i],
-                        @"totalNumberOfFiles": [NSString stringWithFormat:@"%d", totalNumberOfFiles]}];
+                postNotificationName:[ReportNotification reportImportProgress]
+                object:self
+                userInfo:@{
+                    @"report": report,
+                    @"progress": [NSString stringWithFormat:@"%d", filesExtracted],
+                    @"totalNumberOfFiles": [NSString stringWithFormat:@"%d", totalNumberOfFiles]
+                }];
         }
     }
     

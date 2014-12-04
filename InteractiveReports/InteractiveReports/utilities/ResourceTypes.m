@@ -20,27 +20,25 @@
 
 NSDictionary *resourceViewers;
 
-+ (void) initialize {
-    resourceViewers = [NSDictionary dictionaryWithObjectsAndKeys:
-        @"globeViewController", @"com.glob3mobile.json-pointcloud",
-        @"globeViewController", @"org.asprs.las",
-        @"globeViewController", @"com.rapidlasso.laszip",
-        nil];
++ (void) initialize
+{
+    resourceViewers = @{
+        @"globeViewController": @"com.glob3mobile.json-pointcloud",
+        @"globeViewController": @"org.asprs.las",
+        @"globeViewController": @"com.rapidlasso.laszip"
+    };
 }
 
 + (NSString *)typeUtiOf:(NSURL *)resource
 {
     NSString *uti = nil;
-    CFStringRef utiRef = NULL;
     [resource getResourceValue:&uti forKey:NSURLTypeIdentifierKey error:nil];
     if (!uti) {
         NSString *resourceExt = [resource pathExtension];
-        utiRef = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)resourceExt, NULL);
+        CFStringRef utiRef = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)resourceExt, NULL);
         uti = (__bridge NSString *)utiRef;
+        // TODO: does this do anything?
         [resource setResourceValue: uti forKey: NSURLTypeIdentifierKey error: nil];
-    }
-    else {
-        utiRef = (__bridge CFStringRef)uti;
     }
     return uti;
 }

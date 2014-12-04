@@ -141,7 +141,7 @@ Info designed by NAS from thenounproject.com</string>
         <!--Report View-->
         <scene sceneID="JxT-zH-ow0">
             <objects>
-                <viewController title="Report View" id="dNd-r1-5KN" customClass="ReportViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="htmlReportViewController" title="Report View" id="dNd-r1-5KN" customClass="ReportViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="BIg-Vu-XvI"/>
                         <viewControllerLayoutGuide type="bottom" id="qa4-gQ-fKO"/>
@@ -190,7 +190,7 @@ Info designed by NAS from thenounproject.com</string>
         <!--PDF View-->
         <scene sceneID="gRb-E5-DFA">
             <objects>
-                <viewController title="PDF View" id="2Jc-79-puh" customClass="PDFViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="pdfReportViewController" title="PDF View" id="2Jc-79-puh" customClass="PDFViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="DmP-GB-0Az"/>
                         <viewControllerLayoutGuide type="bottom" id="OGi-fo-sM0"/>
@@ -514,7 +514,7 @@ Info designed by NAS from thenounproject.com</string>
         <!--Navigation Controller-->
         <scene sceneID="88C-9c-cNH">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="9Qk-sT-e1b" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="9Qk-sT-e1b" customClass="DICENavigationController" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="dtE-GU-SRx">
                         <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>

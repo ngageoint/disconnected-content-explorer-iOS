@@ -5,18 +5,29 @@
 
 
 #import "AppDelegate.h"
+#import "DICENavigationController.h"
 #import "OfflineMapUtility.h"
 #import "ReportAPI.h"
 
 @interface AppDelegate ()
+
+@property (readonly, weak, nonatomic) DICENavigationController *navigation;
 
 @end
 
 
 @implementation AppDelegate
 
+- (DICENavigationController *)navigation
+{
+    return (DICENavigationController *)self.window.rootViewController;
+}
+
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    NSLog(@"DICE finished launching with options:\n%@", launchOptions);
+    
     // initialize offline map polygons
     // TODO: potentially thread this
     NSDictionary *geojson = [OfflineMapUtility dictionaryWithContentsOfJSONString:@"ne_50m_land.simplify0.2"];
@@ -47,23 +58,16 @@
     // or view the report when finished, e.g., when downloading reports from Safari
     
     if (url.isFileURL) {
-        [[ReportAPI sharedInstance] importReportFromUrl:url afterImport:nil];
+        // another app's UIDocumentInteractionController wants to use DICE to open a file
+        [[ReportAPI sharedInstance] importReportFromUrl:url afterImport:^(Report *report) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.navigation navigateToReport:report animated:NO];
+            });
+        }];
     }
     else {
-        // some other app opened DICE, lets see what they want to do
-        NSArray *parameters = [url.query componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"=&"]];
-        NSMutableDictionary *urlParameters = [NSMutableDictionary dictionary];
-        
-        for (int keyIndex = 0; keyIndex < [parameters count]; keyIndex += 2) {
-            NSString *key = parameters[keyIndex];
-            NSString *value = parameters[keyIndex + 1];
-            NSLog(@"Key: %@ Value: %@", key, value);
-            [urlParameters setObject:value forKey:key];
-        }
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"DICEURLOpened"
-                                                            object:nil
-                                                          userInfo:urlParameters];
+        // some other app opened DICE directly, let's see what they want to do
+        [self.navigation navigateToReportForURL:url fromApp:sourceApplication];
     }
     
     return YES;

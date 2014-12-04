@@ -7,6 +7,7 @@
 
 @interface Report : NSObject
 
+@property (nonatomic, strong) NSURL *sourceFile;
 @property (nonatomic, strong) NSString *title;
 @property (nonatomic, strong) NSString *reportID;
 @property (nonatomic, strong) NSString *description;
