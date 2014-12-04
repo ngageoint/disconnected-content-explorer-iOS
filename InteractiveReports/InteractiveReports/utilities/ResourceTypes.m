@@ -23,9 +23,9 @@ NSDictionary *resourceViewers;
 + (void) initialize
 {
     resourceViewers = @{
-        @"globeViewController": @"com.glob3mobile.json-pointcloud",
-        @"globeViewController": @"org.asprs.las",
-        @"globeViewController": @"com.rapidlasso.laszip"
+        @"com.glob3mobile.json-pointcloud": @"globeViewController",
+        @"org.asprs.las": @"globeViewController",
+        @"com.rapidlasso.laszip": @"globeViewController"
     };
 }
 
