@@ -426,7 +426,7 @@
 		7D0B474F1A0D482B0044236B /* Ellipsoid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Ellipsoid.cpp; sourceTree = "<group>"; };
 		7D0B47501A0D482B0044236B /* Ellipsoid.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Ellipsoid.hpp; sourceTree = "<group>"; };
 		7D0B47511A0D482B0044236B /* EllipsoidalPlanet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EllipsoidalPlanet.cpp; sourceTree = "<group>"; };
-		7D0B47521A0D482B0044236B /* EllipsoidalPlanet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EllipsoidalPlanet.hpp; sourceTree = "<group>"; };
+		7D0B47521A0D482B0044236B /* EllipsoidalPlanet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = EllipsoidalPlanet.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B47531A0D482B0044236B /* Extent.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Extent.hpp; sourceTree = "<group>"; };
 		7D0B47541A0D482B0044236B /* FlatPlanet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FlatPlanet.cpp; sourceTree = "<group>"; };
 		7D0B47551A0D482B0044236B /* FlatPlanet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FlatPlanet.hpp; sourceTree = "<group>"; };

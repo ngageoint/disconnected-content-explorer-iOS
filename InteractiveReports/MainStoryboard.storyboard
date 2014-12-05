@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="13F34" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="9Qk-sT-e1b">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="13F34" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="9Qk-sT-e1b">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
     </dependencies>
     <scenes>
         <!--Settings View Controller-->
@@ -404,17 +404,23 @@ Info designed by NAS from thenounproject.com</string>
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
+                            <activityIndicatorView opaque="NO" contentMode="center" horizontalHuggingPriority="750" verticalHuggingPriority="750" restorationIdentifier="loadingIndicator" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="rL9-4y-j1L">
+                                <rect key="frame" x="366" y="494" width="37" height="37"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="oC3-pt-CY6" firstAttribute="leading" secondItem="Fe9-Pg-vAB" secondAttribute="leading" id="C3q-Ag-AE2"/>
+                            <constraint firstItem="rL9-4y-j1L" firstAttribute="centerX" secondItem="oC3-pt-CY6" secondAttribute="centerX" id="Iz4-DR-ecR"/>
                             <constraint firstItem="oC3-pt-CY6" firstAttribute="top" secondItem="Fe9-Pg-vAB" secondAttribute="top" id="KE7-jf-Rwk"/>
                             <constraint firstItem="oC3-pt-CY6" firstAttribute="bottom" secondItem="T5G-Lz-BvU" secondAttribute="top" id="dAk-XX-bY6"/>
                             <constraint firstAttribute="trailing" secondItem="oC3-pt-CY6" secondAttribute="trailing" id="g9k-ai-Lt3"/>
+                            <constraint firstItem="rL9-4y-j1L" firstAttribute="centerY" secondItem="oC3-pt-CY6" secondAttribute="centerY" id="zsE-qk-9g2"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="globeView" destination="oC3-pt-CY6" id="KIm-Wn-xdL"/>
+                        <outlet property="loadingIndicator" destination="rL9-4y-j1L" id="5v2-xP-mQx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SHL-Qk-A92" userLabel="First Responder" sceneMemberID="firstResponder"/>

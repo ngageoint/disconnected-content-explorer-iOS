@@ -39,6 +39,7 @@
     dispatch_queue_t backgroundQueue;
     NSMutableArray *reports;
     NSFileManager *fileManager;
+    NSURL *documentsDir;
     NSURL *reportsDir;
     NSArray *recognizedFileExtensions;
 }
@@ -67,8 +68,8 @@
         reports = [[NSMutableArray alloc] init];
         fileManager = [NSFileManager defaultManager];
         backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-        reportsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
-        reportsDir = [reportsDir URLByAppendingPathComponent:@"reports" isDirectory:YES];
+        documentsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+        reportsDir = [documentsDir URLByAppendingPathComponent:@"reports" isDirectory:YES];
         if (![fileManager fileExistsAtPath:reportsDir.path]) {
             [fileManager createDirectoryAtPath:reportsDir.path withIntermediateDirectories:YES attributes:nil error:nil];
         }
@@ -98,7 +99,7 @@
 {
     [reports removeAllObjects];
 
-    NSDirectoryEnumerator *files = [fileManager enumeratorAtURL:reportsDir
+    NSDirectoryEnumerator *files = [fileManager enumeratorAtURL:documentsDir
         includingPropertiesForKeys:@[NSURLNameKey, NSURLIsRegularFileKey, NSURLIsReadableKey, NSURLLocalizedNameKey]
         options:(NSDirectoryEnumerationSkipsPackageDescendants | NSDirectoryEnumerationSkipsSubdirectoryDescendants)
         errorHandler:nil];
@@ -123,7 +124,7 @@
     // TODO: notify import begin
 
     NSString *fileName = reportUrl.lastPathComponent;
-    NSURL *destFile = [reportsDir URLByAppendingPathComponent:fileName];
+    NSURL *destFile = [documentsDir URLByAppendingPathComponent:fileName];
     NSError *error;
     
     [fileManager moveItemAtURL:reportUrl toURL:destFile error:&error];
