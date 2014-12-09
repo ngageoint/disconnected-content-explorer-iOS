@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7D0AC37A1A37B8F300874608 /* full-earth-2048x1024.bil in Resources */ = {isa = PBXBuildFile; fileRef = 7D0AC3791A37B8F300874608 /* full-earth-2048x1024.bil */; };
 		7D0B49151A0D48730044236B /* libG3MiOSSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49141A0D482C0044236B /* libG3MiOSSDK.a */; };
 		7D0B49171A0D489D0044236B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49161A0D489D0044236B /* CoreData.framework */; };
 		7D0B49191A0D48CF0044236B /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49181A0D48CF0044236B /* CFNetwork.framework */; };
@@ -122,6 +123,7 @@
 
 /* Begin PBXFileReference section */
 		6A7A136C8826F72DD46DBCEE /* Pods-InteractiveReports.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractiveReports.release.xcconfig"; path = "Pods/Target Support Files/Pods-InteractiveReports/Pods-InteractiveReports.release.xcconfig"; sourceTree = "<group>"; };
+		7D0AC3791A37B8F300874608 /* full-earth-2048x1024.bil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "full-earth-2048x1024.bil"; sourceTree = "<group>"; };
 		7D0B461C1A0D482B0044236B /* base64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
 		7D0B461D1A0D482B0044236B /* base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
 		7D0B461F1A0D482B0044236B /* .cproject */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = .cproject; sourceTree = "<group>"; };
@@ -2249,6 +2251,7 @@
 		E3FBB30C17C9527000E133D6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				7D0AC3791A37B8F300874608 /* full-earth-2048x1024.bil */,
 				E39D82FF19DC643D008357DF /* Icon-76@2x.png */,
 				E3FBB30D17C9527000E133D6 /* InteractiveReports-Info.plist */,
 				E3AC40FC198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson */,
@@ -2380,6 +2383,7 @@
 				E3AC40FD198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson in Resources */,
 				E39D836419DF2B95008357DF /* Reader-Print.png in Resources */,
 				E39D835F19DF2B95008357DF /* Reader-Export@2x.png in Resources */,
+				7D0AC37A1A37B8F300874608 /* full-earth-2048x1024.bil in Resources */,
 				E39D835819DF2B95008357DF /* Reader-Button-H.png in Resources */,
 				E39D835D19DF2B95008357DF /* Reader-Email@2x.png in Resources */,
 				E39D834F19DF2B95008357DF /* AppIcon-057.png in Resources */,
