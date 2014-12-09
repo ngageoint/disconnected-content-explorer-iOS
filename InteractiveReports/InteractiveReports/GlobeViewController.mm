@@ -9,12 +9,15 @@
 #import "GlobeViewController.h"
 
 #import "Context.hpp"
+#import "ElevationDataProvider.hpp"
 #import "G3MWidget_iOS.h"
 #import "G3MWidget.hpp"
 #import "G3MBuilder_iOS.hpp"
 #import "Mesh.hpp"
 #import "MeshRenderer.hpp"
 #import "Planet.hpp"
+#import "PlanetRendererBuilder.hpp"
+#import "SingleBilElevationDataProvider.hpp"
 #import "Vector3D.hpp"
 
 
@@ -64,6 +67,13 @@ private:
         UIViewAutoresizingFlexibleWidth;
     
     G3MBuilder_iOS builder(self.globeView);
+    
+    builder.getPlanetRendererBuilder()->setVerticalExaggeration(1.0f);
+    NSURL *elevationDataUrl = [[NSBundle mainBundle] URLForResource:@"full-earth-2048x1024" withExtension:@"bil"];
+    ElevationDataProvider* elevationDataProvider = new SingleBilElevationDataProvider(
+        URL(elevationDataUrl.absoluteString.UTF8String, false), Sector::fullSphere(), Vector2I(2048, 1024));
+    // so meters above sea-level z-coordinates render at the correct height:
+    builder.getPlanetRendererBuilder()->setElevationDataProvider(elevationDataProvider);
     self.meshRenderer = new MeshRenderer();
     builder.addRenderer(self.meshRenderer);
     builder.initializeWidget();
@@ -96,8 +106,7 @@ private:
 
 - (void)handleResource:(NSURL *)resource {
     float pointSize = 2.0;
-    // TODO: figure out what's going on with z-coords and the floating pointcloud
-    double deltaHeight = -123.7915;
+    double deltaHeight = 0.0;
     MeshLoadListener *loadListener = new DICEMeshLoadListener(self);
     bool deleteListener = true;
     NSString *resourceName = resource.absoluteString;
@@ -107,17 +116,16 @@ private:
 }
 
 - (void)onBeforeAddMesh:(Mesh *)mesh {
+}
+
+- (void)onAfterAddMesh:(Mesh *)mesh {
     Vector3D center = mesh->getCenter();
     const Planet *planet = [self.globeView widget]->getG3MContext()->getPlanet();
     Geodetic3D geoCenter = planet->toGeodetic3D(center);
     Geodetic3D lookingAtMesh = Geodetic3D(geoCenter._latitude, geoCenter._longitude, geoCenter._height + 5000.0);
     [self.globeView setAnimatedCameraPosition:lookingAtMesh];
-}
-
-- (void)onAfterAddMesh:(Mesh *)mesh {
     [self.loadingIndicator stopAnimating];
     self.globeView.userInteractionEnabled = YES;
-    
 }
 
 @end
