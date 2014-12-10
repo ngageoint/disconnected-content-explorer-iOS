@@ -26,6 +26,16 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     if (!self.isDismissed) {
+        /*
+         * Note: If we ever change the directory where PDF documents are stored, this library writes out
+         * some Plist files in the Application Support directory that retains a path component of PDFs
+         * it tried to open based on the last path component file name of the PDF.  This will cause the 
+         * app to crash because the file name in the Plist will not be valid and results in a null document
+         * object within the ReaderDocument.
+         *
+         * See ReaderDocument -> + (ReaderDocument *)unarchiveFromFileName:(NSString *) password:(NSString *)
+         * which produces the invalid PDF path.
+         */
         ReaderDocument *document = [ReaderDocument withDocumentFilePath:self.report.url.path password:nil];
         
         if (document != nil) {
