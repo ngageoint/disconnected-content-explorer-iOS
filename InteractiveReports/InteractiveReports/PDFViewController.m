@@ -10,6 +10,8 @@
 
 @interface PDFViewController ()
 
+@property BOOL isDismissed;
+
 @end
 
 @implementation PDFViewController
@@ -23,10 +25,7 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    if (self.isDismissed) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
-    else {
+    if (!self.isDismissed) {
         ReaderDocument *document = [ReaderDocument withDocumentFilePath:self.report.url.path password:nil];
         
         if (document != nil) {
@@ -49,8 +48,10 @@
 
 - (void)dismissReaderViewController:(ReaderViewController *)viewController
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
     self.isDismissed = YES;
+    [self dismissViewControllerAnimated:YES completion:^{
+        [self.navigationController popViewControllerAnimated:YES];
+    }];
 }
 
 @end

@@ -13,6 +13,5 @@
 @interface PDFViewController : UIViewController <ReaderViewControllerDelegate>
 
 @property (nonatomic, strong) Report *report;
-@property (nonatomic) BOOL isDismissed;
 
 @end

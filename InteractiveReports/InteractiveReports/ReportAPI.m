@@ -119,18 +119,18 @@
 }
 
 
-- (void)importReportFromUrl:(NSURL *)reportUrl afterImport:(void(^)(Report *))afterImportBlock
+- (void)importReportFromUrl:(NSURL *)reportURL afterImport:(void(^)(Report *))afterImportBlock
 {
     // TODO: notify import begin
 
-    NSString *fileName = reportUrl.lastPathComponent;
+    NSString *fileName = reportURL.lastPathComponent;
     NSURL *destFile = [documentsDir URLByAppendingPathComponent:fileName];
     NSError *error;
     
-    [fileManager moveItemAtURL:reportUrl toURL:destFile error:&error];
+    [fileManager moveItemAtURL:reportURL toURL:destFile error:&error];
     
     if (error) {
-        NSLog(@"error moving file %@ to documents directory for open request: %@", reportUrl, [error localizedDescription]);
+        NSLog(@"error moving file %@ to documents directory for open request: %@", reportURL, [error localizedDescription]);
     }
 
     [self addReportFromFile:destFile afterComplete:afterImportBlock];

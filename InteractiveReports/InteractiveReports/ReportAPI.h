@@ -22,7 +22,7 @@
 
 + (ReportAPI*)sharedInstance;
 
-- (void)importReportFromUrl:(NSURL *)reportUrl afterImport:(void(^)(Report *))afterImportBlock;
+- (void)importReportFromUrl:(NSURL *)reportURL afterImport:(void(^)(Report *))afterImportBlock;
 - (NSMutableArray*)getReports;
 - (void)loadReports;
 - (void)loadReportsWithCompletionHandler:(void(^) (void))completionHandler;

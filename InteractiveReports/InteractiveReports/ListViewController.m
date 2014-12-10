@@ -43,7 +43,6 @@
 
 - (void)refreshControlValueChanged
 {
-    [_tableViewController.refreshControl endRefreshing];
     [[ReportAPI sharedInstance] loadReports];
 }
 
@@ -57,6 +56,7 @@
 
 - (void)refreshReportList:(NSNotification *)notification
 {
+    [_tableViewController.refreshControl endRefreshing];
     [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
@@ -68,18 +68,6 @@
 // selected report
 - (void)handleURLRequest:(NSNotification*)notification
 {
-    NSDictionary *urlParams = notification.userInfo;
-    NSString *reportID = urlParams[@"reportID"];
-    if (!reportID) {
-        return;
-    }
-    [self.reports enumerateObjectsUsingBlock:^(Report *report, NSUInteger idx, BOOL *stop) {
-        if ([report.reportID isEqualToString: reportID]) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:idx inSection:0];
-            [_tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
-            *stop = YES;
-        }
-    }];
 }
 
 
@@ -99,7 +87,6 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
     Report *report = self.reports[indexPath.row];
     UITableViewCell *cell;
     
