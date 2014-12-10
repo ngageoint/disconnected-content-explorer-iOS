@@ -55,7 +55,8 @@ private:
 // TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
 @implementation GlobeViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     
     self.loadingIndicator.autoresizingMask =
@@ -79,32 +80,37 @@ private:
     builder.initializeWidget();
 }
 
-- (void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning
+{
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-- (void)viewWillAppear:(BOOL)animated {
+- (void)viewWillAppear:(BOOL)animated
+{
     self.globeView.userInteractionEnabled = NO;
     [self.loadingIndicator startAnimating];
 }
 
 // Start animation when view has appeared
-- (void)viewDidAppear:(BOOL)animated {
+- (void)viewDidAppear:(BOOL)animated
+{
     [super viewDidAppear:animated];
     // Start the glob3 render loop
     [self.globeView startAnimation];
 }
 
 // Stop the animation when view has disappeared
-- (void)viewDidDisappear:(BOOL)animated {
+- (void)viewDidDisappear:(BOOL)animated
+{
     // Stop the glob3 render loop
     [self.globeView stopAnimation];
     self.meshRenderer->clearMeshes();
     [super viewDidDisappear:animated];
 }
 
-- (void)handleResource:(NSURL *)resource {
+- (void)handleResource:(NSURL *)resource
+{
     float pointSize = 2.0;
     double deltaHeight = 0.0;
     MeshLoadListener *loadListener = new DICEMeshLoadListener(self);
@@ -115,10 +121,12 @@ private:
         pointSize, deltaHeight, loadListener, deleteListener);
 }
 
-- (void)onBeforeAddMesh:(Mesh *)mesh {
+- (void)onBeforeAddMesh:(Mesh *)mesh
+{
 }
 
-- (void)onAfterAddMesh:(Mesh *)mesh {
+- (void)onAfterAddMesh:(Mesh *)mesh
+{
     Vector3D center = mesh->getCenter();
     const Planet *planet = [self.globeView widget]->getG3MContext()->getPlanet();
     Geodetic3D geoCenter = planet->toGeodetic3D(center);
