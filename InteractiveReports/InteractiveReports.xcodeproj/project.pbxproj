@@ -18,7 +18,7 @@
 		7D0B49261A0D885A0044236B /* GlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B49251A0D885A0044236B /* GlobeViewController.mm */; };
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
-		7D4E1C4B1A1F9475002762B3 /* DICETests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C4A1A1F9475002762B3 /* DICETests.m */; };
+		7D4E1C4B1A1F9475002762B3 /* DICETests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C4A1A1F9475002762B3 /* DICETests.mm */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportLinkedResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportLinkedResourceViewController.m */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
@@ -259,7 +259,7 @@
 		7D0B46A21A0D482B0044236B /* MapBooBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MapBooBuilder.cpp; sourceTree = "<group>"; };
 		7D0B46A31A0D482B0044236B /* MapBooBuilder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MapBooBuilder.hpp; sourceTree = "<group>"; };
 		7D0B46A41A0D482B0044236B /* Mark.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mark.cpp; sourceTree = "<group>"; };
-		7D0B46A51A0D482B0044236B /* Mark.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Mark.hpp; sourceTree = "<group>"; };
+		7D0B46A51A0D482B0044236B /* Mark.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Mark.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B46A61A0D482B0044236B /* MercatorUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MercatorUtils.cpp; sourceTree = "<group>"; };
 		7D0B46A71A0D482B0044236B /* MercatorUtils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MercatorUtils.hpp; sourceTree = "<group>"; };
 		7D0B46A81A0D482B0044236B /* OrderedRenderable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OrderedRenderable.cpp; sourceTree = "<group>"; };
@@ -423,7 +423,7 @@
 		7D0B474A1A0D482B0044236B /* BoundingVolume.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BoundingVolume.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B474B1A0D482B0044236B /* Box.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Box.cpp; sourceTree = "<group>"; };
 		7D0B474C1A0D482B0044236B /* Box.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Box.hpp; sourceTree = "<group>"; };
-		7D0B474D1A0D482B0044236B /* CoordinateSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CoordinateSystem.cpp; sourceTree = "<group>"; };
+		7D0B474D1A0D482B0044236B /* CoordinateSystem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CoordinateSystem.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B474E1A0D482B0044236B /* CoordinateSystem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoordinateSystem.hpp; sourceTree = "<group>"; };
 		7D0B474F1A0D482B0044236B /* Ellipsoid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Ellipsoid.cpp; sourceTree = "<group>"; };
 		7D0B47501A0D482B0044236B /* Ellipsoid.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Ellipsoid.hpp; sourceTree = "<group>"; };
@@ -437,7 +437,7 @@
 		7D0B47581A0D482B0044236B /* Geodetic2D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Geodetic2D.cpp; sourceTree = "<group>"; };
 		7D0B47591A0D482B0044236B /* Geodetic2D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Geodetic2D.hpp; sourceTree = "<group>"; };
 		7D0B475A1A0D482B0044236B /* Geodetic3D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Geodetic3D.cpp; sourceTree = "<group>"; };
-		7D0B475B1A0D482B0044236B /* Geodetic3D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Geodetic3D.hpp; sourceTree = "<group>"; };
+		7D0B475B1A0D482B0044236B /* Geodetic3D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Geodetic3D.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B475C1A0D482B0044236B /* LayoutUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LayoutUtils.cpp; sourceTree = "<group>"; };
 		7D0B475D1A0D482B0044236B /* LayoutUtils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = LayoutUtils.hpp; sourceTree = "<group>"; };
 		7D0B475E1A0D482B0044236B /* Matrix44D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Matrix44D.cpp; sourceTree = "<group>"; };
@@ -485,7 +485,7 @@
 		7D0B47881A0D482B0044236B /* Vector4D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Vector4D.cpp; sourceTree = "<group>"; };
 		7D0B47891A0D482B0044236B /* Vector4D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vector4D.hpp; sourceTree = "<group>"; };
 		7D0B478B1A0D482B0044236B /* GL.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GL.cpp; sourceTree = "<group>"; };
-		7D0B478C1A0D482B0044236B /* GL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GL.hpp; sourceTree = "<group>"; };
+		7D0B478C1A0D482B0044236B /* GL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GL.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B478D1A0D482B0044236B /* GLConstants.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GLConstants.cpp; sourceTree = "<group>"; };
 		7D0B478E1A0D482B0044236B /* GLConstants.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GLConstants.hpp; sourceTree = "<group>"; };
 		7D0B478F1A0D482B0044236B /* GLFeature.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GLFeature.cpp; sourceTree = "<group>"; };
@@ -526,7 +526,7 @@
 		7D0B47B31A0D482B0044236B /* IImage.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IImage.hpp; sourceTree = "<group>"; };
 		7D0B47B41A0D482B0044236B /* IImageListener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IImageListener.hpp; sourceTree = "<group>"; };
 		7D0B47B51A0D482B0044236B /* ILogger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ILogger.cpp; sourceTree = "<group>"; };
-		7D0B47B61A0D482B0044236B /* ILogger.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ILogger.hpp; sourceTree = "<group>"; };
+		7D0B47B61A0D482B0044236B /* ILogger.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ILogger.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B47B71A0D482B0044236B /* IMathUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IMathUtils.cpp; sourceTree = "<group>"; };
 		7D0B47B81A0D482B0044236B /* IMathUtils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IMathUtils.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B47B91A0D482B0044236B /* INativeGL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = INativeGL.hpp; sourceTree = "<group>"; };
@@ -715,7 +715,7 @@
 		7D0B48751A0D482B0044236B /* MeshShape.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MeshShape.hpp; sourceTree = "<group>"; };
 		7D0B48761A0D482B0044236B /* MultiTexturedHUDQuadWidget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MultiTexturedHUDQuadWidget.cpp; sourceTree = "<group>"; };
 		7D0B48771A0D482B0044236B /* MultiTexturedHUDQuadWidget.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MultiTexturedHUDQuadWidget.hpp; sourceTree = "<group>"; };
-		7D0B48781A0D482B0044236B /* PlanetRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlanetRenderer.cpp; sourceTree = "<group>"; };
+		7D0B48781A0D482B0044236B /* PlanetRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlanetRenderer.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B48791A0D482B0044236B /* PlanetRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PlanetRenderer.hpp; sourceTree = "<group>"; };
 		7D0B487A1A0D482B0044236B /* PointCloudsRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PointCloudsRenderer.cpp; sourceTree = "<group>"; };
 		7D0B487B1A0D482B0044236B /* PointCloudsRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PointCloudsRenderer.hpp; sourceTree = "<group>"; };
@@ -839,8 +839,8 @@
 		7D0B48F81A0D482C0044236B /* StringBuilder_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StringBuilder_iOS.hpp; sourceTree = "<group>"; };
 		7D0B48F91A0D482C0044236B /* StringUtils_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StringUtils_iOS.hpp; sourceTree = "<group>"; };
 		7D0B48FA1A0D482C0044236B /* StringUtils_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = StringUtils_iOS.mm; sourceTree = "<group>"; };
-		7D0B48FB1A0D482C0044236B /* TextUtils_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextUtils_iOS.hpp; sourceTree = "<group>"; };
-		7D0B48FC1A0D482C0044236B /* TextUtils_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TextUtils_iOS.mm; sourceTree = "<group>"; };
+		7D0B48FB1A0D482C0044236B /* TextUtils_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextUtils_iOS.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7D0B48FC1A0D482C0044236B /* TextUtils_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TextUtils_iOS.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7D0B48FD1A0D482C0044236B /* ThreadUtils_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ThreadUtils_iOS.hpp; sourceTree = "<group>"; };
 		7D0B48FE1A0D482C0044236B /* ThreadUtils_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ThreadUtils_iOS.mm; sourceTree = "<group>"; };
 		7D0B48FF1A0D482C0044236B /* Timer_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Timer_iOS.hpp; sourceTree = "<group>"; };
@@ -874,7 +874,7 @@
 		7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
 		7D4E1C461A1F9475002762B3 /* DICETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DICETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D4E1C491A1F9475002762B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		7D4E1C4A1A1F9475002762B3 /* DICETests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DICETests.m; sourceTree = "<group>"; };
+		7D4E1C4A1A1F9475002762B3 /* DICETests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DICETests.mm; sourceTree = "<group>"; };
 		7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
 		7D4E1C531A1FAB44002762B3 /* ReportLinkedResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportLinkedResourceViewController.h; sourceTree = "<group>"; };
 		7D4E1C541A1FAB44002762B3 /* ReportLinkedResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportLinkedResourceViewController.m; sourceTree = "<group>"; };
@@ -1965,7 +1965,7 @@
 			isa = PBXGroup;
 			children = (
 				7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */,
-				7D4E1C4A1A1F9475002762B3 /* DICETests.m */,
+				7D4E1C4A1A1F9475002762B3 /* DICETests.mm */,
 				7D4E1C481A1F9475002762B3 /* Supporting Files */,
 			);
 			path = DICETests;
@@ -2440,7 +2440,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D4E1C4B1A1F9475002762B3 /* DICETests.m in Sources */,
+				7D4E1C4B1A1F9475002762B3 /* DICETests.mm in Sources */,
 				7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2543,7 +2543,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = DICETests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2574,7 +2574,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = DICETests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
