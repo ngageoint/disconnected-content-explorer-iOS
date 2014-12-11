@@ -35,20 +35,23 @@
 
 
 class DICEMeshLoadListener : public MeshLoadListener {
+    
 public:
     DICEMeshLoadListener(GlobeViewController *controller) : _controller(controller) {};
-    virtual ~DICEMeshLoadListener() {
+    ~DICEMeshLoadListener() {
         _controller = NULL;
     }
-    virtual void onAfterAddMesh(Mesh *mesh) {
+    void onAfterAddMesh(Mesh *mesh) {
         [_controller onAfterAddMesh:mesh];
     }
-    virtual void onBeforeAddMesh(Mesh *mesh) {
+    void onBeforeAddMesh(Mesh *mesh) {
         [_controller onBeforeAddMesh:mesh];
     }
-    virtual void onError(const URL& url) {}
+    void onError(const URL& url) {}
+    
 private:
     GlobeViewController *_controller;
+    
 };
 
 
@@ -83,7 +86,7 @@ private:
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    NSLog(@"DICE globe view memory warning");
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -101,12 +104,12 @@ private:
 }
 
 // Stop the animation when view has disappeared
-- (void)viewDidDisappear:(BOOL)animated
+- (void)viewWillDisappear:(BOOL)animated
 {
     // Stop the glob3 render loop
     [self.globeView stopAnimation];
     self.meshRenderer->clearMeshes();
-    [super viewDidDisappear:animated];
+    [super viewWillDisappear:animated];
 }
 
 - (void)handleResource:(NSURL *)resource
