@@ -99,6 +99,7 @@ private:
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    
     // Start the glob3 render loop
     [self.globeView startAnimation];
 }
@@ -106,10 +107,11 @@ private:
 // Stop the animation when view has disappeared
 - (void)viewWillDisappear:(BOOL)animated
 {
+    [super viewWillDisappear:animated];
+    
     // Stop the glob3 render loop
     [self.globeView stopAnimation];
-    self.meshRenderer->clearMeshes();
-    [super viewWillDisappear:animated];
+    delete self.meshRenderer;
 }
 
 - (void)handleResource:(NSURL *)resource

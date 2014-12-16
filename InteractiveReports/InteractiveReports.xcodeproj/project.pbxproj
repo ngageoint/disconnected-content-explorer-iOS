@@ -292,7 +292,7 @@
 		7D0B46C31A0D482B0044236B /* TextCanvasElement.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextCanvasElement.hpp; sourceTree = "<group>"; };
 		7D0B46C41A0D482B0044236B /* TextureIDReference.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextureIDReference.cpp; sourceTree = "<group>"; };
 		7D0B46C51A0D482B0044236B /* TextureIDReference.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextureIDReference.hpp; sourceTree = "<group>"; };
-		7D0B46C61A0D482B0044236B /* TexturesHandler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TexturesHandler.cpp; sourceTree = "<group>"; };
+		7D0B46C61A0D482B0044236B /* TexturesHandler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TexturesHandler.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B46C71A0D482B0044236B /* TexturesHandler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TexturesHandler.hpp; sourceTree = "<group>"; };
 		7D0B46C81A0D482B0044236B /* Tile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Tile.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B46C91A0D482B0044236B /* Tile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tile.hpp; sourceTree = "<group>"; };
