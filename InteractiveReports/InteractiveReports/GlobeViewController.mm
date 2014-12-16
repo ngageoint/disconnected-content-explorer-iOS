@@ -21,12 +21,12 @@
 #import "Vector3D.hpp"
 
 
-@interface GlobeViewController ()
+@interface GlobeViewController () {
+    MeshRenderer meshRenderer;
+}
 
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loadingIndicator;
 @property (weak, nonatomic) IBOutlet G3MWidget_iOS *globeView;
-@property (nonatomic) MeshRenderer *meshRenderer;
-
 
 - (void)onBeforeAddMesh:(Mesh*)mesh;
 - (void)onAfterAddMesh:(Mesh*)mesh;
@@ -78,8 +78,7 @@ private:
         URL(elevationDataUrl.absoluteString.UTF8String, false), Sector::fullSphere(), Vector2I(2048, 1024));
     // so meters above sea-level z-coordinates render at the correct height:
     builder.getPlanetRendererBuilder()->setElevationDataProvider(elevationDataProvider);
-    self.meshRenderer = new MeshRenderer();
-    builder.addRenderer(self.meshRenderer);
+    builder.addRenderer(&meshRenderer);
     builder.initializeWidget();
 }
 
@@ -111,7 +110,7 @@ private:
     
     // Stop the glob3 render loop
     [self.globeView stopAnimation];
-    delete self.meshRenderer;
+//    delete meshRenderer;
 }
 
 - (void)handleResource:(NSURL *)resource
@@ -121,7 +120,7 @@ private:
     MeshLoadListener *loadListener = new DICEMeshLoadListener(self);
     bool deleteListener = true;
     NSString *resourceName = resource.absoluteString;
-    self.meshRenderer->loadJSONPointCloud(
+    meshRenderer.loadJSONPointCloud(
         URL([resourceName UTF8String]),
         pointSize, deltaHeight, loadListener, deleteListener);
 }
