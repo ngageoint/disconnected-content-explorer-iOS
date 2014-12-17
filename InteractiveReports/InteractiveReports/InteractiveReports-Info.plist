@@ -257,6 +257,7 @@
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>com.pkware.zip-archive</string>
+				<string>public.zip-archive</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Google KMZ - KML Zipped</string>
