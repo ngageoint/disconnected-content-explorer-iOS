@@ -3,8 +3,10 @@
 //  InteractiveReports
 //
 
-#import "ReportAPI.h"
 #import "ReportViewController.h"
+
+#import "ReportAPI.h"
+#import "NoteViewController.h"
 #import "ReportLinkedResourceViewController.h"
 #import "ResourceTypes.h"
 
@@ -28,7 +30,8 @@
     toolbarWillMoveTo = self.toolbar.frame.origin.y+scrollDifference;
     if (-toolbarWillMoveTo > self.toolbar.frame.size.height ) {
         toolbarWillMoveTo = -self.toolbar.frame.size.height;
-    } else if (toolbarWillMoveTo > 0.0 || -scrollView.contentOffset.y > self.toolbar.frame.size.height) {
+    }
+    else if (toolbarWillMoveTo > 0.0 || -scrollView.contentOffset.y > self.toolbar.frame.size.height) {
         toolbarWillMoveTo = 0.0;
     }
     
@@ -51,20 +54,16 @@
 {
     [super viewDidLoad];
     
-    if (![self.report.fileExtension isEqualToString:@"pdf"]) {
-        [self loadReportContent];
-    }
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportUpdated:) name:[ReportNotification reportUpdated] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:[ReportNotification reportImportProgress] object:nil];
     
     _unzipStatusLabel = [[UILabel alloc] init];
-    _unzipComplete = NO;
     
     if ([self respondsToSelector:@selector(setNeedsStatusBarAppearanceUpdate)]) {
         // iOS 7
         [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate)];
-    } else {
+    }
+    else {
         // iOS 6
         [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
     }
@@ -78,10 +77,13 @@
     _webView.scalesPageToFit = YES;
     
     _hidingToolbar = NO;
+    
+    [self loadReportContent];
 }
 
 
-- (BOOL)prefersStatusBarHidden {
+- (BOOL)prefersStatusBarHidden
+{
     return YES;
 }
 
@@ -90,41 +92,37 @@
 {
     [super viewDidAppear:animated];
     
-    if (self.singleReport && !self.unzipComplete) {
-        NSLog(@"DetailView: setting up status text");
-        
-        _unzipStatusLabel.text = @"Unzipping...";
+    if (!self.report.isEnabled) {
+        _unzipStatusLabel.text = @"Loading...";
         _unzipStatusLabel.textColor = [UIColor grayColor];
         _unzipStatusLabel.bounds = CGRectMake(0.0, 0.0, 200.0, 200.0);
         _unzipStatusLabel.center = self.webView.center;
         [self.webView addSubview:_unzipStatusLabel];
     }
-    
-    if ([self.report.fileExtension isEqualToString:@"pdf"])
-        [self loadReportContent];
-
 }
 
 
 - (void)loadReportContent
 {
-    if (self.report != nil) {
-        NSLog(@"DetailView: loading report content");
+    if (self.report == nil) {
+        _navBar.title = @"Report Not Found";
+        return;
+    }
+
+    @try {
         if ( [self.report.fileExtension caseInsensitiveCompare:@"zip"] == NSOrderedSame ) {
-            @try {
-                NSURL* indexUrl = [self.report.url URLByAppendingPathComponent: @"index.html"];
-                [self.webView loadRequest: [NSURLRequest requestWithURL:indexUrl]];
-            }
-            @catch (NSException *exception) {
-                NSLog(@"Problem loading URL %@. Report name: %@", [exception reason], self.reportName);
-            }
+            NSURL* indexUrl = [self.report.url URLByAppendingPathComponent: @"index.html"];
+            [self.webView loadRequest: [NSURLRequest requestWithURL:indexUrl]];
         }
         else {
-            NSURL *url = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@", self.report.url, self.report.title]];
-            [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+            [self.webView loadRequest:[NSURLRequest requestWithURL:self.report.url]];
         }
+        _navBar.title = self.report.title;
     }
-    _navBar.title = self.reportName;
+    @catch (NSException *exception) {
+        NSLog(@"Problem loading URL %@. Report name: %@", exception.reason, self.report.title);
+        _navBar.title = [NSString stringWithFormat:@"Error: %@", self.report.title];
+    }
 }
 
 
@@ -152,10 +150,9 @@
 # pragma mark - notification handling methods
 - (void)reportUpdated:(NSNotification *)notification
 {
-    if (self.singleReport) {
+    if (self.report.isEnabled) {
         [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:@"Loading..." waitUntilDone:NO];
         [_unzipStatusLabel removeFromSuperview];
-        self.unzipComplete = YES;
         Report *report = notification.userInfo[@"report"];
         self.report = report;
         [self loadReportContent];
@@ -165,9 +162,7 @@
 
 - (void)updateUnzipProgress:(NSNotification *)notification
 {
-    if (self.singleReport) {
-        [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:[NSString stringWithFormat:@"%@ of %@ unzipped", notification.userInfo[@"progress"], notification.userInfo[@"totalNumberOfFiles"]] waitUntilDone:NO];
-    }
+    [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:[NSString stringWithFormat:@"%@ of %@ unzipped", notification.userInfo[@"progress"], notification.userInfo[@"totalNumberOfFiles"]] waitUntilDone:NO];
 }
 
 

@@ -113,14 +113,6 @@ Report *selectedReport;
         PDFViewController *pdfViewController = (PDFViewController *)segue.destinationViewController;
         pdfViewController.report = selectedReport;
     }
-    else if ([[segue identifier] isEqualToString:@"showSingleReport"]) {
-        ReportViewController *reportViewController = (ReportViewController *)segue.destinationViewController;
-        reportViewController.report = [reports objectAtIndex:0];
-        reportViewController.singleReport = YES;
-        // TODO: make sure this behaves as expected
-//        reportViewController.unzipComplete = _singleReportLoaded;
-        reportViewController.unzipComplete = selectedReport.isEnabled;
-    }
 }
 
 
