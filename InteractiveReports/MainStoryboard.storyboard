@@ -345,7 +345,6 @@ Info designed by NAS from thenounproject.com</string>
                     <navigationItem key="navigationItem" title="DICE Reports" id="j1g-A4-UiI"/>
                     <connections>
                         <outlet property="collectionSubview" destination="olg-Y4-UG8" id="4Z3-aV-h7Z"/>
-                        <segue destination="dNd-r1-5KN" kind="push" identifier="showSingleReport" id="JJo-ri-aqD"/>
                         <segue destination="dNd-r1-5KN" kind="push" identifier="showHtmlReport" id="ntg-vh-CNR"/>
                         <segue destination="2Jc-79-puh" kind="push" identifier="showPdfReport" id="PgM-0C-e6Z"/>
                     </connections>
@@ -515,13 +514,14 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ydc-5s-woK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1299" y="-927"/>
+            <point key="canvasLocation" x="1299" y="-959"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="88C-9c-cNH">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="9Qk-sT-e1b" customClass="DICENavigationController" sceneMemberID="viewController">
                     <toolbarItems/>
+                    <navigationItem key="navigationItem" id="bRx-XQ-2Lh"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="dtE-GU-SRx">
                         <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -533,7 +533,7 @@ Info designed by NAS from thenounproject.com</string>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EFu-rt-wXa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1997" y="-1629"/>
+            <point key="canvasLocation" x="-2291" y="-1629"/>
         </scene>
     </scenes>
     <resources>
@@ -547,8 +547,5 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
-    <inferredMetricsTieBreakers>
-        <segue reference="JJo-ri-aqD"/>
-    </inferredMetricsTieBreakers>
     <color key="tintColor" red="0.63529413940000001" green="0.023529414089999999" blue="0.058823533359999999" alpha="1" colorSpace="deviceRGB"/>
 </document>
