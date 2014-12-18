@@ -12,12 +12,10 @@
 
 @interface HTMLViewController () <UIWebViewDelegate>
 
-@property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (strong, nonatomic) UILabel *unzipStatusLabel;
-@property CGFloat scrollOffset;
-@property BOOL hidingToolbar;
-@property NSURL *linkedResource;
-@property (weak, nonatomic) Report *report;
+
+@property (strong, nonatomic) Report *report;
+@property (strong, nonatomic) NSURL *linkedResource;
 
 @end
 
@@ -26,28 +24,7 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    CGFloat scrollDifference = _scrollOffset - scrollView.contentOffset.y;
-    CGFloat toolbarWillMoveTo = 0.0;
-    toolbarWillMoveTo = self.toolbar.frame.origin.y+scrollDifference;
-    if (-toolbarWillMoveTo > self.toolbar.frame.size.height ) {
-        toolbarWillMoveTo = -self.toolbar.frame.size.height;
-    }
-    else if (toolbarWillMoveTo > 0.0 || -scrollView.contentOffset.y > self.toolbar.frame.size.height) {
-        toolbarWillMoveTo = 0.0;
-    }
-    
-    
-    [UIView beginAnimations: @"moveField"context: nil];
-    [UIView setAnimationDelegate: self];
-    [UIView setAnimationDuration: 0.5];
-    [UIView setAnimationCurve: UIViewAnimationCurveEaseInOut];
-    self.toolbar.frame = CGRectMake(self.toolbar.frame.origin.x,
-                                    toolbarWillMoveTo,
-                                    self.toolbar.frame.size.width,
-                                    self.toolbar.frame.size.height);
-    [UIView commitAnimations];
-    
-    _scrollOffset = scrollView.contentOffset.y;
+
 }
 
 
@@ -68,16 +45,12 @@
         // iOS 6
         [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
     }
-    _toolbar.translucent = YES;
     
     _webView.delegate = self;
     _webView.scrollView.delegate = self;
-    _webView.scrollView.contentInset = UIEdgeInsetsMake(self.toolbar.frame.size.height, 0, 0, 0);
     _webView.scrollView.backgroundColor = [UIColor clearColor];
     _webView.backgroundColor = [UIColor clearColor];
     _webView.scalesPageToFit = YES;
-    
-    _hidingToolbar = NO;
 }
 
 
@@ -110,18 +83,11 @@
 
 - (void)loadReportContent
 {
-    if (self.report == nil || self.report.url == nil) {
-        _navBar.title = @"Report Not Found";
-        return;
-    }
-
     @try {
         [self.webView loadRequest:[NSURLRequest requestWithURL:self.report.url]];
-        _navBar.title = self.report.title;
     }
     @catch (NSException *exception) {
         NSLog(@"Problem loading URL %@. Report name: %@", exception.reason, self.report.title);
-        _navBar.title = [NSString stringWithFormat:@"Error - %@", self.report.title];
     }
 }
 

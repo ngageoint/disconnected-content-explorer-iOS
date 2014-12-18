@@ -11,6 +11,5 @@
 @interface HTMLViewController : UIViewController <ResourceHandler, UISplitViewControllerDelegate, UIScrollViewDelegate>
 
 @property (strong, nonatomic) IBOutlet UIWebView *webView;
-@property (strong, nonatomic) IBOutlet UINavigationItem *navBar;
 
 @end

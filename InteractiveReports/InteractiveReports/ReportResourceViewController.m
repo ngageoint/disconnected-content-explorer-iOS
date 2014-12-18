@@ -23,8 +23,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // TODO: handle html root dirs
-    
     UIViewController<ResourceHandler> *resourceViewer = [ResourceTypes viewerForResource:self.resource];
     [self addChildViewController:resourceViewer];
     resourceViewer.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
