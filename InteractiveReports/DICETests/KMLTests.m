@@ -9,7 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
-//#import "SimpleKML.h"
+#import "SimpleKML.h"
+#import "SimpleKMLDocument.h"
 
 @interface KMLTests : XCTestCase
 
@@ -28,16 +29,17 @@
 }
 
 - (void)testExample {
-    // This is an example of a functional test case.
-    XCTAssert(YES, @"Pass");
-//    SimpleKML *kml;
+    NSURL *kmlURL = [[NSBundle bundleForClass:self.class] URLForResource:@"mage-export" withExtension:@"kml"];
+    SimpleKML *kml = [SimpleKML KMLWithContentsOfURL:kmlURL error:NULL];
+    XCTAssertNotNil(kml);
+    NSLog(@"kml %@ has %lu placemarks", kmlURL, (unsigned long)kml.feature.document.flattenedPlacemarks.count);
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
-}
+//- (void)testPerformanceExample {
+//    // This is an example of a performance test case.
+//    [self measureBlock:^{
+//        // Put the code you want to measure the time of here.
+//    }];
+//}
 
 @end
