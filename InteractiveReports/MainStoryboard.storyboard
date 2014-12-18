@@ -54,7 +54,7 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kh2-1s-s37" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="153" y="-2068"/>
+            <point key="canvasLocation" x="-120" y="-2771"/>
         </scene>
         <!--Tile Collection View-->
         <scene sceneID="mEv-el-IEt">
@@ -136,12 +136,12 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gPx-wQ-lGG" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2291" y="884"/>
+            <point key="canvasLocation" x="-1194" y="652"/>
         </scene>
-        <!--Report View-->
+        <!--HTML View-->
         <scene sceneID="JxT-zH-ow0">
             <objects>
-                <viewController storyboardIdentifier="htmlReportViewController" title="Report View" id="dNd-r1-5KN" customClass="ReportViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="htmlViewController" title="HTML View" id="dNd-r1-5KN" customClass="HTMLViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="BIg-Vu-XvI"/>
                         <viewControllerLayoutGuide type="bottom" id="qa4-gQ-fKO"/>
@@ -163,48 +163,13 @@ Info designed by NAS from thenounproject.com</string>
                             <constraint firstItem="Gu9-pE-Oo9" firstAttribute="top" secondItem="q7B-Of-kbp" secondAttribute="top" id="jc5-xO-u3V"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="1E0-d6-rCn">
-                        <barButtonItem key="rightBarButtonItem" style="plain" id="JdI-aE-cdE">
-                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="QSC-83-ITn">
-                                <rect key="frame" x="-23" y="-15" width="170" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="Add notes">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <segue destination="zsx-Cl-7xw" kind="modal" identifier="showReportNotes" id="vzQ-4p-mhX"/>
-                                </connections>
-                            </button>
-                        </barButtonItem>
-                    </navigationItem>
                     <connections>
                         <outlet property="webView" destination="Gu9-pE-Oo9" id="7KT-A8-JdO"/>
-                        <segue destination="TDl-G2-Z3N" kind="push" identifier="showLinkedResource" id="FQF-JS-sPT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="mZ2-5x-ZNr" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="153" y="-959"/>
-        </scene>
-        <!--PDF View-->
-        <scene sceneID="gRb-E5-DFA">
-            <objects>
-                <viewController storyboardIdentifier="pdfReportViewController" title="PDF View" id="2Jc-79-puh" customClass="PDFViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="DmP-GB-0Az"/>
-                        <viewControllerLayoutGuide type="bottom" id="OGi-fo-sM0"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="t2q-EN-au7">
-                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                    <navigationItem key="navigationItem" id="c7l-cP-ONR"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="PJP-fF-KGR" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-995" y="-279"/>
+            <point key="canvasLocation" x="-120" y="-489"/>
         </scene>
         <!--List Collection View-->
         <scene sceneID="PeT-Tg-wzl">
@@ -284,7 +249,7 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8Nj-x8-Tpa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2291" y="-354"/>
+            <point key="canvasLocation" x="-1194" y="-489"/>
         </scene>
         <!--Report Collection View Container-->
         <scene sceneID="QNX-QI-qFn">
@@ -345,13 +310,12 @@ Info designed by NAS from thenounproject.com</string>
                     <navigationItem key="navigationItem" title="DICE Reports" id="j1g-A4-UiI"/>
                     <connections>
                         <outlet property="collectionSubview" destination="olg-Y4-UG8" id="4Z3-aV-h7Z"/>
-                        <segue destination="dNd-r1-5KN" kind="push" identifier="showHtmlReport" id="ntg-vh-CNR"/>
-                        <segue destination="2Jc-79-puh" kind="push" identifier="showPdfReport" id="PgM-0C-e6Z"/>
+                        <segue destination="TDl-G2-Z3N" kind="push" identifier="showReport" id="CPK-7s-HRC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lML-Cg-qxX" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-995" y="-1629"/>
+            <point key="canvasLocation" x="-1194" y="-1629"/>
         </scene>
         <!--Map Collection View-->
         <scene sceneID="GTL-LY-qIe">
@@ -385,7 +349,7 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FcX-WF-FRT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2291" y="2122"/>
+            <point key="canvasLocation" x="-1194" y="1788"/>
         </scene>
         <!--Globe View Controller-->
         <scene sceneID="Ktb-aa-jei">
@@ -424,12 +388,12 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SHL-Qk-A92" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1299" y="-3517"/>
+            <point key="canvasLocation" x="-120" y="652"/>
         </scene>
-        <!--Report Linked Resource Container-->
+        <!--Report Resource View Container-->
         <scene sceneID="YFE-zQ-7hJ">
             <objects>
-                <viewController title="Report Linked Resource Container" id="TDl-G2-Z3N" customClass="ReportLinkedResourceViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="reportResourceViewController" title="Report Resource View Container" id="TDl-G2-Z3N" customClass="ReportResourceViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="fOb-lm-nr4"/>
                         <viewControllerLayoutGuide type="bottom" id="hQA-J3-35e"/>
@@ -451,14 +415,20 @@ Info designed by NAS from thenounproject.com</string>
                             <constraint firstAttribute="trailing" secondItem="hE2-pH-C2R" secondAttribute="trailing" id="st6-CI-prR"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="R1L-Xw-7la"/>
+                    <navigationItem key="navigationItem" id="R1L-Xw-7la">
+                        <barButtonItem key="rightBarButtonItem" title="Notes" id="j1A-v6-Y5x">
+                            <connections>
+                                <segue destination="zsx-Cl-7xw" kind="modal" id="4IG-HN-MUR"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="resourceView" destination="hE2-pH-C2R" id="btI-IK-YDw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NDi-Xi-f4p" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1299" y="-2273"/>
+            <point key="canvasLocation" x="-120" y="-1629"/>
         </scene>
         <!--Report Notes-->
         <scene sceneID="N8T-wk-RcO">
@@ -514,7 +484,7 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ydc-5s-woK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1299" y="-959"/>
+            <point key="canvasLocation" x="982" y="-1629"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="88C-9c-cNH">

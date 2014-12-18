@@ -8,8 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ReportLinkedResourceViewController : UIViewController
+#import "Report.h"
 
+
+@interface ReportResourceViewController : UIViewController
+
+@property (weak, nonatomic) Report *report;
 @property (weak, nonatomic) NSURL *resource;
 
 @end

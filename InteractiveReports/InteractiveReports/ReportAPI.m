@@ -41,6 +41,9 @@
     NSFileManager *fileManager;
     NSURL *documentsDir;
     NSURL *reportsDir;
+    // TODO: move this to ResourceTypes and consolidate all report type ingestion and handling
+    // right now DICENavigationController, AppDelegate, and this class all have logic for
+    // report type handling
     NSArray *recognizedFileExtensions;
 }
 
@@ -73,7 +76,7 @@
         if (![fileManager fileExistsAtPath:reportsDir.path]) {
             [fileManager createDirectoryAtPath:reportsDir.path withIntermediateDirectories:YES attributes:nil error:nil];
         }
-        recognizedFileExtensions = @[@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx"];
+        recognizedFileExtensions = @[@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx", @"kml"];
     }
     
     return self;
@@ -121,8 +124,8 @@
 
 - (void)importReportFromUrl:(NSURL *)reportURL afterImport:(void(^)(Report *))afterImportBlock
 {
-    // TODO: notify import begin
-
+    // TODO: notify import begin if anyone cares
+    
     NSString *fileName = reportURL.lastPathComponent;
     NSURL *destFile = [documentsDir URLByAppendingPathComponent:fileName];
     NSError *error;
@@ -143,8 +146,10 @@
     [file getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
     
     if (isRegularFile.boolValue && [recognizedFileExtensions containsObject:file.pathExtension]) {
-        Report *report = [Report reportWithTitle:file.lastPathComponent];
+        NSString *title = [file.lastPathComponent stringByDeletingPathExtension];
+        Report *report = [Report reportWithTitle:title];
         report.sourceFile = file;
+        report.reportID = [report.sourceFile.lastPathComponent stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         
         [reports addObject:report];
         
@@ -155,7 +160,6 @@
                                                               @"index": [NSString stringWithFormat:@"%lu", reports.count - 1]
                                                           }];
         
-        NSString *reportName = report.title;
         NSString *fileExtension = file.pathExtension;
         
         if ( [fileExtension caseInsensitiveCompare:@"zip"] == NSOrderedSame ) {
@@ -170,8 +174,8 @@
         }
         else { // PDFs and office files
             dispatch_async(backgroundQueue, ^(void) {
+                report.reportID = report.sourceFile.lastPathComponent;
                 report.url = file;
-                report.reportID = reportName;
                 report.fileExtension = fileExtension;
                 report.isEnabled = YES;
                 [[NSNotificationCenter defaultCenter]
@@ -218,22 +222,29 @@
             NSString *jsonString = [[NSString alloc] initWithContentsOfFile:jsonFile.path encoding:NSUTF8StringEncoding error:NULL];
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
 
+            NSString *reportID = [json valueForKey:@"reportID"];
+            if (reportID) {
+                report.reportID = reportID;
+            }
             report.title = [json objectForKey:@"title"];
             report.description = [json objectForKey:@"description"];
             report.thumbnail = [json objectForKey:@"thumbnail"];
             report.tileThumbnail = [json objectForKey:@"tile_thumbnail"];
             report.lat = [[json valueForKey:@"lat"] doubleValue];
             report.lon = [[json valueForKey:@"lon"] doubleValue];
-            report.reportID = [json valueForKey:@"reportID"];
             report.fileExtension = fileExtension;
-            report.url = expectedContentDir;
             report.isEnabled = YES;
         }
         else if (error == nil) {
             report.title = expectedContentDirName;
-            report.url = expectedContentDir;
             report.isEnabled = YES;
         }
+        
+        if (!report.reportID) {
+            report.reportID = report.sourceFile.lastPathComponent;
+        }
+        
+        report.url = [expectedContentDir URLByAppendingPathComponent:@"index.html"];
     }
     @catch (NSException *exception) {
         report.title = sourceFileName;

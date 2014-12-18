@@ -8,9 +8,10 @@
 
 
 #import "DICENavigationController.h"
-#import "ReportViewController.h"
-#import "PDFViewController.h"
+
 #import "ReportAPI.h"
+#import "ReportResourceViewController.h"
+#import "ResourceTypes.h"
 
 @interface DICENavigationController ()
 
@@ -70,7 +71,10 @@
 
 - (void)navigateToReport:(Report *)report animated:(BOOL)animated
 {
-    UIViewController *reportView = [self createReportView:report];
+    // TODO: handle linked resources
+    ReportResourceViewController *reportView = [self.storyboard instantiateViewControllerWithIdentifier:@"reportResourceViewController"];
+    reportView.report = report;
+    reportView.resource = report.url;
     [self pushViewController:reportView animated:animated];
 }
 
@@ -83,25 +87,6 @@
         return topView;
     }
     return [super popViewControllerAnimated:animated];
-}
-
-
-- (UIViewController *)createReportView:(Report *)report
-{
-    // TODO: possibly use something like the ResourceHandler protocol for report view controllers
-    // and setting the report resource to load, or make a ReportTypeHandler
-    UIViewController *reportView;
-    NSString *reportType = report.fileExtension;
-    if ([reportType isEqualToString:@"pdf"]) {
-        reportView = [self.storyboard instantiateViewControllerWithIdentifier:@"pdfReportViewController"];
-        [(PDFViewController *)reportView setReport:report];
-    }
-    else {
-        reportView = [self.storyboard instantiateViewControllerWithIdentifier:@"htmlReportViewController"];
-        [(ReportViewController *)reportView setReport:report];
-    }
-    
-    return reportView;
 }
 
 @end

@@ -113,7 +113,7 @@ private:
 //    delete meshRenderer;
 }
 
-- (void)handleResource:(NSURL *)resource
+- (void)handleResource:(NSURL *)resource forReport:(Report *)report
 {
     float pointSize = 2.0;
     double deltaHeight = 0.0;

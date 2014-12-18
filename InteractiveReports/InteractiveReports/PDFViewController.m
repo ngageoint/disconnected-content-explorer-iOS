@@ -11,6 +11,7 @@
 @interface PDFViewController ()
 
 @property BOOL isDismissed;
+@property (nonatomic, strong) Report *report;
 
 @end
 
@@ -48,6 +49,11 @@
     }
 }
 
+
+- (void)handleResource:(NSURL *)resource forReport:(Report *)report
+{
+    self.report = report;
+}
 
 - (void)didReceiveMemoryWarning
 {

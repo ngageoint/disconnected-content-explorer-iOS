@@ -6,28 +6,33 @@
 //  Copyright (c) 2014 mil.nga. All rights reserved.
 //
 
-#import "ReportLinkedResourceViewController.h"
+#import "ReportResourceViewController.h"
+
+#import "NoteViewController.h"
 #import "ResourceTypes.h"
 
-@interface ReportLinkedResourceViewController ()
+@interface ReportResourceViewController ()
 
 @property (weak, nonatomic) UIViewController<ResourceHandler> *resourceViewer;
 @property (weak, nonatomic) IBOutlet UIView *resourceView;
 
 @end
 
-@implementation ReportLinkedResourceViewController
+@implementation ReportResourceViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
+    // TODO: handle html root dirs
+    
     UIViewController<ResourceHandler> *resourceViewer = [ResourceTypes viewerForResource:self.resource];
     [self addChildViewController:resourceViewer];
     resourceViewer.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     resourceViewer.view.frame = self.resourceView.frame;
     [self.resourceView addSubview:resourceViewer.view];
     [resourceViewer didMoveToParentViewController:self];
-    [resourceViewer handleResource:self.resource];
+    
+    [resourceViewer handleResource:self.resource forReport:self.report];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -50,6 +55,13 @@
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([[segue identifier] isEqualToString:@"showReportNotes"]) {
+        NoteViewController *noteViewController = (NoteViewController *)segue.destinationViewController;
+        noteViewController.report = self.report;
+    }
 }
 
 /*

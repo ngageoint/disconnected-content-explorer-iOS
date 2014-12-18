@@ -3,25 +3,26 @@
 //  InteractiveReports
 //
 
-#import "ReportViewController.h"
+#import "HTMLViewController.h"
 
 #import "ReportAPI.h"
 #import "NoteViewController.h"
-#import "ReportLinkedResourceViewController.h"
+#import "ReportResourceViewController.h"
 #import "ResourceTypes.h"
 
-@interface ReportViewController () <UIWebViewDelegate>
+@interface HTMLViewController () <UIWebViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
+@property (strong, nonatomic) UILabel *unzipStatusLabel;
 @property CGFloat scrollOffset;
 @property BOOL hidingToolbar;
 @property NSURL *linkedResource;
-@property (strong, nonatomic) UIPopoverController *masterPopoverController;
+@property (weak, nonatomic) Report *report;
 
 @end
 
 
-@implementation ReportViewController
+@implementation HTMLViewController
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
@@ -77,8 +78,6 @@
     _webView.scalesPageToFit = YES;
     
     _hidingToolbar = NO;
-    
-    [self loadReportContent];
 }
 
 
@@ -102,26 +101,27 @@
 }
 
 
+- (void)handleResource:(NSURL *)resource forReport:(Report *)report
+{
+    self.report = report;
+    [self loadReportContent];
+}
+
+
 - (void)loadReportContent
 {
-    if (self.report == nil) {
+    if (self.report == nil || self.report.url == nil) {
         _navBar.title = @"Report Not Found";
         return;
     }
 
     @try {
-        if ( [self.report.fileExtension caseInsensitiveCompare:@"zip"] == NSOrderedSame ) {
-            NSURL* indexUrl = [self.report.url URLByAppendingPathComponent: @"index.html"];
-            [self.webView loadRequest: [NSURLRequest requestWithURL:indexUrl]];
-        }
-        else {
-            [self.webView loadRequest:[NSURLRequest requestWithURL:self.report.url]];
-        }
+        [self.webView loadRequest:[NSURLRequest requestWithURL:self.report.url]];
         _navBar.title = self.report.title;
     }
     @catch (NSException *exception) {
         NSLog(@"Problem loading URL %@. Report name: %@", exception.reason, self.report.title);
-        _navBar.title = [NSString stringWithFormat:@"Error: %@", self.report.title];
+        _navBar.title = [NSString stringWithFormat:@"Error - %@", self.report.title];
     }
 }
 
@@ -135,12 +135,8 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    if ([[segue identifier] isEqualToString:@"showReportNotes"]) {
-        NoteViewController *noteViewController = (NoteViewController *)segue.destinationViewController;
-        noteViewController.report = self.report;
-    }
-    else if ([segue.identifier isEqualToString:@"showLinkedResource"]) {
-        ReportLinkedResourceViewController *resourceViewer = (ReportLinkedResourceViewController *)segue.destinationViewController;
+    if ([segue.identifier isEqualToString:@"showLinkedResource"]) {
+        ReportResourceViewController *resourceViewer = (ReportResourceViewController *)segue.destinationViewController;
         resourceViewer.resource = self.linkedResource;
         self.linkedResource = nil;
     }
@@ -150,11 +146,10 @@
 # pragma mark - notification handling methods
 - (void)reportUpdated:(NSNotification *)notification
 {
-    if (self.report.isEnabled) {
+    Report *report = notification.userInfo[@"report"];
+    if (report == self.report && self.report.isEnabled) {
         [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:@"Loading..." waitUntilDone:NO];
         [_unzipStatusLabel removeFromSuperview];
-        Report *report = notification.userInfo[@"report"];
-        self.report = report;
         [self loadReportContent];
     }
 }
@@ -184,6 +179,7 @@
     if ([_webView isLoading]) {
         [_webView stopLoading];
     }
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
