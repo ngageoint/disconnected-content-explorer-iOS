@@ -13,7 +13,7 @@
 
 @interface ReportResourceViewController : UIViewController
 
-@property (weak, nonatomic) Report *report;
-@property (weak, nonatomic) NSURL *resource;
+@property (strong, nonatomic) Report *report;
+@property (strong, nonatomic) NSURL *resource;
 
 @end

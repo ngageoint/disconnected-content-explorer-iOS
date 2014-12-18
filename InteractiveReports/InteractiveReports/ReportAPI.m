@@ -175,7 +175,8 @@
         else { // PDFs and office files
             dispatch_async(backgroundQueue, ^(void) {
                 report.reportID = report.sourceFile.lastPathComponent;
-                report.url = file;
+                // make sure the url's baseURL property is set
+                report.url = [NSURL URLWithString:report.sourceFile.lastPathComponent relativeToURL:[file URLByDeletingLastPathComponent]];
                 report.fileExtension = fileExtension;
                 report.isEnabled = YES;
                 [[NSNotificationCenter defaultCenter]
@@ -244,7 +245,8 @@
             report.reportID = report.sourceFile.lastPathComponent;
         }
         
-        report.url = [expectedContentDir URLByAppendingPathComponent:@"index.html"];
+        // make sure url's baseURL property is set
+        report.url = [NSURL URLWithString:@"index.html" relativeToURL:expectedContentDir];
     }
     @catch (NSException *exception) {
         report.title = sourceFileName;

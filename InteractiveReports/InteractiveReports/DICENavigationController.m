@@ -45,6 +45,13 @@
     NSDictionary *params = [DICENavigationController parseQueryParametersFromURL:target];
     NSString *srcScheme = params[@"srcScheme"];
     NSString *reportID = params[@"reportID"];
+    NSString *resource = params[@"resource"];
+    
+    if (!reportID) {
+        return;
+    }
+    
+    Report *report = [[ReportAPI sharedInstance] reportForID:reportID];
     
     if (srcScheme) {
         NSMutableString *srcURLStr = [NSMutableString stringWithFormat:@"%@://?srcScheme=dice", srcScheme];
@@ -60,21 +67,21 @@
         self.referrerURL = nil;
     }
     
-    if (!reportID) {
-        return;
-    }
-    
-    Report *report = [[ReportAPI sharedInstance] reportForID:reportID];
-    [self navigateToReport:report animated:NO];
+    [self navigateToReport:report childResource:resource animated:NO];
 }
 
 
-- (void)navigateToReport:(Report *)report animated:(BOOL)animated
+- (void)navigateToReport:(Report *)report childResource:(NSString *)resourceName animated:(BOOL)animated
 {
-    // TODO: handle linked resources
     ReportResourceViewController *reportView = [self.storyboard instantiateViewControllerWithIdentifier:@"reportResourceViewController"];
     reportView.report = report;
-    reportView.resource = report.url;
+    if (!resourceName) {
+        reportView.resource = report.url;
+    }
+    else {
+        NSURL *resource = [report.url.baseURL URLByAppendingPathComponent:resourceName];
+        reportView.resource = resource;
+    }
     [self pushViewController:reportView animated:animated];
 }
 

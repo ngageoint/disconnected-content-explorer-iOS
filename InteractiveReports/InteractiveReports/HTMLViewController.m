@@ -15,7 +15,7 @@
 @property (strong, nonatomic) UILabel *unzipStatusLabel;
 
 @property (strong, nonatomic) Report *report;
-@property (strong, nonatomic) NSURL *linkedResource;
+@property (strong, nonatomic) NSURL *reportResource;
 
 @end
 
@@ -77,6 +77,7 @@
 - (void)handleResource:(NSURL *)resource forReport:(Report *)report
 {
     self.report = report;
+    self.reportResource = resource;
     [self loadReportContent];
 }
 
@@ -84,7 +85,8 @@
 - (void)loadReportContent
 {
     @try {
-        [self.webView loadRequest:[NSURLRequest requestWithURL:self.report.url]];
+        NSLog(@"HTMLViewController loading url %@ (base: %@)", self.reportResource, self.reportResource.baseURL);
+        [self.webView loadRequest:[NSURLRequest requestWithURL:self.reportResource]];
     }
     @catch (NSException *exception) {
         NSLog(@"Problem loading URL %@. Report name: %@", exception.reason, self.report.title);
@@ -99,17 +101,7 @@
 }
 
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([segue.identifier isEqualToString:@"showLinkedResource"]) {
-        ReportResourceViewController *resourceViewer = (ReportResourceViewController *)segue.destinationViewController;
-        resourceViewer.resource = self.linkedResource;
-        self.linkedResource = nil;
-    }
-}
-
-
-# pragma mark - notification handling methods
+#pragma mark - notification handling methods
 - (void)reportUpdated:(NSNotification *)notification
 {
     Report *report = notification.userInfo[@"report"];
@@ -131,8 +123,11 @@
 {
     if (navigationType == UIWebViewNavigationTypeLinkClicked && request.URL.isFileURL) {
         if ([ResourceTypes canOpenResource:request.URL]) {
-            self.linkedResource = request.URL;
-            [self performSegueWithIdentifier:@"showLinkedResource" sender:self];
+            // TODO: better api for url handling, e.g., dice://reports/{reportID}/relative_resource?options
+            NSString *base = self.report.url.baseURL.absoluteString;
+            NSString *relativeResource = [request.URL.absoluteString substringFromIndex:base.length];
+            NSURL *diceURL = [NSURL URLWithString:[NSString stringWithFormat:@"dice://?reportID=%@&resource=%@", self.report.reportID, relativeResource]];
+            [[UIApplication sharedApplication] openURL:diceURL];
         }
         // TODO: add support for linked dice reports - maybe by dice:// url, or just an absolute url as opposed to relative to current report
         return NO;
