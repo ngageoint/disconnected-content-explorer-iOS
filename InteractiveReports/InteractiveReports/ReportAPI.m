@@ -40,7 +40,6 @@
     NSMutableArray *reports;
     NSFileManager *fileManager;
     NSURL *documentsDir;
-    NSURL *reportsDir;
     // TODO: move this to ResourceTypes and consolidate all report type ingestion and handling
     // right now DICENavigationController, AppDelegate, and this class all have logic for
     // report type handling
@@ -72,10 +71,6 @@
         fileManager = [NSFileManager defaultManager];
         backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         documentsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
-        reportsDir = [documentsDir URLByAppendingPathComponent:@"reports" isDirectory:YES];
-        if (![fileManager fileExistsAtPath:reportsDir.path]) {
-            [fileManager createDirectoryAtPath:reportsDir.path withIntermediateDirectories:YES attributes:nil error:nil];
-        }
         recognizedFileExtensions = @[@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx", @"kml"];
     }
     
@@ -210,13 +205,14 @@
         NSRange rangeOfDot = [sourceFileName rangeOfString:@"."];
         NSString *fileExtension = [sourceFile pathExtension];
         NSString *expectedContentDirName = (rangeOfDot.location != NSNotFound) ? [sourceFileName substringToIndex:rangeOfDot.location] : nil;
-        NSURL *expectedContentDir = [reportsDir URLByAppendingPathComponent: expectedContentDirName];
+        NSURL *expectedContentDir = [documentsDir URLByAppendingPathComponent: expectedContentDirName isDirectory:YES];
         NSURL *jsonFile = [expectedContentDir URLByAppendingPathComponent: @"metadata.json"];
         NSError *error;
         
-        if(![fileManager fileExistsAtPath:expectedContentDir.path]) {
-            [self unzipReportContents:report toDirectory:reportsDir error:&error];
+        if (![fileManager fileExistsAtPath:expectedContentDir.path]) {
+            [self unzipReportContents:report toDirectory:documentsDir error:&error];
         }
+        
         
         // Handle the metadata.json, make the report fancier, if it is available
         if ( [fileManager fileExistsAtPath:jsonFile.path] && error == nil) {
