@@ -40,6 +40,14 @@
 }
 
 
+- (void)viewDidLoad
+{
+    if ([self respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+        self.interactivePopGestureRecognizer.enabled = NO;
+    }
+}
+
+
 - (void)navigateToReportForURL:(NSURL *)target fromApp:(NSString *)bundleID
 {
     NSDictionary *params = [DICENavigationController parseQueryParametersFromURL:target];
