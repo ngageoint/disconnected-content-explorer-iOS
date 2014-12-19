@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Settings View Controller-->
@@ -157,10 +158,10 @@ Info designed by NAS from thenounproject.com</string>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="leading" secondItem="q7B-Of-kbp" secondAttribute="leading" id="RLI-QP-a7L"/>
-                            <constraint firstAttribute="trailing" secondItem="Gu9-pE-Oo9" secondAttribute="trailing" id="WgB-5E-ttt"/>
-                            <constraint firstAttribute="bottom" secondItem="Gu9-pE-Oo9" secondAttribute="bottom" id="Y4B-BP-8Fl"/>
-                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="top" secondItem="q7B-Of-kbp" secondAttribute="top" id="jc5-xO-u3V"/>
+                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="bottom" secondItem="qa4-gQ-fKO" secondAttribute="top" id="9Kz-cF-uxh"/>
+                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="top" secondItem="q7B-Of-kbp" secondAttribute="top" id="AFS-gs-jsD"/>
+                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="leading" secondItem="q7B-Of-kbp" secondAttribute="leading" id="IfK-9U-3As"/>
+                            <constraint firstAttribute="trailing" secondItem="Gu9-pE-Oo9" secondAttribute="trailing" id="gEf-eC-3oP"/>
                         </constraints>
                     </view>
                     <connections>
@@ -402,12 +403,18 @@ Info designed by NAS from thenounproject.com</string>
                         <rect key="frame" x="0.0" y="0.0" width="768" height="960"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="top" secondItem="fOb-lm-nr4" secondAttribute="bottom" id="PyJ-vr-ocW"/>
+                            <constraint firstAttribute="bottomMargin" secondItem="hE2-pH-C2R" secondAttribute="bottom" constant="-64" id="Qpi-bA-mW7"/>
+                            <constraint firstAttribute="trailing" secondItem="hE2-pH-C2R" secondAttribute="trailing" id="tSo-b3-Rdm"/>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="leading" secondItem="PNR-M3-edu" secondAttribute="leading" id="xf3-iJ-HE0"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="R1L-Xw-7la">
                         <barButtonItem key="rightBarButtonItem" title="Notes" id="j1A-v6-Y5x">
