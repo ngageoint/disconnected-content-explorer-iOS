@@ -62,9 +62,11 @@ Report *selectedReport;
 #pragma mark - Navigation
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    ReportResourceViewController *reportViewController = (ReportResourceViewController *)segue.destinationViewController;
-    reportViewController.report = selectedReport;
-    reportViewController.resource = selectedReport.url;
+    if ([segue.identifier isEqualToString:@"showReport"]){
+        ReportResourceViewController *reportViewController = (ReportResourceViewController *)segue.destinationViewController;
+        reportViewController.report = selectedReport;
+        reportViewController.resource = selectedReport.url;
+    }
 }
 
 

@@ -156,6 +156,7 @@
 {
     self.selectedCell = [self.tableView cellForRowAtIndexPath:indexPath];
     [self.delegate reportSelectedToView:self.reports[indexPath.row]];
+    [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
 
 
