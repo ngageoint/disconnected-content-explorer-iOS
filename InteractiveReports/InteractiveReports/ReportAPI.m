@@ -40,7 +40,9 @@
     NSMutableArray *reports;
     NSFileManager *fileManager;
     NSURL *documentsDir;
-    NSURL *reportsDir;
+    // TODO: move this to ResourceTypes and consolidate all report type ingestion and handling
+    // right now DICENavigationController, AppDelegate, and this class all have logic for
+    // report type handling
     NSArray *recognizedFileExtensions;
 }
 
@@ -69,11 +71,7 @@
         fileManager = [NSFileManager defaultManager];
         backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         documentsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
-        reportsDir = [documentsDir URLByAppendingPathComponent:@"reports" isDirectory:YES];
-        if (![fileManager fileExistsAtPath:reportsDir.path]) {
-            [fileManager createDirectoryAtPath:reportsDir.path withIntermediateDirectories:YES attributes:nil error:nil];
-        }
-        recognizedFileExtensions = @[@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx"];
+        recognizedFileExtensions = @[@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx", @"kml"];
     }
     
     return self;
@@ -121,8 +119,8 @@
 
 - (void)importReportFromUrl:(NSURL *)reportURL afterImport:(void(^)(Report *))afterImportBlock
 {
-    // TODO: notify import begin
-
+    // TODO: notify import begin if anyone cares
+    
     NSString *fileName = reportURL.lastPathComponent;
     NSURL *destFile = [documentsDir URLByAppendingPathComponent:fileName];
     NSError *error;
@@ -143,8 +141,10 @@
     [file getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
     
     if (isRegularFile.boolValue && [recognizedFileExtensions containsObject:file.pathExtension]) {
-        Report *report = [Report reportWithTitle:file.lastPathComponent];
+        NSString *title = [file.lastPathComponent stringByDeletingPathExtension];
+        Report *report = [Report reportWithTitle:title];
         report.sourceFile = file;
+        report.reportID = [report.sourceFile.lastPathComponent stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         
         [reports addObject:report];
         
@@ -155,7 +155,6 @@
                                                               @"index": [NSString stringWithFormat:@"%lu", reports.count - 1]
                                                           }];
         
-        NSString *reportName = report.title;
         NSString *fileExtension = file.pathExtension;
         
         if ( [fileExtension caseInsensitiveCompare:@"zip"] == NSOrderedSame ) {
@@ -170,8 +169,9 @@
         }
         else { // PDFs and office files
             dispatch_async(backgroundQueue, ^(void) {
-                report.url = file;
-                report.reportID = reportName;
+                report.reportID = report.sourceFile.lastPathComponent;
+                // make sure the url's baseURL property is set
+                report.url = [NSURL URLWithString:report.sourceFile.lastPathComponent relativeToURL:[file URLByDeletingLastPathComponent]];
                 report.fileExtension = fileExtension;
                 report.isEnabled = YES;
                 [[NSNotificationCenter defaultCenter]
@@ -205,35 +205,44 @@
         NSRange rangeOfDot = [sourceFileName rangeOfString:@"."];
         NSString *fileExtension = [sourceFile pathExtension];
         NSString *expectedContentDirName = (rangeOfDot.location != NSNotFound) ? [sourceFileName substringToIndex:rangeOfDot.location] : nil;
-        NSURL *expectedContentDir = [reportsDir URLByAppendingPathComponent: expectedContentDirName];
+        NSURL *expectedContentDir = [documentsDir URLByAppendingPathComponent: expectedContentDirName isDirectory:YES];
         NSURL *jsonFile = [expectedContentDir URLByAppendingPathComponent: @"metadata.json"];
         NSError *error;
         
-        if(![fileManager fileExistsAtPath:expectedContentDir.path]) {
-            [self unzipReportContents:report toDirectory:reportsDir error:&error];
+        if (![fileManager fileExistsAtPath:expectedContentDir.path]) {
+            [self unzipReportContents:report toDirectory:documentsDir error:&error];
         }
+        
         
         // Handle the metadata.json, make the report fancier, if it is available
         if ( [fileManager fileExistsAtPath:jsonFile.path] && error == nil) {
             NSString *jsonString = [[NSString alloc] initWithContentsOfFile:jsonFile.path encoding:NSUTF8StringEncoding error:NULL];
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
 
+            NSString *reportID = [json valueForKey:@"reportID"];
+            if (reportID) {
+                report.reportID = reportID;
+            }
             report.title = [json objectForKey:@"title"];
             report.description = [json objectForKey:@"description"];
             report.thumbnail = [json objectForKey:@"thumbnail"];
             report.tileThumbnail = [json objectForKey:@"tile_thumbnail"];
             report.lat = [[json valueForKey:@"lat"] doubleValue];
             report.lon = [[json valueForKey:@"lon"] doubleValue];
-            report.reportID = [json valueForKey:@"reportID"];
             report.fileExtension = fileExtension;
-            report.url = expectedContentDir;
             report.isEnabled = YES;
         }
         else if (error == nil) {
             report.title = expectedContentDirName;
-            report.url = expectedContentDir;
             report.isEnabled = YES;
         }
+        
+        if (!report.reportID) {
+            report.reportID = report.sourceFile.lastPathComponent;
+        }
+        
+        // make sure url's baseURL property is set
+        report.url = [NSURL URLWithString:@"index.html" relativeToURL:expectedContentDir];
     }
     @catch (NSException *exception) {
         report.title = sourceFileName;

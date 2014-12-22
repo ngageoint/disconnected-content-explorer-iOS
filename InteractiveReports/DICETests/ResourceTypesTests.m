@@ -45,6 +45,14 @@
     XCTAssert([ResourceTypes canOpenResource:resource], @"could not open glob3 pointcloud resource");
 }
 
+- (void)testCanOpenKML {
+    NSURL *resource = [NSURL URLWithString:@"file:///resources/resource.kml"];
+    XCTAssert([ResourceTypes canOpenResource:resource], @"could not open kml resource");
+    
+    resource = [NSURL URLWithString:@"file:///resources/resource.kmz"];
+    XCTAssert([ResourceTypes canOpenResource:resource], @"could not open kmz resource");
+}
+
 //- (void)testPerformanceExample {
 //    // This is an example of a performance test case.
 //    [self measureBlock:^{

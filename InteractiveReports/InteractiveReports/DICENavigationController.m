@@ -8,9 +8,10 @@
 
 
 #import "DICENavigationController.h"
-#import "ReportViewController.h"
-#import "PDFViewController.h"
+
 #import "ReportAPI.h"
+#import "ReportResourceViewController.h"
+#import "ResourceTypes.h"
 
 @interface DICENavigationController ()
 
@@ -39,11 +40,26 @@
 }
 
 
+- (void)viewDidLoad
+{
+    if ([self respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+        self.interactivePopGestureRecognizer.enabled = NO;
+    }
+}
+
+
 - (void)navigateToReportForURL:(NSURL *)target fromApp:(NSString *)bundleID
 {
     NSDictionary *params = [DICENavigationController parseQueryParametersFromURL:target];
     NSString *srcScheme = params[@"srcScheme"];
     NSString *reportID = params[@"reportID"];
+    NSString *resource = params[@"resource"];
+    
+    if (!reportID) {
+        return;
+    }
+    
+    Report *report = [[ReportAPI sharedInstance] reportForID:reportID];
     
     if (srcScheme) {
         NSMutableString *srcURLStr = [NSMutableString stringWithFormat:@"%@://?srcScheme=dice", srcScheme];
@@ -59,18 +75,21 @@
         self.referrerURL = nil;
     }
     
-    if (!reportID) {
-        return;
-    }
-    
-    Report *report = [[ReportAPI sharedInstance] reportForID:reportID];
-    [self navigateToReport:report animated:NO];
+    [self navigateToReport:report childResource:resource animated:NO];
 }
 
 
-- (void)navigateToReport:(Report *)report animated:(BOOL)animated
+- (void)navigateToReport:(Report *)report childResource:(NSString *)resourceName animated:(BOOL)animated
 {
-    UIViewController *reportView = [self createReportView:report];
+    ReportResourceViewController *reportView = [self.storyboard instantiateViewControllerWithIdentifier:@"reportResourceViewController"];
+    reportView.report = report;
+    if (!resourceName) {
+        reportView.resource = report.url;
+    }
+    else {
+        NSURL *resource = [report.url.baseURL URLByAppendingPathComponent:resourceName];
+        reportView.resource = resource;
+    }
     [self pushViewController:reportView animated:animated];
 }
 
@@ -83,25 +102,6 @@
         return topView;
     }
     return [super popViewControllerAnimated:animated];
-}
-
-
-- (UIViewController *)createReportView:(Report *)report
-{
-    // TODO: possibly use something like the ResourceHandler protocol for report view controllers
-    // and setting the report resource to load, or make a ReportTypeHandler
-    UIViewController *reportView;
-    NSString *reportType = report.fileExtension;
-    if ([reportType isEqualToString:@"pdf"]) {
-        reportView = [self.storyboard instantiateViewControllerWithIdentifier:@"pdfReportViewController"];
-        [(PDFViewController *)reportView setReport:report];
-    }
-    else {
-        reportView = [self.storyboard instantiateViewControllerWithIdentifier:@"htmlReportViewController"];
-        [(ReportViewController *)reportView setReport:report];
-    }
-    
-    return reportView;
 }
 
 @end

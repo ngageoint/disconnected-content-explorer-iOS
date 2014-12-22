@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Report.h"
+
 #import "ReaderViewController.h"
+#import "Report.h"
+#import "ResourceTypes.h"
 
-@interface PDFViewController : UIViewController <ReaderViewControllerDelegate>
-
-@property (nonatomic, strong) Report *report;
+@interface PDFViewController : UIViewController <ResourceHandler, ReaderViewControllerDelegate>
 
 @end

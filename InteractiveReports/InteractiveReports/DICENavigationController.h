@@ -12,7 +12,7 @@
 
 @interface DICENavigationController : UINavigationController
 
-- (void)navigateToReport:(Report *)report animated:(BOOL)animated;
+- (void)navigateToReport:(Report *)report childResource:(NSString *)resourceName animated:(BOOL)animated;
 - (void)navigateToReportForURL:(NSURL *)target fromApp:(NSString *)bundleID;
 
 @end

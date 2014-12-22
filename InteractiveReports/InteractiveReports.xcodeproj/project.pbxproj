@@ -17,10 +17,10 @@
 		7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49201A0D49B50044236B /* OpenGLES.framework */; };
 		7D0B49261A0D885A0044236B /* GlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B49251A0D885A0044236B /* GlobeViewController.mm */; };
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
+		7D1B3E7F1A437C7300ECA0AA /* KMLTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D1B3E7E1A437C7300ECA0AA /* KMLTests.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
-		7D4E1C4B1A1F9475002762B3 /* DICETests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C4A1A1F9475002762B3 /* DICETests.mm */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
-		7D4E1C551A1FAB44002762B3 /* ReportLinkedResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportLinkedResourceViewController.m */; };
+		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B51A152B4700B558EC /* LasReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA706B41A152B4700B558EC /* LasReader.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
@@ -88,7 +88,7 @@
 		E3AC40FD198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E3AC40FC198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson */; };
 		E3AC40FF198ADCC700DE8F41 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3AC40FE198ADCC700DE8F41 /* CoreLocation.framework */; };
 		E3BC6EE1192E7A7B00096EE5 /* ListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3BC6EE0192E7A7B00096EE5 /* ListViewController.m */; };
-		E3BC6EE4192E7A8700096EE5 /* ReportViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3BC6EE3192E7A8700096EE5 /* ReportViewController.m */; };
+		E3BC6EE4192E7A8700096EE5 /* HTMLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3BC6EE3192E7A8700096EE5 /* HTMLViewController.m */; };
 		E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D7820A18516C6A001BB04B /* TileViewController.m */; };
 		E3D7820E18517375001BB04B /* ReportViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D7820D18517375001BB04B /* ReportViewCell.m */; };
 		E3E133C719D6095000C2D37E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3E133C619D6095000C2D37E /* QuartzCore.framework */; };
@@ -804,7 +804,7 @@
 		7D0B48D51A0D482C0044236B /* ByteBuffer_iOS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ByteBuffer_iOS.cpp; sourceTree = "<group>"; };
 		7D0B48D61A0D482C0044236B /* ByteBuffer_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ByteBuffer_iOS.hpp; sourceTree = "<group>"; };
 		7D0B48D71A0D482C0044236B /* Canvas_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Canvas_iOS.hpp; sourceTree = "<group>"; };
-		7D0B48D81A0D482C0044236B /* Canvas_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Canvas_iOS.mm; sourceTree = "<group>"; };
+		7D0B48D81A0D482C0044236B /* Canvas_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Canvas_iOS.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7D0B48D91A0D482C0044236B /* DeviceInfo_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DeviceInfo_iOS.hpp; sourceTree = "<group>"; };
 		7D0B48DA1A0D482C0044236B /* DeviceInfo_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DeviceInfo_iOS.mm; sourceTree = "<group>"; };
 		7D0B48DB1A0D482C0044236B /* Downloader_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Downloader_iOS.hpp; sourceTree = "<group>"; };
@@ -834,7 +834,7 @@
 		7D0B48F31A0D482C0044236B /* ShortBuffer_iOS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShortBuffer_iOS.cpp; sourceTree = "<group>"; };
 		7D0B48F41A0D482C0044236B /* ShortBuffer_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ShortBuffer_iOS.hpp; sourceTree = "<group>"; };
 		7D0B48F51A0D482C0044236B /* SQLiteStorage_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SQLiteStorage_iOS.hpp; sourceTree = "<group>"; };
-		7D0B48F61A0D482C0044236B /* SQLiteStorage_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SQLiteStorage_iOS.mm; sourceTree = "<group>"; };
+		7D0B48F61A0D482C0044236B /* SQLiteStorage_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SQLiteStorage_iOS.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7D0B48F71A0D482C0044236B /* StringBuilder_iOS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StringBuilder_iOS.cpp; sourceTree = "<group>"; };
 		7D0B48F81A0D482C0044236B /* StringBuilder_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StringBuilder_iOS.hpp; sourceTree = "<group>"; };
 		7D0B48F91A0D482C0044236B /* StringUtils_iOS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StringUtils_iOS.hpp; sourceTree = "<group>"; };
@@ -870,14 +870,14 @@
 		7D0B49251A0D885A0044236B /* GlobeViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeViewController.mm; sourceTree = "<group>"; };
 		7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
 		7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
+		7D1B3E7E1A437C7300ECA0AA /* KMLTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KMLTests.m; sourceTree = "<group>"; };
 		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
 		7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
 		7D4E1C461A1F9475002762B3 /* DICETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DICETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D4E1C491A1F9475002762B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		7D4E1C4A1A1F9475002762B3 /* DICETests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DICETests.mm; sourceTree = "<group>"; };
 		7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
-		7D4E1C531A1FAB44002762B3 /* ReportLinkedResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportLinkedResourceViewController.h; sourceTree = "<group>"; };
-		7D4E1C541A1FAB44002762B3 /* ReportLinkedResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportLinkedResourceViewController.m; sourceTree = "<group>"; };
+		7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
+		7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
 		7DA393EC1A1E6A0A00DE9649 /* ReportCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionView.h; sourceTree = "<group>"; };
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
@@ -978,8 +978,8 @@
 		E3AC40FE198ADCC700DE8F41 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		E3BC6EDF192E7A7B00096EE5 /* ListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListViewController.h; sourceTree = "<group>"; };
 		E3BC6EE0192E7A7B00096EE5 /* ListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListViewController.m; sourceTree = "<group>"; };
-		E3BC6EE2192E7A8700096EE5 /* ReportViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewController.h; sourceTree = "<group>"; };
-		E3BC6EE3192E7A8700096EE5 /* ReportViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportViewController.m; sourceTree = "<group>"; };
+		E3BC6EE2192E7A8700096EE5 /* HTMLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLViewController.h; sourceTree = "<group>"; };
+		E3BC6EE3192E7A8700096EE5 /* HTMLViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTMLViewController.m; sourceTree = "<group>"; };
 		E3D7820918516C6A001BB04B /* TileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileViewController.h; sourceTree = "<group>"; };
 		E3D7820A18516C6A001BB04B /* TileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileViewController.m; sourceTree = "<group>"; };
 		E3D7820C18517375001BB04B /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
@@ -1965,8 +1965,8 @@
 			isa = PBXGroup;
 			children = (
 				7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */,
-				7D4E1C4A1A1F9475002762B3 /* DICETests.mm */,
 				7D4E1C481A1F9475002762B3 /* Supporting Files */,
+				7D1B3E7E1A437C7300ECA0AA /* KMLTests.m */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -2154,14 +2154,14 @@
 		E3F3A44A1857CDE400253290 /* Report View */ = {
 			isa = PBXGroup;
 			children = (
-				E3BC6EE2192E7A8700096EE5 /* ReportViewController.h */,
-				E3BC6EE3192E7A8700096EE5 /* ReportViewController.m */,
+				E3BC6EE2192E7A8700096EE5 /* HTMLViewController.h */,
+				E3BC6EE3192E7A8700096EE5 /* HTMLViewController.m */,
 				E3F3A44C1857D0DE00253290 /* NoteViewController.h */,
 				E3F3A44D1857D0DE00253290 /* NoteViewController.m */,
 				E39D837C19DF3B8A008357DF /* PDFViewController.h */,
 				E39D837D19DF3B8A008357DF /* PDFViewController.m */,
-				7D4E1C531A1FAB44002762B3 /* ReportLinkedResourceViewController.h */,
-				7D4E1C541A1FAB44002762B3 /* ReportLinkedResourceViewController.m */,
+				7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */,
+				7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */,
 			);
 			name = "Report View";
 			sourceTree = "<group>";
@@ -2440,8 +2440,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D4E1C4B1A1F9475002762B3 /* DICETests.mm in Sources */,
 				7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */,
+				7D1B3E7F1A437C7300ECA0AA /* KMLTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2470,8 +2470,8 @@
 				E337BCC21811AD7B00D987F9 /* Report.m in Sources */,
 				E3A73FC01855585200035C76 /* MapViewController.m in Sources */,
 				E39D837619DF2B95008357DF /* ReaderThumbsView.m in Sources */,
-				E3BC6EE4192E7A8700096EE5 /* ReportViewController.m in Sources */,
-				7D4E1C551A1FAB44002762B3 /* ReportLinkedResourceViewController.m in Sources */,
+				E3BC6EE4192E7A8700096EE5 /* HTMLViewController.m in Sources */,
+				7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */,
 				E39D837519DF2B95008357DF /* ReaderThumbRequest.m in Sources */,
 				E39D834D19DF2B95008357DF /* ReaderBookDelegate.m in Sources */,
 				E39D836E19DF2B95008357DF /* ReaderDocumentOutline.m in Sources */,
@@ -2657,7 +2657,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "InteractiveReports/InteractiveReports-Prefix.pch";
 				INFOPLIST_FILE = "InteractiveReports/InteractiveReports-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2678,7 +2678,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "InteractiveReports/InteractiveReports-Prefix.pch";
 				INFOPLIST_FILE = "InteractiveReports/InteractiveReports-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";

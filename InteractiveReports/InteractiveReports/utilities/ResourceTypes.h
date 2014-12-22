@@ -8,10 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Report.h"
+
 
 @protocol ResourceHandler <NSObject>
 
-- (void)handleResource:(NSURL *)resource;
+- (void)handleResource:(NSURL *)resource forReport:(Report *)report;
 
 @end
 

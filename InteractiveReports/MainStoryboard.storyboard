@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Settings View Controller-->
@@ -54,7 +55,7 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kh2-1s-s37" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="153" y="-2068"/>
+            <point key="canvasLocation" x="-120" y="-2771"/>
         </scene>
         <!--Tile Collection View-->
         <scene sceneID="mEv-el-IEt">
@@ -136,12 +137,12 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gPx-wQ-lGG" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2291" y="884"/>
+            <point key="canvasLocation" x="-1194" y="652"/>
         </scene>
-        <!--Report View-->
+        <!--HTML View-->
         <scene sceneID="JxT-zH-ow0">
             <objects>
-                <viewController storyboardIdentifier="htmlReportViewController" title="Report View" id="dNd-r1-5KN" customClass="ReportViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="htmlViewController" title="HTML View" id="dNd-r1-5KN" customClass="HTMLViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="BIg-Vu-XvI"/>
                         <viewControllerLayoutGuide type="bottom" id="qa4-gQ-fKO"/>
@@ -157,54 +158,19 @@ Info designed by NAS from thenounproject.com</string>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="leading" secondItem="q7B-Of-kbp" secondAttribute="leading" id="RLI-QP-a7L"/>
-                            <constraint firstAttribute="trailing" secondItem="Gu9-pE-Oo9" secondAttribute="trailing" id="WgB-5E-ttt"/>
-                            <constraint firstAttribute="bottom" secondItem="Gu9-pE-Oo9" secondAttribute="bottom" id="Y4B-BP-8Fl"/>
-                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="top" secondItem="q7B-Of-kbp" secondAttribute="top" id="jc5-xO-u3V"/>
+                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="bottom" secondItem="qa4-gQ-fKO" secondAttribute="top" id="9Kz-cF-uxh"/>
+                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="top" secondItem="q7B-Of-kbp" secondAttribute="top" id="AFS-gs-jsD"/>
+                            <constraint firstItem="Gu9-pE-Oo9" firstAttribute="leading" secondItem="q7B-Of-kbp" secondAttribute="leading" id="IfK-9U-3As"/>
+                            <constraint firstAttribute="trailing" secondItem="Gu9-pE-Oo9" secondAttribute="trailing" id="gEf-eC-3oP"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="1E0-d6-rCn">
-                        <barButtonItem key="rightBarButtonItem" style="plain" id="JdI-aE-cdE">
-                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="QSC-83-ITn">
-                                <rect key="frame" x="-23" y="-15" width="170" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="Add notes">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <segue destination="zsx-Cl-7xw" kind="modal" identifier="showReportNotes" id="vzQ-4p-mhX"/>
-                                </connections>
-                            </button>
-                        </barButtonItem>
-                    </navigationItem>
                     <connections>
                         <outlet property="webView" destination="Gu9-pE-Oo9" id="7KT-A8-JdO"/>
-                        <segue destination="TDl-G2-Z3N" kind="push" identifier="showLinkedResource" id="FQF-JS-sPT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="mZ2-5x-ZNr" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="153" y="-959"/>
-        </scene>
-        <!--PDF View-->
-        <scene sceneID="gRb-E5-DFA">
-            <objects>
-                <viewController storyboardIdentifier="pdfReportViewController" title="PDF View" id="2Jc-79-puh" customClass="PDFViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="DmP-GB-0Az"/>
-                        <viewControllerLayoutGuide type="bottom" id="OGi-fo-sM0"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="t2q-EN-au7">
-                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                    <navigationItem key="navigationItem" id="c7l-cP-ONR"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="PJP-fF-KGR" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-995" y="-279"/>
+            <point key="canvasLocation" x="-120" y="-489"/>
         </scene>
         <!--List Collection View-->
         <scene sceneID="PeT-Tg-wzl">
@@ -284,7 +250,7 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8Nj-x8-Tpa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2291" y="-354"/>
+            <point key="canvasLocation" x="-1194" y="-489"/>
         </scene>
         <!--Report Collection View Container-->
         <scene sceneID="QNX-QI-qFn">
@@ -295,10 +261,10 @@ Info designed by NAS from thenounproject.com</string>
                         <viewControllerLayoutGuide type="bottom" id="frx-im-O3U"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="p1D-ia-CCt" userLabel="Root View">
-                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="960"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dld-VJ-GIw">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dld-VJ-GIw">
                                 <rect key="frame" x="0.0" y="64" width="768" height="44"/>
                                 <items>
                                     <barButtonItem style="plain" id="xx1-wn-yg8" userLabel="Segmented control">
@@ -326,7 +292,7 @@ Info designed by NAS from thenounproject.com</string>
                                 </items>
                                 <color key="tintColor" red="0.63529413938522339" green="0.023529414087533951" blue="0.058823533356189728" alpha="1" colorSpace="deviceRGB"/>
                             </toolbar>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8" userLabel="Report Collection Subview">
+                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="olg-Y4-UG8" userLabel="Report Collection Subview">
                                 <rect key="frame" x="0.0" y="108" width="768" height="916"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                             </view>
@@ -345,14 +311,12 @@ Info designed by NAS from thenounproject.com</string>
                     <navigationItem key="navigationItem" title="DICE Reports" id="j1g-A4-UiI"/>
                     <connections>
                         <outlet property="collectionSubview" destination="olg-Y4-UG8" id="4Z3-aV-h7Z"/>
-                        <segue destination="dNd-r1-5KN" kind="push" identifier="showSingleReport" id="JJo-ri-aqD"/>
-                        <segue destination="dNd-r1-5KN" kind="push" identifier="showHtmlReport" id="ntg-vh-CNR"/>
-                        <segue destination="2Jc-79-puh" kind="push" identifier="showPdfReport" id="PgM-0C-e6Z"/>
+                        <segue destination="TDl-G2-Z3N" kind="push" identifier="showReport" id="CPK-7s-HRC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lML-Cg-qxX" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-995" y="-1629"/>
+            <point key="canvasLocation" x="-1194" y="-1629"/>
         </scene>
         <!--Map Collection View-->
         <scene sceneID="GTL-LY-qIe">
@@ -386,7 +350,7 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FcX-WF-FRT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2291" y="2122"/>
+            <point key="canvasLocation" x="-1194" y="1788"/>
         </scene>
         <!--Globe View Controller-->
         <scene sceneID="Ktb-aa-jei">
@@ -425,18 +389,18 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SHL-Qk-A92" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1299" y="-3517"/>
+            <point key="canvasLocation" x="-120" y="652"/>
         </scene>
-        <!--Report Linked Resource Container-->
+        <!--Report Resource View Container-->
         <scene sceneID="YFE-zQ-7hJ">
             <objects>
-                <viewController title="Report Linked Resource Container" id="TDl-G2-Z3N" customClass="ReportLinkedResourceViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="reportResourceViewController" title="Report Resource View Container" id="TDl-G2-Z3N" customClass="ReportResourceViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="fOb-lm-nr4"/>
                         <viewControllerLayoutGuide type="bottom" id="hQA-J3-35e"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="PNR-M3-edu">
-                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="960"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hE2-pH-C2R" userLabel="Resource Parent View">
@@ -446,20 +410,26 @@ Info designed by NAS from thenounproject.com</string>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="leading" secondItem="PNR-M3-edu" secondAttribute="leading" id="LT0-kQ-15e"/>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="bottom" secondItem="hQA-J3-35e" secondAttribute="top" id="Q1S-lq-x0i"/>
-                            <constraint firstItem="hE2-pH-C2R" firstAttribute="top" secondItem="fOb-lm-nr4" secondAttribute="bottom" constant="-64" id="WcP-my-F6d"/>
-                            <constraint firstAttribute="trailing" secondItem="hE2-pH-C2R" secondAttribute="trailing" id="st6-CI-prR"/>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="top" secondItem="fOb-lm-nr4" secondAttribute="bottom" id="PyJ-vr-ocW"/>
+                            <constraint firstAttribute="bottomMargin" secondItem="hE2-pH-C2R" secondAttribute="bottom" constant="-64" id="Qpi-bA-mW7"/>
+                            <constraint firstAttribute="trailing" secondItem="hE2-pH-C2R" secondAttribute="trailing" id="tSo-b3-Rdm"/>
+                            <constraint firstItem="hE2-pH-C2R" firstAttribute="leading" secondItem="PNR-M3-edu" secondAttribute="leading" id="xf3-iJ-HE0"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="R1L-Xw-7la"/>
+                    <navigationItem key="navigationItem" id="R1L-Xw-7la">
+                        <barButtonItem key="rightBarButtonItem" title="Notes" id="j1A-v6-Y5x">
+                            <connections>
+                                <segue destination="zsx-Cl-7xw" kind="modal" id="4IG-HN-MUR"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="resourceView" destination="hE2-pH-C2R" id="btI-IK-YDw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NDi-Xi-f4p" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1299" y="-2273"/>
+            <point key="canvasLocation" x="-120" y="-1629"/>
         </scene>
         <!--Report Notes-->
         <scene sceneID="N8T-wk-RcO">
@@ -515,14 +485,16 @@ Info designed by NAS from thenounproject.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ydc-5s-woK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1299" y="-927"/>
+            <point key="canvasLocation" x="982" y="-1629"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="88C-9c-cNH">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="9Qk-sT-e1b" customClass="DICENavigationController" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="dtE-GU-SRx">
+                    <navigationItem key="navigationItem" id="bRx-XQ-2Lh"/>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="dtE-GU-SRx">
                         <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -533,7 +505,7 @@ Info designed by NAS from thenounproject.com</string>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EFu-rt-wXa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1997" y="-1629"/>
+            <point key="canvasLocation" x="-2291" y="-1629"/>
         </scene>
     </scenes>
     <resources>
@@ -547,8 +519,5 @@ Info designed by NAS from thenounproject.com</string>
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
-    <inferredMetricsTieBreakers>
-        <segue reference="JJo-ri-aqD"/>
-    </inferredMetricsTieBreakers>
     <color key="tintColor" red="0.63529413940000001" green="0.023529414089999999" blue="0.058823533359999999" alpha="1" colorSpace="deviceRGB"/>
 </document>

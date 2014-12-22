@@ -11,7 +11,7 @@
 #import "Report.h"
 #import "ReportCollectionView.h"
 #import "ReportMapAnnotation.h"
-#import "ReportViewController.h"
+#import "HTMLViewController.h"
 
 
 @interface MapViewController : UIViewController <ReportCollectionView, MKMapViewDelegate>

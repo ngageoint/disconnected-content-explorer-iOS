@@ -11,10 +11,4 @@
 
 @interface ReportCollectionViewController : UIViewController
 
-// TODO: get rid of this and let app delegate handle it
-@property (nonatomic) BOOL didBecomeActive;
-@property (strong, nonatomic) NSString *srcScheme;
-@property (strong, nonatomic) NSDictionary *urlParams;
-@property (strong, nonatomic) NSString *reportID;
-
 @end

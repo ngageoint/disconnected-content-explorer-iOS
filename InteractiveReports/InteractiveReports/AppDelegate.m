@@ -61,7 +61,7 @@
         // another app's UIDocumentInteractionController wants to use DICE to open a file
         [[ReportAPI sharedInstance] importReportFromUrl:url afterImport:^(Report *report) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.navigation navigateToReport:report animated:NO];
+                [self.navigation navigateToReport:report childResource:nil animated:NO];
             });
         }];
     }
