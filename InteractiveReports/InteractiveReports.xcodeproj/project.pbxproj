@@ -22,7 +22,6 @@
 		7D4E1C4B1A1F9475002762B3 /* DICETests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C4A1A1F9475002762B3 /* DICETests.mm */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
-		7D9A41801A41CF5400CD24E0 /* KMLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D9A417F1A41CF5400CD24E0 /* KMLRenderer.m */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B51A152B4700B558EC /* LasReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA706B41A152B4700B558EC /* LasReader.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
@@ -881,8 +880,6 @@
 		7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
 		7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
 		7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
-		7D9A417E1A41CF5400CD24E0 /* KMLRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KMLRenderer.h; sourceTree = "<group>"; };
-		7D9A417F1A41CF5400CD24E0 /* KMLRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KMLRenderer.m; sourceTree = "<group>"; };
 		7DA393EC1A1E6A0A00DE9649 /* ReportCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionView.h; sourceTree = "<group>"; };
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
@@ -1962,8 +1959,6 @@
 			children = (
 				7D0B49241A0D885A0044236B /* GlobeViewController.h */,
 				7D0B49251A0D885A0044236B /* GlobeViewController.mm */,
-				7D9A417E1A41CF5400CD24E0 /* KMLRenderer.h */,
-				7D9A417F1A41CF5400CD24E0 /* KMLRenderer.m */,
 			);
 			name = "Globe View";
 			sourceTree = "<group>";
@@ -2501,7 +2496,6 @@
 				E39D837E19DF3B8A008357DF /* PDFViewController.m in Sources */,
 				E39D836D19DF2B95008357DF /* ReaderDocument.m in Sources */,
 				E39D836F19DF2B95008357DF /* ReaderMainPagebar.m in Sources */,
-				7D9A41801A41CF5400CD24E0 /* KMLRenderer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
