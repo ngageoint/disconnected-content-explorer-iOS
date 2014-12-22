@@ -17,7 +17,6 @@
 		7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49201A0D49B50044236B /* OpenGLES.framework */; };
 		7D0B49261A0D885A0044236B /* GlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B49251A0D885A0044236B /* GlobeViewController.mm */; };
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
-		7D1B3E7F1A437C7300ECA0AA /* KMLTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D1B3E7E1A437C7300ECA0AA /* KMLTests.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
@@ -870,7 +869,6 @@
 		7D0B49251A0D885A0044236B /* GlobeViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeViewController.mm; sourceTree = "<group>"; };
 		7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
 		7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
-		7D1B3E7E1A437C7300ECA0AA /* KMLTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KMLTests.m; sourceTree = "<group>"; };
 		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
 		7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
 		7D4E1C461A1F9475002762B3 /* DICETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DICETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1966,7 +1964,6 @@
 			children = (
 				7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */,
 				7D4E1C481A1F9475002762B3 /* Supporting Files */,
-				7D1B3E7E1A437C7300ECA0AA /* KMLTests.m */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -2441,7 +2438,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */,
-				7D1B3E7F1A437C7300ECA0AA /* KMLTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
