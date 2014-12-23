@@ -31,6 +31,7 @@
 #import "SimpleKMLDocument.h"
 #import "SimpleKMLPlacemark.h"
 #import "SimpleKMLPoint.h"
+#import "SimpleKMLStyle.h"
 
 
 @interface GlobeViewController ()
@@ -162,7 +163,11 @@ private:
     SimpleKML *kml = [SimpleKML KMLWithContentsOfURL:resource error:NULL];
     SimpleKMLDocument *doc = (SimpleKMLDocument *)kml.feature;
     for (SimpleKMLPlacemark *kmlPlacemark in doc.flattenedPlacemarks) {
-        IImage *markImage = new Image_iOS([UIImage imageNamed:@"map-point"], nil);
+        UIImage *icon = kmlPlacemark.style.iconStyle.icon;
+        if (!icon) {
+            icon = [UIImage imageNamed:@"map-point"];
+        }
+        IImage *markImage = new Image_iOS(icon, NULL);
         Mark *g3mMark = new Mark(markImage, "map-point",
             Geodetic3D::fromDegrees(kmlPlacemark.point.coordinate.latitude, kmlPlacemark.point.coordinate.longitude, 0.0),
             RELATIVE_TO_GROUND);
