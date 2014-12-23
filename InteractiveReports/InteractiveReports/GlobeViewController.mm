@@ -165,7 +165,7 @@ private:
         IImage *markImage = new Image_iOS([UIImage imageNamed:@"map-point"], nil);
         Mark *g3mMark = new Mark(markImage, "map-point",
             Geodetic3D::fromDegrees(kmlPlacemark.point.coordinate.latitude, kmlPlacemark.point.coordinate.longitude, 0.0),
-            ABSOLUTE);
+            RELATIVE_TO_GROUND);
         renderer->addMark(g3mMark);
         if (!cameraPosition) {
             cameraPosition = new Geodetic3D(
