@@ -23,15 +23,8 @@
 #import "SingleBilElevationDataProvider.hpp"
 #import "Vector3D.hpp"
 
-#import "SimpleKML.h"
-#import "SimpleKMLBalloonStyle.h"
-#import "SimpleKMLColorStyle.h"
-#import "SimpleKMLIconStyle.h"
-#import "SimpleKMLOverlay.h"
-#import "SimpleKMLDocument.h"
-#import "SimpleKMLPlacemark.h"
-#import "SimpleKMLPoint.h"
-#import "SimpleKMLStyle.h"
+#import "KML.h"
+#import "KMLPoint.h"
 
 
 @interface GlobeViewController ()
@@ -68,12 +61,15 @@ private:
 
 // TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
 @implementation GlobeViewController {
+    NSOperationQueue *downloadQueue;
     Geodetic3D *cameraPosition;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    downloadQueue = [[NSOperationQueue alloc] init];
     
     self.loadingIndicator.autoresizingMask =
         UIViewAutoresizingFlexibleBottomMargin |
@@ -160,24 +156,42 @@ private:
 - (Renderer *)createRendererForKMLResource:(NSURL *)resource
 {
     MarksRenderer *renderer = new MarksRenderer(true);
-    SimpleKML *kml = [SimpleKML KMLWithContentsOfURL:resource error:NULL];
-    SimpleKMLDocument *doc = (SimpleKMLDocument *)kml.feature;
-    for (SimpleKMLPlacemark *kmlPlacemark in doc.flattenedPlacemarks) {
-        UIImage *icon = kmlPlacemark.style.iconStyle.icon;
-        if (!icon) {
-            icon = [UIImage imageNamed:@"map-point"];
+    KMLRoot *root = [KMLParser parseKMLAtURL:resource];
+    for (KMLPlacemark *placemark in root.placemarks) {
+        if ([placemark.geometry isKindOfClass:KMLPoint.class]) {
+            KMLPoint *point = (KMLPoint *)placemark.geometry;
+            
+            if (!cameraPosition) {
+                cameraPosition = new Geodetic3D(
+                    Angle::fromDegrees(point.coordinate.latitude),
+                    Angle::fromDegrees(point.coordinate.longitude),
+                    5000.0);
+            }
+        
+            NSString *iconURLString = placemark.style.iconStyle.icon.href;
+            if (iconURLString) {
+                NSURL *iconURL = [NSURL URLWithString:iconURLString];
+                NSURLRequest *getIcon = [NSURLRequest requestWithURL:iconURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
+                // TODO: if we don't need to support iOS 6, we should use NSURLSession
+                [NSURLConnection sendAsynchronousRequest:getIcon queue:downloadQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                    UIImage *source = [UIImage imageWithData:data];
+                    IImage *markImage = new Image_iOS(source, NULL);
+                    Mark *g3mMark = new Mark(markImage, iconURLString.UTF8String,
+                                             Geodetic3D::fromDegrees(point.coordinate.latitude, point.coordinate.longitude, point.coordinate.altitude),
+                                             RELATIVE_TO_GROUND);
+                    renderer->addMark(g3mMark);
+                }];
+            }
+            else {
+                UIImage *icon = [UIImage imageNamed:@"map-point"];
+                IImage *markImage = new Image_iOS(icon, NULL);
+                Mark *g3mMark = new Mark(markImage, "map-point",
+                                         Geodetic3D::fromDegrees(point.coordinate.latitude, point.coordinate.longitude, point.coordinate.altitude),
+                                         RELATIVE_TO_GROUND);
+                renderer->addMark(g3mMark);
+            }
         }
-        IImage *markImage = new Image_iOS(icon, NULL);
-        Mark *g3mMark = new Mark(markImage, "map-point",
-            Geodetic3D::fromDegrees(kmlPlacemark.point.coordinate.latitude, kmlPlacemark.point.coordinate.longitude, 0.0),
-            RELATIVE_TO_GROUND);
-        renderer->addMark(g3mMark);
-        if (!cameraPosition) {
-            cameraPosition = new Geodetic3D(
-                Angle::fromDegrees(kmlPlacemark.point.coordinate.latitude),
-                Angle::fromDegrees(kmlPlacemark.point.coordinate.longitude),
-                5000.0);
-        }
+        
     }
     [self performSelectorOnMainThread:@selector(didAddResourceRenderer) withObject:nil waitUntilDone:NO];
     return renderer;

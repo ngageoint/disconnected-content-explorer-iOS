@@ -5,6 +5,6 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 target 'InteractiveReports' do
   pod 'objective-zip', '0.8.3'
-  pod 'GAT-Simple-KML', '0.2.0'
+  pod 'iOS-KML-Framework', :git => 'https://github.com/FLCLjp/iOS-KML-Framework.git'
 end
 
