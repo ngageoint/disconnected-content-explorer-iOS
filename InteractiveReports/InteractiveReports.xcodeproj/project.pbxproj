@@ -167,7 +167,7 @@
 		7D0B46471A0D482B0044236B /* ColumnCanvasElement.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ColumnCanvasElement.hpp; sourceTree = "<group>"; };
 		7D0B46481A0D482B0044236B /* CompositeElevationData.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CompositeElevationData.cpp; sourceTree = "<group>"; };
 		7D0B46491A0D482B0044236B /* CompositeElevationData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CompositeElevationData.hpp; sourceTree = "<group>"; };
-		7D0B464A1A0D482B0044236B /* CompositeElevationDataProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CompositeElevationDataProvider.cpp; sourceTree = "<group>"; };
+		7D0B464A1A0D482B0044236B /* CompositeElevationDataProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CompositeElevationDataProvider.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B464B1A0D482B0044236B /* CompositeElevationDataProvider.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CompositeElevationDataProvider.hpp; sourceTree = "<group>"; };
 		7D0B464C1A0D482B0044236B /* CompositeTileImageContribution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CompositeTileImageContribution.cpp; sourceTree = "<group>"; };
 		7D0B464D1A0D482B0044236B /* CompositeTileImageContribution.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CompositeTileImageContribution.hpp; sourceTree = "<group>"; };
