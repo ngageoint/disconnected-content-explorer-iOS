@@ -13,21 +13,30 @@
 
 @implementation MapViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     self.mapView.delegate = self;
-    [self.mapView addOverlays:[OfflineMapUtility getPolygons]];
+    [self addMapOverlaysStartingFrom:0 count:250];
+}
+
+
+- (void)addMapOverlaysStartingFrom:(NSUInteger)start count:(NSUInteger)count
+{
+    NSArray *allPolygons = [OfflineMapUtility getPolygons];
+    if (start + count > allPolygons.count - 1) {
+        count = allPolygons.count - start;
+    }
+    NSLog(@"MapViewController: adding polygon block %u - %u of %u total", start + 1, start + count, allPolygons.count);
+    NSArray *block = [allPolygons subarrayWithRange:NSMakeRange(start, count)];
+    [self.mapView addOverlays:block];
+    if (start + count < allPolygons.count - 1) {
+        // do it again on the next run loop iteration
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self addMapOverlaysStartingFrom:(start + count) count:count];
+        });
+    }
 }
 
 
@@ -40,6 +49,7 @@
     zoomLocation.longitude= -73.991145;
 
     for (Report * report in self.reports) {
+        // TODO: this check needs to be a null check or hasLocation or something else better
         if (report.lat != 0.0f && report.lon != 0.0f) {
             ReportMapAnnotation *annotation = [[ReportMapAnnotation alloc] initWithReport:report];
             [self.mapView addAnnotation:(id)annotation];

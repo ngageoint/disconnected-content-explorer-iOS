@@ -26,7 +26,7 @@ static NSArray *polygons;
 }
 
 + (void) generateExteriorPolygons:(NSMutableArray*) featuresArray {
-    
+    NSLog(@"OfflineMapUtility: generating exterior polygons ...");
     NSMutableArray *polygonsFromFeatures = [[NSMutableArray alloc] init];
     
     //add ocean polygon
@@ -74,6 +74,8 @@ static NSArray *polygons;
     }
     
     polygons = [NSArray arrayWithArray:polygonsFromFeatures];
+    
+    NSLog(@"OfflineMapUtility: finished generating external polygons");
 }
 
 + (MKPolygon *) generatePolygon:(NSMutableArray *) coordinates {

@@ -33,6 +33,8 @@ Report *selectedReport;
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    NSLog(@"ReportCollectionViewController: loading report collection views");
+    
     views = @[
         [self.storyboard instantiateViewControllerWithIdentifier: @"listCollectionView"],
         [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],

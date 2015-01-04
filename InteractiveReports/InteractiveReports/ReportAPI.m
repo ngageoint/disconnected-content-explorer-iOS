@@ -95,6 +95,7 @@
  */
 - (void)loadReports
 {
+    NSLog(@"ReportAPI: loading reports from %@ ...", documentsDir);
     [reports removeAllObjects];
 
     NSDirectoryEnumerator *files = [fileManager enumeratorAtURL:documentsDir
@@ -103,6 +104,7 @@
         errorHandler:nil];
     
     for (NSURL *file in files) {
+        NSLog(@"ReportAPI: attempting to add report from file %@", file);
         [self addReportFromFile:file afterComplete:nil];
     }
     
@@ -119,6 +121,7 @@
 
 - (void)importReportFromUrl:(NSURL *)reportURL afterImport:(void(^)(Report *))afterImportBlock
 {
+    NSLog(@"ReportAPI: importing report from %@", reportURL);
     // TODO: notify import begin if anyone cares
     
     NSString *fileName = reportURL.lastPathComponent;
@@ -128,7 +131,7 @@
     [fileManager moveItemAtURL:reportURL toURL:destFile error:&error];
     
     if (error) {
-        NSLog(@"error moving file %@ to documents directory for open request: %@", reportURL, [error localizedDescription]);
+        NSLog(@"ReportAPI: error moving file %@ to documents directory for import request: %@", reportURL, [error localizedDescription]);
     }
 
     [self addReportFromFile:destFile afterComplete:afterImportBlock];
@@ -137,6 +140,7 @@
 
 - (void)addReportFromFile:(NSURL *)file afterComplete:(void(^)(Report *))afterCompleteBlock
 {
+    NSLog(@"ReportAPI: attempting to create report from %@", file);
     NSNumber* isRegularFile;
     [file getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
     
@@ -147,12 +151,13 @@
         report.reportID = [report.sourceFile.lastPathComponent stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         
         [reports addObject:report];
+        NSLog(@"ReportAPI: added new report placeholder at index %u for report %@", reports.count - 1, file);
         
         [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded]
                                                             object:self
                                                           userInfo:@{
                                                               @"report": report,
-                                                              @"index": [NSString stringWithFormat:@"%lu", reports.count - 1]
+                                                              @"index": [NSString stringWithFormat:@"%u", reports.count - 1]
                                                           }];
         
         NSString *fileExtension = file.pathExtension;
@@ -178,7 +183,7 @@
                     postNotificationName:[ReportNotification reportUpdated]
                     object:self
                     userInfo:@{
-                        @"index": [NSString stringWithFormat:@"%lu", reports.count - 1],
+                        @"index": [NSString stringWithFormat:@"%u", reports.count - 1],
                         @"report": report
                     }];
                 if (afterCompleteBlock) {
@@ -198,6 +203,7 @@
  */
 - (void)processZip:(Report*)report atIndex:(NSUInteger)index
 {
+    NSLog(@"processing zipped report %@ ...", report.sourceFile);
     NSURL *sourceFile = report.sourceFile;
     NSString *sourceFileName = sourceFile.lastPathComponent;
     report.title = sourceFile.lastPathComponent;
@@ -212,7 +218,9 @@
         if (![fileManager fileExistsAtPath:expectedContentDir.path]) {
             [self unzipReportContents:report toDirectory:documentsDir error:&error];
         }
-        
+        else {
+            NSLog(@"directory already exists for report zip %@", report.sourceFile);
+        }
         
         // Handle the metadata.json, make the report fancier, if it is available
         if ( [fileManager fileExistsAtPath:jsonFile.path] && error == nil) {
@@ -243,8 +251,11 @@
         
         // make sure url's baseURL property is set
         report.url = [NSURL URLWithString:@"index.html" relativeToURL:expectedContentDir];
+        
+        NSLog(@"finished processing report zip %@; report url: %@", report.sourceFile, report.url.absoluteString);
     }
     @catch (NSException *exception) {
+        NSLog(@"error processing report zip %@: %@", report.sourceFile, exception);
         report.title = sourceFileName;
         report.description = @"Unable to open report";
         report.isEnabled = NO;
@@ -254,7 +265,7 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportUpdated]
              object:self
              userInfo:@{
-                 @"index": [NSString stringWithFormat:@"%lu", index],
+                 @"index": [NSString stringWithFormat:@"%u", index],
                  @"report": report
              }];
     }
@@ -265,6 +276,8 @@
     if (error) {
         *error = nil;
     }
+    
+    NSLog(@"ReportAPI: extracting report contents from %@", report.sourceFile);
     
     ZipFile *unzipFile = [[ZipFile alloc] initWithFileName:report.sourceFile.path mode:ZipFileModeUnzip];
     int totalNumberOfFiles = (int)[unzipFile numFilesInZip];
@@ -310,6 +323,9 @@
     }
     
     [unzipFile close];
+    
+    NSLog(@"ReportAPI: finished extracting report %@", report.sourceFile);
+    
     return YES;
 }
 
