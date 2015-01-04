@@ -4,6 +4,8 @@
 //
 
 #import "ReportAPI.h"
+
+#import "ResourceTypes.h"
 #import "zlib.h"
 #import "ZipFile.h"
 #import "ZipReadStream.h"
@@ -40,10 +42,6 @@
     NSMutableArray *reports;
     NSFileManager *fileManager;
     NSURL *documentsDir;
-    // TODO: move this to ResourceTypes and consolidate all report type ingestion and handling
-    // right now DICENavigationController, AppDelegate, and this class all have logic for
-    // report type handling
-    NSArray *recognizedFileExtensions;
 }
 
 @end
@@ -71,7 +69,6 @@
         fileManager = [NSFileManager defaultManager];
         backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         documentsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
-        recognizedFileExtensions = @[@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx", @"kml", @"g3m-pointcloud"];
     }
     
     return self;
@@ -144,7 +141,7 @@
     NSNumber* isRegularFile;
     [file getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
     
-    if (isRegularFile.boolValue && [recognizedFileExtensions containsObject:file.pathExtension]) {
+    if (isRegularFile.boolValue && [ResourceTypes canOpenResource:file]) {
         NSString *title = [file.lastPathComponent stringByDeletingPathExtension];
         Report *report = [Report reportWithTitle:title];
         report.sourceFile = file;
@@ -176,7 +173,9 @@
             dispatch_async(backgroundQueue, ^(void) {
                 report.reportID = report.sourceFile.lastPathComponent;
                 // make sure the url's baseURL property is set
-                report.url = [NSURL URLWithString:report.sourceFile.lastPathComponent relativeToURL:[file URLByDeletingLastPathComponent]];
+                NSURL *baseURL = [report.sourceFile URLByDeletingLastPathComponent];
+                NSString *reportFileName = [report.sourceFile.lastPathComponent stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                report.url = [NSURL URLWithString:reportFileName relativeToURL:baseURL];
                 report.fileExtension = fileExtension;
                 report.isEnabled = YES;
                 [[NSNotificationCenter defaultCenter]
