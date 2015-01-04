@@ -29,7 +29,7 @@ NSDictionary *resourceViewers;
         @"com.glob3mobile.json-pointcloud": @"storyboard:globeViewController",
         @"org.asprs.las": @"storyboard:globeViewController",
         @"com.rapidlasso.laszip": @"storyboard:globeViewController",
-        @"com.google.kml": @"storyboard:globeViewController"
+        @"com.google.earth.kml": @"storyboard:globeViewController"
         // TODO: add office types
     };
 }
