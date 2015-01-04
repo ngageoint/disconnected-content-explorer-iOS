@@ -71,7 +71,7 @@
         fileManager = [NSFileManager defaultManager];
         backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         documentsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
-        recognizedFileExtensions = @[@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx", @"kml"];
+        recognizedFileExtensions = @[@"zip", @"pdf", @"doc", @"docx", @"ppt", @"pptx", @"xls", @"xlsx", @"kml", @"g3m-pointcloud"];
     }
     
     return self;
