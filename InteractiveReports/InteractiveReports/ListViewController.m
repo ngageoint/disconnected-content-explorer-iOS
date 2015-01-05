@@ -56,8 +56,10 @@
 
 - (void)refreshReportList:(NSNotification *)notification
 {
-    [_tableViewController.refreshControl endRefreshing];
-    [_tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_tableViewController.refreshControl endRefreshing];
+        [_tableView reloadData];
+    });
 }
 
 // TODO: make a new notification to indicate the last selected report
