@@ -101,6 +101,15 @@
 }
 
 
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([[segue identifier] isEqualToString:@"showReportNotes"]) {
+        NoteViewController *noteViewController = (NoteViewController *)segue.destinationViewController;
+        noteViewController.report = self.report;
+    }
+}
+
+
 #pragma mark - notification handling methods
 - (void)reportUpdated:(NSNotification *)notification
 {
