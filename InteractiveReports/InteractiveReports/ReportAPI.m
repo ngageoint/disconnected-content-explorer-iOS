@@ -68,7 +68,8 @@
         reports = [[NSMutableArray alloc] init];
         fileManager = [NSFileManager defaultManager];
         backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-        documentsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+//        documentsDir = [fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+        documentsDir = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
     }
     
     return self;
@@ -102,7 +103,7 @@
     
     for (NSURL *file in files) {
         NSLog(@"ReportAPI: attempting to add report from file %@", file);
-        [self addReportFromFile:file afterComplete:nil];
+        [self addReportFromFile:[NSURL URLWithString:file.lastPathComponent relativeToURL:documentsDir] afterComplete:nil];
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportsLoaded] object:self userInfo:nil];
@@ -148,13 +149,13 @@
         report.reportID = [report.sourceFile.lastPathComponent stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         
         [reports addObject:report];
-        NSLog(@"ReportAPI: added new report placeholder at index %u for report %@", reports.count - 1, file);
+        NSLog(@"ReportAPI: added new report placeholder at index %lu for report %@", reports.count - 1, file);
         
         [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded]
                                                             object:self
                                                           userInfo:@{
                                                               @"report": report,
-                                                              @"index": [NSString stringWithFormat:@"%u", reports.count - 1]
+                                                              @"index": [NSString stringWithFormat:@"%lu", reports.count - 1]
                                                           }];
         
         NSString *fileExtension = file.pathExtension;
@@ -182,7 +183,7 @@
                     postNotificationName:[ReportNotification reportUpdated]
                     object:self
                     userInfo:@{
-                        @"index": [NSString stringWithFormat:@"%u", reports.count - 1],
+                        @"index": [NSString stringWithFormat:@"%lu", reports.count - 1],
                         @"report": report
                     }];
                 if (afterCompleteBlock) {

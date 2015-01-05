@@ -37,8 +37,7 @@
          * See ReaderDocument -> + (ReaderDocument *)unarchiveFromFileName:(NSString *) password:(NSString *)
          * which produces the invalid PDF path.
          */
-        ReaderDocument *document = [ReaderDocument withDocumentFilePath:self.report.url.path password:nil];
-        
+        ReaderDocument *document = [ReaderDocument withDocumentFilePath:self.report.url.absoluteURL.path password:nil];
         if (document != nil) {
             ReaderViewController *readerViewController = [[ReaderViewController alloc] initWithReaderDocument:document];
             readerViewController.delegate = self;
