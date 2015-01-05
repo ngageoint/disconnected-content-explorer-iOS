@@ -18,7 +18,7 @@
 {
     [super viewDidLoad];
     self.mapView.delegate = self;
-    [self addMapOverlaysStartingFrom:0 count:250];
+    [self addMapOverlaysStartingFrom:0 count:100];
 }
 
 
@@ -28,7 +28,7 @@
     if (start + count > allPolygons.count - 1) {
         count = allPolygons.count - start;
     }
-    NSLog(@"MapViewController: adding polygon block %u - %u of %u total", start + 1, start + count, allPolygons.count);
+    NSLog(@"MapViewController: adding polygon block %lu - %lu of %lu total", start + 1, start + count, allPolygons.count);
     NSArray *block = [allPolygons subarrayWithRange:NSMakeRange(start, count)];
     [self.mapView addOverlays:block];
     if (start + count < allPolygons.count - 1) {
