@@ -90,12 +90,62 @@ private:
 };
 
 
-// TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
-@implementation GlobeViewController {
-    Geodetic3D *cameraPosition;
-    UIWebView *kmlDescriptionView;
-    UIPopoverController *kmlDescriptionPopover;
+@interface KMLPlacemarkViewController : UIViewController
+
+- (void)setContentFromPlacemark:(KMLPlacemark *)placemark;
+
+@end
+
+@implementation KMLPlacemarkViewController
+
+UILabel *nameLabel;
+UIWebView *htmlView;
+
+- (void)loadView
+{
+    self.view = htmlView = [[UIWebView alloc] init];
+    htmlView.scalesPageToFit = YES;
+    htmlView.autoresizingMask =
+    UIViewAutoresizingFlexibleBottomMargin |
+    UIViewAutoresizingFlexibleHeight |
+    UIViewAutoresizingFlexibleLeftMargin |
+    UIViewAutoresizingFlexibleRightMargin |
+    UIViewAutoresizingFlexibleTopMargin |
+    UIViewAutoresizingFlexibleWidth;
 }
+
+- (void)viewDidLoad
+{
+//    [self.view addSubview:htmlView];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    
+}
+
+- (void)setContentFromPlacemark:(KMLPlacemark *)placemark
+{
+    NSMutableString *desc = placemark.descriptionValue.mutableCopy;
+    NSString *openCDATA = @"<![CDATA[";
+    NSString *closeCDATA = @"]]>";
+    if ([desc hasPrefix:openCDATA]) {
+        [desc deleteCharactersInRange:NSMakeRange(0, openCDATA.length)];
+        [desc deleteCharactersInRange:NSMakeRange(desc.length - closeCDATA.length, closeCDATA.length)];
+    };
+    [htmlView loadHTMLString:desc baseURL:nil];
+}
+
+@end
+
+
+// TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
+@implementation GlobeViewController
+
+Geodetic3D *cameraPosition;
+KMLPlacemarkViewController *kmlDescriptionView;
+UIPopoverController *kmlDescriptionPopover;
+
 
 - (void)viewDidLoad
 {
@@ -187,16 +237,10 @@ private:
 {
     CGSize descSize = CGSizeMake(480.0, 320.0);
     
-    kmlDescriptionView = [[UIWebView alloc] init];
-    kmlDescriptionView.scalesPageToFit = YES;
-//    kmlDescriptionView.scrollView.contentSize = descSize;
+    kmlDescriptionView = [[KMLPlacemarkViewController alloc] init];
+    kmlDescriptionView.preferredContentSize = descSize;
     
-    UIViewController *vc = [[UIViewController alloc] init];
-    vc.preferredContentSize = descSize;
-    vc.view = kmlDescriptionView;
-    
-    kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:vc];
-    kmlDescriptionPopover.contentViewController = vc;
+    kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:kmlDescriptionView];
     
     MarksRenderer *renderer = new MarksRenderer(true);
     renderer->setMarkTouchListener(new DICEMarkTouchListener(self), true);
@@ -282,20 +326,13 @@ private:
     Vector2F markPixel = self.globeView.widget->getCurrentCamera()->point2Pixel(*markPos);
     CGFloat markHeight = mark->getTextureHeight();
     CGFloat markWidth = mark->getTextureWidth();
-    CGRect markRect = CGRectMake(markPixel._x - markWidth / 2, markPixel._y - markHeight / 2, mark->getTextureWidth(), mark->getTextureHeight());
+    CGRect markRect = CGRectMake(markPixel._x - markWidth / 2, markPixel._y - markHeight / 2, markWidth, markHeight);
     KMLMarkUserData *markData = (KMLMarkUserData *)mark->getUserData();
     KMLPlacemark *kml = markData->_kmlPlacemark;
     if (!kml) {
         return;
     }
-    NSMutableString *desc = kml.descriptionValue.mutableCopy;
-    NSString *openCDATA = @"<![CDATA[";
-    NSString *closeCDATA = @"]]>";
-    if ([desc hasPrefix:openCDATA]) {
-        [desc deleteCharactersInRange:NSMakeRange(0, openCDATA.length)];
-        [desc deleteCharactersInRange:NSMakeRange(desc.length - closeCDATA.length, closeCDATA.length)];
-    };
-    [kmlDescriptionView loadHTMLString:desc baseURL:nil];
+    [kmlDescriptionView setContentFromPlacemark:kml];
     [kmlDescriptionPopover presentPopoverFromRect:markRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
     
