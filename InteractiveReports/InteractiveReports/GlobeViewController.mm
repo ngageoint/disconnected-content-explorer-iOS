@@ -22,7 +22,7 @@
 #import "Planet.hpp"
 #import "PlanetRendererBuilder.hpp"
 #import "SingleBilElevationDataProvider.hpp"
-#import "Vector3D.hpp"
+
 
 #import "KML.h"
 #import "KMLPoint.h"
@@ -36,33 +36,45 @@
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loadingIndicator;
 @property (weak, nonatomic) IBOutlet G3MWidget_iOS *globeView;
 
-- (void)onBeforeAddMesh:(Mesh*)mesh;
-- (void)onAfterAddMesh:(Mesh*)mesh;
+- (void)onBeforeAddMesh:(Mesh *)mesh;
+- (void)onAfterAddMesh:(Mesh *)mesh;
+- (void)onKMLMarkTouched:(Mark *)mark;
 
 @end
 
 
 class DICEMarkTouchListener : public MarkTouchListener {
 public:
-    DICEMarkTouchListener(G3MWidget_iOS *globeView) : _globeView(globeView) {};
+    DICEMarkTouchListener(GlobeViewController *controller) : _controller(controller) {};
     ~DICEMarkTouchListener() {
-        _globeView = nil;
+        _controller = nil;
     }
     bool touchedMark(Mark *mark) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_controller onKMLMarkTouched:mark];
+        });
         return true;
     }
     
 private:
-    G3MWidget_iOS *_globeView;
+    GlobeViewController *_controller;
 };
 
+class KMLMarkUserData : public MarkUserData {
+public:
+    KMLMarkUserData(KMLPlacemark *kmlPlacemark) : _kmlPlacemark(kmlPlacemark) {};
+    ~KMLMarkUserData() {
+        _kmlPlacemark = nil;
+    }
+    KMLPlacemark *_kmlPlacemark;
+};
 
 class DICEMeshLoadListener : public MeshLoadListener {
     
 public:
     DICEMeshLoadListener(GlobeViewController *controller) : _controller(controller) {};
     ~DICEMeshLoadListener() {
-        _controller = NULL;
+        _controller = nil;
     }
     void onAfterAddMesh(Mesh *mesh) {
         [_controller onAfterAddMesh:mesh];
@@ -81,6 +93,8 @@ private:
 // TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
 @implementation GlobeViewController {
     Geodetic3D *cameraPosition;
+    UIWebView *kmlDescriptionView;
+    UIPopoverController *kmlDescriptionPopover;
 }
 
 - (void)viewDidLoad
@@ -128,23 +142,21 @@ private:
 
 - (void)handleResource:(NSURL *)resource forReport:(Report *)report
 {
-    Renderer *renderer;
-    if ([resource.pathExtension isEqualToString:@"kml"]) {
-        renderer = [self createRendererForKMLResource:resource];
-    }
-    else {
-        renderer = [self createMeshRendererForPointcloudResource:resource];
-    }
-    
     G3MBuilder_iOS builder(self.globeView);
-    
     builder.getPlanetRendererBuilder()->setVerticalExaggeration(1.0f);
     NSURL *elevationDataUrl = [[NSBundle mainBundle] URLForResource:@"full-earth-2048x1024" withExtension:@"bil"];
     ElevationDataProvider* elevationDataProvider = new SingleBilElevationDataProvider(
         URL(elevationDataUrl.absoluteString.UTF8String, false), Sector::fullSphere(), Vector2I(2048, 1024));
     // so meters above sea-level z-coordinates render at the correct height:
     builder.getPlanetRendererBuilder()->setElevationDataProvider(elevationDataProvider);
-    builder.addRenderer(renderer);
+    
+    if ([resource.pathExtension isEqualToString:@"kml"]) {
+        builder.addRenderer([self createRendererForKMLResource:resource]);
+    }
+    else {
+        builder.addRenderer([self createMeshRendererForPointcloudResource:resource]);
+    }
+    
     builder.initializeWidget();
 }
 
@@ -168,16 +180,40 @@ private:
     const Planet *planet = [self.globeView widget]->getG3MContext()->getPlanet();
     Geodetic3D geoCenter = planet->toGeodetic3D(center);
     cameraPosition = new Geodetic3D(geoCenter._latitude, geoCenter._longitude, geoCenter._height + 5000.0);
-    [self didAddResourceRenderer];
+    [self performSelectorOnMainThread:@selector(didAddResourceRenderer) withObject:nil waitUntilDone:NO];
 }
 
 - (Renderer *)createRendererForKMLResource:(NSURL *)resource
 {
-    // TODO: move parsing to background thread
+    CGSize descSize = CGSizeMake(480.0, 320.0);
+    
+    kmlDescriptionView = [[UIWebView alloc] init];
+    kmlDescriptionView.scalesPageToFit = YES;
+//    kmlDescriptionView.scrollView.contentSize = descSize;
+    
+    UIViewController *vc = [[UIViewController alloc] init];
+    vc.preferredContentSize = descSize;
+    vc.view = kmlDescriptionView;
+    
+    kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:vc];
+    kmlDescriptionPopover.contentViewController = vc;
+    
     MarksRenderer *renderer = new MarksRenderer(true);
-    renderer->setMarkTouchListener(new DICEMarkTouchListener(self.globeView), true);
+    renderer->setMarkTouchListener(new DICEMarkTouchListener(self), true);
+    
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(backgroundQueue, ^{
+        [self buildMarkersFromKML:resource forRenderer:renderer];
+    });
+    
+    return renderer;
+}
+
+- (void)buildMarkersFromKML:(NSURL *)resource forRenderer:(MarksRenderer *)renderer
+{
     KMLRoot *root = [KMLParser parseKMLAtURL:resource];
     NSMutableDictionary *iconCache = [[NSMutableDictionary alloc] init];
+    
     for (KMLPlacemark *placemark in [root placemarks]) {
         if ([placemark.geometry isKindOfClass:KMLPoint.class]) {
             KMLPoint *point = (KMLPoint *)placemark.geometry;
@@ -188,7 +224,7 @@ private:
                     Angle::fromDegrees(point.coordinate.longitude),
                     5000.0);
             }
-        
+            
             KMLStyle *style = [placemark style];
             
             NSString *iconName = style.iconStyle.icon.href;
@@ -225,18 +261,42 @@ private:
                 icon = [UIImage imageWithIcon:iconName backgroundColor:[UIColor clearColor] iconColor:iconColor andSize:CGSizeMake(32.0f * iconScale, 32.0f * iconScale)];
                 iconCache[iconID] = icon;
             }
-
+            
             IImage *markImage = new Image_iOS(icon, NULL);
             Mark *g3mMark = new Mark(markImage, iconID.UTF8String,
                                      Geodetic3D::fromDegrees(point.coordinate.latitude, point.coordinate.longitude, point.coordinate.altitude),
                                      RELATIVE_TO_GROUND);
+            g3mMark->setUserData(new KMLMarkUserData(placemark));
             renderer->addMark(g3mMark);
         }
     }
     
     [iconCache removeAllObjects];
+    
     [self performSelectorOnMainThread:@selector(didAddResourceRenderer) withObject:nil waitUntilDone:NO];
-    return renderer;
+}
+
+- (void)onKMLMarkTouched:(Mark *)mark
+{
+    Vector3D *markPos = mark->getCartesianPosition(self.globeView.widget->getG3MContext()->getPlanet());
+    Vector2F markPixel = self.globeView.widget->getCurrentCamera()->point2Pixel(*markPos);
+    CGFloat markHeight = mark->getTextureHeight();
+    CGFloat markWidth = mark->getTextureWidth();
+    CGRect markRect = CGRectMake(markPixel._x - markWidth / 2, markPixel._y - markHeight / 2, mark->getTextureWidth(), mark->getTextureHeight());
+    KMLMarkUserData *markData = (KMLMarkUserData *)mark->getUserData();
+    KMLPlacemark *kml = markData->_kmlPlacemark;
+    if (!kml) {
+        return;
+    }
+    NSMutableString *desc = kml.descriptionValue.mutableCopy;
+    NSString *openCDATA = @"<![CDATA[";
+    NSString *closeCDATA = @"]]>";
+    if ([desc hasPrefix:openCDATA]) {
+        [desc deleteCharactersInRange:NSMakeRange(0, openCDATA.length)];
+        [desc deleteCharactersInRange:NSMakeRange(desc.length - closeCDATA.length, closeCDATA.length)];
+    };
+    [kmlDescriptionView loadHTMLString:desc baseURL:nil];
+    [kmlDescriptionPopover presentPopoverFromRect:markRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
     
 - (Renderer *)createMeshRendererForPointcloudResource:(NSURL *)resource
