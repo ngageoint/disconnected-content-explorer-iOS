@@ -27,6 +27,9 @@
 #import "KML.h"
 #import "KMLPoint.h"
 
+#import "NSString+FontAwesome.h"
+#import "UIImage+FontAwesome.h"
+
 
 @interface GlobeViewController ()
 
@@ -174,7 +177,8 @@ private:
     MarksRenderer *renderer = new MarksRenderer(true);
     renderer->setMarkTouchListener(new DICEMarkTouchListener(self.globeView), true);
     KMLRoot *root = [KMLParser parseKMLAtURL:resource];
-    for (KMLPlacemark *placemark in root.placemarks) {
+    NSMutableDictionary *iconCache = [[NSMutableDictionary alloc] init];
+    for (KMLPlacemark *placemark in [root placemarks]) {
         if ([placemark.geometry isKindOfClass:KMLPoint.class]) {
             KMLPoint *point = (KMLPoint *)placemark.geometry;
             
@@ -186,29 +190,51 @@ private:
             }
         
             KMLStyle *style = [placemark style];
-            NSString *iconURLString = style.iconStyle.icon.href;
-            if (iconURLString) {
-                NSURL *iconURL = [NSURL URLWithString:iconURLString];
-                NSURLRequest *getIcon = [NSURLRequest requestWithURL:iconURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
-                // TODO: if we don't need to support iOS 6, we should use NSURLSession
-                NSData *iconData = [NSURLConnection sendSynchronousRequest:getIcon returningResponse:nil error:nil];
-                UIImage *icon = [UIImage imageWithData:iconData];
-                IImage *markImage = new Image_iOS(icon, NULL);
-                Mark *g3mMark = new Mark(markImage, iconURLString.UTF8String,
-                    Geodetic3D::fromDegrees(point.coordinate.latitude, point.coordinate.longitude, point.coordinate.altitude),
-                    RELATIVE_TO_GROUND);
-                renderer->addMark(g3mMark);
+            
+            NSString *iconName = style.iconStyle.icon.href;
+            if ([iconName hasSuffix:@"road_shield3.png"]) {
+                iconName = @"fa-circle";
             }
             else {
-                UIImage *icon = [UIImage imageNamed:@"map-point"];
-                IImage *markImage = new Image_iOS(icon, NULL);
-                Mark *g3mMark = new Mark(markImage, "map-point",
-                    Geodetic3D::fromDegrees(point.coordinate.latitude, point.coordinate.longitude, point.coordinate.altitude),
-                    RELATIVE_TO_GROUND);
-                renderer->addMark(g3mMark);
+                iconName = @"fa-map-marker";
             }
+            
+            CGFloat iconScale = style.iconStyle.scale;
+            if (iconScale == 0.0f) {
+                iconScale = 1.0f;
+            }
+            
+            NSString *iconColorHex = style.iconStyle.color.lowercaseString;
+            if (!iconColorHex) {
+                iconColorHex = @"ff00ffff"; // yellow
+            }
+            
+            NSString *iconID = [NSString stringWithFormat:@"%@:%@", iconName, iconColorHex];
+            UIImage *icon = iconCache[iconID];
+            
+            if (!icon) {
+                NSLog(@"icon cache miss: %@", iconID);
+                NSScanner *colorScanner = [NSScanner scannerWithString:iconColorHex];
+                unsigned long long colorValue = 0LL;
+                [colorScanner scanHexLongLong:&colorValue];
+                CGFloat red = (colorValue & 0xFFLL) / 255.0f;
+                CGFloat green = ((colorValue & 0xFF00LL) >> 8) / 255.0f;
+                CGFloat blue = ((colorValue & 0xFF0000LL) >> 16) / 255.0f;
+                CGFloat alpha = ((colorValue & 0xFF000000LL) >> 24) / 255.0f;
+                UIColor *iconColor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+                icon = [UIImage imageWithIcon:iconName backgroundColor:[UIColor clearColor] iconColor:iconColor andSize:CGSizeMake(32.0f * iconScale, 32.0f * iconScale)];
+                iconCache[iconID] = icon;
+            }
+
+            IImage *markImage = new Image_iOS(icon, NULL);
+            Mark *g3mMark = new Mark(markImage, iconID.UTF8String,
+                                     Geodetic3D::fromDegrees(point.coordinate.latitude, point.coordinate.longitude, point.coordinate.altitude),
+                                     RELATIVE_TO_GROUND);
+            renderer->addMark(g3mMark);
         }
     }
+    
+    [iconCache removeAllObjects];
     [self performSelectorOnMainThread:@selector(didAddResourceRenderer) withObject:nil waitUntilDone:NO];
     return renderer;
 }

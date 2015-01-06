@@ -172,7 +172,6 @@
         }
         else { // PDFs and office files
             dispatch_async(backgroundQueue, ^(void) {
-                report.reportID = report.sourceFile.lastPathComponent;
                 // make sure the url's baseURL property is set
                 NSURL *baseURL = [report.sourceFile URLByDeletingLastPathComponent];
                 NSString *reportFileName = [report.sourceFile.lastPathComponent stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -227,6 +226,7 @@
             NSString *jsonString = [[NSString alloc] initWithContentsOfFile:jsonFile.path encoding:NSUTF8StringEncoding error:NULL];
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
 
+            // TODO: what are the potential problems of changing the report id here from its initial value above?
             NSString *reportID = [json valueForKey:@"reportID"];
             if (reportID) {
                 report.reportID = reportID;
@@ -265,7 +265,7 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportUpdated]
              object:self
              userInfo:@{
-                 @"index": [NSString stringWithFormat:@"%u", index],
+                 @"index": [NSString stringWithFormat:@"%lu", index],
                  @"report": report
              }];
     }
@@ -282,6 +282,8 @@
     ZipFile *unzipFile = [[ZipFile alloc] initWithFileName:report.sourceFile.path mode:ZipFileModeUnzip];
     int totalNumberOfFiles = (int)[unzipFile numFilesInZip];
     [unzipFile goToFirstFileInZip];
+    NSUInteger bufferSize = 1 << 20;
+    NSMutableData *entryData = [NSMutableData dataWithLength:(bufferSize)];
     for (int filesExtracted = 0; filesExtracted < totalNumberOfFiles; filesExtracted++) {
         FileInZipInfo *info = [unzipFile getCurrentFileInZipInfo];
         NSString *name = info.name;
@@ -297,11 +299,10 @@
             NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:filePath];
             ZipReadStream *read = [unzipFile readCurrentFileInZip];
             NSUInteger count;
-            NSMutableData *data = [NSMutableData dataWithLength:2048];
-            while ((count = [read readDataWithBuffer:data])) {
-                data.length = count;
-                [handle writeData:data];
-                data.length = 2048;
+            while ((count = [read readDataWithBuffer:entryData])) {
+                entryData.length = count;
+                [handle writeData:entryData];
+                entryData.length = bufferSize;
             }
             [read finishedReading];
             [handle closeFile];
