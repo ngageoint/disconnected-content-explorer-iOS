@@ -2321,7 +2321,7 @@
 						TestTargetID = E3FBB30117C9527000E133D6;
 					};
 					E3FBB30117C9527000E133D6 = {
-						DevelopmentTeam = PDRAS7XQ3Y;
+						DevelopmentTeam = KBKX8X5SZ7;
 					};
 				};
 			};
