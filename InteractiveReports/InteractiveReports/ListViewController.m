@@ -24,7 +24,7 @@
     [super viewDidLoad];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportUpdated] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportImportProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportsLoaded] object:nil];
     
     self.title = @"Disconnected Interactive Content Explorer";
@@ -61,6 +61,26 @@
         [_tableView reloadData];
     });
 }
+
+
+- (void)updateReportImportProgress:(NSNotification *)notification
+{
+    Report *notificationReport = notification.userInfo[@"report"];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //TODO: change this up to take the loop out, passing the index from the API gives inconsistant results
+        for (int i = 0; i < [self.reports count]; i++) {
+            if ([[self.reports objectAtIndex:i] sourceFile] == [notificationReport sourceFile]) {
+                [self.reports replaceObjectAtIndex:i withObject:notificationReport];
+                break;
+            }
+        }
+        
+        [_tableViewController.refreshControl endRefreshing];
+        [_tableView reloadData];
+    });
+}
+
 
 // TODO: make a new notification to indicate the last selected report
 // can probably handle setting the selection in viewWillAppear:animated:

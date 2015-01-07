@@ -34,6 +34,7 @@
     return @"DICE.ReportImportFinished";
 }
 
+
 @end
 
 
@@ -281,6 +282,7 @@
     
     ZipFile *unzipFile = [[ZipFile alloc] initWithFileName:report.sourceFile.path mode:ZipFileModeUnzip];
     int totalNumberOfFiles = (int)[unzipFile numFilesInZip];
+    report.totalNumberOfFiles = totalNumberOfFiles;
     [unzipFile goToFirstFileInZip];
     NSUInteger bufferSize = 1 << 20;
     NSMutableData *entryData = [NSMutableData dataWithLength:(bufferSize)];
@@ -312,6 +314,7 @@
         [unzipFile goToNextFileInZip];
         
         if (filesExtracted % 25 == 0) {
+            report.progress = filesExtracted;
             [[NSNotificationCenter defaultCenter]
                 postNotificationName:[ReportNotification reportImportProgress]
                 object:self
