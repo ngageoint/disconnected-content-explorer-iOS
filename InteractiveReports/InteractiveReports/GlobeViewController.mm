@@ -326,7 +326,7 @@ UIPopoverController *kmlDescriptionPopover;
     Vector2F markPixel = self.globeView.widget->getCurrentCamera()->point2Pixel(*markPos);
     CGFloat markHeight = mark->getTextureHeight();
     CGFloat markWidth = mark->getTextureWidth();
-    CGRect markRect = CGRectMake(markPixel._x - markWidth / 2, markPixel._y - markHeight / 2, markWidth, markHeight);
+    CGRect markRect = CGRectMake(markPixel._x - markWidth / 1.3, markPixel._y - markHeight / 2, markWidth, markHeight);
     KMLMarkUserData *markData = (KMLMarkUserData *)mark->getUserData();
     KMLPlacemark *kml = markData->_kmlPlacemark;
     if (!kml) {
