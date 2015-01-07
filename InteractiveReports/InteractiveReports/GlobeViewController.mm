@@ -105,18 +105,47 @@ UIWebView *htmlView;
 - (void)viewDidLoad
 {
     self.preferredContentSize = CGSizeMake(480.0, 320.0);
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    nameLabel = [[UILabel alloc] init];
+    
     htmlView = [[UIWebView alloc] init];
+    htmlView.scalesPageToFit = NO;
     htmlView.contentScaleFactor = 2.0;
+    
+    nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    htmlView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    [self.view addSubview:nameLabel];
     [self.view addSubview:htmlView];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    htmlView.frame = self.view.bounds;
+    
+    NSDictionary *views = @{
+        @"root": self.view,
+        @"html": htmlView,
+        @"html_scroll": htmlView.scrollView,
+        @"name": nameLabel
+    };
+    
+    NSArray *constraints = @[
+        @"H:|-5-[name]-5-|",
+        @"H:|-5-[html]-5-|",
+        @"V:|-5-[name]-5-[html]-5-|"
+    ];
+    
+    for (NSString *vfl in constraints) {
+        [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:vfl options:0 metrics:nil views:views]];
+    }
 }
 
 - (void)setContentFromPlacemark:(KMLPlacemark *)placemark
 {
+    NSString *name = placemark.name;
+    if (!name) {
+        name = [NSString stringWithFormat:@"%@ Placemark", [placemark.geometry class]];
+    }
+    nameLabel.text = name;
+    
     NSMutableString *desc = placemark.descriptionValue.mutableCopy;
     NSString *openCDATA = @"<![CDATA[";
     NSString *closeCDATA = @"]]>";
@@ -125,6 +154,12 @@ UIWebView *htmlView;
         [desc deleteCharactersInRange:NSMakeRange(desc.length - closeCDATA.length, closeCDATA.length)];
     };
     [htmlView loadHTMLString:desc baseURL:nil];
+    [htmlView.scrollView sizeToFit];
+    
+    NSLog(@"KML description content size: %fx%f", htmlView.scrollView.contentSize.width, htmlView.scrollView.contentSize.height);
+    NSLog(@"KML description scroll size: %fx%f", htmlView.scrollView.bounds.size.width, htmlView.scrollView.bounds.size.height);
+    
+    [self.view setNeedsUpdateConstraints];
 }
 
 @end

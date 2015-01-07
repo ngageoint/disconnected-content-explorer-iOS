@@ -2318,10 +2318,11 @@
 				TargetAttributes = {
 					7D4E1C451A1F9475002762B3 = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = PDRAS7XQ3Y;
 						TestTargetID = E3FBB30117C9527000E133D6;
 					};
 					E3FBB30117C9527000E133D6 = {
-						DevelopmentTeam = KBKX8X5SZ7;
+						DevelopmentTeam = PDRAS7XQ3Y;
 					};
 				};
 			};
