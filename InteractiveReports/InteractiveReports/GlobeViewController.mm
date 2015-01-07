@@ -101,27 +101,17 @@ private:
 UILabel *nameLabel;
 UIWebView *htmlView;
 
-- (void)loadView
-{
-    self.view = htmlView = [[UIWebView alloc] init];
-    htmlView.scalesPageToFit = YES;
-    htmlView.autoresizingMask =
-    UIViewAutoresizingFlexibleBottomMargin |
-    UIViewAutoresizingFlexibleHeight |
-    UIViewAutoresizingFlexibleLeftMargin |
-    UIViewAutoresizingFlexibleRightMargin |
-    UIViewAutoresizingFlexibleTopMargin |
-    UIViewAutoresizingFlexibleWidth;
-}
-
 - (void)viewDidLoad
 {
-//    [self.view addSubview:htmlView];
+    self.preferredContentSize = CGSizeMake(480.0, 320.0);
+    htmlView = [[UIWebView alloc] init];
+    htmlView.scalesPageToFit = YES;
+    [self.view addSubview:htmlView];
 }
 
-- (void)viewDidDisappear:(BOOL)animated
+- (void)viewWillAppear:(BOOL)animated
 {
-    
+    htmlView.frame = self.view.bounds;
 }
 
 - (void)setContentFromPlacemark:(KMLPlacemark *)placemark
@@ -235,11 +225,7 @@ UIPopoverController *kmlDescriptionPopover;
 
 - (Renderer *)createRendererForKMLResource:(NSURL *)resource
 {
-    CGSize descSize = CGSizeMake(480.0, 320.0);
-    
     kmlDescriptionView = [[KMLPlacemarkViewController alloc] init];
-    kmlDescriptionView.preferredContentSize = descSize;
-    
     kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:kmlDescriptionView];
     
     MarksRenderer *renderer = new MarksRenderer(true);
@@ -318,6 +304,11 @@ UIPopoverController *kmlDescriptionPopover;
     [iconCache removeAllObjects];
     
     [self performSelectorOnMainThread:@selector(didAddResourceRenderer) withObject:nil waitUntilDone:NO];
+}
+
+- (void)buildLineStringsFromKML:(KMLRoot *)resource forRenderer:(TrailsRenderer *)renderer
+{
+    
 }
 
 - (void)onKMLMarkTouched:(Mark *)mark
