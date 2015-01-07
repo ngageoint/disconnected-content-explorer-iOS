@@ -22,10 +22,11 @@
 #import "Planet.hpp"
 #import "PlanetRendererBuilder.hpp"
 #import "SingleBilElevationDataProvider.hpp"
-
+#import "TrailsRenderer.hpp"
 
 #import "KML.h"
 #import "KMLPoint.h"
+#import "KMLLineString.h"
 
 #import "NSString+FontAwesome.h"
 #import "UIImage+FontAwesome.h"
@@ -105,7 +106,7 @@ UIWebView *htmlView;
 {
     self.preferredContentSize = CGSizeMake(480.0, 320.0);
     htmlView = [[UIWebView alloc] init];
-    htmlView.scalesPageToFit = YES;
+    htmlView.contentScaleFactor = 2.0;
     [self.view addSubview:htmlView];
 }
 
@@ -135,6 +136,7 @@ UIWebView *htmlView;
 Geodetic3D *cameraPosition;
 KMLPlacemarkViewController *kmlDescriptionView;
 UIPopoverController *kmlDescriptionPopover;
+NSMutableDictionary *kmlIconCache;
 
 
 - (void)viewDidLoad
@@ -191,7 +193,13 @@ UIPopoverController *kmlDescriptionPopover;
     builder.getPlanetRendererBuilder()->setElevationDataProvider(elevationDataProvider);
     
     if ([resource.pathExtension isEqualToString:@"kml"]) {
-        builder.addRenderer([self createRendererForKMLResource:resource]);
+        std::list<Renderer *> renderers;
+        [self createRenderersForKMLResource:resource rendererList:renderers];
+        std::list<Renderer *>::iterator r = renderers.begin();
+        while (r != renderers.end()) {
+            builder.addRenderer(*r);
+            r++;
+        }
     }
     else {
         builder.addRenderer([self createMeshRendererForPointcloudResource:resource]);
@@ -206,6 +214,7 @@ UIPopoverController *kmlDescriptionPopover;
     if (cameraPosition) {
         [self.globeView setAnimatedCameraPosition:*cameraPosition];
         delete cameraPosition;
+        cameraPosition = NULL;
     }
     self.globeView.userInteractionEnabled = YES;
 }
@@ -223,92 +232,145 @@ UIPopoverController *kmlDescriptionPopover;
     [self performSelectorOnMainThread:@selector(didAddResourceRenderer) withObject:nil waitUntilDone:NO];
 }
 
-- (Renderer *)createRendererForKMLResource:(NSURL *)resource
+- (void)createRenderersForKMLResource:(NSURL *)resource rendererList:(std::list<Renderer *>&)rendererList
 {
     kmlDescriptionView = [[KMLPlacemarkViewController alloc] init];
     kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:kmlDescriptionView];
     
-    MarksRenderer *renderer = new MarksRenderer(true);
-    renderer->setMarkTouchListener(new DICEMarkTouchListener(self), true);
+    MarksRenderer *marks = new MarksRenderer(true);
+    marks->setMarkTouchListener(new DICEMarkTouchListener(self), true);
+    
+    TrailsRenderer *trails = new TrailsRenderer();
+    
+    rendererList.push_back(marks);
+    rendererList.push_back(trails);
     
     dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(backgroundQueue, ^{
-        [self buildMarkersFromKML:resource forRenderer:renderer];
+        [self buildRenderingModelFromKML:resource pointRenderer:marks lineStringRenderer:trails];
     });
-    
-    return renderer;
 }
 
-- (void)buildMarkersFromKML:(NSURL *)resource forRenderer:(MarksRenderer *)renderer
+- (void)buildRenderingModelFromKML:(NSURL *)resource
+    pointRenderer:(MarksRenderer *)pointRenderer
+    lineStringRenderer:(TrailsRenderer *)lineStringRenderer
 {
-    KMLRoot *root = [KMLParser parseKMLAtURL:resource];
-    NSMutableDictionary *iconCache = [[NSMutableDictionary alloc] init];
+    KMLRoot *kml = [KMLParser parseKMLAtURL:resource];
+    kmlIconCache = [[NSMutableDictionary alloc] init];
+    CGFloat lat = 0.0, lon = 0.0, height = 5000.0;
     
-    for (KMLPlacemark *placemark in [root placemarks]) {
+    for (KMLPlacemark *placemark in [kml placemarks]) {
         if ([placemark.geometry isKindOfClass:KMLPoint.class]) {
             KMLPoint *point = (KMLPoint *)placemark.geometry;
-            
-            if (!cameraPosition) {
-                cameraPosition = new Geodetic3D(
-                    Angle::fromDegrees(point.coordinate.latitude),
-                    Angle::fromDegrees(point.coordinate.longitude),
-                    5000.0);
+            lat = point.coordinate.latitude;
+            lon = point.coordinate.longitude;
+            [self buildMarkFromKMLPoint:point forRenderer:pointRenderer];
+        }
+        else if ([placemark.geometry isKindOfClass:[KMLLineString class]]) {
+            KMLLineString *lineString = (KMLLineString *)placemark.geometry;
+            if (lineString.coordinates.firstObject) {
+                KMLCoordinate *coord = (KMLCoordinate *)lineString.coordinates.firstObject;
+                lat = coord.latitude;
+                lon = coord.longitude;
+                [self buildTrailFromKMLLineString:lineString forRenderer:lineStringRenderer];
             }
-            
-            KMLStyle *style = [placemark style];
-            
-            NSString *iconName = style.iconStyle.icon.href;
-            if ([iconName hasSuffix:@"road_shield3.png"]) {
-                iconName = @"fa-circle";
+        }
+        
+        if (!cameraPosition && lat != 0.0 && lon != 0.0) {
+            if (height > 5000.0) {
+                height += 1000.0;
             }
-            else {
-                iconName = @"fa-map-marker";
-            }
-            
-            CGFloat iconScale = style.iconStyle.scale;
-            if (iconScale == 0.0f) {
-                iconScale = 1.0f;
-            }
-            
-            NSString *iconColorHex = style.iconStyle.color.lowercaseString;
-            if (!iconColorHex) {
-                iconColorHex = @"ff00ffff"; // yellow
-            }
-            
-            NSString *iconID = [NSString stringWithFormat:@"%@:%@", iconName, iconColorHex];
-            UIImage *icon = iconCache[iconID];
-            
-            if (!icon) {
-                NSLog(@"icon cache miss: %@", iconID);
-                NSScanner *colorScanner = [NSScanner scannerWithString:iconColorHex];
-                unsigned long long colorValue = 0LL;
-                [colorScanner scanHexLongLong:&colorValue];
-                CGFloat red = (colorValue & 0xFFLL) / 255.0f;
-                CGFloat green = ((colorValue & 0xFF00LL) >> 8) / 255.0f;
-                CGFloat blue = ((colorValue & 0xFF0000LL) >> 16) / 255.0f;
-                CGFloat alpha = ((colorValue & 0xFF000000LL) >> 24) / 255.0f;
-                UIColor *iconColor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
-                icon = [UIImage imageWithIcon:iconName backgroundColor:[UIColor clearColor] iconColor:iconColor andSize:CGSizeMake(32.0f * iconScale, 32.0f * iconScale)];
-                iconCache[iconID] = icon;
-            }
-            
-            IImage *markImage = new Image_iOS(icon, NULL);
-            Mark *g3mMark = new Mark(markImage, iconID.UTF8String,
-                                     Geodetic3D::fromDegrees(point.coordinate.latitude, point.coordinate.longitude, point.coordinate.altitude),
-                                     RELATIVE_TO_GROUND);
-            g3mMark->setUserData(new KMLMarkUserData(placemark));
-            renderer->addMark(g3mMark);
+            cameraPosition = new Geodetic3D(Angle::fromDegrees(lat), Angle::fromDegrees(lon), 5000.0);
         }
     }
     
-    [iconCache removeAllObjects];
+    [kmlIconCache removeAllObjects];
     
     [self performSelectorOnMainThread:@selector(didAddResourceRenderer) withObject:nil waitUntilDone:NO];
 }
 
-- (void)buildLineStringsFromKML:(KMLRoot *)resource forRenderer:(TrailsRenderer *)renderer
++ (void)parseKMLColorHexABGR:(NSString *)colorStr redOut:(CGFloat&)red greenOut:(CGFloat&)green blueOut:(CGFloat&)blue alphaOut:(CGFloat&)alpha
 {
+    NSScanner *colorScanner = [NSScanner scannerWithString:colorStr];
+    unsigned long long colorValue = 0LL;
+    [colorScanner scanHexLongLong:&colorValue];
+    red = (colorValue & 0xFFLL) / 255.0f;
+    green = ((colorValue & 0xFF00LL) >> 8) / 255.0f;
+    blue = ((colorValue & 0xFF0000LL) >> 16) / 255.0f;
+    alpha = ((colorValue & 0xFF000000LL) >> 24) / 255.0f;
+}
+
++ (UIColor *)makeUIColorFromKMLColorHexABGR:(NSString *)colorStr
+{
+    CGFloat red, green, blue, alpha;
+    [GlobeViewController parseKMLColorHexABGR:colorStr redOut:red greenOut:green blueOut:blue alphaOut:alpha];
+    return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+}
+
+- (void)buildMarkFromKMLPoint:(KMLPoint *)point forRenderer:(MarksRenderer *)renderer
+{
+    KMLPlacemark *placemark = (KMLPlacemark *)point.parent;
+    KMLStyle *style = [placemark style];
     
+    NSString *iconName = style.iconStyle.icon.href;
+    if ([iconName hasSuffix:@"road_shield3.png"]) {
+        iconName = @"fa-circle";
+    }
+    else {
+        iconName = @"fa-map-marker";
+    }
+    
+    CGFloat iconScale = style.iconStyle.scale;
+    if (iconScale == 0.0f) {
+        iconScale = 1.0f;
+    }
+    
+    NSString *iconColorHex = style.iconStyle.color.lowercaseString;
+    if (!iconColorHex) {
+        iconColorHex = @"ff00ffff"; // yellow
+    }
+    
+    NSString *iconID = [NSString stringWithFormat:@"%@:%@", iconName, iconColorHex];
+    UIImage *icon = kmlIconCache[iconID];
+    
+    if (!icon) {
+        NSLog(@"icon cache miss: %@", iconID);
+        UIColor *iconColor = [GlobeViewController makeUIColorFromKMLColorHexABGR:iconColorHex];
+        icon = [UIImage imageWithIcon:iconName backgroundColor:[UIColor clearColor] iconColor:iconColor andSize:CGSizeMake(32.0f * iconScale, 32.0f * iconScale)];
+        kmlIconCache[iconID] = icon;
+    }
+    
+    IImage *markImage = new Image_iOS(icon, NULL);
+    Mark *g3mMark = new Mark(markImage, iconID.UTF8String,
+                             Geodetic3D::fromDegrees(point.coordinate.latitude, point.coordinate.longitude, point.coordinate.altitude),
+                             RELATIVE_TO_GROUND);
+    g3mMark->setUserData(new KMLMarkUserData(placemark));
+    renderer->addMark(g3mMark);
+}
+
+- (void)buildTrailFromKMLLineString:(KMLLineString *)lineString forRenderer:(TrailsRenderer *)renderer
+{
+    CGFloat ribbonWidth = 5.0;
+    CGFloat red = 1.0, green = 1.0, blue = 0.0, alpha = 1.0;
+    CGFloat heightDelta = 0.0;
+    
+    KMLPlacemark *placemark = (KMLPlacemark *)lineString.parent;
+    KMLStyle *style = [placemark style];
+    if (style.lineStyle) {
+        KMLLineStyle *lineStyle = style.lineStyle;
+        if (lineStyle.color) {
+            [GlobeViewController parseKMLColorHexABGR:lineStyle.color redOut:red greenOut:green blueOut:blue alphaOut:alpha];
+        }
+        if (lineStyle.width > 0.0) {
+            ribbonWidth = lineStyle.width;
+        }
+    }
+    
+    Trail *trail = new Trail(Color::fromRGBA(red, green, blue, alpha), ribbonWidth, heightDelta);
+    for (KMLCoordinate *coord in lineString.coordinates) {
+        trail->addPosition(Angle::fromDegrees(coord.latitude), Angle::fromDegrees(coord.longitude), coord.altitude);
+    }
+    renderer->addTrail(trail);
 }
 
 - (void)onKMLMarkTouched:(Mark *)mark
