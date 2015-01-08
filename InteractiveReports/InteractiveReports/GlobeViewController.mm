@@ -32,10 +32,6 @@
 #import "UIImage+FontAwesome.h"
 
 
-static const NSDictionary *faNameForGoogleEarthIcon = @{
-    @"road_shield3.png": @"fa-circle"
-};
-
 @interface GlobeViewController ()
 
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loadingIndicator;
@@ -202,6 +198,7 @@ Geodetic3D *cameraPosition;
 KMLPlacemarkViewController *kmlDescriptionView;
 UIPopoverController *kmlDescriptionPopover;
 NSMutableDictionary *kmlIconCache;
+NSDictionary *faNameForGoogleEarthIcon;
 NSFileManager *fileManager;
 NSURL *docsDir;
 BOOL isDisappearing = NO;
@@ -214,6 +211,12 @@ BOOL isDisappearing = NO;
     isDisappearing = NO;
     fileManager = [NSFileManager defaultManager];
     docsDir = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+    
+    NSURL *googleEarthToFontawesomeFile = [docsDir URLByAppendingPathComponent:@"google_earth_to_fontawesome.json"];
+    if ( [fileManager fileExistsAtPath:googleEarthToFontawesomeFile.path]) {
+        NSError *jsonError;
+        faNameForGoogleEarthIcon = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:googleEarthToFontawesomeFile] options:kNilOptions error:&jsonError];
+    }
     
     self.loadingIndicator.autoresizingMask =
         UIViewAutoresizingFlexibleBottomMargin |
