@@ -234,7 +234,13 @@
             report.title = [json objectForKey:@"title"];
             report.description = [json objectForKey:@"description"];
             report.thumbnail = [json objectForKey:@"thumbnail"];
-            report.tileThumbnail = [json objectForKey:@"tile_thumbnail"];
+
+            if ([json objectForKey:@"tile_thumbnail"] != nil) {
+                report.tileThumbnail = [json objectForKey:@"tile_thumbnail"];
+            } else if (report.thumbnail != nil)  {
+                report.tileThumbnail = report.thumbnail;
+            }
+            
             report.lat = [[json valueForKey:@"lat"] doubleValue];
             report.lon = [[json valueForKey:@"lon"] doubleValue];
             report.fileExtension = fileExtension;
