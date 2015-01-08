@@ -61,6 +61,10 @@
     
     Report *report = [[ReportAPI sharedInstance] reportForID:reportID];
     
+    if (!report) {
+        return;
+    }
+    
     if (srcScheme) {
         NSMutableString *srcURLStr = [NSMutableString stringWithFormat:@"%@://?srcScheme=dice", srcScheme];
         [params enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
