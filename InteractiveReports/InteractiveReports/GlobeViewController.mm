@@ -416,7 +416,7 @@ NSMutableDictionary *kmlIconCache;
     return image;
 }
 
-// TODO: figure this out
+// TODO: figure this out - http://stackoverflow.com/questions/3514066/how-to-tint-a-transparent-png-image-in-iphone
 + (UIImage *)tintImage:(UIImage *)image color:(UIColor *)color
 {
     CGSize size = image.size;
