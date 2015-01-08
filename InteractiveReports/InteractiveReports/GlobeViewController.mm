@@ -32,6 +32,10 @@
 #import "UIImage+FontAwesome.h"
 
 
+static const NSDictionary *faNameForGoogleEarthIcon = @{
+    @"road_shield3.png": @"fa-circle"
+};
+
 @interface GlobeViewController ()
 
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loadingIndicator;
@@ -99,14 +103,15 @@ private:
 
 @implementation KMLPlacemarkViewController
 
+CGFloat maxWidth = 480.0, maxHeight = 320.0;
 UILabel *nameLabel;
 UIWebView *htmlView;
 
 - (void)viewDidLoad
 {
-    self.view.translatesAutoresizingMaskIntoConstraints = NO;
-    self.preferredContentSize = CGSizeMake(480.0, 320.0);
+    self.preferredContentSize = CGSizeMake(300.0, 200.0);
     
+    self.view.translatesAutoresizingMaskIntoConstraints = NO;
     self.view.backgroundColor = [UIColor whiteColor];
     
     nameLabel = [[UILabel alloc] init];
@@ -157,7 +162,6 @@ UIWebView *htmlView;
         [desc deleteCharactersInRange:NSMakeRange(desc.length - closeCDATA.length, closeCDATA.length)];
     };
     [htmlView loadHTMLString:desc baseURL:nil];
-    [htmlView.scrollView sizeToFit];
     
     NSLog(@"KML description content size: %fx%f", htmlView.scrollView.contentSize.width, htmlView.scrollView.contentSize.height);
     NSLog(@"KML description scroll size: %fx%f", htmlView.scrollView.bounds.size.width, htmlView.scrollView.bounds.size.height);
@@ -176,15 +180,40 @@ UIWebView *htmlView;
 // TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
 @implementation GlobeViewController
 
++ (void)parseKMLColorHexABGR:(NSString *)colorStr redOut:(CGFloat&)red greenOut:(CGFloat&)green blueOut:(CGFloat&)blue alphaOut:(CGFloat&)alpha
+{
+    NSScanner *colorScanner = [NSScanner scannerWithString:colorStr];
+    unsigned long long colorValue = 0LL;
+    [colorScanner scanHexLongLong:&colorValue];
+    red = (colorValue & 0xFFLL) / 255.0f;
+    green = ((colorValue & 0xFF00LL) >> 8) / 255.0f;
+    blue = ((colorValue & 0xFF0000LL) >> 16) / 255.0f;
+    alpha = ((colorValue & 0xFF000000LL) >> 24) / 255.0f;
+}
+
++ (UIColor *)makeUIColorFromKMLColorHexABGR:(NSString *)colorStr
+{
+    CGFloat red, green, blue, alpha;
+    [GlobeViewController parseKMLColorHexABGR:colorStr redOut:red greenOut:green blueOut:blue alphaOut:alpha];
+    return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+}
+
 Geodetic3D *cameraPosition;
 KMLPlacemarkViewController *kmlDescriptionView;
 UIPopoverController *kmlDescriptionPopover;
 NSMutableDictionary *kmlIconCache;
+NSFileManager *fileManager;
+NSURL *docsDir;
+BOOL isDisappearing = NO;
 
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    isDisappearing = NO;
+    fileManager = [NSFileManager defaultManager];
+    docsDir = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
     
     self.loadingIndicator.autoresizingMask =
         UIViewAutoresizingFlexibleBottomMargin |
@@ -220,7 +249,8 @@ NSMutableDictionary *kmlIconCache;
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    
+ 
+    isDisappearing = YES;
     // Stop the glob3 render loop
     [self.globeView stopAnimation];
 }
@@ -289,7 +319,7 @@ NSMutableDictionary *kmlIconCache;
     rendererList.push_back(marks);
     rendererList.push_back(trails);
     
-    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     dispatch_async(backgroundQueue, ^{
         [self buildRenderingModelFromKML:resource pointRenderer:marks lineStringRenderer:trails];
     });
@@ -307,6 +337,9 @@ NSMutableDictionary *kmlIconCache;
     
     NSArray *placemarks = [kml placemarks];
     for (KMLPlacemark *placemark in placemarks) {
+        if (isDisappearing) {
+            break;
+        }
         @autoreleasepool {
             if ([placemark.geometry isKindOfClass:KMLPoint.class]) {
                 KMLPoint *point = (KMLPoint *)placemark.geometry;
@@ -343,40 +376,10 @@ NSMutableDictionary *kmlIconCache;
     });
 }
 
-+ (void)parseKMLColorHexABGR:(NSString *)colorStr redOut:(CGFloat&)red greenOut:(CGFloat&)green blueOut:(CGFloat&)blue alphaOut:(CGFloat&)alpha
-{
-    NSScanner *colorScanner = [NSScanner scannerWithString:colorStr];
-    unsigned long long colorValue = 0LL;
-    [colorScanner scanHexLongLong:&colorValue];
-    red = (colorValue & 0xFFLL) / 255.0f;
-    green = ((colorValue & 0xFF00LL) >> 8) / 255.0f;
-    blue = ((colorValue & 0xFF0000LL) >> 16) / 255.0f;
-    alpha = ((colorValue & 0xFF000000LL) >> 24) / 255.0f;
-}
-
-+ (UIColor *)makeUIColorFromKMLColorHexABGR:(NSString *)colorStr
-{
-    CGFloat red, green, blue, alpha;
-    [GlobeViewController parseKMLColorHexABGR:colorStr redOut:red greenOut:green blueOut:blue alphaOut:alpha];
-    return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
-}
-
 - (Mark *)buildMarkFromKMLPoint:(KMLPoint *)point
 {
     KMLPlacemark *placemark = (KMLPlacemark *)point.parent;
     KMLStyle *style = [placemark style];
-    
-    NSString *iconName = style.iconStyle.icon.href;
-    if (!iconName) {
-        iconName = @"fa-map-marker";
-    }
-
-    if ([iconName hasSuffix:@"road_shield3.png"]) {
-        iconName = @"fa-circle";
-    }
-    else {
-        iconName = @"fa-map-marker";
-    }
     
     CGFloat iconScale = style.iconStyle.scale;
     if (iconScale == 0.0f) {
@@ -387,14 +390,39 @@ NSMutableDictionary *kmlIconCache;
     if (!iconColorHex) {
         iconColorHex = @"ff00ffff"; // yellow
     }
+    UIColor *iconColor = [GlobeViewController makeUIColorFromKMLColorHexABGR:iconColorHex];
+    
+    NSString *iconHref = style.iconStyle.icon.href;
+    NSString *iconName;
+    
+    if (iconHref) {
+        iconHref = iconHref.lastPathComponent;
+        iconName = faNameForGoogleEarthIcon[iconHref];
+    }
+    
+    if (!iconName && iconHref) {
+        NSURL *iconPath = [docsDir URLByAppendingPathComponent:iconHref];
+        if ([fileManager fileExistsAtPath:iconPath.path]) {
+            iconName = iconPath.path;
+        }
+    }
+    
+    if (!iconName) {
+        iconName = @"fa-map-marker";
+    }
     
     NSString *iconID = [NSString stringWithFormat:@"%@:%@", iconName, iconColorHex];
     UIImage *icon = kmlIconCache[iconID];
     
     if (!icon) {
         NSLog(@"icon cache miss: %@", iconID);
-        UIColor *iconColor = [GlobeViewController makeUIColorFromKMLColorHexABGR:iconColorHex];
-        icon = [GlobeViewController createIconImage:iconName colored:iconColor atScale:iconScale];
+        if ([iconName hasPrefix:@"fa-"]) {
+            icon = [UIImage imageWithIcon:iconName backgroundColor:[UIColor clearColor] iconColor:iconColor andSize:CGSizeMake(32.0f * iconScale, 32.0f * iconScale)];
+        }
+        else {
+            icon = [UIImage imageWithData:[NSData dataWithContentsOfFile:iconName]];
+//            icon = [GlobeViewController tintImage:image color:iconColor];
+        }
         kmlIconCache[iconID] = icon;
     }
     
@@ -404,16 +432,6 @@ NSMutableDictionary *kmlIconCache;
                              RELATIVE_TO_GROUND);
     g3mMark->setUserData(new KMLMarkUserData(placemark));
     return g3mMark;
-}
-
-+ (UIImage *)createIconImage:(NSString *)iconName colored:(UIColor *)iconColor atScale:(CGFloat)iconScale
-{
-    if ([iconName hasPrefix:@"fa-"]) {
-        return [UIImage imageWithIcon:iconName backgroundColor:[UIColor clearColor] iconColor:iconColor andSize:CGSizeMake(32.0f * iconScale, 32.0f * iconScale)];
-    }
-    UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfFile:iconName]];
-//    image = [GlobeViewController tintImage:image color:iconColor];
-    return image;
 }
 
 // TODO: figure this out - http://stackoverflow.com/questions/3514066/how-to-tint-a-transparent-png-image-in-iphone
@@ -456,6 +474,7 @@ NSMutableDictionary *kmlIconCache;
 
 - (void)buildTrailFromKMLLineString:(KMLLineString *)lineString forRenderer:(TrailsRenderer *)renderer
 {
+    // TODO: hard coded for now so line is actually visible
     CGFloat ribbonWidth = 200.0;
     CGFloat red = 1.0, green = 1.0, blue = 0.0, alpha = 1.0;
     CGFloat heightDelta = 0.0;
@@ -485,7 +504,7 @@ NSMutableDictionary *kmlIconCache;
     Vector2F markPixel = self.globeView.widget->getCurrentCamera()->point2Pixel(*markPos);
     CGFloat markHeight = mark->getTextureHeight();
     CGFloat markWidth = mark->getTextureWidth();
-    CGRect markRect = CGRectMake(markPixel._x - markWidth / 1.3, markPixel._y - markHeight / 2, markWidth, markHeight);
+    CGRect markRect = CGRectMake(markPixel._x - markWidth / 2, markPixel._y - markHeight / 2, markWidth, markHeight);
     KMLMarkUserData *markData = (KMLMarkUserData *)mark->getUserData();
     KMLPlacemark *kml = markData->_kmlPlacemark;
     if (!kml) {
