@@ -104,6 +104,7 @@ UIWebView *htmlView;
 
 - (void)viewDidLoad
 {
+    self.view.translatesAutoresizingMaskIntoConstraints = NO;
     self.preferredContentSize = CGSizeMake(480.0, 320.0);
     
     self.view.backgroundColor = [UIColor whiteColor];
@@ -128,9 +129,11 @@ UIWebView *htmlView;
     };
     
     NSArray *constraints = @[
-        @"H:|-5-[name]-5-|",
-        @"H:|-5-[html]-5-|",
-        @"V:|-5-[name]-5-[html]-5-|"
+        @"H:[root(<=480.0)]",
+        @"V:[root(<=320.0)]",
+        @"H:|-[name]-|",
+        @"H:|-[html]-|",
+        @"V:|-[name]-[html]-|"
     ];
     
     for (NSString *vfl in constraints) {
@@ -160,6 +163,11 @@ UIWebView *htmlView;
     NSLog(@"KML description scroll size: %fx%f", htmlView.scrollView.bounds.size.width, htmlView.scrollView.bounds.size.height);
     
     [self.view setNeedsUpdateConstraints];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [htmlView loadHTMLString:@"" baseURL:nil];
 }
 
 @end
@@ -273,6 +281,7 @@ NSMutableDictionary *kmlIconCache;
     kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:kmlDescriptionView];
     
     MarksRenderer *marks = new MarksRenderer(true);
+    marks->setEnable(false);
     marks->setMarkTouchListener(new DICEMarkTouchListener(self), true);
     
     TrailsRenderer *trails = new TrailsRenderer();
@@ -294,34 +303,44 @@ NSMutableDictionary *kmlIconCache;
     kmlIconCache = [[NSMutableDictionary alloc] init];
     CGFloat lat = 0.0, lon = 0.0, height = 5000.0;
     
-    for (KMLPlacemark *placemark in [kml placemarks]) {
-        if ([placemark.geometry isKindOfClass:KMLPoint.class]) {
-            KMLPoint *point = (KMLPoint *)placemark.geometry;
-            lat = point.coordinate.latitude;
-            lon = point.coordinate.longitude;
-            [self buildMarkFromKMLPoint:point forRenderer:pointRenderer];
-        }
-        else if ([placemark.geometry isKindOfClass:[KMLLineString class]]) {
-            KMLLineString *lineString = (KMLLineString *)placemark.geometry;
-            if (lineString.coordinates.firstObject) {
-                KMLCoordinate *coord = (KMLCoordinate *)lineString.coordinates.firstObject;
-                lat = coord.latitude;
-                lon = coord.longitude;
-                [self buildTrailFromKMLLineString:lineString forRenderer:lineStringRenderer];
+    std::vector<Mark *> marks;
+    
+    NSArray *placemarks = [kml placemarks];
+    for (KMLPlacemark *placemark in placemarks) {
+        @autoreleasepool {
+            if ([placemark.geometry isKindOfClass:KMLPoint.class]) {
+                KMLPoint *point = (KMLPoint *)placemark.geometry;
+                lat = point.coordinate.latitude;
+                lon = point.coordinate.longitude;
+                pointRenderer->addMark([self buildMarkFromKMLPoint:point]);
             }
-        }
-        
-        if (!cameraPosition && lat != 0.0 && lon != 0.0) {
-            if (height > 5000.0) {
-                height += 1000.0;
+            else if ([placemark.geometry isKindOfClass:[KMLLineString class]]) {
+                KMLLineString *lineString = (KMLLineString *)placemark.geometry;
+                if (lineString.coordinates.firstObject) {
+                    KMLCoordinate *coord = (KMLCoordinate *)lineString.coordinates.firstObject;
+                    lat = coord.latitude;
+                    lon = coord.longitude;
+                    [self buildTrailFromKMLLineString:lineString forRenderer:lineStringRenderer];
+                }
             }
-            cameraPosition = new Geodetic3D(Angle::fromDegrees(lat), Angle::fromDegrees(lon), 5000.0);
+            
+            if (!cameraPosition && lat != 0.0 && lon != 0.0) {
+                if (height > 5000.0) {
+                    height += 1000.0;
+                }
+                cameraPosition = new Geodetic3D(Angle::fromDegrees(lat), Angle::fromDegrees(lon), 5000.0);
+            }
         }
     }
     
     [kmlIconCache removeAllObjects];
+    kmlIconCache = nil;
+    marks.clear();
     
-    [self performSelectorOnMainThread:@selector(didAddResourceRenderer) withObject:nil waitUntilDone:NO];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        pointRenderer->setEnable(true);
+        [self didAddResourceRenderer];
+    });
 }
 
 + (void)parseKMLColorHexABGR:(NSString *)colorStr redOut:(CGFloat&)red greenOut:(CGFloat&)green blueOut:(CGFloat&)blue alphaOut:(CGFloat&)alpha
@@ -342,12 +361,16 @@ NSMutableDictionary *kmlIconCache;
     return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
 }
 
-- (void)buildMarkFromKMLPoint:(KMLPoint *)point forRenderer:(MarksRenderer *)renderer
+- (Mark *)buildMarkFromKMLPoint:(KMLPoint *)point
 {
     KMLPlacemark *placemark = (KMLPlacemark *)point.parent;
     KMLStyle *style = [placemark style];
     
     NSString *iconName = style.iconStyle.icon.href;
+    if (!iconName) {
+        iconName = @"fa-map-marker";
+    }
+
     if ([iconName hasSuffix:@"road_shield3.png"]) {
         iconName = @"fa-circle";
     }
@@ -371,7 +394,7 @@ NSMutableDictionary *kmlIconCache;
     if (!icon) {
         NSLog(@"icon cache miss: %@", iconID);
         UIColor *iconColor = [GlobeViewController makeUIColorFromKMLColorHexABGR:iconColorHex];
-        icon = [UIImage imageWithIcon:iconName backgroundColor:[UIColor clearColor] iconColor:iconColor andSize:CGSizeMake(32.0f * iconScale, 32.0f * iconScale)];
+        icon = [GlobeViewController createIconImage:iconName colored:iconColor atScale:iconScale];
         kmlIconCache[iconID] = icon;
     }
     
@@ -380,12 +403,60 @@ NSMutableDictionary *kmlIconCache;
                              Geodetic3D::fromDegrees(point.coordinate.latitude, point.coordinate.longitude, point.coordinate.altitude),
                              RELATIVE_TO_GROUND);
     g3mMark->setUserData(new KMLMarkUserData(placemark));
-    renderer->addMark(g3mMark);
+    return g3mMark;
+}
+
++ (UIImage *)createIconImage:(NSString *)iconName colored:(UIColor *)iconColor atScale:(CGFloat)iconScale
+{
+    if ([iconName hasPrefix:@"fa-"]) {
+        return [UIImage imageWithIcon:iconName backgroundColor:[UIColor clearColor] iconColor:iconColor andSize:CGSizeMake(32.0f * iconScale, 32.0f * iconScale)];
+    }
+    UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfFile:iconName]];
+//    image = [GlobeViewController tintImage:image color:iconColor];
+    return image;
+}
+
+// TODO: figure this out
++ (UIImage *)tintImage:(UIImage *)image color:(UIColor *)color
+{
+    CGSize size = image.size;
+    CGFloat scale = [[UIScreen mainScreen] scale];
+    UIGraphicsBeginImageContextWithOptions (size, NO, scale); // for correct resolution on retina, thanks @MobileVet
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGContextTranslateCTM(context, 0, image.size.height);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    
+    CGRect rect = CGRectMake(0, 0, image.size.width, image.size.height);
+    
+    // image drawing code here
+    // draw black background to preserve color of transparent pixels
+    CGContextSetBlendMode(context, kCGBlendModeNormal);
+    [[UIColor blackColor] setFill];
+    CGContextFillRect(context, rect);
+    
+    // draw original image
+    CGContextSetBlendMode(context, kCGBlendModeNormal);
+    CGContextDrawImage(context, rect, image.CGImage);
+    
+    // tint image (loosing alpha) - the luminosity of the original image is preserved
+    CGContextSetBlendMode(context, kCGBlendModeColor);
+    [color setFill];
+    CGContextFillRect(context, rect);
+    
+    // mask by alpha values of original image
+    CGContextSetBlendMode(context, kCGBlendModeDestinationIn);
+    CGContextDrawImage(context, rect, image.CGImage);
+    
+    UIImage *coloredImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return coloredImage;
 }
 
 - (void)buildTrailFromKMLLineString:(KMLLineString *)lineString forRenderer:(TrailsRenderer *)renderer
 {
-    CGFloat ribbonWidth = 5.0;
+    CGFloat ribbonWidth = 200.0;
     CGFloat red = 1.0, green = 1.0, blue = 0.0, alpha = 1.0;
     CGFloat heightDelta = 0.0;
     
@@ -396,9 +467,9 @@ NSMutableDictionary *kmlIconCache;
         if (lineStyle.color) {
             [GlobeViewController parseKMLColorHexABGR:lineStyle.color redOut:red greenOut:green blueOut:blue alphaOut:alpha];
         }
-        if (lineStyle.width > 0.0) {
-            ribbonWidth = lineStyle.width;
-        }
+//        if (lineStyle.width > 0.0) {
+//            ribbonWidth = lineStyle.width;
+//        }
     }
     
     Trail *trail = new Trail(Color::fromRGBA(red, green, blue, alpha), ribbonWidth, heightDelta);
