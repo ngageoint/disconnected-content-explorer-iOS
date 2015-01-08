@@ -670,7 +670,7 @@
 		7D0B48491A0D482B0044236B /* CircleShape.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CircleShape.cpp; sourceTree = "<group>"; };
 		7D0B484A1A0D482B0044236B /* CircleShape.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CircleShape.hpp; sourceTree = "<group>"; };
 		7D0B484B1A0D482B0044236B /* CompositeRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CompositeRenderer.cpp; sourceTree = "<group>"; };
-		7D0B484C1A0D482B0044236B /* CompositeRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CompositeRenderer.hpp; sourceTree = "<group>"; };
+		7D0B484C1A0D482B0044236B /* CompositeRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CompositeRenderer.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7D0B484D1A0D482B0044236B /* CompositeShape.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CompositeShape.cpp; sourceTree = "<group>"; };
 		7D0B484E1A0D482B0044236B /* CompositeShape.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CompositeShape.hpp; sourceTree = "<group>"; };
 		7D0B484F1A0D482B0044236B /* DefaultRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DefaultRenderer.cpp; sourceTree = "<group>"; };
