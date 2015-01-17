@@ -103,43 +103,33 @@ CGFloat maxWidth = 480.0, maxHeight = 320.0;
 UILabel *nameLabel;
 UIWebView *htmlView;
 
-- (void)viewDidLoad
+- (id)init
 {
-    self.preferredContentSize = CGSizeMake(300.0, 200.0);
-    
-    self.view.translatesAutoresizingMaskIntoConstraints = NO;
-    self.view.backgroundColor = [UIColor whiteColor];
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
     
     nameLabel = [[UILabel alloc] init];
+//    nameLabel.backgroundColor = [UIColor orangeColor];
     
     htmlView = [[UIWebView alloc] init];
     htmlView.scalesPageToFit = NO;
     htmlView.contentScaleFactor = 2.0;
+//    htmlView.backgroundColor = [UIColor blueColor];
+//    htmlView.scrollView.backgroundColor = [UIColor yellowColor];
     
-    nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    htmlView.translatesAutoresizingMaskIntoConstraints = NO;
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    self.view.backgroundColor = [UIColor whiteColor];
     
     [self.view addSubview:nameLabel];
     [self.view addSubview:htmlView];
-    
-    NSDictionary *views = @{
-        @"root": self.view,
-        @"html": htmlView,
-        @"html_scroll": htmlView.scrollView,
-        @"name": nameLabel
-    };
-    
-    NSArray *constraints = @[
-        @"H:[root(<=480.0)]",
-        @"V:[root(<=320.0)]",
-        @"H:|-[name]-|",
-        @"H:|-[html]-|",
-        @"V:|-[name]-[html]-|"
-    ];
-    
-    for (NSString *vfl in constraints) {
-        [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:vfl options:0 metrics:nil views:views]];
-    }
 }
 
 - (void)setContentFromPlacemark:(KMLPlacemark *)placemark
@@ -148,25 +138,69 @@ UIWebView *htmlView;
     if (!name) {
         name = [NSString stringWithFormat:@"%@ Placemark", [placemark.geometry class]];
     }
+    nameLabel.frame = nameLabel.frame = CGRectMake(10.0, 10.0, 0.0, 0.0);
     nameLabel.text = name;
+    [nameLabel sizeToFit];
+    
+    if (!placemark.descriptionValue || placemark.descriptionValue.length == 0) {
+        [htmlView loadHTMLString:@"" baseURL:nil];
+        return;
+    }
+    
+    htmlView.frame = CGRectMake(10.0, nameLabel.frame.origin.y + nameLabel.frame.size.height + 5.0, nameLabel.bounds.size.width, 240.0 + 10.0);
     
     NSMutableString *desc = placemark.descriptionValue.mutableCopy;
-    NSString *openCDATA = @"<![CDATA[";
-    NSString *closeCDATA = @"]]>";
-    if ([desc hasPrefix:openCDATA]) {
-        [desc deleteCharactersInRange:NSMakeRange(0, openCDATA.length)];
-        [desc deleteCharactersInRange:NSMakeRange(desc.length - closeCDATA.length, closeCDATA.length)];
-    };
     [htmlView loadHTMLString:desc baseURL:nil];
+
+    self.contentSizeForViewInPopover = CGSizeMake(10.0 + nameLabel.frame.size.width + 10.0, 10.0 + nameLabel.frame.size.height + 5.0 + htmlView.frame.size.height);
+    self.view.bounds = CGRectMake(0.0, 0.0, self.contentSizeForViewInPopover.width, self.contentSizeForViewInPopover.height);
     
-    NSLog(@"KML description content size: %fx%f", htmlView.scrollView.contentSize.width, htmlView.scrollView.contentSize.height);
-    NSLog(@"KML description scroll size: %fx%f", htmlView.scrollView.bounds.size.width, htmlView.scrollView.bounds.size.height);
+    NSLog(@"KML balloon: %@", NSStringFromCGRect(self.view.bounds));
+    NSLog(@"KML name: %@", NSStringFromCGRect(nameLabel.bounds));
+    NSLog(@"KML description: %@", NSStringFromCGRect(htmlView.bounds));
+    NSLog(@"KML description scroll: %@", NSStringFromCGRect(htmlView.scrollView.bounds));
+    NSLog(@"KML description content: %@", NSStringFromCGSize(htmlView.scrollView.contentSize));
+}
+
+- (void)updateViewConstraints
+{
+    [super updateViewConstraints];
     
-    [self.view setNeedsUpdateConstraints];
+    NSLog(@"updating constraints");
+    NSLog(@"KML balloon: %@", NSStringFromCGRect(self.view.bounds));
+    NSLog(@"KML name: %@", NSStringFromCGRect(nameLabel.bounds));
+    NSLog(@"KML description: %@", NSStringFromCGRect(htmlView.bounds));
+    NSLog(@"KML description scroll: %@", NSStringFromCGRect(htmlView.scrollView.bounds));
+    NSLog(@"KML description content: %@", NSStringFromCGSize(htmlView.scrollView.contentSize));
+}
+
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    
+    NSLog(@"will layout subviews");
+    NSLog(@"KML balloon: %@", NSStringFromCGRect(self.view.bounds));
+    NSLog(@"KML name: %@", NSStringFromCGRect(nameLabel.bounds));
+    NSLog(@"KML description: %@", NSStringFromCGRect(htmlView.bounds));
+    NSLog(@"KML description scroll: %@", NSStringFromCGRect(htmlView.scrollView.bounds));
+    NSLog(@"KML description content: %@", NSStringFromCGSize(htmlView.scrollView.contentSize));
+}
+
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    
+    NSLog(@"did layout subviews");
+    NSLog(@"KML balloon: %@", NSStringFromCGRect(self.view.bounds));
+    NSLog(@"KML name: %@", NSStringFromCGRect(nameLabel.bounds));
+    NSLog(@"KML description: %@", NSStringFromCGRect(htmlView.bounds));
+    NSLog(@"KML description scroll: %@", NSStringFromCGRect(htmlView.scrollView.bounds));
+    NSLog(@"KML description content: %@", NSStringFromCGSize(htmlView.scrollView.contentSize));
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    // so the next popover does not flash the previous content
     [htmlView loadHTMLString:@"" baseURL:nil];
 }
 
@@ -311,7 +345,6 @@ BOOL isDisappearing = NO;
 - (void)createRenderersForKMLResource:(NSURL *)resource rendererList:(std::list<Renderer *>&)rendererList
 {
     kmlDescriptionView = [[KMLPlacemarkViewController alloc] init];
-    kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:kmlDescriptionView];
     
     MarksRenderer *marks = new MarksRenderer(true);
     marks->setEnable(false);
@@ -514,6 +547,7 @@ BOOL isDisappearing = NO;
         return;
     }
     [kmlDescriptionView setContentFromPlacemark:kml];
+    kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:kmlDescriptionView];
     [kmlDescriptionPopover presentPopoverFromRect:markRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
     
