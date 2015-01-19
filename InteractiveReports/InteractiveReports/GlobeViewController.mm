@@ -31,6 +31,8 @@
 #import "NSString+FontAwesome.h"
 #import "UIImage+FontAwesome.h"
 
+#import "KMLBalloonViewController.h"
+
 
 @interface GlobeViewController ()
 
@@ -70,6 +72,7 @@ public:
     KMLPlacemark *_kmlPlacemark;
 };
 
+
 class DICEMeshLoadListener : public MeshLoadListener {
     
 public:
@@ -89,122 +92,6 @@ private:
     GlobeViewController *_controller;
     
 };
-
-
-@interface KMLPlacemarkViewController : UIViewController
-
-- (void)setContentFromPlacemark:(KMLPlacemark *)placemark;
-
-@end
-
-@implementation KMLPlacemarkViewController
-
-CGFloat maxWidth = 480.0, maxHeight = 320.0;
-UILabel *nameLabel;
-UIWebView *htmlView;
-
-- (id)init
-{
-    self = [super init];
-    if (!self) {
-        return nil;
-    }
-    
-    nameLabel = [[UILabel alloc] init];
-//    nameLabel.backgroundColor = [UIColor orangeColor];
-    
-    htmlView = [[UIWebView alloc] init];
-    htmlView.scalesPageToFit = NO;
-    htmlView.contentScaleFactor = 2.0;
-//    htmlView.backgroundColor = [UIColor blueColor];
-//    htmlView.scrollView.backgroundColor = [UIColor yellowColor];
-    
-    return self;
-}
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    
-    self.view.backgroundColor = [UIColor whiteColor];
-    
-    [self.view addSubview:nameLabel];
-    [self.view addSubview:htmlView];
-}
-
-- (void)setContentFromPlacemark:(KMLPlacemark *)placemark
-{
-    NSString *name = placemark.name;
-    if (!name) {
-        name = [NSString stringWithFormat:@"%@ Placemark", [placemark.geometry class]];
-    }
-    nameLabel.frame = nameLabel.frame = CGRectMake(10.0, 10.0, 0.0, 0.0);
-    nameLabel.text = name;
-    [nameLabel sizeToFit];
-    
-    if (!placemark.descriptionValue || placemark.descriptionValue.length == 0) {
-        [htmlView loadHTMLString:@"" baseURL:nil];
-        return;
-    }
-    
-    htmlView.frame = CGRectMake(10.0, nameLabel.frame.origin.y + nameLabel.frame.size.height + 5.0, nameLabel.bounds.size.width, 240.0 + 10.0);
-    
-    NSMutableString *desc = placemark.descriptionValue.mutableCopy;
-    [htmlView loadHTMLString:desc baseURL:nil];
-
-    self.contentSizeForViewInPopover = CGSizeMake(10.0 + nameLabel.frame.size.width + 10.0, 10.0 + nameLabel.frame.size.height + 5.0 + htmlView.frame.size.height);
-    self.view.bounds = CGRectMake(0.0, 0.0, self.contentSizeForViewInPopover.width, self.contentSizeForViewInPopover.height);
-    
-    NSLog(@"KML balloon: %@", NSStringFromCGRect(self.view.bounds));
-    NSLog(@"KML name: %@", NSStringFromCGRect(nameLabel.bounds));
-    NSLog(@"KML description: %@", NSStringFromCGRect(htmlView.bounds));
-    NSLog(@"KML description scroll: %@", NSStringFromCGRect(htmlView.scrollView.bounds));
-    NSLog(@"KML description content: %@", NSStringFromCGSize(htmlView.scrollView.contentSize));
-}
-
-- (void)updateViewConstraints
-{
-    [super updateViewConstraints];
-    
-    NSLog(@"updating constraints");
-    NSLog(@"KML balloon: %@", NSStringFromCGRect(self.view.bounds));
-    NSLog(@"KML name: %@", NSStringFromCGRect(nameLabel.bounds));
-    NSLog(@"KML description: %@", NSStringFromCGRect(htmlView.bounds));
-    NSLog(@"KML description scroll: %@", NSStringFromCGRect(htmlView.scrollView.bounds));
-    NSLog(@"KML description content: %@", NSStringFromCGSize(htmlView.scrollView.contentSize));
-}
-
-- (void)viewWillLayoutSubviews
-{
-    [super viewWillLayoutSubviews];
-    
-    NSLog(@"will layout subviews");
-    NSLog(@"KML balloon: %@", NSStringFromCGRect(self.view.bounds));
-    NSLog(@"KML name: %@", NSStringFromCGRect(nameLabel.bounds));
-    NSLog(@"KML description: %@", NSStringFromCGRect(htmlView.bounds));
-    NSLog(@"KML description scroll: %@", NSStringFromCGRect(htmlView.scrollView.bounds));
-    NSLog(@"KML description content: %@", NSStringFromCGSize(htmlView.scrollView.contentSize));
-}
-
-- (void)viewDidLayoutSubviews
-{
-    [super viewDidLayoutSubviews];
-    
-    NSLog(@"did layout subviews");
-    NSLog(@"KML balloon: %@", NSStringFromCGRect(self.view.bounds));
-    NSLog(@"KML name: %@", NSStringFromCGRect(nameLabel.bounds));
-    NSLog(@"KML description: %@", NSStringFromCGRect(htmlView.bounds));
-    NSLog(@"KML description scroll: %@", NSStringFromCGRect(htmlView.scrollView.bounds));
-    NSLog(@"KML description content: %@", NSStringFromCGSize(htmlView.scrollView.contentSize));
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-    // so the next popover does not flash the previous content
-    [htmlView loadHTMLString:@"" baseURL:nil];
-}
-
-@end
 
 
 // TODO: figure out how to initialize g3m widget outside storyboard like G3MWidget_iOS#initWithCoder does
@@ -229,7 +116,7 @@ UIWebView *htmlView;
 }
 
 Geodetic3D *cameraPosition;
-KMLPlacemarkViewController *kmlDescriptionView;
+KMLBalloonViewController *kmlDescriptionView;
 UIPopoverController *kmlDescriptionPopover;
 NSMutableDictionary *kmlIconCache;
 NSDictionary *faNameForGoogleEarthIcon;
@@ -344,7 +231,7 @@ BOOL isDisappearing = NO;
 
 - (void)createRenderersForKMLResource:(NSURL *)resource rendererList:(std::list<Renderer *>&)rendererList
 {
-    kmlDescriptionView = [[KMLPlacemarkViewController alloc] init];
+    kmlDescriptionView = [[KMLBalloonViewController alloc] init];
     
     MarksRenderer *marks = new MarksRenderer(true);
     marks->setEnable(false);
@@ -546,7 +433,7 @@ BOOL isDisappearing = NO;
     if (!kml) {
         return;
     }
-    [kmlDescriptionView setContentFromPlacemark:kml];
+    kmlDescriptionView.placemark = kml;
     kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:kmlDescriptionView];
     [kmlDescriptionPopover presentPopoverFromRect:markRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
