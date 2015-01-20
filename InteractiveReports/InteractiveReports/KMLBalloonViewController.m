@@ -15,22 +15,39 @@
 @property (strong, nonatomic) IBOutlet UIView *view;
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
 @property (weak, nonatomic) IBOutlet UIWebView *descWebView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *nameWidthConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *descHeightConstraint;
+
+@property (weak, nonatomic) KMLPlacemark *placemark;
 
 @end
 
-@implementation KMLBalloonViewController
 
-CGSize idealSizeToShowLabel;
+@implementation KMLBalloonViewController
 
 - (void)logLayout
 {
     NSLog(@"KML balloon: %@", NSStringFromCGRect(self.view.frame));
-    NSLog(@"KML balloon ideal: %@", NSStringFromCGSize(idealSizeToShowLabel));
+    NSLog(@"KML balloon system size: %@", NSStringFromCGSize([self.view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize]));
     NSLog(@"KML name: %@", NSStringFromCGRect(_nameLabel.frame));
     NSLog(@"KML name intrinsic: %@", NSStringFromCGSize([_nameLabel intrinsicContentSize]));
     NSLog(@"KML description: %@", NSStringFromCGRect(_descWebView.frame));
     NSLog(@"KML description scroll: %@", NSStringFromCGRect(_descWebView.scrollView.frame));
     NSLog(@"KML description content: %@", NSStringFromCGSize(_descWebView.scrollView.contentSize));
+    NSLog(@"KML description intrinsic: %@", NSStringFromCGSize([_descWebView intrinsicContentSize]));
+    NSLog(@"KML description system: %@", NSStringFromCGSize([_descWebView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize]));
+}
+
+- (id)initWithPlacemark:(KMLPlacemark *)placemark
+{
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    
+    self.placemark = placemark;
+    
+    return self;
 }
 
 - (void)viewDidLoad
@@ -48,48 +65,42 @@ CGSize idealSizeToShowLabel;
         name = [NSString stringWithFormat:@"%@ Placemark", [_placemark.geometry class]];
     }
     _nameLabel.text = name;
-    [_nameLabel sizeToFit];
+    CGSize intrinsicSize = [_nameLabel intrinsicContentSize];
+    _nameWidthConstraint.constant = intrinsicSize.width;
     
     NSString *desc = @"";
     if (_placemark.descriptionValue && _placemark.descriptionValue.length > 0) {
         desc = _placemark.descriptionValue;
-        _descWebView.bounds = CGRectMake(0.0, 0.0, _nameLabel.bounds.size.width, _nameLabel.bounds.size.height * 2.0);
+        _descHeightConstraint.constant = 1.0;
         [_descWebView loadHTMLString:desc baseURL:nil];
     }
-
-    idealSizeToShowLabel = [self.view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-    self.contentSizeForViewInPopover = idealSizeToShowLabel;
-    self.view.bounds = CGRectMake(0.0, 0.0, idealSizeToShowLabel.width, idealSizeToShowLabel.height);
+    else {
+        [_descWebView removeFromSuperview];
+        [self.view.constraints enumerateObjectsUsingBlock:^(NSLayoutConstraint *constraint, NSUInteger idx, BOOL *stop) {
+            if (constraint.firstItem == _descWebView || constraint.secondItem == _descWebView) {
+                NSLog(@"removing desc constraint %@", constraint);
+                [self.view removeConstraint:constraint];
+            }
+        }];
+    }
     
     [self logLayout];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
-    _nameLabel.text = @"";
-    _nameLabel.bounds = CGRectZero;
-    [_descWebView loadHTMLString:@"" baseURL:nil];
-    _descWebView.bounds = CGRectZero;
-    
     [super viewDidDisappear:animated];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
     NSLog(@"web view did finish load");
-    
-    [self logLayout];
-    
-    NSString *jsResult = [_descWebView stringByEvaluatingJavaScriptFromString:@"document.body.offsetHeight"];
-    NSLog(@"javascript height: %@", jsResult);
-    
-    NSLog(@"web view sized to fit");
 
-    CGRect currentBounds = self.view.bounds;
-    CGPoint currentOrig = currentBounds.origin;
-    CGSize currentSize = currentBounds.size;
-    self.view.bounds = CGRectMake(currentOrig.x, currentOrig.y, currentSize.width, currentSize.height + [jsResult floatValue]);
-    self.contentSizeForViewInPopover = self.view.bounds.size;
+    NSString *jsHeight = [_descWebView stringByEvaluatingJavaScriptFromString:@"document.body.offsetHeight"];
+    NSLog(@"javascript height: %@", jsHeight);
+    
+    _descHeightConstraint.constant = _descWebView.scrollView.contentSize.height;
+    [self.view setNeedsUpdateConstraints];
     
     [self logLayout];
 }
@@ -113,6 +124,8 @@ CGSize idealSizeToShowLabel;
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
+
+    self.contentSizeForViewInPopover = [self.view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
     
     NSLog(@"did layout subviews");
     [self logLayout];

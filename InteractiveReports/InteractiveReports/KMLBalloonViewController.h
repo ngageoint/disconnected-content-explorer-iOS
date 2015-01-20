@@ -12,6 +12,6 @@
 
 @interface KMLBalloonViewController : UIViewController
 
-@property (weak, nonatomic) KMLPlacemark *placemark;
+- (id)initWithPlacemark:(KMLPlacemark *)placemark;
 
 @end

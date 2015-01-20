@@ -116,7 +116,6 @@ private:
 }
 
 Geodetic3D *cameraPosition;
-KMLBalloonViewController *kmlDescriptionView;
 UIPopoverController *kmlDescriptionPopover;
 NSMutableDictionary *kmlIconCache;
 NSDictionary *faNameForGoogleEarthIcon;
@@ -231,8 +230,6 @@ BOOL isDisappearing = NO;
 
 - (void)createRenderersForKMLResource:(NSURL *)resource rendererList:(std::list<Renderer *>&)rendererList
 {
-    kmlDescriptionView = [[KMLBalloonViewController alloc] init];
-    
     MarksRenderer *marks = new MarksRenderer(true);
     marks->setEnable(false);
     marks->setMarkTouchListener(new DICEMarkTouchListener(self), true);
@@ -433,8 +430,8 @@ BOOL isDisappearing = NO;
     if (!kml) {
         return;
     }
-    kmlDescriptionView.placemark = kml;
-    kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:kmlDescriptionView];
+    KMLBalloonViewController *balloon = [[KMLBalloonViewController alloc] initWithPlacemark:kml];
+    kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:balloon];
     [kmlDescriptionPopover presentPopoverFromRect:markRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
     
