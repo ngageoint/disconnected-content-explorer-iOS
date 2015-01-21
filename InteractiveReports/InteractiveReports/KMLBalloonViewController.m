@@ -76,12 +76,6 @@
     }
     else {
         [_descWebView removeFromSuperview];
-        [self.view.constraints enumerateObjectsUsingBlock:^(NSLayoutConstraint *constraint, NSUInteger idx, BOOL *stop) {
-            if (constraint.firstItem == _descWebView || constraint.secondItem == _descWebView) {
-                NSLog(@"removing desc constraint %@", constraint);
-                [self.view removeConstraint:constraint];
-            }
-        }];
     }
     
     [self logLayout];
