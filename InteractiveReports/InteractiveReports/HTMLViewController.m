@@ -9,6 +9,8 @@
 #import "NoteViewController.h"
 #import "ReportResourceViewController.h"
 #import "ResourceTypes.h"
+#import "JavaScriptAPI.h"
+#import "WebViewJavascriptBridge.h"
 
 @interface HTMLViewController () <UIWebViewDelegate>
 
@@ -16,6 +18,8 @@
 
 @property (strong, nonatomic) Report *report;
 @property (strong, nonatomic) NSURL *reportResource;
+@property (strong, nonatomic) JavaScriptAPI *javascriptAPI;
+//@property WebViewJavascriptBridge *bridge;
 
 @end
 
@@ -57,6 +61,12 @@
 - (BOOL)prefersStatusBarHidden
 {
     return YES;
+}
+
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    _javascriptAPI = [[JavaScriptAPI alloc] initWithWebView:_webView report:_report andDelegate:self];
 }
 
 

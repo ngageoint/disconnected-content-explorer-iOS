@@ -6,6 +6,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 pod 'objective-zip', '0.8.3'
 pod 'iOS-KML-Framework', :git => 'https://github.com/restjohn/iOS-KML-Framework.git'
 pod 'FontAwesome+iOS', :git => 'https://github.com/Hysteria/ios-fontawesome.git'
+pod 'WebViewJavascriptBridge', '4.1.4'
 
 #target :InteractiveReports do
 #end
