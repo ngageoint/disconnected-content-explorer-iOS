@@ -432,6 +432,7 @@ BOOL isDisappearing = NO;
     }
     KMLBalloonManualLayoutViewController *balloon = [[KMLBalloonManualLayoutViewController alloc] initWithPlacemark:kml];
     kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:balloon];
+    kmlDescriptionPopover.backgroundColor = [UIColor whiteColor];
     [kmlDescriptionPopover presentPopoverFromRect:markRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
     

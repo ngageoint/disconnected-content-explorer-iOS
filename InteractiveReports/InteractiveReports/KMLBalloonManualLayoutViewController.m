@@ -57,6 +57,8 @@
 {
     [super viewDidLoad];
     
+    self.view.backgroundColor = [UIColor whiteColor];
+    
     [self layoutViews];
     
     if (_descWebView) {
