@@ -31,7 +31,7 @@
 #import "NSString+FontAwesome.h"
 #import "UIImage+FontAwesome.h"
 
-#import "KMLBalloonViewController.h"
+#import "KMLBalloonManualLayoutViewController.h"
 
 
 @interface GlobeViewController ()
@@ -430,8 +430,9 @@ BOOL isDisappearing = NO;
     if (!kml) {
         return;
     }
-    KMLBalloonViewController *balloon = [[KMLBalloonViewController alloc] initWithPlacemark:kml];
+    KMLBalloonManualLayoutViewController *balloon = [[KMLBalloonManualLayoutViewController alloc] initWithPlacemark:kml];
     kmlDescriptionPopover = [[UIPopoverController alloc] initWithContentViewController:balloon];
+    kmlDescriptionPopover.backgroundColor = [UIColor whiteColor];
     [kmlDescriptionPopover presentPopoverFromRect:markRect inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 }
     

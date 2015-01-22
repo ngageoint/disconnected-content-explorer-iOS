@@ -20,6 +20,7 @@
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
+		7D6BFF141A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6BFF131A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B51A152B4700B558EC /* LasReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA706B41A152B4700B558EC /* LasReader.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
@@ -89,6 +90,7 @@
 		E3AC40FB198ADA3900DE8F41 /* OfflineMapUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = E3AC40FA198ADA3900DE8F41 /* OfflineMapUtility.m */; };
 		E3AC40FD198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E3AC40FC198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson */; };
 		E3AC40FF198ADCC700DE8F41 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3AC40FE198ADCC700DE8F41 /* CoreLocation.framework */; };
+		E3B67F6A1A716A33000B7397 /* JavaScriptAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = E3B67F691A716A33000B7397 /* JavaScriptAPI.m */; };
 		E3BC6EE1192E7A7B00096EE5 /* ListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3BC6EE0192E7A7B00096EE5 /* ListViewController.m */; };
 		E3BC6EE4192E7A8700096EE5 /* HTMLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3BC6EE3192E7A8700096EE5 /* HTMLViewController.m */; };
 		E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D7820A18516C6A001BB04B /* TileViewController.m */; };
@@ -881,6 +883,8 @@
 		7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
 		7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
 		7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
+		7D6BFF121A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KMLBalloonManualLayoutViewController.h; sourceTree = "<group>"; };
+		7D6BFF131A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KMLBalloonManualLayoutViewController.m; sourceTree = "<group>"; };
 		7DA393EC1A1E6A0A00DE9649 /* ReportCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionView.h; sourceTree = "<group>"; };
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
@@ -983,6 +987,8 @@
 		E3AC40FA198ADA3900DE8F41 /* OfflineMapUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OfflineMapUtility.m; sourceTree = "<group>"; };
 		E3AC40FC198ADAA100DE8F41 /* ne_50m_land.simplify0.2.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ne_50m_land.simplify0.2.geojson; sourceTree = "<group>"; };
 		E3AC40FE198ADCC700DE8F41 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		E3B67F681A716A33000B7397 /* JavaScriptAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptAPI.h; sourceTree = "<group>"; };
+		E3B67F691A716A33000B7397 /* JavaScriptAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JavaScriptAPI.m; sourceTree = "<group>"; };
 		E3BC6EDF192E7A7B00096EE5 /* ListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListViewController.h; sourceTree = "<group>"; };
 		E3BC6EE0192E7A7B00096EE5 /* ListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListViewController.m; sourceTree = "<group>"; };
 		E3BC6EE2192E7A8700096EE5 /* HTMLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLViewController.h; sourceTree = "<group>"; };
@@ -1999,6 +2005,8 @@
 				7DAFBE8E1A6AAB9D00191A1D /* KMLBalloonView.xib */,
 				7DAFBE901A6AAD8100191A1D /* KMLBalloonViewController.h */,
 				7DAFBE911A6AAD8100191A1D /* KMLBalloonViewController.m */,
+				7D6BFF121A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.h */,
+				7D6BFF131A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m */,
 			);
 			name = KML;
 			sourceTree = "<group>";
@@ -2017,6 +2025,8 @@
 		E361E45A18D3AA6900E09C1B /* API */ = {
 			isa = PBXGroup;
 			children = (
+				E3B67F681A716A33000B7397 /* JavaScriptAPI.h */,
+				E3B67F691A716A33000B7397 /* JavaScriptAPI.m */,
 				E3A51FFF18D7579700CE30DD /* ReportAPI.h */,
 				E3A5200018D7579700CE30DD /* ReportAPI.m */,
 			);
@@ -2346,7 +2356,7 @@
 						TestTargetID = E3FBB30117C9527000E133D6;
 					};
 					E3FBB30117C9527000E133D6 = {
-						DevelopmentTeam = PDRAS7XQ3Y;
+						DevelopmentTeam = A8EK924J35;
 					};
 				};
 			};
@@ -2508,6 +2518,7 @@
 				E39D837919DF2B95008357DF /* ThumbsMainToolbar.m in Sources */,
 				7DAFBE921A6AAD8100191A1D /* KMLBalloonViewController.m in Sources */,
 				E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */,
+				E3B67F6A1A716A33000B7397 /* JavaScriptAPI.m in Sources */,
 				E3AC40FB198ADA3900DE8F41 /* OfflineMapUtility.m in Sources */,
 				E3F3A44E1857D0DE00253290 /* NoteViewController.m in Sources */,
 				E3BC6EE1192E7A7B00096EE5 /* ListViewController.m in Sources */,
@@ -2516,6 +2527,7 @@
 				7D0B49261A0D885A0044236B /* GlobeViewController.mm in Sources */,
 				E39D837219DF2B95008357DF /* ReaderThumbFetch.m in Sources */,
 				7DA706B51A152B4700B558EC /* LasReader.m in Sources */,
+				7D6BFF141A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m in Sources */,
 				7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */,
 				E3A5200118D7579700CE30DD /* ReportAPI.m in Sources */,
 				E3A73FC3185559FC00035C76 /* ReportMapAnnotation.m in Sources */,
