@@ -13,7 +13,7 @@
 #define SPACING 5.0f
 #define WIDTH_MIN 240.0f
 #define WIDTH_MAX 480.0f
-#define HEIGHT_MIN 30.0f
+#define HEIGHT_MIN 48.0f
 #define HEIGHT_MAX 320.0f
 
 @interface KMLBalloonManualLayoutViewController () <UIWebViewDelegate>
@@ -37,8 +37,18 @@
     self.placemark = placemark;
     
     self.nameLabel = [UILabel new];
+    NSString *name = _placemark.name;
+    if (!name) {
+        name = [NSString stringWithFormat:@"%@ Placemark", [_placemark.geometry class]];
+    }
+    _nameLabel.text = name;
     
-    self.descWebView = [UIWebView new];
+    if (placemark.descriptionValue) {
+        self.descWebView = [UIWebView new];
+        _descWebView.delegate = self;
+        _descWebView.scalesPageToFit = NO;
+        _descWebView.contentScaleFactor = 2.0;
+    }
     
     return self;
 }
@@ -47,26 +57,52 @@
 {
     [super viewDidLoad];
     
-    NSString *name = _placemark.name;
-    if (!name) {
-        name = [NSString stringWithFormat:@"%@ Placemark", [_placemark.geometry class]];
-    }
+    [self layoutViews];
     
-    _nameLabel.text = name;
-    [_nameLabel sizeToFit];
-    _nameLabel.frame = CGRectMake(MARGIN, MARGIN, _nameLabel.bounds.size.width, _nameLabel.bounds.size.height);
-    [self.view addSubview:_nameLabel];
-    
-    if (_placemark.descriptionValue && _placemark.descriptionValue.length > 0) {
+    if (_descWebView) {
         [_descWebView loadHTMLString:_placemark.descriptionValue baseURL:nil];
     }
     
-    CGRect rootBounds = CGRectInset(_nameLabel.bounds, -MARGIN, -MARGIN);
-    rootBounds = CGRectOffset(rootBounds, MARGIN, MARGIN);
-    self.view.bounds = rootBounds;
-    self.contentSizeForViewInPopover = self.preferredContentSize = self.view.bounds.size;
-    
     // TODO: support text from BalloonStyle element
+}
+
+- (void)layoutViews
+{
+    [_nameLabel sizeToFit];
+    
+    CGFloat width = fmaxf(_nameLabel.bounds.size.width, WIDTH_MIN);
+    CGFloat height = fmaxf(_nameLabel.bounds.size.height, HEIGHT_MIN);
+    
+    [self.view addSubview:_nameLabel];
+    
+    if (_descWebView) {
+        _nameLabel.frame = CGRectOffset(_nameLabel.bounds, MARGIN, MARGIN);
+        _descWebView.bounds = CGRectMake(0, 0, width, height);
+        _descWebView.frame = CGRectMake(MARGIN, CGRectGetMaxY(_nameLabel.frame) + SPACING, width, height);
+        [self.view addSubview:_descWebView];
+        height = fmaxf(height, CGRectGetMaxY(_descWebView.frame));
+    }
+    else {
+        CGFloat horizontalCenter = width / 2.0 - _nameLabel.bounds.size.width / 2.0;
+        CGFloat verticalCenter = height / 2.0;
+        _nameLabel.frame = CGRectOffset(_nameLabel.bounds, horizontalCenter, verticalCenter);
+    }
+    
+    CGRect rootBounds = CGRectMake(0, 0, width + 2 * MARGIN, height + 2 * MARGIN);
+    self.view.bounds = rootBounds;
+    self.preferredContentSize = rootBounds.size;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    CGFloat heightChange = _descWebView.scrollView.contentSize.height - _descWebView.bounds.size.height;
+    if (heightChange <= 0) {
+        return;
+    }
+    _descWebView.frame = CGRectMake(_descWebView.frame.origin.x, _descWebView.frame.origin.y,
+        _descWebView.frame.size.width, _descWebView.frame.size.height + heightChange);
+    self.view.bounds = CGRectMake(0.0, 0.0, self.view.bounds.size.width, self.view.bounds.size.height + heightChange);
+    self.contentSizeForViewInPopover = self.preferredContentSize = self.view.bounds.size;
 }
 
 - (void)didReceiveMemoryWarning
