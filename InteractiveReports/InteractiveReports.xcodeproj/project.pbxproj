@@ -20,6 +20,7 @@
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
+		7D6BFF141A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6BFF131A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B51A152B4700B558EC /* LasReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA706B41A152B4700B558EC /* LasReader.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
@@ -881,6 +882,8 @@
 		7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
 		7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
 		7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
+		7D6BFF121A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KMLBalloonManualLayoutViewController.h; sourceTree = "<group>"; };
+		7D6BFF131A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KMLBalloonManualLayoutViewController.m; sourceTree = "<group>"; };
 		7DA393EC1A1E6A0A00DE9649 /* ReportCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionView.h; sourceTree = "<group>"; };
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
@@ -1999,6 +2002,8 @@
 				7DAFBE8E1A6AAB9D00191A1D /* KMLBalloonView.xib */,
 				7DAFBE901A6AAD8100191A1D /* KMLBalloonViewController.h */,
 				7DAFBE911A6AAD8100191A1D /* KMLBalloonViewController.m */,
+				7D6BFF121A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.h */,
+				7D6BFF131A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m */,
 			);
 			name = KML;
 			sourceTree = "<group>";
@@ -2516,6 +2521,7 @@
 				7D0B49261A0D885A0044236B /* GlobeViewController.mm in Sources */,
 				E39D837219DF2B95008357DF /* ReaderThumbFetch.m in Sources */,
 				7DA706B51A152B4700B558EC /* LasReader.m in Sources */,
+				7D6BFF141A6EFAB100BFAFAF /* KMLBalloonManualLayoutViewController.m in Sources */,
 				7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */,
 				E3A5200118D7579700CE30DD /* ReportAPI.m in Sources */,
 				E3A73FC3185559FC00035C76 /* ReportMapAnnotation.m in Sources */,
