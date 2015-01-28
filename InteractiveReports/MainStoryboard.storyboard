@@ -343,45 +343,6 @@ Info designed by NAS from thenounproject.com</string>
             </objects>
             <point key="canvasLocation" x="-1194" y="1788"/>
         </scene>
-        <!--Globe View Controller-->
-        <scene sceneID="Ktb-aa-jei">
-            <objects>
-                <viewController storyboardIdentifier="globeViewController" title="Globe View Controller" id="4qK-hU-aOe" customClass="GlobeViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="tRk-qA-1dO"/>
-                        <viewControllerLayoutGuide type="bottom" id="T5G-Lz-BvU"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="Fe9-Pg-vAB">
-                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oC3-pt-CY6" customClass="G3MWidget_iOS">
-                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </view>
-                            <activityIndicatorView opaque="NO" contentMode="center" horizontalHuggingPriority="750" verticalHuggingPriority="750" restorationIdentifier="loadingIndicator" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="rL9-4y-j1L">
-                                <rect key="frame" x="366" y="494" width="37" height="37"/>
-                            </activityIndicatorView>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="oC3-pt-CY6" firstAttribute="leading" secondItem="Fe9-Pg-vAB" secondAttribute="leading" id="C3q-Ag-AE2"/>
-                            <constraint firstItem="rL9-4y-j1L" firstAttribute="centerX" secondItem="oC3-pt-CY6" secondAttribute="centerX" id="Iz4-DR-ecR"/>
-                            <constraint firstItem="oC3-pt-CY6" firstAttribute="top" secondItem="Fe9-Pg-vAB" secondAttribute="top" id="KE7-jf-Rwk"/>
-                            <constraint firstItem="oC3-pt-CY6" firstAttribute="bottom" secondItem="T5G-Lz-BvU" secondAttribute="top" id="dAk-XX-bY6"/>
-                            <constraint firstAttribute="trailing" secondItem="oC3-pt-CY6" secondAttribute="trailing" id="g9k-ai-Lt3"/>
-                            <constraint firstItem="rL9-4y-j1L" firstAttribute="centerY" secondItem="oC3-pt-CY6" secondAttribute="centerY" id="zsE-qk-9g2"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <outlet property="globeView" destination="oC3-pt-CY6" id="KIm-Wn-xdL"/>
-                        <outlet property="loadingIndicator" destination="rL9-4y-j1L" id="5v2-xP-mQx"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="SHL-Qk-A92" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-120" y="652"/>
-        </scene>
         <!--Report Resource View Container-->
         <scene sceneID="YFE-zQ-7hJ">
             <objects>

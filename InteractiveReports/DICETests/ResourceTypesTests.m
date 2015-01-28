@@ -25,32 +25,9 @@
     [super tearDown];
 }
 
-- (void)testCanOpenLasResource {
-    NSURL *resource = [NSURL URLWithString:@"file:///resources/resource.las"];
-    XCTAssert([ResourceTypes canOpenResource:resource], @"could not open las resource");
-}
-
-- (void)testCanOpenLasZipResource {
-    NSURL *resource = [NSURL URLWithString:@"file:///resources/resource.laz"];
-    XCTAssert([ResourceTypes canOpenResource:resource]);
-}
-
 - (void)testCanOpenZipResource {
     NSURL *resource = [NSURL URLWithString:@"file:///resources/resource.zip"];
     XCTAssert([ResourceTypes canOpenResource:resource], @"could not open zip resource");
-}
-
-- (void)testCanOpenGlob3Pointcloud {
-    NSURL *resource = [NSURL URLWithString:@"file:///resources/resource.g3m-pointcloud"];
-    XCTAssert([ResourceTypes canOpenResource:resource], @"could not open glob3 pointcloud resource");
-}
-
-- (void)testCanOpenKML {
-    NSURL *resource = [NSURL URLWithString:@"file:///resources/resource.kml"];
-    XCTAssert([ResourceTypes canOpenResource:resource], @"could not open kml resource");
-    
-    resource = [NSURL URLWithString:@"file:///resources/resource.kmz"];
-    XCTAssert([ResourceTypes canOpenResource:resource], @"could not open kmz resource");
 }
 
 //- (void)testPerformanceExample {

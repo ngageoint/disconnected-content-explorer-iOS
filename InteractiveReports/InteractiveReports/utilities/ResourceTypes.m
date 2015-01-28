@@ -9,7 +9,6 @@
 #import <MobileCoreServices/UTType.h>
 
 #import "ResourceTypes.h"
-#import "GlobeViewController.h"
 
 
 @interface ResourceTypes ()
@@ -31,20 +30,14 @@ NSDictionary *resourceViewers;
         @"ppt",
         @"pptx",
         @"xls",
-        @"xlsx",
-        @"kml",
-        @"g3m-pointcloud"
+        @"xlsx"
     ];
     
     resourceViewers = @{
         @"default": @"storyboard:htmlViewController",
         @"public.html": @"storyboard:htmlViewController",
         @"public.zip-archive": @"storyboard:htmlViewController",
-        @"com.adobe.pdf": @"class:PDFViewController",
-        @"com.glob3mobile.json-pointcloud": @"storyboard:globeViewController",
-        @"org.asprs.las": @"storyboard:globeViewController",
-        @"com.rapidlasso.laszip": @"storyboard:globeViewController",
-        @"com.google.earth.kml": @"storyboard:globeViewController"
+        @"com.adobe.pdf": @"class:PDFViewController"
         // TODO: add office types
     };
 }
