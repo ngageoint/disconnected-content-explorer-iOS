@@ -51,10 +51,6 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (BOOL)prefersStatusBarHidden {
-    return YES;
-}
-
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([[segue identifier] isEqualToString:@"showReportNotes"]) {
         NoteViewController *noteViewController = (NoteViewController *)segue.destinationViewController;
