@@ -7,8 +7,6 @@
 
 @implementation JavaScriptAPI
 
-WebViewJavascriptBridge *bridge;
-
 - (id)initWithWebView:(UIWebView *)webView report:(Report *)report andDelegate:(NSObject<UIWebViewDelegate> *)delegate
 {
     if ((self = [super init])) {
@@ -16,28 +14,38 @@ WebViewJavascriptBridge *bridge;
         self.report = report;
         NSLog(@"Bridge created.");
         
-        bridge = [WebViewJavascriptBridge bridgeForWebView:self.webview webViewDelegate:delegate handler:^(id data, WVJBResponseCallback responseCallback) {
+        self.bridge = [WebViewJavascriptBridge bridgeForWebView:self.webview webViewDelegate:delegate handler:^(id data, WVJBResponseCallback responseCallback) {
             NSLog(@"Objective C reieved a message from JS: %@", data);
             responseCallback(@"Response for message from Objective C");
         }];
         
-        [bridge registerHandler:@"saveToFile" handler:^(id data, WVJBResponseCallback responseCallback) {
-            NSLog(@"Test objective c callback called: %@", data);
+        [self.bridge registerHandler:@"saveToFile" handler:^(id data, WVJBResponseCallback responseCallback) {
+            NSLog(@"Bridge recieved request to export data: %@", data);
             responseCallback([self exportJSON:data]);
         }];
         
-        [bridge send:@"Hello Javascript" responseCallback:^(id responseData) {
+        [self.bridge registerHandler:@"getLocation" handler:^(id data, WVJBResponseCallback responseCallback) {
+            NSLog(@"Bridge recieved request to geolocate: %@", data);
+            responseCallback([self geolocate]);
+        }];
+        
+        [self.bridge send:@"Hello Javascript" responseCallback:^(id responseData) {
             NSLog(@"Objective C got a response!!!");
         }];
+        
+        self.locationManager = [[CLLocationManager alloc] init];
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        self.locationManager.delegate = self;
+        
     }
     
     return self;
 }
 
 
-- (void)sendToBridge:(NSString*)string
+- (void)sendToBridge:(NSDictionary*)message
 {
-    [bridge send:string];
+    [self.bridge send:message];
 }
 
 
@@ -66,7 +74,7 @@ WebViewJavascriptBridge *bridge;
         } else {
             [jsonString writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
             if (error == nil) {
-                return @{ @"success": @"true", @"message": @"Sucessfully wrote File"};
+                return @{ @"success": @"true", @"message": @"Sucessfully wrote file"};
             } else {
                 return @{ @"success": @"false", @"message": [error localizedDescription]};
             }
@@ -77,10 +85,48 @@ WebViewJavascriptBridge *bridge;
 }
 
 
-- (void)geolocate:(id)data withCallback:(WVJBResponseCallback)responseCallback
+- (NSDictionary *)geolocate
 {
-    // use LocationManager to get the users location
-    // hand it back with the callback
+    
+    [self configureLocationServices];
+    if (self.locationManager.location != nil) {
+        NSString *lat = [[NSString alloc] initWithFormat:@"%f", self.locationManager.location.coordinate.latitude];
+        NSString *lon = [[NSString alloc] initWithFormat:@"%f", self.locationManager.location.coordinate.longitude];
+        return @{ @"success": @"true", @"lat": lat,  @"lon": lon};
+    }
+    
+    return @{ @"success": @"false", @"message": @"Unable to access location manager, check your device settings."};
 }
 
+
+// Location service checking to handle iOS 7 and 8
+- (void)configureLocationServices
+{
+    if ([CLLocationManager locationServicesEnabled]) {
+        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+            [self.locationManager requestWhenInUseAuthorization];
+        } else {
+            [self startUpdatingLocation];
+        }
+    }
+}
+
+
+-(void)startUpdatingLocation
+{
+    [self.locationManager startUpdatingLocation];
+    [self.locationManager stopUpdatingLocation];
+}
+
+
+#pragma mark - CLLocationManager delegate methods
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    if (status == kCLAuthorizationStatusAuthorizedWhenInUse) {
+        [self startUpdatingLocation];
+    }
+}
+
+
 @end
+

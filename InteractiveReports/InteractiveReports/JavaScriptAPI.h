@@ -7,13 +7,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
 #import "WebViewJavascriptBridge.h"
 #import "Report.h"
 
-@interface JavaScriptAPI : NSObject
+@interface JavaScriptAPI : NSObject <CLLocationManagerDelegate>
 
 @property (strong, nonatomic)UIWebView *webview;
 @property (strong, nonatomic)Report* report;
+@property (strong, nonatomic)CLLocationManager *locationManager;
+@property (strong, nonatomic)WebViewJavascriptBridge *bridge;
 
 - (id)initWithWebView:(UIWebView *)webView report:(Report *)report andDelegate:(NSObject<UIWebViewDelegate> *)delegate;
 - (void)sendToBridge:(NSString*)string;
