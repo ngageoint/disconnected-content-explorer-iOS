@@ -30,7 +30,7 @@
     
     // initialize offline map polygons
     // TODO: potentially thread this
-    NSDictionary *geojson = [OfflineMapUtility dictionaryWithContentsOfJSONString:@"ne_50m_land.simplify0.2"];
+    NSDictionary *geojson = [OfflineMapUtility dictionaryWithContentsOfJSONString:@"ne_50m-110m_land"];
     NSMutableArray *featuresArray = [geojson objectForKey:@"features"];
     [OfflineMapUtility generateExteriorPolygons:featuresArray];
     
