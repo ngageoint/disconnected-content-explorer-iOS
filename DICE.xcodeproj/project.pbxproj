@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7D0AC37A1A37B8F300874608 /* full-earth-2048x1024.bil in Resources */ = {isa = PBXBuildFile; fileRef = 7D0AC3791A37B8F300874608 /* full-earth-2048x1024.bil */; };
 		7D0B49171A0D489D0044236B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49161A0D489D0044236B /* CoreData.framework */; };
 		7D0B49191A0D48CF0044236B /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49181A0D48CF0044236B /* CFNetwork.framework */; };
 		7D0B491B1A0D48FB0044236B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B491A1A0D48FB0044236B /* Security.framework */; };
@@ -117,7 +116,6 @@
 		0EFD368FB6CD328139F3BE06 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		36DFBBC94E870600BA2AB2FE /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		6A7A136C8826F72DD46DBCEE /* Pods-DICE.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICE.release.xcconfig"; path = "Pods/Target Support Files/Pods-DICE/Pods-DICE.release.xcconfig"; sourceTree = "<group>"; };
-		7D0AC3791A37B8F300874608 /* full-earth-2048x1024.bil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "full-earth-2048x1024.bil"; sourceTree = "<group>"; };
 		7D0B49161A0D489D0044236B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		7D0B49181A0D48CF0044236B /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		7D0B491A1A0D48FB0044236B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -600,7 +598,6 @@
 		E3FBB30C17C9527000E133D6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				7D0AC3791A37B8F300874608 /* full-earth-2048x1024.bil */,
 				E3FBB30D17C9527000E133D6 /* DICE-Info.plist */,
 				E3FBB30E17C9527000E133D6 /* InfoPlist.strings */,
 				E3FBB31117C9527000E133D6 /* main.m */,
@@ -717,7 +714,6 @@
 				E39D835519DF2B95008357DF /* AppIcon-152.png in Resources */,
 				E39D836419DF2B95008357DF /* Reader-Print.png in Resources */,
 				E39D835F19DF2B95008357DF /* Reader-Export@2x.png in Resources */,
-				7D0AC37A1A37B8F300874608 /* full-earth-2048x1024.bil in Resources */,
 				E39D835819DF2B95008357DF /* Reader-Button-H.png in Resources */,
 				E39D835D19DF2B95008357DF /* Reader-Email@2x.png in Resources */,
 				E39D834F19DF2B95008357DF /* AppIcon-057.png in Resources */,
