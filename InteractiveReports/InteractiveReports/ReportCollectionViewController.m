@@ -23,12 +23,12 @@
 
 
 @implementation ReportCollectionViewController
-
-const NSArray *views;
-
-NSInteger currentViewIndex;
-NSArray *reports;
-Report *selectedReport;
+{
+    const NSArray *views;
+    NSInteger currentViewIndex;
+    NSArray *reports;
+    Report *selectedReport;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
