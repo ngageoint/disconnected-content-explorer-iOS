@@ -7,7 +7,4 @@
 
 @interface SettingsViewController : UIViewController
 
-@property (weak, nonatomic) IBOutlet UILabel *versionLabel;
-@property (weak, nonatomic) IBOutlet UITextView *attributionText;
-
 @end

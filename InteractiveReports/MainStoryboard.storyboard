@@ -18,44 +18,62 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="37U-HF-GNS" userLabel="Version Label">
-                                <rect key="frame" x="20" y="40" width="300" height="21"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="37U-HF-GNS" userLabel="Version Label">
+                                <rect key="frame" x="85" y="37" width="300" height="22"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="22" id="Gbo-w9-njY"/>
+                                    <constraint firstAttribute="width" constant="300" id="fJO-tD-lgx"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NjQ-Wm-UbI">
+                                <rect key="frame" x="20" y="70" width="732" height="934"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </webView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Icon-76.png" translatesAutoresizingMaskIntoConstraints="NO" id="68g-Cl-wgr">
+                                <rect key="frame" x="20" y="5" width="57" height="57"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="57" id="vq0-ZG-onR"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DICE - Disconnected Interactive Content Explorer" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FEM-qx-u9D">
+                                <rect key="frame" x="85" y="10" width="446" height="24"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="446" id="YM6-GE-8ja"/>
+                                    <constraint firstAttribute="height" constant="24" id="riB-zM-AEo"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" showsHorizontalScrollIndicator="NO" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="G17-6k-bdu" userLabel="Attribution Text">
-                                <rect key="frame" x="20" y="69" width="450" height="253"/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <string key="text">Attribution:
-Objective-zip used under the new BSD license
-
-Made with Natural Earth
-
-Icons used:
-Picture designed by Stanislav Levin from thenounproject.com
-Video designed by Mister Pixel from thenounproject.com
-Map designed by useiconic.com from thenounproject.com
-Code designed by useiconic.com from thenounproject.com
-Map designed by Jonathan Higley from thenounproject.com
-Gear designed by Dmitry Kudinov from thenounproject.com
-Info designed by NAS from thenounproject.com</string>
-                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                <dataDetectorType key="dataDetectorTypes" link="YES"/>
-                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="NjQ-Wm-UbI" secondAttribute="trailing" constant="-4" id="2It-aT-wwo"/>
+                            <constraint firstItem="NjQ-Wm-UbI" firstAttribute="leading" secondItem="68g-Cl-wgr" secondAttribute="leading" id="8Zg-tl-lvG"/>
+                            <constraint firstItem="68g-Cl-wgr" firstAttribute="top" secondItem="fui-vo-x6g" secondAttribute="topMargin" constant="5" id="9Ed-on-nrF"/>
+                            <constraint firstAttribute="bottom" secondItem="NjQ-Wm-UbI" secondAttribute="bottom" constant="20" symbolic="YES" id="GxU-pt-XlV"/>
+                            <constraint firstItem="37U-HF-GNS" firstAttribute="top" secondItem="FEM-qx-u9D" secondAttribute="bottom" constant="3" id="HCq-FQ-xdk"/>
+                            <constraint firstItem="37U-HF-GNS" firstAttribute="leading" secondItem="FEM-qx-u9D" secondAttribute="leading" id="KZw-6t-tNS"/>
+                            <constraint firstItem="NjQ-Wm-UbI" firstAttribute="top" secondItem="37U-HF-GNS" secondAttribute="bottom" constant="11" id="U1R-nj-8jB"/>
+                            <constraint firstItem="NjQ-Wm-UbI" firstAttribute="top" secondItem="68g-Cl-wgr" secondAttribute="bottom" constant="8" symbolic="YES" id="gS3-vw-G9Y"/>
+                            <constraint firstItem="68g-Cl-wgr" firstAttribute="leading" secondItem="fui-vo-x6g" secondAttribute="leadingMargin" id="h2A-Of-V3c"/>
+                            <constraint firstItem="FEM-qx-u9D" firstAttribute="top" secondItem="fui-vo-x6g" secondAttribute="topMargin" constant="10" id="lMo-nt-DS7"/>
+                            <constraint firstItem="FEM-qx-u9D" firstAttribute="leading" secondItem="68g-Cl-wgr" secondAttribute="trailing" constant="8" symbolic="YES" id="w8z-0f-1Ar"/>
+                        </constraints>
                     </view>
                     <value key="contentSizeForViewInPopover" type="size" width="430" height="320"/>
                     <connections>
-                        <outlet property="attributionText" destination="G17-6k-bdu" id="gec-4j-Vne"/>
+                        <outlet property="attributionsWebView" destination="NjQ-Wm-UbI" id="10j-PR-9c8"/>
                         <outlet property="versionLabel" destination="37U-HF-GNS" id="5B9-6S-olM"/>
+                        <outletCollection property="attributionsWebViewGestures" destination="NjQ-Wm-UbI" id="iUI-hM-roJ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kh2-1s-s37" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-120" y="-2771"/>
+            <point key="canvasLocation" x="-418" y="-3118"/>
         </scene>
         <!--Tile Collection View-->
         <scene sceneID="mEv-el-IEt">
@@ -461,6 +479,7 @@ Info designed by NAS from thenounproject.com</string>
         </scene>
     </scenes>
     <resources>
+        <image name="Icon-76.png" width="76" height="76"/>
         <image name="info" width="24" height="24"/>
         <image name="list" width="24" height="24"/>
         <image name="map" width="24" height="24"/>
