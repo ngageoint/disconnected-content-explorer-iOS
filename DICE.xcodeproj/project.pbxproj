@@ -576,9 +576,6 @@
 			isa = PBXGroup;
 			children = (
 				7D75FC101A85602200CA05D4 /* resources */,
-				E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */,
-				E3FBB31417C9527000E133D6 /* AppDelegate.h */,
-				E3FBB31517C9527000E133D6 /* AppDelegate.m */,
 				E3AC40F8198ADA3900DE8F41 /* utilities */,
 				E361E45B18D3AA7B00E09C1B /* Model */,
 				E361E45A18D3AA6900E09C1B /* API */,
@@ -588,6 +585,9 @@
 				E3F3A4491857CDD600253290 /* Map View */,
 				E3F3A44A1857CDE400253290 /* Report View */,
 				E3FBB30C17C9527000E133D6 /* Supporting Files */,
+				E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */,
+				E3FBB31417C9527000E133D6 /* AppDelegate.h */,
+				E3FBB31517C9527000E133D6 /* AppDelegate.m */,
 				7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */,
 				7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */,
 				7DA393EC1A1E6A0A00DE9649 /* ReportCollectionView.h */,
