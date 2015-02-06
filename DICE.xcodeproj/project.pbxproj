@@ -622,9 +622,9 @@
 			productReference = 7D4E1C461A1F9475002762B3 /* DICETests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		E3FBB30117C9527000E133D6 /* InteractiveReports */ = {
+		E3FBB30117C9527000E133D6 /* DICE */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E3FBB32B17C9527000E133D6 /* Build configuration list for PBXNativeTarget "InteractiveReports" */;
+			buildConfigurationList = E3FBB32B17C9527000E133D6 /* Build configuration list for PBXNativeTarget "DICE" */;
 			buildPhases = (
 				66865F0E56CA411BA0814D2A /* Check Pods Manifest.lock */,
 				E3FBB2FE17C9527000E133D6 /* Sources */,
@@ -636,7 +636,7 @@
 			);
 			dependencies = (
 			);
-			name = InteractiveReports;
+			name = DICE;
 			productName = InteractiveReports;
 			productReference = E3FBB30217C9527000E133D6 /* DICE.app */;
 			productType = "com.apple.product-type.application";
@@ -660,7 +660,7 @@
 					};
 				};
 			};
-			buildConfigurationList = E3FBB2FD17C9527000E133D6 /* Build configuration list for PBXProject "InteractiveReports" */;
+			buildConfigurationList = E3FBB2FD17C9527000E133D6 /* Build configuration list for PBXProject "DICE" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -672,7 +672,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E3FBB30117C9527000E133D6 /* InteractiveReports */,
+				E3FBB30117C9527000E133D6 /* DICE */,
 				7D4E1C451A1F9475002762B3 /* DICETests */,
 			);
 		};
@@ -823,7 +823,7 @@
 /* Begin PBXTargetDependency section */
 		7D4E1C4D1A1F9475002762B3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = E3FBB30117C9527000E133D6 /* InteractiveReports */;
+			target = E3FBB30117C9527000E133D6 /* DICE */;
 			targetProxy = 7D4E1C4C1A1F9475002762B3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1022,7 +1022,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E3FBB2FD17C9527000E133D6 /* Build configuration list for PBXProject "InteractiveReports" */ = {
+		E3FBB2FD17C9527000E133D6 /* Build configuration list for PBXProject "DICE" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E3FBB32917C9527000E133D6 /* Debug */,
@@ -1031,7 +1031,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E3FBB32B17C9527000E133D6 /* Build configuration list for PBXNativeTarget "InteractiveReports" */ = {
+		E3FBB32B17C9527000E133D6 /* Build configuration list for PBXNativeTarget "DICE" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E3FBB32C17C9527000E133D6 /* Debug */,
