@@ -146,7 +146,7 @@
 		E32C6C2C17D7C1AB00D694C5 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		E337BCC01811AD7B00D987F9 /* Report.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Report.h; sourceTree = "<group>"; };
 		E337BCC11811AD7B00D987F9 /* Report.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Report.m; sourceTree = "<group>"; };
-		E39D82FF19DC643D008357DF /* Icon-76@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-76@2x.png"; path = "../Icon-76@2x.png"; sourceTree = "<group>"; };
+		E39D82FF19DC643D008357DF /* Icon-76@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-76@2x.png"; path = "resources/Icon-76@2x.png"; sourceTree = "<group>"; };
 		E39D830319DF2B95008357DF /* ReaderAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderAppDelegate.h; sourceTree = "<group>"; };
 		E39D830419DF2B95008357DF /* ReaderAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderAppDelegate.m; sourceTree = "<group>"; };
 		E39D830519DF2B95008357DF /* ReaderBookDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderBookDelegate.h; sourceTree = "<group>"; };
@@ -318,6 +318,7 @@
 		7D75FC101A85602200CA05D4 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				E39D82FF19DC643D008357DF /* Icon-76@2x.png */,
 				7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */,
 				7D75FC131A8560BD00CA05D4 /* Images.xcassets */,
 				7D75FC111A85603800CA05D4 /* attributions */,
@@ -600,7 +601,6 @@
 			isa = PBXGroup;
 			children = (
 				7D0AC3791A37B8F300874608 /* full-earth-2048x1024.bil */,
-				E39D82FF19DC643D008357DF /* Icon-76@2x.png */,
 				E3FBB30D17C9527000E133D6 /* DICE-Info.plist */,
 				E3FBB30E17C9527000E133D6 /* InfoPlist.strings */,
 				E3FBB31117C9527000E133D6 /* main.m */,
@@ -698,8 +698,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */,
 				7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */,
+				7D75FC121A85603800CA05D4 /* attributions in Resources */,
+				7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */,
+				E39D830019DC643D008357DF /* Icon-76@2x.png in Resources */,
 				E39D835319DF2B95008357DF /* AppIcon-120.png in Resources */,
 				E3FBB31017C9527000E133D6 /* InfoPlist.strings in Resources */,
 				E39D835B19DF2B95008357DF /* Reader-Button-N@2x.png in Resources */,
@@ -718,11 +720,9 @@
 				7D0AC37A1A37B8F300874608 /* full-earth-2048x1024.bil in Resources */,
 				E39D835819DF2B95008357DF /* Reader-Button-H.png in Resources */,
 				E39D835D19DF2B95008357DF /* Reader-Email@2x.png in Resources */,
-				7D75FC121A85603800CA05D4 /* attributions in Resources */,
 				E39D834F19DF2B95008357DF /* AppIcon-057.png in Resources */,
 				E39D836119DF2B95008357DF /* Reader-Mark-N@2x.png in Resources */,
 				E39D835E19DF2B95008357DF /* Reader-Export.png in Resources */,
-				E39D830019DC643D008357DF /* Icon-76@2x.png in Resources */,
 				E39D835A19DF2B95008357DF /* Reader-Button-N.png in Resources */,
 				E39D835C19DF2B95008357DF /* Reader-Email.png in Resources */,
 				E39D836019DF2B95008357DF /* Reader-Mark-N.png in Resources */,
