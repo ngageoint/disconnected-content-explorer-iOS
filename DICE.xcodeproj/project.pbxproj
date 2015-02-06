@@ -599,9 +599,9 @@
 			isa = PBXGroup;
 			children = (
 				E3FBB30D17C9527000E133D6 /* DICE-Info.plist */,
+				E3FBB31317C9527000E133D6 /* DICE-Prefix.pch */,
 				E3FBB30E17C9527000E133D6 /* InfoPlist.strings */,
 				E3FBB31117C9527000E133D6 /* main.m */,
-				E3FBB31317C9527000E133D6 /* DICE-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
