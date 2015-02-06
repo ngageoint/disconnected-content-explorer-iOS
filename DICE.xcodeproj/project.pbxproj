@@ -23,7 +23,7 @@
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
 		AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B73CA51504D8A8B497186523 /* libPods.a */; };
-		C0E3F60806C443D79389587D /* libPods-InteractiveReports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC63C8C3A5584AA4A5E44F92 /* libPods-InteractiveReports.a */; };
+		C0E3F60806C443D79389587D /* libPods-DICE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC63C8C3A5584AA4A5E44F92 /* libPods-DICE.a */; };
 		E3011597184FE4FD00C18CFD /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */; };
 		E30753E8195CC33E0087F90A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E30753E7195CC33E0087F90A /* Images.xcassets */; };
 		E32C6C2D17D7C1AB00D694C5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E32C6C2C17D7C1AB00D694C5 /* libz.dylib */; };
@@ -109,14 +109,14 @@
 			containerPortal = E3FBB2FA17C9527000E133D6 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = E3FBB30117C9527000E133D6;
-			remoteInfo = InteractiveReports;
+			remoteInfo = DICE;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0EFD368FB6CD328139F3BE06 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		36DFBBC94E870600BA2AB2FE /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
-		6A7A136C8826F72DD46DBCEE /* Pods-InteractiveReports.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractiveReports.release.xcconfig"; path = "Pods/Target Support Files/Pods-InteractiveReports/Pods-InteractiveReports.release.xcconfig"; sourceTree = "<group>"; };
+		6A7A136C8826F72DD46DBCEE /* Pods-DICE.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICE.release.xcconfig"; path = "Pods/Target Support Files/Pods-DICE/Pods-DICE.release.xcconfig"; sourceTree = "<group>"; };
 		7D0AC3791A37B8F300874608 /* full-earth-2048x1024.bil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "full-earth-2048x1024.bil"; sourceTree = "<group>"; };
 		7D0B49161A0D489D0044236B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		7D0B49181A0D48CF0044236B /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -134,12 +134,12 @@
 		7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
 		7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
 		7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "ne_50m-110m_land.geojson"; sourceTree = "<group>"; };
-		7D9941241A843B4C0097260D /* attributions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = attributions; path = InteractiveReports/attributions; sourceTree = "<group>"; };
+		7D9941241A843B4C0097260D /* attributions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = attributions; path = DICE/attributions; sourceTree = "<group>"; };
 		7DA393EC1A1E6A0A00DE9649 /* ReportCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionView.h; sourceTree = "<group>"; };
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
 		7DA706B61A158E3800B558EC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
-		883340C3E7FF849362B84DC6 /* Pods-InteractiveReports.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InteractiveReports.debug.xcconfig"; path = "Pods/Target Support Files/Pods-InteractiveReports/Pods-InteractiveReports.debug.xcconfig"; sourceTree = "<group>"; };
+		883340C3E7FF849362B84DC6 /* Pods-DICE.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICE.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DICE/Pods-DICE.debug.xcconfig"; sourceTree = "<group>"; };
 		B73CA51504D8A8B497186523 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainStoryboard.storyboard; path = ../MainStoryboard.storyboard; sourceTree = "<group>"; };
 		E30753E7195CC33E0087F90A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -252,13 +252,13 @@
 		E3FBB30517C9527000E133D6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		E3FBB30717C9527000E133D6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E3FBB30917C9527000E133D6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		E3FBB30D17C9527000E133D6 /* InteractiveReports-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "InteractiveReports-Info.plist"; sourceTree = "<group>"; };
+		E3FBB30D17C9527000E133D6 /* DICE-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DICE-Info.plist"; sourceTree = "<group>"; };
 		E3FBB30F17C9527000E133D6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E3FBB31117C9527000E133D6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		E3FBB31317C9527000E133D6 /* InteractiveReports-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "InteractiveReports-Prefix.pch"; sourceTree = "<group>"; };
+		E3FBB31317C9527000E133D6 /* DICE-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DICE-Prefix.pch"; sourceTree = "<group>"; };
 		E3FBB31417C9527000E133D6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E3FBB31517C9527000E133D6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		FC63C8C3A5584AA4A5E44F92 /* libPods-InteractiveReports.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-InteractiveReports.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC63C8C3A5584AA4A5E44F92 /* libPods-DICE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICE.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -290,7 +290,7 @@
 				E3FBB30617C9527000E133D6 /* UIKit.framework in Frameworks */,
 				E3FBB30817C9527000E133D6 /* Foundation.framework in Frameworks */,
 				E3FBB30A17C9527000E133D6 /* CoreGraphics.framework in Frameworks */,
-				C0E3F60806C443D79389587D /* libPods-InteractiveReports.a in Frameworks */,
+				C0E3F60806C443D79389587D /* libPods-DICE.a in Frameworks */,
 				AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -318,8 +318,8 @@
 		9A31FFAB0752B966D88A1AE0 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				883340C3E7FF849362B84DC6 /* Pods-InteractiveReports.debug.xcconfig */,
-				6A7A136C8826F72DD46DBCEE /* Pods-InteractiveReports.release.xcconfig */,
+				883340C3E7FF849362B84DC6 /* Pods-DICE.debug.xcconfig */,
+				6A7A136C8826F72DD46DBCEE /* Pods-DICE.release.xcconfig */,
 				36DFBBC94E870600BA2AB2FE /* Pods.debug.xcconfig */,
 				0EFD368FB6CD328139F3BE06 /* Pods.release.xcconfig */,
 			);
@@ -519,7 +519,7 @@
 			children = (
 				7D9941241A843B4C0097260D /* attributions */,
 				E39D830119DF2B95008357DF /* vfrReader */,
-				E3FBB30B17C9527000E133D6 /* InteractiveReports */,
+				E3FBB30B17C9527000E133D6 /* DICE */,
 				7D4E1C471A1F9475002762B3 /* DICETests */,
 				E3FBB30417C9527000E133D6 /* Frameworks */,
 				E3FBB30317C9527000E133D6 /* Products */,
@@ -556,13 +556,13 @@
 				E3FBB30517C9527000E133D6 /* UIKit.framework */,
 				E3FBB30717C9527000E133D6 /* Foundation.framework */,
 				E3FBB30917C9527000E133D6 /* CoreGraphics.framework */,
-				FC63C8C3A5584AA4A5E44F92 /* libPods-InteractiveReports.a */,
+				FC63C8C3A5584AA4A5E44F92 /* libPods-DICE.a */,
 				B73CA51504D8A8B497186523 /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		E3FBB30B17C9527000E133D6 /* InteractiveReports */ = {
+		E3FBB30B17C9527000E133D6 /* DICE */ = {
 			isa = PBXGroup;
 			children = (
 				E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */,
@@ -584,7 +584,7 @@
 				7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */,
 				7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */,
 			);
-			path = InteractiveReports;
+			path = DICE;
 			sourceTree = "<group>";
 		};
 		E3FBB30C17C9527000E133D6 /* Supporting Files */ = {
@@ -593,10 +593,10 @@
 				7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */,
 				7D0AC3791A37B8F300874608 /* full-earth-2048x1024.bil */,
 				E39D82FF19DC643D008357DF /* Icon-76@2x.png */,
-				E3FBB30D17C9527000E133D6 /* InteractiveReports-Info.plist */,
+				E3FBB30D17C9527000E133D6 /* DICE-Info.plist */,
 				E3FBB30E17C9527000E133D6 /* InfoPlist.strings */,
 				E3FBB31117C9527000E133D6 /* main.m */,
-				E3FBB31317C9527000E133D6 /* InteractiveReports-Prefix.pch */,
+				E3FBB31317C9527000E133D6 /* DICE-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -637,7 +637,7 @@
 			dependencies = (
 			);
 			name = DICE;
-			productName = InteractiveReports;
+			productName = DICE;
 			productReference = E3FBB30217C9527000E133D6 /* DICE.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -979,8 +979,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "InteractiveReports/InteractiveReports-Prefix.pch";
-				INFOPLIST_FILE = "InteractiveReports/InteractiveReports-Info.plist";
+				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
+				INFOPLIST_FILE = "DICE/DICE-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
@@ -1000,8 +1000,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "InteractiveReports/InteractiveReports-Prefix.pch";
-				INFOPLIST_FILE = "InteractiveReports/InteractiveReports-Info.plist";
+				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
+				INFOPLIST_FILE = "DICE/DICE-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
