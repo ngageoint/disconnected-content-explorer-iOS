@@ -19,7 +19,7 @@
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
 		7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */; };
-		7D9941251A843B4C0097260D /* attributions in Resources */ = {isa = PBXBuildFile; fileRef = 7D9941241A843B4C0097260D /* attributions */; };
+		7D75FC121A85603800CA05D4 /* attributions in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC111A85603800CA05D4 /* attributions */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
 		AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B73CA51504D8A8B497186523 /* libPods.a */; };
@@ -134,14 +134,14 @@
 		7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
 		7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
 		7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "ne_50m-110m_land.geojson"; sourceTree = "<group>"; };
-		7D9941241A843B4C0097260D /* attributions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = attributions; path = DICE/attributions; sourceTree = "<group>"; };
+		7D75FC111A85603800CA05D4 /* attributions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = attributions; path = resources/attributions; sourceTree = "<group>"; };
 		7DA393EC1A1E6A0A00DE9649 /* ReportCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionView.h; sourceTree = "<group>"; };
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
 		7DA706B61A158E3800B558EC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		883340C3E7FF849362B84DC6 /* Pods-DICE.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICE.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DICE/Pods-DICE.debug.xcconfig"; sourceTree = "<group>"; };
 		B73CA51504D8A8B497186523 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainStoryboard.storyboard; path = MainStoryboard.storyboard; sourceTree = "<group>"; };
+		E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MainStoryboard.storyboard; sourceTree = "<group>"; };
 		E30753E7195CC33E0087F90A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		E32C6C2C17D7C1AB00D694C5 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		E337BCC01811AD7B00D987F9 /* Report.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Report.h; sourceTree = "<group>"; };
@@ -313,6 +313,14 @@
 				7D4E1C491A1F9475002762B3 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		7D75FC101A85602200CA05D4 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				7D75FC111A85603800CA05D4 /* attributions */,
+			);
+			name = resources;
 			sourceTree = "<group>";
 		};
 		9A31FFAB0752B966D88A1AE0 /* Pods */ = {
@@ -517,7 +525,6 @@
 		E3FBB2F917C9527000E133D6 = {
 			isa = PBXGroup;
 			children = (
-				7D9941241A843B4C0097260D /* attributions */,
 				E39D830119DF2B95008357DF /* vfrReader */,
 				E3FBB30B17C9527000E133D6 /* DICE */,
 				7D4E1C471A1F9475002762B3 /* DICETests */,
@@ -565,6 +572,7 @@
 		E3FBB30B17C9527000E133D6 /* DICE */ = {
 			isa = PBXGroup;
 			children = (
+				7D75FC101A85602200CA05D4 /* resources */,
 				E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */,
 				E3FBB31417C9527000E133D6 /* AppDelegate.h */,
 				E3FBB31517C9527000E133D6 /* AppDelegate.m */,
@@ -690,7 +698,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D9941251A843B4C0097260D /* attributions in Resources */,
 				7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */,
 				E39D835319DF2B95008357DF /* AppIcon-120.png in Resources */,
 				E3FBB31017C9527000E133D6 /* InfoPlist.strings in Resources */,
@@ -711,6 +718,7 @@
 				7D0AC37A1A37B8F300874608 /* full-earth-2048x1024.bil in Resources */,
 				E39D835819DF2B95008357DF /* Reader-Button-H.png in Resources */,
 				E39D835D19DF2B95008357DF /* Reader-Email@2x.png in Resources */,
+				7D75FC121A85603800CA05D4 /* attributions in Resources */,
 				E39D834F19DF2B95008357DF /* AppIcon-057.png in Resources */,
 				E39D836119DF2B95008357DF /* Reader-Mark-N@2x.png in Resources */,
 				E39D835E19DF2B95008357DF /* Reader-Export.png in Resources */,
