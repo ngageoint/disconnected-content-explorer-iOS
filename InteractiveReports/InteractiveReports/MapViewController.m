@@ -11,38 +11,27 @@
 
 @end
 
-@implementation MapViewController
+@implementation MapViewController {
+    BOOL polygonsAdded;
+}
 
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     self.mapView.delegate = self;
-    [self addMapOverlaysStartingFrom:0 count:100];
-}
-
-
-- (void)addMapOverlaysStartingFrom:(NSUInteger)start count:(NSUInteger)count
-{
-    NSArray *allPolygons = [OfflineMapUtility getPolygons];
-    if (start + count > allPolygons.count - 1) {
-        count = allPolygons.count - start;
-    }
-    NSLog(@"MapViewController: adding polygon block %lu - %lu of %lu total", start + 1, start + count, allPolygons.count);
-    NSArray *block = [allPolygons subarrayWithRange:NSMakeRange(start, count)];
-    [self.mapView addOverlays:block];
-    if (start + count < allPolygons.count - 1) {
-        // do it again on the next run loop iteration
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self addMapOverlaysStartingFrom:(start + count) count:count];
-        });
-    }
+    polygonsAdded = NO;
 }
 
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    if (!polygonsAdded) {
+        polygonsAdded = YES;
+        [self.mapView addOverlays:[OfflineMapUtility getPolygons]];
+    }
 
     CLLocationCoordinate2D zoomLocation;
     zoomLocation.latitude = 40.740848;
