@@ -29,8 +29,10 @@
     [super viewWillAppear:animated];
     
     if (!polygonsAdded) {
-        polygonsAdded = YES;
-        [self.mapView addOverlays:[OfflineMapUtility getPolygons]];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.mapView addOverlays:[OfflineMapUtility getPolygons]];
+            polygonsAdded = YES;
+        });
     }
 
     CLLocationCoordinate2D zoomLocation;
