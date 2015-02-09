@@ -22,12 +22,11 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSDictionary *infoDictionary = [[NSBundle mainBundle]infoDictionary];
+    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
     
-    NSString *build = infoDictionary[(NSString*)kCFBundleVersionKey];
     NSString *version = infoDictionary[@"CFBundleShortVersionString"];
     
-    _versionLabel.text = [NSString stringWithFormat:@"Version %@.%@", version, build];
+    _versionLabel.text = [NSString stringWithFormat:@"Version %@", version];
     
     UISwipeGestureRecognizer *swipeBack = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(webViewBackGesture:)];
     swipeBack.direction = UISwipeGestureRecognizerDirectionRight;
