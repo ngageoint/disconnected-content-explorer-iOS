@@ -65,6 +65,15 @@
 
 - (void)updateReportImportProgress:(NSNotification *)notification
 {
+    // Check for the placeholder report, and remove it if is present.
+    for (int i = 0; i < [self.reports count]; i++) {
+        if ([[[self.reports objectAtIndex:i] reportID] isEqualToString:[ReportAPI userGuideReportID]]) {
+            [self.reports removeObjectAtIndex:i];
+            break;
+        }
+    }
+
+    
     Report *notificationReport = notification.userInfo[@"report"];
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -176,9 +185,13 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    self.selectedCell = [self.tableView cellForRowAtIndexPath:indexPath];
-    [self.delegate reportSelectedToView:self.reports[indexPath.row]];
-    [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
+    if ([[self.reports[indexPath.row] reportID]isEqualToString:[ReportAPI userGuideReportID]]) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/DICEUserGuide.zip"]];
+    } else {
+        self.selectedCell = [self.tableView cellForRowAtIndexPath:indexPath];
+        [self.delegate reportSelectedToView:self.reports[indexPath.row]];
+        [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
+    }
 }
 
 

@@ -21,6 +21,7 @@
 @interface ReportAPI : NSObject
 
 + (ReportAPI*)sharedInstance;
++ (NSString *)userGuideReportID;
 
 - (void)importReportFromUrl:(NSURL *)reportURL afterImport:(void(^)(Report *))afterImportBlock;
 - (NSMutableArray*)getReports;

@@ -34,7 +34,6 @@
     return @"DICE.ReportImportFinished";
 }
 
-
 @end
 
 
@@ -50,6 +49,10 @@
 // TODO: implement report content hashing to detect new reports and duplicates
 
 @implementation ReportAPI
+
++ (NSString *)userGuideReportID {
+    return @"DICE.UserGuideReport";
+}
 
 + (ReportAPI *)sharedInstance
 {
@@ -104,6 +107,10 @@
     for (NSURL *file in files) {
         NSLog(@"ReportAPI: attempting to add report from file %@", file);
         [self addReportFromFile:[NSURL URLWithString:file.lastPathComponent relativeToURL:documentsDir] afterComplete:nil];
+    }
+    
+    if ([reports count] == 0) {
+        [reports addObject:[self getUserGuideReport]];
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportsLoaded] object:self userInfo:nil];
@@ -337,5 +344,18 @@
     
     return YES;
 }
+
+
+- (Report*)getUserGuideReport
+{
+    Report *userGuide = [[Report alloc] init];
+    userGuide.title = @"Tap here to download the user guide";
+    userGuide.description = @"Select \"Open in DICE\"";
+    userGuide.isEnabled = YES;
+    userGuide.reportID = [ReportAPI userGuideReportID];
+    
+    return userGuide;
+}
+
 
 @end
