@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 #import "Report.h"
+#import "DisclaimerViewController.h"
 
 @interface DICENavigationController : UINavigationController
 

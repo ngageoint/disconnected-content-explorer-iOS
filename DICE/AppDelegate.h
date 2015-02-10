@@ -4,6 +4,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DisclaimerViewController.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate> {}
 

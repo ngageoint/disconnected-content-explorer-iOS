@@ -92,6 +92,7 @@
 		E3E133C919D6095900C2D37E /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3E133C819D6095900C2D37E /* ImageIO.framework */; };
 		E3E133CB19D6096300C2D37E /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3E133CA19D6096300C2D37E /* MessageUI.framework */; };
 		E3E133CD19D6708300C2D37E /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3E133CC19D6708300C2D37E /* QuickLook.framework */; };
+		E3EF82521A898A3F006513CA /* DisclaimerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EF82511A898A3F006513CA /* DisclaimerViewController.m */; };
 		E3F3A44E1857D0DE00253290 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3F3A44D1857D0DE00253290 /* NoteViewController.m */; };
 		E3FBB30617C9527000E133D6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3FBB30517C9527000E133D6 /* UIKit.framework */; };
 		E3FBB30817C9527000E133D6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3FBB30717C9527000E133D6 /* Foundation.framework */; };
@@ -241,6 +242,8 @@
 		E3E133C819D6095900C2D37E /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		E3E133CA19D6096300C2D37E /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		E3E133CC19D6708300C2D37E /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
+		E3EF82501A898A3F006513CA /* DisclaimerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DisclaimerViewController.h; sourceTree = "<group>"; };
+		E3EF82511A898A3F006513CA /* DisclaimerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DisclaimerViewController.m; sourceTree = "<group>"; };
 		E3F3A44C1857D0DE00253290 /* NoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteViewController.h; sourceTree = "<group>"; };
 		E3F3A44D1857D0DE00253290 /* NoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteViewController.m; sourceTree = "<group>"; };
 		E3FBB30217C9527000E133D6 /* DICE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DICE.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -585,6 +588,8 @@
 				7DA393EC1A1E6A0A00DE9649 /* ReportCollectionView.h */,
 				7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */,
 				7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */,
+				E3EF82501A898A3F006513CA /* DisclaimerViewController.h */,
+				E3EF82511A898A3F006513CA /* DisclaimerViewController.m */,
 			);
 			path = DICE;
 			sourceTree = "<group>";
@@ -779,6 +784,7 @@
 				E3FBB31617C9527000E133D6 /* AppDelegate.m in Sources */,
 				E39D836C19DF2B95008357DF /* ReaderContentView.m in Sources */,
 				7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */,
+				E3EF82521A898A3F006513CA /* DisclaimerViewController.m in Sources */,
 				E3D7820E18517375001BB04B /* ReportViewCell.m in Sources */,
 				7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */,
 				E39D837419DF2B95008357DF /* ReaderThumbRender.m in Sources */,

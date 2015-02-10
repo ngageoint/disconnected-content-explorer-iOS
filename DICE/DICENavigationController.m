@@ -45,6 +45,9 @@
     if ([self respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
         self.interactivePopGestureRecognizer.enabled = NO;
     }
+    
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter addObserver:self selector:@selector(handleDisclaimer) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
 
@@ -106,6 +109,19 @@
         return topView;
     }
     return [super popViewControllerAnimated:animated];
+}
+
+
+- (void)handleDisclaimer
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    if (![userDefaults boolForKey:@"preventDisclaimer"]) {
+        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+        DisclaimerViewController *disclaimer = [mainStoryboard instantiateViewControllerWithIdentifier:@"disclaimer"];
+        [self presentViewController:disclaimer animated:YES completion:nil];
+    }
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
