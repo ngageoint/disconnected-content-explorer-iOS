@@ -9,6 +9,8 @@
 
 @interface MapViewController ()
 
+@property (weak, nonatomic) IBOutlet UIView *noLocationsView;
+
 @end
 
 @implementation MapViewController {
@@ -19,6 +21,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.noLocationsView.layer.cornerRadius = 10.0;
     self.mapView.delegate = self;
     polygonsAdded = NO;
 }

@@ -429,25 +429,56 @@
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ysV-dQ-vF9">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             </mapView>
+                            <view userInteractionEnabled="NO" alpha="0.74999999999999978" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aCD-Yd-k1W" userLabel="No Locations">
+                                <rect key="frame" x="181" y="278" width="406" height="66"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" alpha="0.74999999999999978" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No content provides a location for the map." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aOh-B5-gVZ">
+                                        <rect key="frame" x="20" y="0.0" width="366" height="66"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="66" id="fpd-Cj-avY"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                        <color key="textColor" red="0.63529413940000001" green="0.023529414089999999" blue="0.058823533359999999" alpha="1" colorSpace="deviceRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="aOh-B5-gVZ" firstAttribute="centerX" secondItem="aCD-Yd-k1W" secondAttribute="centerX" id="4nL-Gw-f3c"/>
+                                    <constraint firstItem="aOh-B5-gVZ" firstAttribute="top" secondItem="aCD-Yd-k1W" secondAttribute="top" id="65m-qf-n2q"/>
+                                    <constraint firstItem="aOh-B5-gVZ" firstAttribute="leading" secondItem="aCD-Yd-k1W" secondAttribute="leading" constant="20" id="6yD-tn-aSr"/>
+                                    <constraint firstItem="aOh-B5-gVZ" firstAttribute="top" secondItem="aCD-Yd-k1W" secondAttribute="top" id="C4E-A7-bOZ"/>
+                                    <constraint firstItem="aOh-B5-gVZ" firstAttribute="top" secondItem="aCD-Yd-k1W" secondAttribute="top" id="Hpl-Dl-0hi"/>
+                                    <constraint firstAttribute="bottom" secondItem="aOh-B5-gVZ" secondAttribute="bottom" id="IdM-5T-LnF"/>
+                                    <constraint firstItem="aOh-B5-gVZ" firstAttribute="top" secondItem="aCD-Yd-k1W" secondAttribute="top" id="Phj-Eo-DRA"/>
+                                    <constraint firstItem="aOh-B5-gVZ" firstAttribute="centerY" secondItem="aCD-Yd-k1W" secondAttribute="centerY" id="dnm-Qh-8nS"/>
+                                    <constraint firstAttribute="bottom" secondItem="aOh-B5-gVZ" secondAttribute="bottom" id="mS1-hg-bF0"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="ysV-dQ-vF9" secondAttribute="trailing" id="Jbb-fb-LHC"/>
-                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="top" secondItem="76W-pS-RQK" secondAttribute="top" id="R2n-Nx-kck"/>
-                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="leading" secondItem="76W-pS-RQK" secondAttribute="leading" id="y5C-q5-bts"/>
-                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="bottom" secondItem="E3j-ZE-fDY" secondAttribute="top" id="znc-09-73C"/>
+                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="centerX" secondItem="aCD-Yd-k1W" secondAttribute="centerX" id="4qV-Ny-35S"/>
+                            <constraint firstItem="aCD-Yd-k1W" firstAttribute="top" secondItem="pnh-G5-3hK" secondAttribute="bottom" constant="258" id="7gg-Lc-W6E"/>
+                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="top" secondItem="76W-pS-RQK" secondAttribute="top" id="8Ab-EH-mj5"/>
+                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="bottom" secondItem="E3j-ZE-fDY" secondAttribute="top" id="Bho-K9-eog"/>
+                            <constraint firstAttribute="trailing" secondItem="ysV-dQ-vF9" secondAttribute="trailing" id="rzk-Sf-a9x"/>
+                            <constraint firstItem="ysV-dQ-vF9" firstAttribute="leading" secondItem="76W-pS-RQK" secondAttribute="leading" id="sMb-08-p7H"/>
                         </constraints>
                     </view>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <size key="freeformSize" width="768" height="1024"/>
                     <connections>
                         <outlet property="mapView" destination="ysV-dQ-vF9" id="RVZ-9L-iNt"/>
+                        <outlet property="noLocationsView" destination="aCD-Yd-k1W" id="aa9-Lc-VAj"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FcX-WF-FRT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1194" y="1788"/>
+            <point key="canvasLocation" x="-1388" y="2011"/>
         </scene>
         <!--Report Resource View Container-->
         <scene sceneID="YFE-zQ-7hJ">
