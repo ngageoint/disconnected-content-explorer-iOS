@@ -11,10 +11,11 @@
 {
     if ((self = [super init])) {
         self.webview = webView;
+        self.webViewDelegate = delegate;
         self.report = report;
         NSLog(@"Bridge created.");
         
-        self.bridge = [WebViewJavascriptBridge bridgeForWebView:self.webview webViewDelegate:delegate handler:^(id data, WVJBResponseCallback responseCallback) {
+        self.bridge = [WebViewJavascriptBridge bridgeForWebView:self.webview webViewDelegate:self.webViewDelegate handler:^(id data, WVJBResponseCallback responseCallback) {
             NSLog(@"Objective C reieved a message from JS: %@", data);
             responseCallback(@"Response for message from Objective C");
         }];

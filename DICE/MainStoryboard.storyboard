@@ -21,9 +21,9 @@
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aL2-fM-H9D">
                                 <rect key="frame" x="16" y="57" width="736" height="158"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <mutableString key="text">With respect to information available in this Application, neither the United States Government nor the National Geospatial-Intelligence Agency nor any of their employees, makes any warranty, express or implied, including the warranties of merchantability and fitness for a particular purpose, or assumes any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, product, or process disclosed, or represents that its use would not infringe privately owned rights.
+                                <string key="text">With respect to information available in this Application, neither the United States Government nor the National Geospatial-Intelligence Agency nor any of their employees, makes any warranty, express or implied, including the warranties of merchantability and fitness for a particular purpose, or assumes any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, product, or process disclosed, or represents that its use would not infringe privately owned rights.
 
-</mutableString>
+</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
@@ -180,32 +180,44 @@
                                             <rect key="frame" x="0.0" y="0.0" width="271" height="252"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="XNY-oK-5L1">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="XNY-oK-5L1">
                                                     <rect key="frame" x="0.0" y="6" width="291" height="266"/>
                                                 </imageView>
                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.74999999999999978" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HZu-eH-ezg">
-                                                    <rect key="frame" x="0.0" y="147" width="271" height="105"/>
+                                                    <rect key="frame" x="0.0" y="147" width="271" height="60"/>
                                                     <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="105" id="FI7-x6-ma2"/>
+                                                        <constraint firstAttribute="height" constant="60" id="FI7-x6-ma2"/>
                                                     </constraints>
                                                     <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
+                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                </textView>
+                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.75" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hf0-JT-ofg">
+                                                    <rect key="frame" x="0.0" y="207" width="271" height="45"/>
+                                                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                                 </textView>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </view>
                                         <constraints>
-                                            <constraint firstAttribute="bottom" secondItem="HZu-eH-ezg" secondAttribute="bottom" id="8G4-9N-hS7"/>
+                                            <constraint firstAttribute="bottom" secondItem="HZu-eH-ezg" secondAttribute="bottom" constant="45" id="8G4-9N-hS7"/>
                                             <constraint firstItem="XNY-oK-5L1" firstAttribute="leading" secondItem="URt-tD-bkG" secondAttribute="leading" id="94w-8P-STq"/>
                                             <constraint firstItem="XNY-oK-5L1" firstAttribute="top" secondItem="URt-tD-bkG" secondAttribute="top" constant="6" id="Cul-rf-rT3"/>
+                                            <constraint firstItem="Hf0-JT-ofg" firstAttribute="trailing" secondItem="HZu-eH-ezg" secondAttribute="trailing" id="EAw-TQ-87v"/>
                                             <constraint firstAttribute="bottom" secondItem="XNY-oK-5L1" secondAttribute="bottom" constant="-20" id="HrP-Yf-GQb"/>
                                             <constraint firstItem="XNY-oK-5L1" firstAttribute="leading" secondItem="HZu-eH-ezg" secondAttribute="leading" id="Yqc-Fx-jUx"/>
+                                            <constraint firstItem="Hf0-JT-ofg" firstAttribute="top" secondItem="HZu-eH-ezg" secondAttribute="bottom" id="brN-mh-q3v"/>
+                                            <constraint firstAttribute="bottom" secondItem="Hf0-JT-ofg" secondAttribute="bottom" id="dzG-GK-WBs"/>
                                             <constraint firstAttribute="trailing" secondItem="HZu-eH-ezg" secondAttribute="trailing" id="kub-KD-gxF"/>
                                             <constraint firstAttribute="trailing" secondItem="XNY-oK-5L1" secondAttribute="trailing" constant="-20" id="z7C-KP-rcw"/>
+                                            <constraint firstItem="Hf0-JT-ofg" firstAttribute="leading" secondItem="HZu-eH-ezg" secondAttribute="leading" id="zVx-cp-Ev3"/>
                                         </constraints>
                                         <connections>
+                                            <outlet property="reportDescription" destination="Hf0-JT-ofg" id="G4m-Ox-XU4"/>
                                             <outlet property="reportImage" destination="XNY-oK-5L1" id="q90-hh-OSd"/>
                                             <outlet property="reportTitle" destination="HZu-eH-ezg" id="2yr-MH-rbO"/>
                                         </connections>
