@@ -44,6 +44,10 @@
     CLLocationCoordinate2D zoomLocation;
     zoomLocation.latitude = 40.740848;
     zoomLocation.longitude= -73.991145;
+    
+    NSMutableArray *notUserLocations = [NSMutableArray arrayWithArray:self.mapView.annotations];
+    [notUserLocations removeObject:self.mapView.userLocation];
+    [self.mapView removeAnnotations:notUserLocations];
 
     for (Report * report in self.reports) {
         // TODO: this check needs to be a null check or hasLocation or something else better
