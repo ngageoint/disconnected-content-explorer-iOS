@@ -38,6 +38,8 @@
             polygonsAdded = YES;
         });
     }
+    
+    self.noLocationsView.hidden = NO;
 
     CLLocationCoordinate2D zoomLocation;
     zoomLocation.latitude = 40.740848;
@@ -48,6 +50,7 @@
         if (report.lat != 0.0f && report.lon != 0.0f) {
             ReportMapAnnotation *annotation = [[ReportMapAnnotation alloc] initWithReport:report];
             [self.mapView addAnnotation:(id)annotation];
+            self.noLocationsView.hidden = YES;
         }
     }
 }
