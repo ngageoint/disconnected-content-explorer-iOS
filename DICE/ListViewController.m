@@ -23,7 +23,7 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportUpdated] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportFinished] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportImportProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportsLoaded] object:nil];
     
@@ -65,26 +65,7 @@
 
 - (void)updateReportImportProgress:(NSNotification *)notification
 {
-    // Check for the placeholder report, and remove it if is present.
-    for (int i = 0; i < [self.reports count]; i++) {
-        if ([[[self.reports objectAtIndex:i] reportID] isEqualToString:[ReportAPI userGuideReportID]]) {
-            [self.reports removeObjectAtIndex:i];
-            break;
-        }
-    }
-
-    
-    Report *notificationReport = notification.userInfo[@"report"];
-    
     dispatch_async(dispatch_get_main_queue(), ^{
-        //TODO: change this up to take the loop out, passing the index from the API gives inconsistant results
-        for (int i = 0; i < [self.reports count]; i++) {
-            if ([[self.reports objectAtIndex:i] sourceFile] == [notificationReport sourceFile]) {
-                [self.reports replaceObjectAtIndex:i withObject:notificationReport];
-                break;
-            }
-        }
-        
         [_tableViewController.refreshControl endRefreshing];
         [_tableView reloadData];
     });
@@ -185,21 +166,16 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([[self.reports[indexPath.row] reportID]isEqualToString:[ReportAPI userGuideReportID]]) {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/DICEUserGuide.zip"]];
-    } else {
-        self.selectedCell = [self.tableView cellForRowAtIndexPath:indexPath];
-        [self.delegate reportSelectedToView:self.reports[indexPath.row]];
-        [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
-    }
+    self.selectedCell = [self.tableView cellForRowAtIndexPath:indexPath];
+    [self.delegate reportSelectedToView:self.reports[indexPath.row]];
+    [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
 
 
 // This disables table view row swipe to delete
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (_tableView.editing)
-    {
+    if (_tableView.editing) {
         return UITableViewCellEditingStyleDelete;
     }
     

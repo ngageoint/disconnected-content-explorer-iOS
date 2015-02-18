@@ -9,6 +9,8 @@
 
 @interface MapViewController ()
 
+@property (weak, nonatomic) IBOutlet UIView *noLocationsView;
+
 @end
 
 @implementation MapViewController {
@@ -19,6 +21,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.noLocationsView.layer.cornerRadius = 10.0;
     self.mapView.delegate = self;
     polygonsAdded = NO;
 }
@@ -34,16 +38,23 @@
             polygonsAdded = YES;
         });
     }
+    
+    self.noLocationsView.hidden = NO;
 
     CLLocationCoordinate2D zoomLocation;
     zoomLocation.latitude = 40.740848;
     zoomLocation.longitude= -73.991145;
+    
+    NSMutableArray *notUserLocations = [NSMutableArray arrayWithArray:self.mapView.annotations];
+    [notUserLocations removeObject:self.mapView.userLocation];
+    [self.mapView removeAnnotations:notUserLocations];
 
     for (Report * report in self.reports) {
         // TODO: this check needs to be a null check or hasLocation or something else better
         if (report.lat != 0.0f && report.lon != 0.0f) {
             ReportMapAnnotation *annotation = [[ReportMapAnnotation alloc] initWithReport:report];
             [self.mapView addAnnotation:(id)annotation];
+            self.noLocationsView.hidden = YES;
         }
     }
 }

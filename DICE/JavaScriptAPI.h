@@ -14,6 +14,7 @@
 @interface JavaScriptAPI : NSObject <CLLocationManagerDelegate>
 
 @property (strong, nonatomic)UIWebView *webview;
+@property (strong, nonatomic)NSObject<UIWebViewDelegate> *webViewDelegate;
 @property (strong, nonatomic)Report* report;
 @property (strong, nonatomic)CLLocationManager *locationManager;
 @property (strong, nonatomic)WebViewJavascriptBridge *bridge;

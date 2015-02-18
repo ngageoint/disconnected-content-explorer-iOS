@@ -9,10 +9,18 @@
 
 @interface ReportNotification : NSObject 
 
+/**
+ This notification indicates a report was added to the list.
+ This does not mean the report is imported and ready to view.
+ */
 + (NSString *)reportAdded;
-+ (NSString *)reportUpdated;
-//+ (NSString *)reportImportBegan;
++ (NSString *)reportImportBegan;
 + (NSString *)reportImportProgress;
+/**
+ This notification indicates that a report was fully
+ imported and is ready to view.  This notification will 
+ always dispatch on the main thread.
+ */
 + (NSString *)reportImportFinished;
 + (NSString *)reportsLoaded;
 
