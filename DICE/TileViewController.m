@@ -23,7 +23,7 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportUpdated] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportImportFinished] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportImportProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportsLoaded] object:nil];
     
@@ -130,22 +130,8 @@
             break;
         }
     }
-    
-    
-    Report *notificationReport = notification.userInfo[@"report"];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //TODO: change this up to take the loop out, passing the index from the API gives inconsistant results
-        for (int i = 0; i < [self.reports count]; i++) {
-            if ([[self.reports objectAtIndex:i] sourceFile] == [notificationReport sourceFile]) {
-                [self.reports replaceObjectAtIndex:i withObject:notificationReport];
-                break;
-            }
-        }
-        
-        //[_tileView.refreshControl endRefreshing];
-        [_tileView reloadData];
-    });
+
+    [self refreshReportTiles:notification];
 }
 
 @end

@@ -36,7 +36,7 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportUpdated:) name:[ReportNotification reportUpdated] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportImportFinished:) name:[ReportNotification reportImportFinished] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:[ReportNotification reportImportProgress] object:nil];
     
     _unzipStatusLabel = [[UILabel alloc] init];
@@ -121,7 +121,7 @@
 
 
 #pragma mark - notification handling methods
-- (void)reportUpdated:(NSNotification *)notification
+- (void)reportImportFinished:(NSNotification *)notification
 {
     Report *report = notification.userInfo[@"report"];
     if (report == self.report && self.report.isEnabled) {

@@ -15,6 +15,7 @@
 
 @interface ReportCollectionViewController () <ReportCollectionViewDelegate>
 
+@property (weak, nonatomic) IBOutlet UISegmentedControl *viewSegments;
 @property (weak, nonatomic) IBOutlet UIView *collectionSubview;
 
 - (IBAction)viewChanged:(UISegmentedControl *)sender;
@@ -64,7 +65,7 @@
 #pragma mark - Navigation
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([segue.identifier isEqualToString:@"showReport"]){
+    if ([segue.identifier isEqualToString:@"showReport"]) {
         ReportResourceViewController *reportViewController = (ReportResourceViewController *)segue.destinationViewController;
         reportViewController.report = selectedReport;
         reportViewController.resource = selectedReport.url;
@@ -103,7 +104,12 @@
 
 - (void)reportSelectedToView:(Report *)report {
     selectedReport = report;
-    [self performSegueWithIdentifier:@"showReport" sender:self];
+    if ([selectedReport.reportID isEqualToString:[ReportAPI userGuideReportID]]) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/DICEUserGuide.zip"]];
+    }
+    else {
+        [self performSegueWithIdentifier:@"showReport" sender:self];
+    }
 }
 
 - (void)dealloc {

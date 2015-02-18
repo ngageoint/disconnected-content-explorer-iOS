@@ -18,12 +18,6 @@
 + (NSString *)reportAdded {
     return @"DICE.ReportAdded";
 }
-+ (NSString *)reportUpdated {
-    return @"DICE.ReportUpdated";
-}
-+ (NSString *)reportsLoaded {
-    return @"DICE.ReportsLoaded";
-}
 + (NSString *)reportImportBegan {
     return @"DICE.ReportImportBegan";
 }
@@ -32,6 +26,9 @@
 }
 + (NSString *)reportImportFinished {
     return @"DICE.ReportImportFinished";
+}
++ (NSString *)reportsLoaded {
+    return @"DICE.ReportsLoaded";
 }
 
 @end
@@ -142,7 +139,7 @@
     [self addReportFromFile:destFile afterComplete:afterImportBlock];
 }
 
-
+// TODO: remove afterCompleteBlock and use only the notification?
 - (void)addReportFromFile:(NSURL *)file afterComplete:(void(^)(Report *))afterCompleteBlock
 {
     NSLog(@"ReportAPI: attempting to create report from %@", file);
@@ -158,23 +155,29 @@
         [reports addObject:report];
         NSLog(@"ReportAPI: added new report placeholder at index %lu for report %@", reports.count - 1, file);
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded]
-                                                            object:self
-                                                          userInfo:@{
-                                                              @"report": report,
-                                                              @"index": [NSString stringWithFormat:@"%lu", reports.count - 1]
-                                                          }];
+        [[NSNotificationCenter defaultCenter]
+            postNotificationName:[ReportNotification reportAdded] object:self
+            userInfo:@{
+                @"report": report,
+                @"index": [NSString stringWithFormat:@"%lu", reports.count - 1]
+            }];
         
         NSString *fileExtension = file.pathExtension;
         
         if ( [fileExtension caseInsensitiveCompare:@"zip"] == NSOrderedSame ) {
             dispatch_async(backgroundQueue, ^(void) {
                 [self processZip:report atIndex:(reports.count - 1)];
-                if (afterCompleteBlock) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (afterCompleteBlock) {
                         afterCompleteBlock(report);
-                    });
-                }
+                    }
+                    [[NSNotificationCenter defaultCenter]
+                        postNotificationName:[ReportNotification reportImportFinished] object:self
+                        userInfo:@{
+                            @"report": report,
+                            @"index": [NSString stringWithFormat:@"%lu", [reports indexOfObject:report]]
+                        }];
+                });
             });
         }
         else { // PDFs and office files
@@ -185,18 +188,18 @@
                 report.url = [NSURL URLWithString:reportFileName relativeToURL:baseURL];
                 report.fileExtension = fileExtension;
                 report.isEnabled = YES;
-                [[NSNotificationCenter defaultCenter]
-                    postNotificationName:[ReportNotification reportUpdated]
-                    object:self
-                    userInfo:@{
-                        @"index": [NSString stringWithFormat:@"%lu", reports.count - 1],
-                        @"report": report
-                    }];
-                if (afterCompleteBlock) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (afterCompleteBlock) {
                         afterCompleteBlock(report);
-                    });
-                }
+                    }
+                    [[NSNotificationCenter defaultCenter]
+                    postNotificationName:[ReportNotification reportImportFinished] object:self
+                        userInfo:@{
+                            @"report": report,
+                            @"index": [NSString stringWithFormat:@"%lu", [reports indexOfObject:report]]
+                        }];
+                });
+                
             });
         }
     }
@@ -213,75 +216,59 @@
     NSURL *sourceFile = report.sourceFile;
     NSString *sourceFileName = sourceFile.lastPathComponent;
     report.title = sourceFile.lastPathComponent;
-    @try {
-        NSRange rangeOfDot = [sourceFileName rangeOfString:@"."];
-        NSString *fileExtension = [sourceFile pathExtension];
-        NSString *expectedContentDirName = (rangeOfDot.location != NSNotFound) ? [sourceFileName substringToIndex:rangeOfDot.location] : nil;
-        NSURL *expectedContentDir = [documentsDir URLByAppendingPathComponent: expectedContentDirName isDirectory:YES];
-        NSURL *jsonFile = [expectedContentDir URLByAppendingPathComponent: @"metadata.json"];
-        NSError *error;
-        
-        if (![fileManager fileExistsAtPath:expectedContentDir.path]) {
-            [self unzipReportContents:report toDirectory:documentsDir error:&error];
-        }
-        else {
-            NSLog(@"directory already exists for report zip %@", report.sourceFile);
-        }
-        
-        // Handle the metadata.json, make the report fancier, if it is available
-        if ( [fileManager fileExistsAtPath:jsonFile.path] && error == nil) {
-            NSString *jsonString = [[NSString alloc] initWithContentsOfFile:jsonFile.path encoding:NSUTF8StringEncoding error:NULL];
-            NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
 
-            // TODO: what are the potential problems of changing the report id here from its initial value above?
-            NSString *reportID = [json valueForKey:@"reportID"];
-            if (reportID) {
-                report.reportID = reportID;
-            }
-            report.title = [json objectForKey:@"title"];
-            report.description = [json objectForKey:@"description"];
-            report.thumbnail = [json objectForKey:@"thumbnail"];
+    NSRange rangeOfDot = [sourceFileName rangeOfString:@"."];
+    NSString *fileExtension = [sourceFile pathExtension];
+    NSString *expectedContentDirName = (rangeOfDot.location != NSNotFound) ? [sourceFileName substringToIndex:rangeOfDot.location] : nil;
+    NSURL *expectedContentDir = [documentsDir URLByAppendingPathComponent: expectedContentDirName isDirectory:YES];
+    NSURL *jsonFile = [expectedContentDir URLByAppendingPathComponent: @"metadata.json"];
+    NSError *error;
+    
+    if (![fileManager fileExistsAtPath:expectedContentDir.path]) {
+        [self unzipReportContents:report toDirectory:documentsDir error:&error];
+    }
+    else {
+        NSLog(@"directory already exists for report zip %@", report.sourceFile);
+    }
+    
+    // Handle the metadata.json, make the report fancier, if it is available
+    if ( [fileManager fileExistsAtPath:jsonFile.path] && error == nil) {
+        NSString *jsonString = [[NSString alloc] initWithContentsOfFile:jsonFile.path encoding:NSUTF8StringEncoding error:NULL];
+        NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
 
-            if ([json objectForKey:@"tile_thumbnail"] != nil) {
-                report.tileThumbnail = [json objectForKey:@"tile_thumbnail"];
-            } else if (report.thumbnail != nil)  {
-                report.tileThumbnail = report.thumbnail;
-            }
-            
-            report.lat = [[json valueForKey:@"lat"] doubleValue];
-            report.lon = [[json valueForKey:@"lon"] doubleValue];
-            report.fileExtension = fileExtension;
-            report.isEnabled = YES;
+        // TODO: what are the potential problems of changing the report id here from its initial value above?
+        NSString *reportID = [json valueForKey:@"reportID"];
+        if (reportID) {
+            report.reportID = reportID;
         }
-        else if (error == nil) {
-            report.title = expectedContentDirName;
-            report.isEnabled = YES;
-        }
-        
-        if (!report.reportID) {
-            report.reportID = report.sourceFile.lastPathComponent;
+        report.title = [json objectForKey:@"title"];
+        report.description = [json objectForKey:@"description"];
+        report.thumbnail = [json objectForKey:@"thumbnail"];
+
+        if ([json objectForKey:@"tile_thumbnail"] != nil) {
+            report.tileThumbnail = [json objectForKey:@"tile_thumbnail"];
+        } else if (report.thumbnail != nil)  {
+            report.tileThumbnail = report.thumbnail;
         }
         
-        // make sure url's baseURL property is set
-        report.url = [NSURL URLWithString:@"index.html" relativeToURL:expectedContentDir];
-        
-        NSLog(@"finished processing report zip %@; report url: %@", report.sourceFile, report.url.absoluteString);
+        report.lat = [[json valueForKey:@"lat"] doubleValue];
+        report.lon = [[json valueForKey:@"lon"] doubleValue];
+        report.fileExtension = fileExtension;
+        report.isEnabled = YES;
     }
-    @catch (NSException *exception) {
-        NSLog(@"error processing report zip %@: %@", report.sourceFile, exception);
-        report.title = sourceFileName;
-        report.description = @"Unable to open report";
-        report.isEnabled = NO;
+    else if (error == nil) {
+        report.title = expectedContentDirName;
+        report.isEnabled = YES;
     }
-    @finally {
-        // Send a message to let the views know that the report list needs to be updated
-        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportUpdated]
-             object:self
-             userInfo:@{
-                 @"index": [NSString stringWithFormat:@"%lu", index],
-                 @"report": report
-             }];
+    
+    if (!report.reportID) {
+        report.reportID = report.sourceFile.lastPathComponent;
     }
+    
+    // make sure url's baseURL property is set
+    report.url = [NSURL URLWithString:@"index.html" relativeToURL:expectedContentDir];
+    
+    NSLog(@"finished processing report zip %@; report url: %@", report.sourceFile, report.url.absoluteString);
 }
 
 
