@@ -65,14 +65,6 @@
 
 - (void)updateReportImportProgress:(NSNotification *)notification
 {
-    // Check for the placeholder report, and remove it if is present.
-    for (int i = 0; i < [self.reports count]; i++) {
-        if ([[[self.reports objectAtIndex:i] reportID] isEqualToString:[ReportAPI userGuideReportID]]) {
-            [self.reports removeObjectAtIndex:i];
-            break;
-        }
-    }
-
     dispatch_async(dispatch_get_main_queue(), ^{
         [_tableViewController.refreshControl endRefreshing];
         [_tableView reloadData];
@@ -183,8 +175,7 @@
 // This disables table view row swipe to delete
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (_tableView.editing)
-    {
+    if (_tableView.editing) {
         return UITableViewCellEditingStyleDelete;
     }
     

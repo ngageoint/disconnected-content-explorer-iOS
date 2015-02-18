@@ -154,6 +154,11 @@
         
         [reports addObject:report];
         NSLog(@"ReportAPI: added new report placeholder at index %lu for report %@", reports.count - 1, file);
+        Report *placeHolder = [self reportForID:[ReportAPI userGuideReportID]];
+        if (placeHolder) {
+            // TODO: notify report removed
+            [reports removeObject:placeHolder];
+        }
         
         [[NSNotificationCenter defaultCenter]
             postNotificationName:[ReportNotification reportAdded] object:self
@@ -171,12 +176,7 @@
                     if (afterCompleteBlock) {
                         afterCompleteBlock(report);
                     }
-                    [[NSNotificationCenter defaultCenter]
-                        postNotificationName:[ReportNotification reportImportFinished] object:self
-                        userInfo:@{
-                            @"report": report,
-                            @"index": [NSString stringWithFormat:@"%lu", [reports indexOfObject:report]]
-                        }];
+                    [self notifyReportImportFinished:report];
                 });
             });
         }
@@ -192,17 +192,22 @@
                     if (afterCompleteBlock) {
                         afterCompleteBlock(report);
                     }
-                    [[NSNotificationCenter defaultCenter]
-                    postNotificationName:[ReportNotification reportImportFinished] object:self
-                        userInfo:@{
-                            @"report": report,
-                            @"index": [NSString stringWithFormat:@"%lu", [reports indexOfObject:report]]
-                        }];
+                    [self notifyReportImportFinished:report];
                 });
                 
             });
         }
     }
+}
+
+
+- (void)notifyReportImportFinished:(Report *)report
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportImportFinished] object:self
+        userInfo:@{
+            @"report": report,
+            @"index": [NSString stringWithFormat:@"%lu", [reports indexOfObject:report]]
+        }];
 }
 
 

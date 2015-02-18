@@ -23,14 +23,19 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportImportFinished] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportImportFinished] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportsLoaded] object:nil];
     
     [self.tileView setDataSource:self];
     [self.tileView setDelegate:self];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    // hack to get around iOS 7 bug that doesn't refresh the data seemingly if the view is not visible
+    [self refreshReportTiles:nil];
+}
 
 - (void)didReceiveMemoryWarning
 {
@@ -116,21 +121,13 @@
 - (void)refreshReportTiles:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_tileView reloadData];
+        [self.tileView reloadData];
     });
 }
 
 
 - (void)updateReportImportProgress:(NSNotification *)notification
 {
-    // Check for the placeholder report, and remove it if is present.
-    for (int i = 0; i < [self.reports count]; i++) {
-        if ([[[self.reports objectAtIndex:i] reportID] isEqualToString:[ReportAPI userGuideReportID]]) {
-            [self.reports removeObjectAtIndex:i];
-            break;
-        }
-    }
-
     [self refreshReportTiles:notification];
 }
 
