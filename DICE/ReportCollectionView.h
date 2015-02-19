@@ -22,7 +22,7 @@
 @protocol ReportCollectionView
 
 // TODO: make this non-mutable and fix view classes that attempt to mutate it
-@property (strong, nonatomic) NSMutableArray *reports;
+@property (strong, nonatomic) NSArray *reports;
 @property (strong, nonatomic) id<ReportCollectionViewDelegate> delegate;
 
 @end

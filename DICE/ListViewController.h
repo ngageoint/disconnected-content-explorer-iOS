@@ -14,7 +14,7 @@
 
 @interface ListViewController : UIViewController <ReportCollectionView, UITableViewDataSource, UITableViewDelegate> {}
 
-@property (strong, nonatomic) NSMutableArray *reports;
+@property (strong, nonatomic) NSArray *reports;
 @property (strong, nonatomic) id<ReportCollectionViewDelegate> delegate;
 @property (strong, nonatomic) UITableViewCell *selectedCell;
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;

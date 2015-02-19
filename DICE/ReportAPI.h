@@ -32,7 +32,7 @@
 + (NSString *)userGuideReportID;
 
 - (void)importReportFromUrl:(NSURL *)reportURL afterImport:(void(^)(Report *))afterImportBlock;
-- (NSMutableArray*)getReports;
+- (NSArray*)getReports;
 - (void)loadReports;
 - (void)loadReportsWithCompletionHandler:(void(^) (void))completionHandler;
 - (Report *)reportForID:(NSString *)reportID;

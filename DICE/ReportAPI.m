@@ -34,7 +34,8 @@
 @end
 
 
-@interface ReportAPI () {
+@interface ReportAPI ()
+{
     dispatch_queue_t backgroundQueue;
     NSMutableArray *reports;
     NSFileManager *fileManager;
@@ -44,6 +45,11 @@
 @end
 
 // TODO: implement report content hashing to detect new reports and duplicates
+// TODO: assess thread safety of reports array read/write and notifications - dispatch everything on main thread?
+/*
+     i think currently everything that reads the array is on the main thread, but we should address thread safety properly
+ */
+// TODO: use core data to build report store?
 
 @implementation ReportAPI
 
@@ -65,52 +71,61 @@
 {
     self = [super init];
     
-    if (self) {
-        reports = [[NSMutableArray alloc] init];
-        fileManager = [NSFileManager defaultManager];
-        backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-        documentsDir = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+    if (!self) {
+        return nil;
     }
+    
+    reports = [[NSMutableArray alloc] init];
+    fileManager = [NSFileManager defaultManager];
+    backgroundQueue = dispatch_queue_create("dice_work", DISPATCH_QUEUE_CONCURRENT);
+    documentsDir = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
     
     return self;
 }
 
+- (void)dealloc
+{
+    dispatch_release(backgroundQueue);
+}
 
-- (NSMutableArray *)getReports
+- (NSArray *)getReports
 {
     return reports;
 }
-
 
 - (Report *)reportForID:(NSString *)reportID
 {
     return [reports filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"reportID == %@", reportID]].firstObject;
 }
 
-
 /*
- * Load the report zips and PDFs that are stored in the app's Documents directory
+ * Load the reports that are stored in the app's Documents directory
  */
 - (void)loadReports
 {
     NSLog(@"ReportAPI: loading reports from %@ ...", documentsDir);
-    [reports removeAllObjects];
-
-    NSDirectoryEnumerator *files = [fileManager enumeratorAtURL:documentsDir
-        includingPropertiesForKeys:@[NSURLNameKey, NSURLIsRegularFileKey, NSURLIsReadableKey, NSURLLocalizedNameKey]
-        options:(NSDirectoryEnumerationSkipsPackageDescendants | NSDirectoryEnumerationSkipsSubdirectoryDescendants)
-        errorHandler:nil];
     
-    for (NSURL *file in files) {
-        NSLog(@"ReportAPI: attempting to add report from file %@", file);
-        [self addReportFromFile:[NSURL URLWithString:file.lastPathComponent relativeToURL:documentsDir] afterComplete:nil];
-    }
+    dispatch_barrier_sync(backgroundQueue, ^{
+        [reports removeAllObjects];
+        
+        NSDirectoryEnumerator *files = [fileManager enumeratorAtURL:documentsDir
+            includingPropertiesForKeys:@[NSURLNameKey, NSURLIsRegularFileKey, NSURLIsReadableKey, NSURLLocalizedNameKey]
+            options:(NSDirectoryEnumerationSkipsPackageDescendants | NSDirectoryEnumerationSkipsSubdirectoryDescendants)
+            errorHandler:nil];
+        
+        for (NSURL *file in files) {
+            NSLog(@"ReportAPI: attempting to add report from file %@", file);
+            [self addReportFromFile:[NSURL URLWithString:file.lastPathComponent relativeToURL:documentsDir] afterComplete:nil];
+        }
+        
+        if ([reports count] == 0) {
+            [reports addObject:[self getUserGuideReport]];
+        }
+    });
     
-    if ([reports count] == 0) {
-        [reports addObject:[self getUserGuideReport]];
-    }
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportsLoaded] object:self userInfo:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+       [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportsLoaded] object:self userInfo:nil];
+    });
 }
 
 
@@ -159,13 +174,14 @@
             // TODO: notify report removed
             [reports removeObject:placeHolder];
         }
-        
-        [[NSNotificationCenter defaultCenter]
-            postNotificationName:[ReportNotification reportAdded] object:self
-            userInfo:@{
-                @"report": report,
-                @"index": [NSString stringWithFormat:@"%lu", reports.count - 1]
-            }];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter]
+                postNotificationName:[ReportNotification reportAdded] object:self
+                userInfo:@{
+                    @"report": report,
+                    @"index": [NSString stringWithFormat:@"%lu", reports.count - 1]
+                }];
+        });
         
         NSString *fileExtension = file.pathExtension;
         
@@ -296,9 +312,11 @@
         if (![name hasSuffix:@"/"]) {
             NSString *filePath = [directory.path stringByAppendingPathComponent:name];
             NSString *basePath = [filePath stringByDeletingLastPathComponent];
-            if (![[NSFileManager defaultManager] createDirectoryAtPath:basePath withIntermediateDirectories:YES attributes:nil error:error]) {
-                [unzipFile close];
-                return NO;
+            if (![fileManager fileExistsAtPath:basePath]) {
+                if (![fileManager createDirectoryAtPath:basePath withIntermediateDirectories:YES attributes:nil error:error]) {
+                    [unzipFile close];
+                    return NO;
+                }
             }
             
             [[NSData data] writeToFile:filePath options:0 error:nil];
@@ -319,14 +337,16 @@
         
         if (filesExtracted % 25 == 0) {
             report.progress = filesExtracted;
-            [[NSNotificationCenter defaultCenter]
-                postNotificationName:[ReportNotification reportImportProgress]
-                object:self
-                userInfo:@{
-                    @"report": report,
-                    @"progress": [NSString stringWithFormat:@"%d", filesExtracted],
-                    @"totalNumberOfFiles": [NSString stringWithFormat:@"%d", totalNumberOfFiles]
-                }];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter]
+                    postNotificationName:[ReportNotification reportImportProgress]
+                    object:self
+                    userInfo:@{
+                        @"report": report,
+                        @"progress": [NSString stringWithFormat:@"%d", filesExtracted],
+                        @"totalNumberOfFiles": [NSString stringWithFormat:@"%d", totalNumberOfFiles]
+                    }];
+            });
         }
     }
     
