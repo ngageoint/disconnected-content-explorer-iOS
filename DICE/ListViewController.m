@@ -24,7 +24,7 @@
     [super viewDidLoad];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportFinished] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportsLoaded] object:nil];
     
     self.title = @"Disconnected Interactive Content Explorer";
@@ -57,16 +57,9 @@
 - (void)refreshReportList:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_tableViewController.refreshControl endRefreshing];
-        [_tableView reloadData];
-    });
-}
-
-
-- (void)updateReportImportProgress:(NSNotification *)notification
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [_tableViewController.refreshControl endRefreshing];
+        if ([notification.name isEqualToString:[ReportNotification reportsLoaded]]) {
+            [_tableViewController.refreshControl endRefreshing];
+        }
         [_tableView reloadData];
     });
 }

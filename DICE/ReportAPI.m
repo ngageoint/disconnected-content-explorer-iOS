@@ -36,6 +36,7 @@
 
 @interface ReportAPI ()
 {
+    dispatch_queue_t reportListQueue;
     dispatch_queue_t backgroundQueue;
     NSMutableArray *reports;
     NSFileManager *fileManager;
@@ -77,6 +78,7 @@
     
     reports = [[NSMutableArray alloc] init];
     fileManager = [NSFileManager defaultManager];
+    reportListQueue = dispatch_queue_create("dice.report_list", DISPATCH_QUEUE_SERIAL);
     backgroundQueue = dispatch_queue_create("dice_work", DISPATCH_QUEUE_CONCURRENT);
     documentsDir = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
     
@@ -85,6 +87,7 @@
 
 - (void)dealloc
 {
+    dispatch_release(reportListQueue);
     dispatch_release(backgroundQueue);
 }
 
@@ -98,6 +101,13 @@
     return [reports filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"reportID == %@", reportID]].firstObject;
 }
 
+- (Report *)reportForSourceFile:(NSURL *)sourceFile
+{
+    return [reports filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(Report *report, NSDictionary *bindings) {
+        return [report.sourceFile.absoluteString isEqualToString:sourceFile.absoluteString];
+    }]].firstObject;
+}
+
 /*
  * Load the reports that are stored in the app's Documents directory
  */
@@ -105,8 +115,12 @@
 {
     NSLog(@"ReportAPI: loading reports from %@ ...", documentsDir);
     
-    dispatch_barrier_sync(backgroundQueue, ^{
-        [reports removeAllObjects];
+    dispatch_async(reportListQueue, ^{
+        [reports filterUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(Report *report, NSDictionary *bindings) {
+            return (!report.isEnabled && [fileManager fileExistsAtPath:report.sourceFile.path])
+            || (report.isEnabled && [fileManager fileExistsAtPath:report.url.path]);
+            // TODO: dispatch report removed notification
+        }]];
         
         NSDirectoryEnumerator *files = [fileManager enumeratorAtURL:documentsDir
             includingPropertiesForKeys:@[NSURLNameKey, NSURLIsRegularFileKey, NSURLIsReadableKey, NSURLLocalizedNameKey]
@@ -118,13 +132,13 @@
             [self addReportFromFile:[NSURL URLWithString:file.lastPathComponent relativeToURL:documentsDir] afterComplete:nil];
         }
         
-        if ([reports count] == 0) {
+        if (reports.count == 0) {
             [reports addObject:[self getUserGuideReport]];
         }
-    });
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-       [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportsLoaded] object:self userInfo:nil];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportsLoaded] object:self userInfo:nil];
+        });
     });
 }
 
@@ -151,7 +165,9 @@
         NSLog(@"ReportAPI: error moving file %@ to documents directory for import request: %@", reportURL, [error localizedDescription]);
     }
 
-    [self addReportFromFile:destFile afterComplete:afterImportBlock];
+    dispatch_async(reportListQueue, ^{
+        [self addReportFromFile:destFile afterComplete:afterImportBlock];
+    });
 }
 
 // TODO: remove afterCompleteBlock and use only the notification?
@@ -162,8 +178,15 @@
     [file getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
     
     if (isRegularFile.boolValue && [ResourceTypes canOpenResource:file]) {
+        Report *report = [self reportForSourceFile:file];
+        if (report) {
+            // it's already in the list, and possibly still unzipping
+            // TODO: check if the source file is new and re-import the file
+            return;
+        }
+        
         NSString *title = [file.lastPathComponent stringByDeletingPathExtension];
-        Report *report = [Report reportWithTitle:title];
+        report = [Report reportWithTitle:title];
         report.sourceFile = file;
         report.reportID = [report.sourceFile.lastPathComponent stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         
