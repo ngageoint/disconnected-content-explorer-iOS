@@ -24,7 +24,7 @@
     [super viewDidLoad];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportFinished] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportsLoaded] object:nil];
     
     self.title = @"Disconnected Interactive Content Explorer";
@@ -57,16 +57,9 @@
 - (void)refreshReportList:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_tableViewController.refreshControl endRefreshing];
-        [_tableView reloadData];
-    });
-}
-
-
-- (void)updateReportImportProgress:(NSNotification *)notification
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [_tableViewController.refreshControl endRefreshing];
+        if ([notification.name isEqualToString:[ReportNotification reportsLoaded]]) {
+            [_tableViewController.refreshControl endRefreshing];
+        }
         [_tableView reloadData];
     });
 }
@@ -148,19 +141,7 @@
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-
-
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [self.reports removeObjectAtIndex:indexPath.row];
-        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
-    }
+    return NO;
 }
 
 

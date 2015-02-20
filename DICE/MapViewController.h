@@ -16,7 +16,7 @@
 
 @interface MapViewController : UIViewController <ReportCollectionView, MKMapViewDelegate>
 
-@property (strong, nonatomic) NSMutableArray *reports;
+@property (strong, nonatomic) NSArray *reports;
 @property (strong, nonatomic) id<ReportCollectionViewDelegate> delegate;
 @property (strong, nonatomic) IBOutlet MKMapView *mapView;
 @property (strong, nonatomic) Report *selectedReport;
