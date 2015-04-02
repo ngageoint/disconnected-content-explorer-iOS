@@ -13,6 +13,7 @@
 		7D0B491D1A0D49610044236B /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B491C1A0D49610044236B /* libicucore.dylib */; };
 		7D0B491F1A0D49790044236B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B491E1A0D49790044236B /* libsqlite3.dylib */; };
 		7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49201A0D49B50044236B /* OpenGLES.framework */; };
+		7D0B9A2A1ACDAAC400359E7D /* MainStoryboard-iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */; };
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
@@ -121,6 +122,7 @@
 		7D0B491C1A0D49610044236B /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		7D0B491E1A0D49790044236B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		7D0B49201A0D49B50044236B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPad.storyboard"; sourceTree = "<group>"; };
 		7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
 		7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
 		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
@@ -581,6 +583,7 @@
 				E3F3A44A1857CDE400253290 /* Report View */,
 				E3FBB30C17C9527000E133D6 /* Supporting Files */,
 				E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */,
+				7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */,
 				E3FBB31417C9527000E133D6 /* AppDelegate.h */,
 				E3FBB31517C9527000E133D6 /* AppDelegate.m */,
 				7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */,
@@ -708,6 +711,7 @@
 				E39D835919DF2B95008357DF /* Reader-Button-H@2x.png in Resources */,
 				E39D836219DF2B95008357DF /* Reader-Mark-Y.png in Resources */,
 				E39D835619DF2B95008357DF /* AppIcon-180.png in Resources */,
+				7D0B9A2A1ACDAAC400359E7D /* MainStoryboard-iPad.storyboard in Resources */,
 				E39D835719DF2B95008357DF /* Default-568h@2x.png in Resources */,
 				E39D835019DF2B95008357DF /* AppIcon-072.png in Resources */,
 				E39D835519DF2B95008357DF /* AppIcon-152.png in Resources */,
