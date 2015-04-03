@@ -116,8 +116,8 @@
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     if (![userDefaults boolForKey:@"preventDisclaimer"]) {
-        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-        DisclaimerViewController *disclaimer = [mainStoryboard instantiateViewControllerWithIdentifier:@"disclaimer"];
+        UIStoryboard *storyboard = self.storyboard;
+        DisclaimerViewController *disclaimer = [storyboard instantiateViewControllerWithIdentifier:@"disclaimer"];
         [self presentViewController:disclaimer animated:YES completion:nil];
     }
     

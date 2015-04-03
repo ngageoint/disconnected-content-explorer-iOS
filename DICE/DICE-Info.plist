@@ -85,7 +85,7 @@
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UIMainStoryboardFile</key>
-	<string>MainStoryboard</string>
+	<string>MainStoryboard-iPhone</string>
 	<key>UIMainStoryboardFile~ipad</key>
 	<string>MainStoryboard-iPad</string>
 	<key>UIPrerenderedIcon</key>
