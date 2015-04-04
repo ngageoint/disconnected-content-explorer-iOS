@@ -19,6 +19,7 @@
 
 NSArray *supportedFileExtensions;
 NSDictionary *resourceViewers;
+UIStoryboard *activeStoryboard;
 
 + (void) initialize
 {
@@ -40,6 +41,9 @@ NSDictionary *resourceViewers;
         @"com.adobe.pdf": @"class:PDFViewController"
         // TODO: add office types
     };
+    
+    NSString *activeStoryboardName = [[NSBundle mainBundle].infoDictionary objectForKey:@"UIMainStoryboardFile"];
+    activeStoryboard = [UIStoryboard storyboardWithName:activeStoryboardName bundle:nil];
 }
 
 + (NSArray *)supportedFileExtensions
@@ -99,8 +103,7 @@ NSDictionary *resourceViewers;
         viewController = [[viewerClass alloc] init];
     }
     else if ([viewerType isEqualToString:@"storyboard"]) {
-        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-        viewController = [storyboard instantiateViewControllerWithIdentifier:viewerID];
+        viewController = [activeStoryboard instantiateViewControllerWithIdentifier:viewerID];
     }
     
     return viewController;
