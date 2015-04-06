@@ -116,9 +116,7 @@
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     if (![userDefaults boolForKey:@"preventDisclaimer"]) {
-        UIStoryboard *storyboard = self.storyboard;
-        DisclaimerViewController *disclaimer = [storyboard instantiateViewControllerWithIdentifier:@"disclaimer"];
-        [self presentViewController:disclaimer animated:YES completion:nil];
+        [self performSegueWithIdentifier:@"disclaimerSegue" sender:self];
     }
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
