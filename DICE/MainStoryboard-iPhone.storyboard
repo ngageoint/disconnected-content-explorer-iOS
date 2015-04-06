@@ -610,6 +610,7 @@
                     <nil name="viewControllers"/>
                     <connections>
                         <segue destination="VhL-cC-Fz8" kind="relationship" relationship="rootViewController" id="JqH-Tl-136"/>
+                        <segue destination="WdW-xg-kUb" kind="modal" identifier="disclaimerSegue" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="1uH-kd-knC"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EFu-rt-wXa" userLabel="First Responder" sceneMemberID="firstResponder"/>
