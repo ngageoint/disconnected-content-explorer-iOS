@@ -114,8 +114,7 @@
 
 - (void)handleDisclaimer
 {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    if (![userDefaults boolForKey:@"preventDisclaimer"]) {
+    if ([DisclaimerViewController shouldShowDisclaimer]) {
         [self performSegueWithIdentifier:@"disclaimerSegue" sender:self];
     }
     
