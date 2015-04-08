@@ -35,12 +35,21 @@
     [super viewDidLoad];
 
     NSLog(@"ReportCollectionViewController: loading report collection views");
+
+
+    if([[UIDevice currentDevice].model isEqualToString:@"iPhone"]) {
+        views = @[
+                  [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
+                  [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"]
+                ];
+    } else {
+        views = @[
+                  [self.storyboard instantiateViewControllerWithIdentifier: @"listCollectionView"],
+                  [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
+                  [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"]
+                ];
+    }
     
-    views = @[
-        [self.storyboard instantiateViewControllerWithIdentifier: @"listCollectionView"],
-        [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
-        [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"]
-    ];
     [views enumerateObjectsUsingBlock:^(UIViewController<ReportCollectionView> *view, NSUInteger idx, BOOL *stop) {
         view.delegate = self;
         view.reports = [[ReportAPI sharedInstance] getReports];
