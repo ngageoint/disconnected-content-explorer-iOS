@@ -71,32 +71,31 @@
         NSString *jsonString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
         if (error != nil) {
             NSLog(@"Error creating NSDictionary: %@", [error localizedDescription]);
-            return @{ @"success": @"false", @"message": @"Unable to parse JSON."};
+            return @{ @"success": @NO, @"message": @"Unable to parse JSON."};
         } else {
             [jsonString writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
             if (error == nil) {
-                return @{ @"success": @"true", @"message": @"Sucessfully wrote file"};
+                return @{ @"success": @YES, @"message": @"Sucessfully wrote file"};
             } else {
-                return @{ @"success": @"false", @"message": [error localizedDescription]};
+                return @{ @"success": @NO, @"message": [error localizedDescription]};
             }
         }
     }
     
-    return @{ @"success": @"false", @"message": @"Null data was sent to the Javascript Bridge."};
+    return @{ @"success": @NO, @"message": @"Null data was sent to the Javascript Bridge."};
 }
 
 
 - (NSDictionary *)geolocate
 {
-    
     [self configureLocationServices];
     if (self.locationManager.location != nil) {
         NSString *lat = [[NSString alloc] initWithFormat:@"%f", self.locationManager.location.coordinate.latitude];
         NSString *lon = [[NSString alloc] initWithFormat:@"%f", self.locationManager.location.coordinate.longitude];
-        return @{ @"success": @"true", @"lat": lat,  @"lon": lon};
+        return @{@"success": @YES, @"lat": lat,  @"lon": lon};
     }
     
-    return @{ @"success": @"false", @"message": @"Unable to access location manager, check your device settings."};
+    return @{ @"success": @NO, @"message": @"Unable to access location manager, check your device settings."};
 }
 
 
