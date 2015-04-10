@@ -8,6 +8,7 @@
 
 #import "DisclaimerViewController.h"
 
+
 @interface DisclaimerViewController ()
 
 - (IBAction)agreeTapped:(id)sender;
@@ -15,6 +16,7 @@
 - (IBAction)switchChanged:(id)sender;
 
 @end
+
 
 @implementation DisclaimerViewController
 
@@ -36,12 +38,10 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-
 - (IBAction)exitTapped:(id)sender {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"preventDisclaimer"];
     exit(0);
 }
-
 
 - (IBAction)switchChanged:(UISwitch*)sender {
     if ([sender isOn]) {
@@ -49,6 +49,7 @@
     } else {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"preventDisclaimer"];
     }
-
 }
+
+
 @end
