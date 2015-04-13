@@ -433,7 +433,7 @@
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" image="info" id="mjN-ZS-z6r" userLabel="Info button">
                             <connections>
-                                <segue destination="and-Vw-X9l" kind="modal" id="wwW-tN-M6Q"/>
+                                <segue destination="and-Vw-X9l" kind="modal" modalPresentationStyle="currentContext" modalTransitionStyle="coverVertical" id="wwW-tN-M6Q"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
