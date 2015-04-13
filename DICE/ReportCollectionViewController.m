@@ -36,7 +36,7 @@
 
     NSLog(@"ReportCollectionViewController: loading report collection views");
 
-
+    NSLog(@"%@", [UIDevice currentDevice].model);
     if([[UIDevice currentDevice].model isEqualToString:@"iPhone"]) {
         views = @[
                   [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],

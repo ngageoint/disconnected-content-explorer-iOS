@@ -15,5 +15,5 @@
 @property (strong, nonatomic) UITableViewCell *selectedCell;
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @property (strong, nonatomic) IBOutlet UICollectionView *tileView;
-
+@property (strong, nonatomic) UIRefreshControl *refreshControl;
 @end
