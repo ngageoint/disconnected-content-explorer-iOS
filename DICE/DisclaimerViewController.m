@@ -8,11 +8,21 @@
 
 #import "DisclaimerViewController.h"
 
+
 @interface DisclaimerViewController ()
+
+- (IBAction)agreeTapped:(id)sender;
+- (IBAction)exitTapped:(id)sender;
+- (IBAction)switchChanged:(id)sender;
 
 @end
 
+
 @implementation DisclaimerViewController
+
++ (BOOL)shouldShowDisclaimer {
+    return ![[NSUserDefaults standardUserDefaults] boolForKey:@"preventDisclaimer"];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -24,25 +34,14 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
-
 - (IBAction)agreeTapped:(id)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-
 - (IBAction)exitTapped:(id)sender {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"preventDisclaimer"];
     exit(0);
 }
-
 
 - (IBAction)switchChanged:(UISwitch*)sender {
     if ([sender isOn]) {
@@ -50,6 +49,7 @@
     } else {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"preventDisclaimer"];
     }
-
 }
+
+
 @end

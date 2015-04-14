@@ -10,8 +10,6 @@
 
 @interface DisclaimerViewController : UIViewController
 
-- (IBAction)agreeTapped:(id)sender;
-- (IBAction)exitTapped:(id)sender;
-- (IBAction)switchChanged:(id)sender;
++ (BOOL)shouldShowDisclaimer;
 
 @end

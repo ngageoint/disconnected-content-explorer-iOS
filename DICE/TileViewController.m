@@ -29,6 +29,10 @@
     
     [self.tileView setDataSource:self];
     [self.tileView setDelegate:self];
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(refreshControlValueChanged) forControlEvents:UIControlEventValueChanged];
+    [self.tileView addSubview:self.refreshControl];
+    self.tileView.alwaysBounceVertical = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -42,6 +46,13 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+
+- (void)refreshControlValueChanged
+{
+    [[ReportAPI sharedInstance] loadReports];
+}
+
 
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
@@ -59,6 +70,9 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ReportViewCell *cell = [self.tileView dequeueReusableCellWithReuseIdentifier:@"reportCell" forIndexPath:indexPath];
+    cell.layer.shouldRasterize = YES;
+    cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
+    
     Report *report = self.reports[indexPath.item];
     
     if ([report.tileThumbnail isKindOfClass:[NSString class]]) {
@@ -97,6 +111,12 @@
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout  *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    NSString *deviceType = [UIDevice currentDevice].model;
+    
+    if([deviceType isEqualToString:@"iPhone"]) {
+        return CGSizeMake(collectionView.bounds.size.width, 160.0);
+    }
+    
     // Adjust cell size for orientation
     if (UIDeviceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
         return CGSizeMake(334.f, 240.f);
@@ -121,6 +141,9 @@
 - (void)refreshReportTiles:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        if ([notification.name isEqualToString:[ReportNotification reportsLoaded]]) {
+            [self.refreshControl endRefreshing];
+        }
         [self.tileView reloadData];
     });
 }

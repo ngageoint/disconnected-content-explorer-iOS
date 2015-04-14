@@ -114,11 +114,8 @@
 
 - (void)handleDisclaimer
 {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    if (![userDefaults boolForKey:@"preventDisclaimer"]) {
-        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-        DisclaimerViewController *disclaimer = [mainStoryboard instantiateViewControllerWithIdentifier:@"disclaimer"];
-        [self presentViewController:disclaimer animated:YES completion:nil];
+    if ([DisclaimerViewController shouldShowDisclaimer]) {
+        [self performSegueWithIdentifier:@"disclaimerSegue" sender:self];
     }
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];

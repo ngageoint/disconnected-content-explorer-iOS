@@ -13,6 +13,7 @@
 		7D0B491D1A0D49610044236B /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B491C1A0D49610044236B /* libicucore.dylib */; };
 		7D0B491F1A0D49790044236B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B491E1A0D49790044236B /* libsqlite3.dylib */; };
 		7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49201A0D49B50044236B /* OpenGLES.framework */; };
+		7D0B9A2A1ACDAAC400359E7D /* MainStoryboard-iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */; };
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
@@ -22,8 +23,9 @@
 		7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC131A8560BD00CA05D4 /* Images.xcassets */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
+		7DF1E24E1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */; };
+		7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */; };
 		AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B73CA51504D8A8B497186523 /* libPods.a */; };
-		E3011597184FE4FD00C18CFD /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */; };
 		E32C6C2D17D7C1AB00D694C5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E32C6C2C17D7C1AB00D694C5 /* libz.dylib */; };
 		E337BCC21811AD7B00D987F9 /* Report.m in Sources */ = {isa = PBXBuildFile; fileRef = E337BCC11811AD7B00D987F9 /* Report.m */; };
 		E39D830019DC643D008357DF /* Icon-76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E39D82FF19DC643D008357DF /* Icon-76@2x.png */; };
@@ -121,6 +123,7 @@
 		7D0B491C1A0D49610044236B /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		7D0B491E1A0D49790044236B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		7D0B49201A0D49B50044236B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPad.storyboard"; sourceTree = "<group>"; };
 		7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
 		7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
 		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
@@ -137,8 +140,9 @@
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
 		7DA706B61A158E3800B558EC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPhone.storyboard"; sourceTree = "<group>"; };
+		7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SettingsViewController+SettingsViewController_iPhone.m"; sourceTree = "<group>"; };
 		B73CA51504D8A8B497186523 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MainStoryboard.storyboard; sourceTree = "<group>"; };
 		E32C6C2C17D7C1AB00D694C5 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		E337BCC01811AD7B00D987F9 /* Report.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Report.h; sourceTree = "<group>"; };
 		E337BCC11811AD7B00D987F9 /* Report.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Report.m; sourceTree = "<group>"; };
@@ -459,6 +463,7 @@
 			children = (
 				E39DF1A818C69DEB00B13D46 /* SettingsViewController.h */,
 				E39DF1A918C69DEB00B13D46 /* SettingsViewController.m */,
+				7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */,
 			);
 			name = "Settings View";
 			sourceTree = "<group>";
@@ -580,7 +585,8 @@
 				E3F3A4491857CDD600253290 /* Map View */,
 				E3F3A44A1857CDE400253290 /* Report View */,
 				E3FBB30C17C9527000E133D6 /* Supporting Files */,
-				E3011596184FE4FD00C18CFD /* MainStoryboard.storyboard */,
+				7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */,
+				7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */,
 				E3FBB31417C9527000E133D6 /* AppDelegate.h */,
 				E3FBB31517C9527000E133D6 /* AppDelegate.m */,
 				7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */,
@@ -704,10 +710,12 @@
 				E39D836319DF2B95008357DF /* Reader-Mark-Y@2x.png in Resources */,
 				E39D836619DF2B95008357DF /* Reader-Thumbs.png in Resources */,
 				E39D836719DF2B95008357DF /* Reader-Thumbs@2x.png in Resources */,
+				7DF1E24E1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard in Resources */,
 				E39D835419DF2B95008357DF /* AppIcon-144.png in Resources */,
 				E39D835919DF2B95008357DF /* Reader-Button-H@2x.png in Resources */,
 				E39D836219DF2B95008357DF /* Reader-Mark-Y.png in Resources */,
 				E39D835619DF2B95008357DF /* AppIcon-180.png in Resources */,
+				7D0B9A2A1ACDAAC400359E7D /* MainStoryboard-iPad.storyboard in Resources */,
 				E39D835719DF2B95008357DF /* Default-568h@2x.png in Resources */,
 				E39D835019DF2B95008357DF /* AppIcon-072.png in Resources */,
 				E39D835519DF2B95008357DF /* AppIcon-152.png in Resources */,
@@ -723,7 +731,6 @@
 				E39D836019DF2B95008357DF /* Reader-Mark-N.png in Resources */,
 				E39D835119DF2B95008357DF /* AppIcon-076.png in Resources */,
 				E39D836519DF2B95008357DF /* Reader-Print@2x.png in Resources */,
-				E3011597184FE4FD00C18CFD /* MainStoryboard.storyboard in Resources */,
 				E39D835219DF2B95008357DF /* AppIcon-114.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -790,6 +797,7 @@
 				E39D837419DF2B95008357DF /* ReaderThumbRender.m in Sources */,
 				E39D837719DF2B95008357DF /* ReaderThumbView.m in Sources */,
 				E39D837B19DF2B95008357DF /* UIXToolbarView.m in Sources */,
+				7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */,
 				E39D837019DF2B95008357DF /* ReaderMainToolbar.m in Sources */,
 				E39D837A19DF2B95008357DF /* ThumbsViewController.m in Sources */,
 				E39DF1AA18C69DEB00B13D46 /* SettingsViewController.m in Sources */,
@@ -988,7 +996,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1009,7 +1017,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
