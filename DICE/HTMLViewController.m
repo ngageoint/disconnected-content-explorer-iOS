@@ -12,7 +12,10 @@
 #import "JavaScriptAPI.h"
 #import "WebViewJavascriptBridge.h"
 
-@interface HTMLViewController () <UIWebViewDelegate>
+@interface HTMLViewController () <UIWebViewDelegate, UIDocumentInteractionControllerDelegate>
+{
+    UIDocumentInteractionController *docController;
+}
 
 @property (strong, nonatomic) UILabel *unzipStatusLabel;
 
@@ -147,6 +150,10 @@
             NSString *relativeResource = [request.URL.absoluteString substringFromIndex:base.length];
             NSURL *diceURL = [NSURL URLWithString:[NSString stringWithFormat:@"dice://?reportID=%@&resource=%@", self.report.reportID, relativeResource]];
             [[UIApplication sharedApplication] openURL:diceURL];
+        } else { // see if iOS knows about an installed app that can handle this file
+            NSURL *url = request.URL;
+            docController = [self setupControllerWithURL:url usingDelegate:self];
+            [docController presentOpenInMenuFromRect:CGRectZero inView:self.view animated:YES];
         }
         // TODO: add support for linked dice reports - maybe by dice:// url, or just an absolute url as opposed to relative to current report
         return NO;
@@ -160,6 +167,14 @@
         [_webView stopLoading];
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+
+- (UIDocumentInteractionController*) setupControllerWithURL:(NSURL*)fileURL usingDelegate:(id<UIDocumentInteractionControllerDelegate>)interactionDelegate
+{
+    UIDocumentInteractionController *interactionController = [UIDocumentInteractionController interactionControllerWithURL:fileURL];
+    interactionController.delegate = interactionDelegate;
+    return interactionController;
 }
 
 @end
