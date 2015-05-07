@@ -25,8 +25,9 @@
     NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
     
     NSString *version = infoDictionary[@"CFBundleShortVersionString"];
+    NSString *buildNumber = infoDictionary[@"CFBundleVersion"];
     
-    _versionLabel.text = [NSString stringWithFormat:@"Version %@", version];
+    _versionLabel.text = [NSString stringWithFormat:@"Version %@.%@", version, buildNumber];
     
     UISwipeGestureRecognizer *swipeBack = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(webViewBackGesture:)];
     swipeBack.direction = UISwipeGestureRecognizerDirectionRight;
