@@ -34,16 +34,6 @@
 @end
 
 
-@interface ReportAPI ()
-{
-    dispatch_queue_t reportListQueue;
-    dispatch_queue_t backgroundQueue;
-    NSMutableArray *reports;
-    NSFileManager *fileManager;
-    NSURL *documentsDir;
-}
-
-@end
 
 // TODO: implement report content hashing to detect new reports and duplicates
 // TODO: assess thread safety of reports array read/write and notifications - dispatch everything on main thread?
@@ -53,6 +43,13 @@
 // TODO: use core data to build report store?
 
 @implementation ReportAPI
+{
+    dispatch_queue_t reportListQueue;
+    dispatch_queue_t backgroundQueue;
+    NSMutableArray *reports;
+    NSFileManager *fileManager;
+    NSURL *documentsDir;
+}
 
 + (NSString *)userGuideReportID {
     return @"DICE.UserGuideReport";
