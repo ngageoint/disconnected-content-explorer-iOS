@@ -126,7 +126,17 @@
         
         for (NSURL *file in files) {
             NSLog(@"ReportAPI: attempting to add report from file %@", file);
-            [self addReportFromFile:[NSURL URLWithString:file.lastPathComponent relativeToURL:documentsDir] afterComplete:nil];
+            /*
+             While seemingly unnecessary, this bit of code avoids an error that arises because the NSURL objects
+             returned by the above enumerator have a /private component prepended to them which ends up resulting
+             in null CGPDFDocument objects in the vfrReader code and app crashing.  For some reason, this only 
+             happens when the PDF file name has spaces.  This code effectively removes the /private component
+             from the report URL, because the documentsDir NSURL object does not end up getting the /private
+             prefix.
+             */
+            NSString *fileName = [file.lastPathComponent stringByRemovingPercentEncoding];
+            NSURL *reportURL = [documentsDir URLByAppendingPathComponent:fileName isDirectory:NO];
+            [self addReportFromFile:reportURL afterComplete:nil];
         }
         
         if (reports.count == 0) {
