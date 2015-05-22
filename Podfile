@@ -1,12 +1,13 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-# Uncomment this line to define a global platform for your project
-
 pod 'objective-zip', '0.8.3'
 pod 'WebViewJavascriptBridge', '4.1.4'
 
-#target :InteractiveReports do
-#end
-#
-#target :DICETests, :exclusive => false do
-#end
+target :DICE do
+end
+
+target :DICETests do
+  pod 'Specta', '~>1.0'
+  pod 'Expecta', '~>1.0'
+  pod 'OCMockito', '~>1.4'
+end
