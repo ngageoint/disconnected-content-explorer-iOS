@@ -86,7 +86,7 @@
     
     if (report.isEnabled) {
         cell.userInteractionEnabled = YES;
-        cell.reportDescription.text = report.description;
+        cell.reportDescription.text = report.summary;
         [cell.reportDescription setEditable:NO];
         [cell.reportDescription setUserInteractionEnabled:NO];
     }

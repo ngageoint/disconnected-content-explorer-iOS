@@ -293,7 +293,7 @@
             report.reportID = reportID;
         }
         report.title = [json objectForKey:@"title"];
-        report.description = [json objectForKey:@"description"];
+        report.summary = [json objectForKey:@"description"];
         report.thumbnail = [json objectForKey:@"thumbnail"];
 
         if ([json objectForKey:@"tile_thumbnail"] != nil) {
@@ -392,7 +392,7 @@
 {
     Report *userGuide = [[Report alloc] init];
     userGuide.title = @"Tap here to download the user guide";
-    userGuide.description = @"Select \"Open in DICE\"";
+    userGuide.summary = @"Select \"Open in DICE\"";
     userGuide.isEnabled = YES;
     userGuide.reportID = [ReportAPI userGuideReportID];
     

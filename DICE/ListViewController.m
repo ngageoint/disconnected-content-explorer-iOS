@@ -118,7 +118,7 @@
     
     if (report.isEnabled) {
         cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = YES;
-        cell.detailTextLabel.text = report.description;
+        cell.detailTextLabel.text = report.summary;
     }
     else if (report.error != nil) {
         cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = NO;

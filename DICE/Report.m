@@ -7,14 +7,12 @@
 
 @implementation Report
 
-@synthesize description; // really weird, had to add this after the switch to XCode 6
-
 - (id) initWithTitle:(NSString *)title {
     self = [super init];
     
     if ( self ){
         self.title = title;
-        self.description = nil;
+        self.summary = nil;
         self.thumbnail = nil;
         self.fileExtension = nil;
         self.reportID = nil;
