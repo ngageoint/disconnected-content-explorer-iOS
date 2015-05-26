@@ -26,6 +26,8 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+
     if (!self.isDismissed) {
         /*
          * Note: If we ever change the directory where PDF documents are stored, this library writes out

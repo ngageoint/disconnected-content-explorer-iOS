@@ -69,6 +69,8 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
+
     _javascriptAPI = [[JavaScriptAPI alloc] initWithWebView:_webView report:_report andDelegate:self];
 }
 
@@ -167,6 +169,8 @@
         [_webView stopLoading];
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+    [super viewWillDisappear:animated];
 }
 
 

@@ -9,8 +9,8 @@
 
 - (id) initWithTitle:(NSString *)title {
     self = [super init];
-    
-    if ( self ){
+
+    if (self) {
         self.title = title;
         self.summary = nil;
         self.thumbnail = nil;
@@ -23,10 +23,6 @@
     }
     
     return self;
-}
-
-+ (id) reportWithTitle:(NSString *)title {
-    return [[self alloc] initWithTitle:title];
 }
 
 - (NSURL *) thumbnailURL {

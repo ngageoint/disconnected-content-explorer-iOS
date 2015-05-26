@@ -193,7 +193,7 @@
         }
         
         NSString *title = [file.lastPathComponent stringByDeletingPathExtension];
-        report = [Report reportWithTitle:title];
+        report = [[Report alloc] initWithTitle:title];
         report.sourceFile = file;
         report.reportID = [report.sourceFile.lastPathComponent stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         

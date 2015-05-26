@@ -39,15 +39,16 @@
     NSLog(@"%@", [UIDevice currentDevice].model);
     if([[UIDevice currentDevice].model isEqualToString:@"iPad"]) {
         views = @[
-                  [self.storyboard instantiateViewControllerWithIdentifier: @"listCollectionView"],
-                  [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
-                  [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"]
-                  ];
-    } else {
+            [self.storyboard instantiateViewControllerWithIdentifier: @"listCollectionView"],
+            [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
+            [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"]
+        ];
+    }
+    else {
         views = @[
-                  [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
-                  [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"]
-                  ];
+            [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
+            [self.storyboard instantiateViewControllerWithIdentifier: @"mapCollectionView"]
+        ];
     }
     
     [views enumerateObjectsUsingBlock:^(UIViewController<ReportCollectionView> *view, NSUInteger idx, BOOL *stop) {

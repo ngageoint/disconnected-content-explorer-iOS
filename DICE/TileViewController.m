@@ -37,6 +37,8 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
+    
     // hack to get around iOS 7 bug that doesn't refresh the data seemingly if the view is not visible
     [self refreshReportTiles:nil];
 }

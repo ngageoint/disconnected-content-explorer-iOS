@@ -42,6 +42,8 @@
 
 - (void)viewDidLoad
 {
+    [super viewDidLoad];
+
     if ([self respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
         self.interactivePopGestureRecognizer.enabled = NO;
     }
