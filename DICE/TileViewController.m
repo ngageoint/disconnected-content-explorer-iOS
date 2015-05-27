@@ -56,7 +56,6 @@
 }
 
 
-
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
     return 1;
@@ -120,7 +119,7 @@
     }
     
     // Adjust cell size for orientation
-    if (UIDeviceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
+    if (UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
         return CGSizeMake(334.f, 240.f);
     }
     return CGSizeMake(243.f, 235.f);
