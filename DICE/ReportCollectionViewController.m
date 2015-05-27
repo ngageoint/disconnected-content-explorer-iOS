@@ -37,7 +37,7 @@
     NSLog(@"ReportCollectionViewController: loading report collection views");
 
     NSLog(@"%@", [UIDevice currentDevice].model);
-    if([[UIDevice currentDevice].model isEqualToString:@"iPad"]) {
+    if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         views = @[
             [self.storyboard instantiateViewControllerWithIdentifier: @"listCollectionView"],
             [self.storyboard instantiateViewControllerWithIdentifier: @"tileCollectionView"],
