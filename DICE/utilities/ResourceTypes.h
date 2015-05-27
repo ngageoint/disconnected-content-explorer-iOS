@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 mil.nga. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
 #import "Report.h"
 
 
@@ -17,6 +15,7 @@
 
 @end
 
+@class UIViewController;
 
 @interface ResourceTypes : NSObject
 
