@@ -19,13 +19,22 @@
 @property (strong, nonatomic) NSArray *reportTypes;
 
 /**
- The current list of reports
-
- The instance this pointer references may change after calling loadReports,
- so clients should always retrieve the list through this property to show
- the latest snapshot of the list.
+ The list of Report objects
  */
 @property (strong, nonatomic, readonly) NSArray *reports;
+
+
+/**
+ Initialize a ReportStore object with the given NSFileManager and reports directory.
+
+ This is the NS_DESIGNATED_INITIALIZER for this class.
+ 
+ @param reportsDir the NSURL that points to the directory where report files reside
+ @param fileManager the NSFileManager instance that this ReportStore will use to conduct file system operations
+
+ @return the initialized ReportStore
+ */
+- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
 
 /**
  Load/refresh the list of reports based on the contents of the app's file system.

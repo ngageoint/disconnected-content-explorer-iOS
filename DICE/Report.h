@@ -12,6 +12,9 @@
 @property (nonatomic, strong) NSString *summary;
 @property (nonatomic, strong) NSString *thumbnail;
 @property (nonatomic, strong) NSString *tileThumbnail;
+/**
+ @todo change to UTI, or remove completely
+ */
 @property (nonatomic, strong) NSString *fileExtension;
 @property (nonatomic, strong) NSString *error;
 @property (nonatomic, strong) NSURL *url;

@@ -12,14 +12,15 @@
 #import "ReportType.h"
 #import "ReportAPI.h"
 
+
 @implementation ReportStore
 {
     NSMutableArray *_reports;
     NSFileManager *_fileManager;
-    NSURL *_documentsDir;
+    NSURL *_reportsDir;
 }
 
-- (instancetype)init
+- (instancetype)initWithReportsDir:(NSURL * const)reportsDir fileManager:(NSFileManager *)fileManager
 {
     self = [super init];
     if (!self)
@@ -28,38 +29,22 @@
     }
 
     _reports = [NSMutableArray array];
-    _fileManager = [NSFileManager defaultManager];
-    _documentsDir = [_fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
+    _reportsDir = reportsDir;
+    _fileManager = fileManager;
 
     return self;
 }
 
 
-- (NSArray *)getReports
-{
-    return [NSArray arrayWithArray:(NSArray *)_reports];
-}
-
-
 - (NSArray *)loadReports
 {
-    [_reports filterUsingPredicate:[NSPredicate predicateWithBlock: ^BOOL (Report *report,
-        NSDictionary *bindings) {
-            return (!report.isEnabled && [_fileManager fileExistsAtPath:report.url.path]) ||
-            (report.isEnabled && [_fileManager fileExistsAtPath:report.url.path]);
+    [_reports filterUsingPredicate:[NSPredicate predicateWithBlock:
+        ^BOOL (Report *report, NSDictionary *bindings) {
+            return !(report.isEnabled && ![_fileManager fileExistsAtPath:report.url.path]);
             // TODO: dispatch report removed notification?
         }]];
 
-    NSDirectoryEnumerator *files = [_fileManager enumeratorAtURL:_documentsDir
-        includingPropertiesForKeys:@[
-            NSURLNameKey,
-            NSURLIsRegularFileKey,
-            NSURLIsDirectoryKey,
-            NSURLIsReadableKey,
-            NSURLLocalizedNameKey
-        ]
-        options:(NSDirectoryEnumerationSkipsPackageDescendants | NSDirectoryEnumerationSkipsSubdirectoryDescendants)
-        errorHandler:nil];
+    NSArray *files = [_fileManager contentsOfDirectoryAtURL:_reportsDir includingPropertiesForKeys:nil options:0 error:nil];
 
     for (NSURL *file in files)
     {
@@ -74,17 +59,15 @@
          * documentsDir NSURL object does not end up getting the /private prefix.
          */
         NSString *fileName = [file.lastPathComponent stringByRemovingPercentEncoding];
-        NSURL *reportUrl = [_documentsDir URLByAppendingPathComponent:fileName];
+        NSURL *reportUrl = [_reportsDir URLByAppendingPathComponent:fileName];
+
         [self attemptToImportReportFromResource:reportUrl];
     }
 
-    if (_reports.count == 0)
-    {
+//    if (_reports.count == 0)
+//    {
 //        [reports addObject:[self getUserGuideReport]];
-    }
-    else {
-
-    }
+//    }
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter]
@@ -93,7 +76,7 @@
         userInfo:nil];
     });
 
-    return [self getReports];
+    return self.reports;
 }
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
@@ -103,7 +86,11 @@
         return nil;
     }
     Report *report = [[Report alloc] initWithTitle:reportUrl.path];
+    report.isEnabled = NO;
     report.url = reportUrl;
+    report.reportID = reportUrl.path;
+    report.title = reportUrl.lastPathComponent;
+    report.summary = @"Importing...";
     [_reports addObject:report];
     [reportType importReport:report];
     return report;
