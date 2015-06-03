@@ -78,7 +78,7 @@ describe(@"ReportStore", ^{
                     [reportsDirUrl URLByAppendingPathComponent:@"report1.red"],
                     [reportsDirUrl URLByAppendingPathComponent:@"report2.blue"]
                 ]]
-                willReturn : @[
+                willReturn:@[
                     [reportsDirUrl URLByAppendingPathComponent:@"report2.blue"]
                 ]];
 
