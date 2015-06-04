@@ -16,6 +16,7 @@
 		7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49201A0D49B50044236B /* OpenGLES.framework */; };
 		7D0B9A2A1ACDAAC400359E7D /* MainStoryboard-iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */; };
 		7D1432531B165B990003DD53 /* ReportStoreSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D1432521B165B990003DD53 /* ReportStoreSpec.m */; };
+		7D1432591B20BA440003DD53 /* HtmlReportType.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D1432581B20BA440003DD53 /* HtmlReportType.m */; };
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
@@ -25,7 +26,6 @@
 		7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC131A8560BD00CA05D4 /* Images.xcassets */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
-		7DE513061B0E88200023F1D5 /* HtmlReportType.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE513051B0E88200023F1D5 /* HtmlReportType.m */; };
 		7DE513091B0E8A1C0023F1D5 /* ReportStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE513081B0E8A1C0023F1D5 /* ReportStore.m */; };
 		7DE5130B1B0F65EF0023F1D5 /* ReportTypeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE5130A1B0F65EF0023F1D5 /* ReportTypeSpec.m */; };
 		7DF1E24E1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */; };
@@ -133,6 +133,8 @@
 		7D0B49201A0D49B50044236B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPad.storyboard"; sourceTree = "<group>"; };
 		7D1432521B165B990003DD53 /* ReportStoreSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportStoreSpec.m; sourceTree = "<group>"; };
+		7D1432571B20BA440003DD53 /* HtmlReportType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HtmlReportType.h; sourceTree = "<group>"; };
+		7D1432581B20BA440003DD53 /* HtmlReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HtmlReportType.m; sourceTree = "<group>"; };
 		7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
 		7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
 		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
@@ -150,8 +152,6 @@
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
 		7DA706B61A158E3800B558EC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		7DCCF0FB1B156F9A001A526B /* ReportType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportType.h; sourceTree = "<group>"; };
-		7DE513041B0E88200023F1D5 /* HtmlReportType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HtmlReportType.h; path = utilities/HtmlReportType.h; sourceTree = "<group>"; };
-		7DE513051B0E88200023F1D5 /* HtmlReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HtmlReportType.m; path = utilities/HtmlReportType.m; sourceTree = "<group>"; };
 		7DE513071B0E8A1C0023F1D5 /* ReportStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportStore.h; sourceTree = "<group>"; };
 		7DE513081B0E8A1C0023F1D5 /* ReportStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportStore.m; sourceTree = "<group>"; };
 		7DE5130A1B0F65EF0023F1D5 /* ReportTypeSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportTypeSpec.m; sourceTree = "<group>"; };
@@ -370,6 +370,8 @@
 		E361E45B18D3AA7B00E09C1B /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				7D1432571B20BA440003DD53 /* HtmlReportType.h */,
+				7D1432581B20BA440003DD53 /* HtmlReportType.m */,
 				E337BCC01811AD7B00D987F9 /* Report.h */,
 				E337BCC11811AD7B00D987F9 /* Report.m */,
 				7DE513071B0E8A1C0023F1D5 /* ReportStore.h */,
@@ -857,6 +859,7 @@
 				E39D837B19DF2B95008357DF /* UIXToolbarView.m in Sources */,
 				7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */,
 				E39D837019DF2B95008357DF /* ReaderMainToolbar.m in Sources */,
+				7DE513091B0E8A1C0023F1D5 /* ReportStore.m in Sources */,
 				E39D837A19DF2B95008357DF /* ThumbsViewController.m in Sources */,
 				E39DF1AA18C69DEB00B13D46 /* SettingsViewController.m in Sources */,
 				E39D836A19DF2B95008357DF /* ReaderContentPage.m in Sources */,
@@ -884,6 +887,7 @@
 				E39D836819DF2B95008357DF /* CGPDFDocument.m in Sources */,
 				E39D837E19DF3B8A008357DF /* PDFViewController.m in Sources */,
 				E39D836D19DF2B95008357DF /* ReaderDocument.m in Sources */,
+				7D1432591B20BA440003DD53 /* HtmlReportType.m in Sources */,
 				E39D836F19DF2B95008357DF /* ReaderMainPagebar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
