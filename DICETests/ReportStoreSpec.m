@@ -129,7 +129,7 @@ describe(@"ReportStore", ^{
             expect(report.title).to.equal(report.url.lastPathComponent);
             expect(report.summary).to.equal(@"Importing...");
             expect(report.error).to.beNil;
-            expect(!report.isEnabled);
+            expect(report.isEnabled).to.equal(NO);
         });
 
     });
