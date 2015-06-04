@@ -47,20 +47,20 @@
         BOOL indexPathIsDirectory = YES;
         BOOL exists = [_fileManager fileExistsAtPath:indexPath isDirectory:&indexPathIsDirectory];
         if (!exists) {
-            NSLog(@"%@ does not exist", indexPath);
             return NO;
         }
-        if (indexPathIsDirectory) {
-            NSLog(@"%@ is a directory", indexPath);
-            return NO;
+        if (!indexPathIsDirectory) {
+            return YES;
         }
     }
     NSLog(@"could support %@", filePath);
-    return YES;
+    return NO;
 }
 
 
-
-
+- (void)importReport:(Report *)report
+{
+    
+}
 
 @end
