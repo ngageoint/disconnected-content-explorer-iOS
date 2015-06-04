@@ -25,10 +25,11 @@ SpecBegin(ReportType)
 
 describe(@"HtmlReportType", ^{
 
-    __block NSFileManager *fileManager = mock([NSFileManager class]);
-    __block HtmlReportType *htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager];
-    __block NSString *reportsDir = @"/test/reports/";
+    NSFileManager * const fileManager = mock([NSFileManager class]);
 
+    HtmlReportType * const htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager];
+    NSString * const reportsDir = @"/test/reports/";
+    
 
     afterEach(^{
         [((MKTBaseMockObject *)fileManager) reset];
@@ -41,7 +42,7 @@ describe(@"HtmlReportType", ^{
         NSLog(@"index path: %@", indexPath);
 
         [given([fileManager attributesOfItemAtPath:dirPath error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
-        [[given([fileManager fileExistsAtPath:indexPath isDirectory:nil]) withMatcher:notNilValue() forArgument:1] willDo:^id (NSInvocation *invocation) {
+        [[given([fileManager fileExistsAtPath:indexPath isDirectory:nil]) withMatcher:anything() forArgument:1] willDo:^id (NSInvocation *invocation) {
             BOOL *isDirectory;
             [invocation getArgument:&isDirectory atIndex:3];
             *isDirectory = NO;
@@ -65,7 +66,6 @@ describe(@"HtmlReportType", ^{
 
         expect([htmlReportType couldHandleFile:dirPath]).to.equal(NO);
     });
-
 
     it(@"could not handle a directory when index.html is a directory", ^{
         NSString *dirPath = [reportsDir stringByAppendingPathComponent:@"test_reports"];
@@ -95,7 +95,47 @@ describe(@"HtmlReportType", ^{
 
         [given([fileManager attributesOfItemAtPath:htmlPath error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
-        expect([htmlReportType couldHandleFile:htmlPath]);
+        expect([htmlReportType couldHandleFile:htmlPath]).to.equal(YES);
+    });
+
+    it(@"could not handle something else", ^{
+        NSString *filePath = [reportsDir stringByAppendingPathComponent:@"test_report.txt"];
+
+        [given([fileManager attributesOfItemAtPath:filePath error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
+
+        expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
+    });
+
+    it(@"could not handle a non-regular file or non-directory", ^{
+        NSString *filePath = [reportsDir stringByAppendingPathComponent:@"i_dunno"];
+
+        [given([fileManager attributesOfItemAtPath:filePath error:nil]) willReturn:@{NSFileType: NSFileTypeBlockSpecial}];
+
+        expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
+    });
+
+    describe(@"importReport from zip file", ^{
+
+        it(@"unzips the file asynchronously", ^{
+            Report *report = nil;
+            [htmlReportType importReport:report];
+        });
+
+        it(@"unzips the file to a temporary directory", ^{
+            failure(@"unimplemented");
+        });
+
+        it(@"leaves the zip file if an error occurs", ^{
+            failure(@"unimplemented");
+        });
+
+        it(@"deletes the zip file after unzipping successfully", ^{
+            failure(@"unimplemented");
+        });
+
+        it(@"reports unzip progress updates", ^{
+            failure(@"unimplemented");
+        });
     });
 
 });
