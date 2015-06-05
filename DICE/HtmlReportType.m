@@ -8,17 +8,20 @@
 
 #import "HtmlReportType.h"
 
+#import "UnzipOperation.h"
+
 
 @interface HtmlReportType()
 
 @property (strong, nonatomic, readonly) NSFileManager *fileManager;
+@property (strong, nonatomic, readonly) NSOperationQueue *workQueue;
 
 @end
 
 
 @implementation HtmlReportType
 
-- (HtmlReportType *)initWithFileManager:(NSFileManager *)fileManager
+- (HtmlReportType *)initWithFileManager:(NSFileManager *)fileManager workQueue:(NSOperationQueue *)workQueue
 {
     self = [super init];
     
@@ -27,6 +30,7 @@
     }
     
     _fileManager = fileManager;
+    _workQueue = workQueue;
     
     return self;
 }
@@ -60,7 +64,7 @@
 
 - (void)importReport:(Report *)report
 {
-    
+    [UnzipOperation unzipFile:report.url toDir:nil onQueue:self.workQueue];
 }
 
 @end

@@ -12,7 +12,7 @@
 
 @interface HtmlReportType : NSObject <ReportType>
 
-- (instancetype)initWithFileManager:(NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithFileManager:(NSFileManager *)fileManager workQueue:(NSOperationQueue *)workQueue NS_DESIGNATED_INITIALIZER;
 
 - (BOOL)couldHandleFile:(NSString *)filePath;
 

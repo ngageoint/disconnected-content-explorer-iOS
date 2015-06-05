@@ -18,7 +18,26 @@
 
 #import "ResourceTypes.h"
 #import "HtmlReportType.h"
+#import "UnzipOperation.h"
 
+
+@interface TestQueue : NSOperationQueue
+
+@property (strong, nonatomic, readonly) NSOperation *lastOperation;
+
+@end
+
+@implementation TestQueue
+
+- (void)addOperation:(NSOperation *)op
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [op start];
+        _lastOperation = op;
+    });
+}
+
+@end
 
 SpecBegin(ReportType)
 
@@ -26,9 +45,11 @@ SpecBegin(ReportType)
 describe(@"HtmlReportType", ^{
 
     NSFileManager * const fileManager = mock([NSFileManager class]);
+    TestQueue * const workQueue = [[TestQueue alloc] init];
 
-    HtmlReportType * const htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager];
+    HtmlReportType * const htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager workQueue:workQueue];
     NSString * const reportsDir = @"/test/reports/";
+    NSURL * const reportsDirUrl = [NSURL fileURLWithPath:reportsDir];
     
 
     afterEach(^{
@@ -117,11 +138,28 @@ describe(@"HtmlReportType", ^{
     describe(@"importReport from zip file", ^{
 
         it(@"unzips the file asynchronously", ^{
-            Report *report = nil;
+            NSString *uuid = [[NSUUID UUID] UUIDString];
+            NSString *reportName = [NSString stringWithFormat:@"%@.zip", uuid];
+            Report *report = [[Report alloc] init];
+            report.url = [reportsDirUrl URLByAppendingPathComponent:reportName];
             [htmlReportType importReport:report];
+
+            expect(workQueue.lastOperation).to.beNil;
+
+            waitUntil(^(DoneCallback done) {
+                if (workQueue.lastOperation) {
+                    done();
+                }
+            });
+
+            expect(workQueue.lastOperation).to.beInstanceOf([UnzipOperation class]);
+
+            UnzipOperation *unzip = (UnzipOperation *)workQueue.lastOperation;
+            expect(unzip.zipFile).to.equal(report.url);
         });
 
         it(@"unzips the file to a temporary directory", ^{
+
             failure(@"unimplemented");
         });
 
