@@ -16,6 +16,7 @@
 		7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49201A0D49B50044236B /* OpenGLES.framework */; };
 		7D0B9A2A1ACDAAC400359E7D /* MainStoryboard-iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */; };
 		7D1432531B165B990003DD53 /* ReportStoreSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D1432521B165B990003DD53 /* ReportStoreSpec.m */; };
+		7D1432561B20B8660003DD53 /* UnzipOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D1432551B20B8660003DD53 /* UnzipOperation.m */; };
 		7D1432591B20BA440003DD53 /* HtmlReportType.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D1432581B20BA440003DD53 /* HtmlReportType.m */; };
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
@@ -133,6 +134,8 @@
 		7D0B49201A0D49B50044236B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		7D0B9A291ACDAAC400359E7D /* MainStoryboard-iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPad.storyboard"; sourceTree = "<group>"; };
 		7D1432521B165B990003DD53 /* ReportStoreSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportStoreSpec.m; sourceTree = "<group>"; };
+		7D1432541B20B8660003DD53 /* UnzipOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnzipOperation.h; sourceTree = "<group>"; };
+		7D1432551B20B8660003DD53 /* UnzipOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnzipOperation.m; sourceTree = "<group>"; };
 		7D1432571B20BA440003DD53 /* HtmlReportType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HtmlReportType.h; sourceTree = "<group>"; };
 		7D1432581B20BA440003DD53 /* HtmlReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HtmlReportType.m; sourceTree = "<group>"; };
 		7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
@@ -500,6 +503,8 @@
 				E3AC40FA198ADA3900DE8F41 /* OfflineMapUtility.m */,
 				7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */,
 				7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */,
+				7D1432541B20B8660003DD53 /* UnzipOperation.h */,
+				7D1432551B20B8660003DD53 /* UnzipOperation.m */,
 			);
 			path = utilities;
 			sourceTree = "<group>";
@@ -882,6 +887,7 @@
 				E39D834E19DF2B95008357DF /* ReaderDemoController.m in Sources */,
 				E39D837219DF2B95008357DF /* ReaderThumbFetch.m in Sources */,
 				7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */,
+				7D1432561B20B8660003DD53 /* UnzipOperation.m in Sources */,
 				E3A5200118D7579700CE30DD /* ReportAPI.m in Sources */,
 				E3A73FC3185559FC00035C76 /* ReportMapAnnotation.m in Sources */,
 				E39D836819DF2B95008357DF /* CGPDFDocument.m in Sources */,
