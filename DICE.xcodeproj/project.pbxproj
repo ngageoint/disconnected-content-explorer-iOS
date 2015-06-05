@@ -28,7 +28,7 @@
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
 		7DE513091B0E8A1C0023F1D5 /* ReportStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE513081B0E8A1C0023F1D5 /* ReportStore.m */; };
-		7DE5130B1B0F65EF0023F1D5 /* ReportTypeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE5130A1B0F65EF0023F1D5 /* ReportTypeSpec.m */; };
+		7DE5130B1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE5130A1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m */; };
 		7DF1E24E1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */; };
 		7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */; };
 		AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B73CA51504D8A8B497186523 /* libPods.a */; };
@@ -158,7 +158,7 @@
 		7DCCF0FB1B156F9A001A526B /* ReportType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportType.h; sourceTree = "<group>"; };
 		7DE513071B0E8A1C0023F1D5 /* ReportStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportStore.h; sourceTree = "<group>"; };
 		7DE513081B0E8A1C0023F1D5 /* ReportStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportStore.m; sourceTree = "<group>"; };
-		7DE5130A1B0F65EF0023F1D5 /* ReportTypeSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportTypeSpec.m; sourceTree = "<group>"; };
+		7DE5130A1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HtmlReportTypeSpec.m; sourceTree = "<group>"; };
 		7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPhone.storyboard"; sourceTree = "<group>"; };
 		7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SettingsViewController+SettingsViewController_iPhone.m"; sourceTree = "<group>"; };
 		B73CA51504D8A8B497186523 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -324,7 +324,7 @@
 			children = (
 				7D4E1C481A1F9475002762B3 /* Supporting Files */,
 				7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */,
-				7DE5130A1B0F65EF0023F1D5 /* ReportTypeSpec.m */,
+				7DE5130A1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m */,
 				7D1432521B165B990003DD53 /* ReportStoreSpec.m */,
 			);
 			path = DICETests;
@@ -841,7 +841,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */,
-				7DE5130B1B0F65EF0023F1D5 /* ReportTypeSpec.m in Sources */,
+				7DE5130B1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m in Sources */,
 				7D1432531B165B990003DD53 /* ReportStoreSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
