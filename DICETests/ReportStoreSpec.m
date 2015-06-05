@@ -27,8 +27,7 @@ describe(@"ReportStore", ^{
 
     NSFileManager *fileManager = mock([NSFileManager class]);
 
-    NSString *reportsDirName = @"/dice/reports";
-    NSURL *reportsDirUrl = [NSURL fileURLWithPath:reportsDirName];
+    NSURL *reportsDirUrl = [NSURL fileURLWithPath:@"/dice/reports"];
 
     __block ReportStore *store;
 

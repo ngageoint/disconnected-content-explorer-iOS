@@ -8,17 +8,11 @@
 
 #import "UnzipOperation.h"
 
+#import "SimpleFileManager.h"
+
 @implementation UnzipOperation
 
-
-+ (UnzipOperation *)unzipFile:(NSURL *)zipFile toDir:(NSURL *)destDir onQueue:(NSOperationQueue *)queue
-{
-    UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir];
-    [queue addOperation:unzip];
-    return unzip;
-}
-
-- (instancetype)initWithZipFile:(NSURL *)zipFile destDir:(NSURL *)destDir
+- (instancetype)initWithZipFile:(NSURL *)zipFile destDir:(NSURL *)destDir fileManager:(id<SimpleFileManager>)fileManager
 {
     self = [super init];
     if (!self) {
@@ -29,6 +23,11 @@
     _destDir = destDir;
 
     return self;
+}
+
+- (void)main
+{
+
 }
 
 

@@ -8,12 +8,13 @@
 
 #import "HtmlReportType.h"
 
+#import "SimpleFileManager.h"
 #import "UnzipOperation.h"
 
 
 @interface HtmlReportType()
 
-@property (strong, nonatomic, readonly) NSFileManager *fileManager;
+@property (strong, nonatomic, readonly) id<SimpleFileManager> fileManager;
 @property (strong, nonatomic, readonly) NSOperationQueue *workQueue;
 
 @end
@@ -21,7 +22,7 @@
 
 @implementation HtmlReportType
 
-- (HtmlReportType *)initWithFileManager:(NSFileManager *)fileManager workQueue:(NSOperationQueue *)workQueue
+- (HtmlReportType *)initWithFileManager:(id<SimpleFileManager>)fileManager workQueue:(NSOperationQueue *)workQueue
 {
     self = [super init];
     
@@ -36,35 +37,32 @@
 }
 
 
-- (BOOL)couldHandleFile:(NSString *)filePath
+- (BOOL)couldHandleFile:(NSURL *)filePath
 {
-    NSDictionary *fileAttrs = [_fileManager attributesOfItemAtPath:filePath error:nil];
-    NSString *fileType = fileAttrs[NSFileType];
-    if ([NSFileTypeRegular isEqualToString:fileType]) {
+    id<FileInfo> fileInfo = [_fileManager infoForPath:filePath];
+    if (fileInfo.isRegularFile)
+    {
         NSString *ext = [filePath.pathExtension lowercaseString];
         return
             [@"zip" isEqualToString:ext] ||
             [@"html" isEqualToString:ext];
     }
-    else if ([NSFileTypeDirectory isEqualToString:fileType]) {
-        NSString *indexPath = [filePath stringByAppendingPathComponent:@"index.html"];
-        BOOL indexPathIsDirectory = YES;
-        BOOL exists = [_fileManager fileExistsAtPath:indexPath isDirectory:&indexPathIsDirectory];
-        if (!exists) {
-            return NO;
-        }
-        if (!indexPathIsDirectory) {
-            return YES;
-        }
+    else if (fileInfo.isDirectory)
+    {
+        NSURL *indexPath = [filePath URLByAppendingPathComponent:@"index.html"];
+        fileInfo = [_fileManager infoForPath:indexPath];
+        return fileInfo && fileInfo.isRegularFile;
     }
-    NSLog(@"could support %@", filePath);
+
     return NO;
 }
 
 
 - (void)importReport:(Report *)report
 {
-    [UnzipOperation unzipFile:report.url toDir:nil onQueue:self.workQueue];
+    NSURL *tempDir = [_fileManager createTempDir];
+    UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:report.url destDir:tempDir fileManager:_fileManager];
+    [_workQueue addOperation:unzip];
 }
 
 @end

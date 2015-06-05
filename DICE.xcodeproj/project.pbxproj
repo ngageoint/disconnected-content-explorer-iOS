@@ -138,6 +138,7 @@
 		7D1432551B20B8660003DD53 /* UnzipOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnzipOperation.m; sourceTree = "<group>"; };
 		7D1432571B20BA440003DD53 /* HtmlReportType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HtmlReportType.h; sourceTree = "<group>"; };
 		7D1432581B20BA440003DD53 /* HtmlReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HtmlReportType.m; sourceTree = "<group>"; };
+		7D14325B1B2226020003DD53 /* SimpleFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleFileManager.h; sourceTree = "<group>"; };
 		7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
 		7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
 		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
@@ -505,6 +506,7 @@
 				7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */,
 				7D1432541B20B8660003DD53 /* UnzipOperation.h */,
 				7D1432551B20B8660003DD53 /* UnzipOperation.m */,
+				7D14325B1B2226020003DD53 /* SimpleFileManager.h */,
 			);
 			path = utilities;
 			sourceTree = "<group>";

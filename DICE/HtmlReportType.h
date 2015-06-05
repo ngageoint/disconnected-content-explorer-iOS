@@ -14,6 +14,6 @@
 
 - (instancetype)initWithFileManager:(NSFileManager *)fileManager workQueue:(NSOperationQueue *)workQueue NS_DESIGNATED_INITIALIZER;
 
-- (BOOL)couldHandleFile:(NSString *)filePath;
+- (BOOL)couldHandleFile:(NSURL *)filePath;
 
 @end
