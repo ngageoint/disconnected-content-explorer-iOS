@@ -89,7 +89,7 @@
 @end
 
 
-SpecBegin(ReportType)
+SpecBegin(HtmlReportType)
 
 describe(@"HtmlReportType", ^{
 
@@ -99,11 +99,12 @@ describe(@"HtmlReportType", ^{
     NSURL * const reportsDir = [NSURL fileURLWithPath:@"/test/reports/"];
 
     HtmlReportType * const htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager workQueue:workQueue];
-    
 
+    
     afterEach(^{
         [((MKTBaseMockObject *)fileManager) reset];
     });
+
 
     it(@"could handle a directory if it contains index.html", ^{
         NSURL *dirPath = [reportsDir URLByAppendingPathComponent:@"test_report"];
