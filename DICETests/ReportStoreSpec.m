@@ -12,6 +12,26 @@
 #import "ReportType.h"
 
 
+/**
+ This category enables the OCHamcrest endsWith matcher to accept
+ NSURL objects.
+ */
+@interface NSURL (HasSuffixSupport)
+
+- (BOOL)hasSuffix:(NSString *)suffix;
+
+@end
+
+@implementation NSURL (HasSuffixSupport)
+
+- (BOOL)hasSuffix:(NSString *)suffix
+{
+    return [self.path hasSuffix:suffix];
+}
+
+@end
+
+
 SpecBegin(ReportStore)
 
 describe(@"ReportStore", ^{
@@ -27,7 +47,7 @@ describe(@"ReportStore", ^{
 
     NSFileManager *fileManager = mock([NSFileManager class]);
 
-    NSURL *reportsDirUrl = [NSURL fileURLWithPath:@"/dice/reports"];
+    NSURL *reportsDir = [NSURL fileURLWithPath:@"/dice/reports"];
 
     __block ReportStore *store;
 
@@ -37,7 +57,7 @@ describe(@"ReportStore", ^{
     
     beforeEach(^{
         // initialize a new ReportStore to ensure all tests are independent
-        store = [[ReportStore alloc] initWithReportsDir:reportsDirUrl fileManager:fileManager];
+        store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager];
         store.reportTypes = @[
             redType,
             blueType
@@ -47,45 +67,45 @@ describe(@"ReportStore", ^{
     describe(@"loadReports", ^{
 
         beforeEach(^{
-            [given([fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil]) willReturn:reportsDirUrl];
+            [given([fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil]) willReturn:reportsDir];
         });
 
         it(@"finds the supported files in the reports directory", ^{
-            [given([fileManager contentsOfDirectoryAtURL:reportsDirUrl
+            [given([fileManager contentsOfDirectoryAtURL:reportsDir
                 includingPropertiesForKeys:nil
                 options:0
                 error:nil])
                 willReturn:@[
-                    [reportsDirUrl URLByAppendingPathComponent:@"report1.red"],
-                    [reportsDirUrl URLByAppendingPathComponent:@"report2.blue"],
-                    [reportsDirUrl URLByAppendingPathComponent:@"something.else"]
+                    [reportsDir URLByAppendingPathComponent:@"report1.red"],
+                    [reportsDir URLByAppendingPathComponent:@"report2.blue"],
+                    [reportsDir URLByAppendingPathComponent:@"something.else"]
                 ]];
 
             NSArray *reports = [store loadReports];
 
             expect(reports.count).to.equal(2);
-            expect(((Report *)reports[0]).url).to.equal([reportsDirUrl URLByAppendingPathComponent:@"report1.red"]);
-            expect(((Report *)reports[1]).url).to.equal([reportsDirUrl URLByAppendingPathComponent:@"report2.blue"]);
+            expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
         });
 
         it(@"removes enabled reports for files no longer in the reports directory", ^{
-            [[given([fileManager contentsOfDirectoryAtURL:reportsDirUrl
+            [[given([fileManager contentsOfDirectoryAtURL:reportsDir
                 includingPropertiesForKeys:nil
                 options:0
                 error:nil])
                 willReturn:@[
-                    [reportsDirUrl URLByAppendingPathComponent:@"report1.red"],
-                    [reportsDirUrl URLByAppendingPathComponent:@"report2.blue"]
+                    [reportsDir URLByAppendingPathComponent:@"report1.red"],
+                    [reportsDir URLByAppendingPathComponent:@"report2.blue"]
                 ]]
                 willReturn:@[
-                    [reportsDirUrl URLByAppendingPathComponent:@"report2.blue"]
+                    [reportsDir URLByAppendingPathComponent:@"report2.blue"]
                 ]];
 
             NSArray *reports = [store loadReports];
 
             expect(reports.count).to.equal(2);
-            expect(((Report *)reports[0]).url).to.equal([reportsDirUrl URLByAppendingPathComponent:@"report1.red"]);
-            expect(((Report *)reports[1]).url).to.equal([reportsDirUrl URLByAppendingPathComponent:@"report2.blue"]);
+            expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
             ((Report *)reports[0]).isEnabled = YES;
             ((Report *)reports[1]).isEnabled = YES;
@@ -95,7 +115,7 @@ describe(@"ReportStore", ^{
             reports = [store loadReports];
 
             expect(reports.count).to.equal(1);
-            expect(((Report *)reports[0]).url).to.equal([reportsDirUrl URLByAppendingPathComponent:@"report2.blue"]);
+            expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
         });
 
     });
@@ -106,8 +126,10 @@ describe(@"ReportStore", ^{
             NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.red"];
             Report *report = [store attemptToImportReportFromResource:url];
 
-            [verify(redType) importReport:report];
-            [verifyCount(blueType, never()) importReport:report];
+            [verify(redType) createImportProcessForReport:report];
+            [verifyCount(blueType, never()) createImportProcessForReport:report];
+
+            failure(@"verify interaction with ImportProcess");
         });
 
         it(@"returns nil if the report cannot be imported", ^{
@@ -115,8 +137,8 @@ describe(@"ReportStore", ^{
             Report *report = [store attemptToImportReportFromResource:url];
 
             expect(report).to.beNil;
-            [verifyCount(redType, never()) importReport:report];
-            [verifyCount(blueType, never()) importReport:report];
+            [verifyCount(redType, never()) createImportProcessForReport:report];
+            [verifyCount(blueType, never()) createImportProcessForReport:report];
         });
 
         it(@"adds the initial report to the report list", ^{

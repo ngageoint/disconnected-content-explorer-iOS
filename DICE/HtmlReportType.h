@@ -9,11 +9,27 @@
 #import <Foundation/Foundation.h>
 
 #import "ReportType.h"
+#import "BaseImportProcess.h"
+
+
+@interface ZippedHtmlImportProcess : BaseImportProcess <ImportProcess>
+
+@property (nonatomic, readonly) NSURL *destDir;
+
+- (instancetype)initWithReport:(Report *)report destDir:(NSURL *)destDir;
+
+@end
+
+
+@interface ValidateHtmlLayoutOperation : NSOperation
+
+- (instancetype)initWithFile:(NSURL *)file;
+
+@end
+
 
 @interface HtmlReportType : NSObject <ReportType>
 
-- (instancetype)initWithFileManager:(NSFileManager *)fileManager workQueue:(NSOperationQueue *)workQueue NS_DESIGNATED_INITIALIZER;
-
-- (BOOL)couldHandleFile:(NSURL *)filePath;
+- (instancetype)initWithFileManager:(NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
 
 @end

@@ -15,6 +15,6 @@
 @property (strong, nonatomic, readonly) NSURL *zipFile;
 @property (strong, nonatomic, readonly) NSURL *destDir;
 
-- (instancetype)initWithZipFile:(NSURL *)zipFile destDir:(NSURL *)destDir fileManager:(id<SimpleFileManager>)fileManager;
+- (instancetype)initWithZipFile:(NSURL *)zipFile destDir:(NSURL *)destDir;
 
 @end

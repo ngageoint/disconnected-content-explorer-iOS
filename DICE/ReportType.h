@@ -5,11 +5,13 @@
 
 #import "Report.h"
 
+#import "ImportProcess.h"
+
 
 @protocol ReportType <NSObject>
 
 - (BOOL)couldHandleFile:(NSURL *)reportPath;
-- (void)importReport:(Report *)report;
+- (id<ImportProcess>)createImportProcessForReport:(Report *)report;
 
 @end
 

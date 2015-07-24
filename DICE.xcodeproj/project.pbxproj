@@ -20,6 +20,8 @@
 		7D1432591B20BA440003DD53 /* HtmlReportType.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D1432581B20BA440003DD53 /* HtmlReportType.m */; };
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
+		7D3E07921B6142250077ABCA /* DeleteFileOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D3E07911B6142250077ABCA /* DeleteFileOperation.m */; };
+		7D3E07951B61449F0077ABCA /* BaseImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D3E07941B61449F0077ABCA /* BaseImportProcess.m */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
 		7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */; };
@@ -139,10 +141,15 @@
 		7D1432571B20BA440003DD53 /* HtmlReportType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HtmlReportType.h; sourceTree = "<group>"; };
 		7D1432581B20BA440003DD53 /* HtmlReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HtmlReportType.m; sourceTree = "<group>"; };
 		7D14325B1B2226020003DD53 /* SimpleFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleFileManager.h; sourceTree = "<group>"; };
+		7D14325C1B24AFB00003DD53 /* ImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImportProcess.h; sourceTree = "<group>"; };
 		7D172A6A1A2E59E1001EF965 /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
 		7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
 		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
 		7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
+		7D3E07901B6142250077ABCA /* DeleteFileOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteFileOperation.h; sourceTree = "<group>"; };
+		7D3E07911B6142250077ABCA /* DeleteFileOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeleteFileOperation.m; sourceTree = "<group>"; };
+		7D3E07931B61449F0077ABCA /* BaseImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseImportProcess.h; sourceTree = "<group>"; };
+		7D3E07941B61449F0077ABCA /* BaseImportProcess.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseImportProcess.m; sourceTree = "<group>"; };
 		7D4E1C461A1F9475002762B3 /* DICETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DICETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D4E1C491A1F9475002762B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
@@ -381,6 +388,7 @@
 				7DE513071B0E8A1C0023F1D5 /* ReportStore.h */,
 				7DE513081B0E8A1C0023F1D5 /* ReportStore.m */,
 				7DCCF0FB1B156F9A001A526B /* ReportType.h */,
+				7D14325C1B24AFB00003DD53 /* ImportProcess.h */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -507,6 +515,10 @@
 				7D1432541B20B8660003DD53 /* UnzipOperation.h */,
 				7D1432551B20B8660003DD53 /* UnzipOperation.m */,
 				7D14325B1B2226020003DD53 /* SimpleFileManager.h */,
+				7D3E07901B6142250077ABCA /* DeleteFileOperation.h */,
+				7D3E07911B6142250077ABCA /* DeleteFileOperation.m */,
+				7D3E07931B61449F0077ABCA /* BaseImportProcess.h */,
+				7D3E07941B61449F0077ABCA /* BaseImportProcess.m */,
 			);
 			path = utilities;
 			sourceTree = "<group>";
@@ -870,10 +882,12 @@
 				E39D837A19DF2B95008357DF /* ThumbsViewController.m in Sources */,
 				E39DF1AA18C69DEB00B13D46 /* SettingsViewController.m in Sources */,
 				E39D836A19DF2B95008357DF /* ReaderContentPage.m in Sources */,
+				7D3E07921B6142250077ABCA /* DeleteFileOperation.m in Sources */,
 				E39D836919DF2B95008357DF /* ReaderConstants.m in Sources */,
 				E337BCC21811AD7B00D987F9 /* Report.m in Sources */,
 				E3A73FC01855585200035C76 /* MapViewController.m in Sources */,
 				E39D837619DF2B95008357DF /* ReaderThumbsView.m in Sources */,
+				7D3E07951B61449F0077ABCA /* BaseImportProcess.m in Sources */,
 				E3BC6EE4192E7A8700096EE5 /* HTMLViewController.m in Sources */,
 				7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */,
 				E39D837519DF2B95008357DF /* ReaderThumbRequest.m in Sources */,

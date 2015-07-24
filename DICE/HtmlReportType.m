@@ -12,17 +12,52 @@
 #import "UnzipOperation.h"
 
 
-@interface HtmlReportType()
+@implementation ValidateHtmlLayoutOperation
+
+/*
+ TODO: combine this with the logic of couldHandleFile: to DRY
+ */
+
+- (void)main
+{
+    @autoreleasepool {
+        
+    }
+}
+
+@end
+
+
+@implementation ZippedHtmlImportProcess
+
+- (instancetype)initWithReport:(Report *)report destDir:(NSURL *)destDir
+{
+    self = [super initWithReport:report];
+
+    if (!self) {
+        return nil;
+    }
+
+    _destDir = destDir;
+
+    [self.steps addObject:[[UnzipOperation alloc] initWithZipFile:report.url destDir:destDir]];
+
+    return self;
+}
+
+@end
+
+
+@interface HtmlReportType ()
 
 @property (strong, nonatomic, readonly) id<SimpleFileManager> fileManager;
-@property (strong, nonatomic, readonly) NSOperationQueue *workQueue;
 
 @end
 
 
 @implementation HtmlReportType
 
-- (HtmlReportType *)initWithFileManager:(id<SimpleFileManager>)fileManager workQueue:(NSOperationQueue *)workQueue
+- (HtmlReportType *)initWithFileManager:(id<SimpleFileManager>)fileManager
 {
     self = [super init];
     
@@ -31,7 +66,6 @@
     }
     
     _fileManager = fileManager;
-    _workQueue = workQueue;
     
     return self;
 }
@@ -58,11 +92,10 @@
 }
 
 
-- (void)importReport:(Report *)report
+- (id<ImportProcess>)createImportProcessForReport:(Report *)report
 {
     NSURL *tempDir = [_fileManager createTempDir];
-    UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:report.url destDir:tempDir fileManager:_fileManager];
-    [_workQueue addOperation:unzip];
+    return [[ZippedHtmlImportProcess alloc] initWithReport:report destDir:tempDir];
 }
 
 @end

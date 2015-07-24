@@ -12,7 +12,7 @@
 
 @implementation UnzipOperation
 
-- (instancetype)initWithZipFile:(NSURL *)zipFile destDir:(NSURL *)destDir fileManager:(id<SimpleFileManager>)fileManager
+- (instancetype)initWithZipFile:(NSURL *)zipFile destDir:(NSURL *)destDir
 {
     self = [super init];
     if (!self) {
@@ -27,7 +27,9 @@
 
 - (void)main
 {
-
+    @autoreleasepool {
+        // do it
+    }
 }
 
 

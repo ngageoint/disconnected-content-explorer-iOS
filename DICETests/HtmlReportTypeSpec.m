@@ -19,8 +19,8 @@
 #import "HtmlReportType.h"
 #import "ResourceTypes.h"
 #import "SimpleFileManager.h"
+#import "DeleteFileOperation.h"
 #import "UnzipOperation.h"
-
 
 
 @interface TestQueue : NSOperationQueue
@@ -98,7 +98,17 @@ describe(@"HtmlReportType", ^{
 
     NSURL * const reportsDir = [NSURL fileURLWithPath:@"/test/reports/"];
 
-    HtmlReportType * const htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager workQueue:workQueue];
+    HtmlReportType * const htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager];
+
+
+    beforeAll(^{
+
+    });
+
+
+    beforeEach(^{
+
+    });
 
     
     afterEach(^{
@@ -168,27 +178,16 @@ describe(@"HtmlReportType", ^{
         expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
     });
 
-    describe(@"importReport from zip file", ^{
+    describe(@"importing from zip file", ^{
 
-        it(@"unzips the file asynchronously", ^{
-            NSString *uuid = [[NSUUID UUID] UUIDString];
-            NSString *reportName = [NSString stringWithFormat:@"%@.zip", uuid];
+        it(@"validates the zip file contents first", ^{
             Report *report = [[Report alloc] init];
-            report.url = [reportsDir URLByAppendingPathComponent:reportName];
-            [htmlReportType importReport:report];
+            report.url = [reportsDir URLByAppendingPathComponent:@"validate_test.zip"];
+            id<ImportProcess> import = [htmlReportType createImportProcessForReport:report];
 
-            expect(workQueue.lastOperation).to.beNil;
+            NSOperation *validate = [import nextStep];
 
-            waitUntil(^(DoneCallback done) {
-                if (workQueue.lastOperation) {
-                    done();
-                }
-            });
-
-            expect(workQueue.lastOperation).to.beInstanceOf([UnzipOperation class]);
-
-            UnzipOperation *unzip = (UnzipOperation *)workQueue.lastOperation;
-            expect(unzip.zipFile).to.equal(report.url);
+            expect(validate).to.beInstanceOf([ValidateHtmlLayoutOperation class]);
         });
 
         it(@"unzips the file to a temporary directory", ^{
@@ -202,35 +201,29 @@ describe(@"HtmlReportType", ^{
 
             [given([fileManager createTempDir]) willReturn:tempDir];
 
-            [htmlReportType importReport:report];
+            id<ImportProcess> import = [htmlReportType createImportProcessForReport:report];
+            UnzipOperation *unzipStep = (UnzipOperation *) [import nextStep];
 
-            waitUntil(^(DoneCallback done) {
-                if (workQueue.lastOperation) {
-                    done();
-                }
-            });
-
-            UnzipOperation *unzip = (UnzipOperation *)workQueue.lastOperation;
-
-            expect(unzip.zipFile).to.equal(report.url);
-            expect(unzip.destDir).to.equal(tempDir);
+            expect(unzipStep.zipFile).to.equal(report.url);
+            expect(unzipStep.destDir).to.equal(tempDir);
         });
 
         it(@"deletes the zip file after unzipping successfully", ^{
             Report *report = [[Report alloc] init];
             report.url = [reportsDir URLByAppendingPathComponent:@"success.zip"];
 
-            [given([fileManager deleteFileAtPath:report.url]) willReturnBool:YES];
+            id<ImportProcess> import = [htmlReportType createImportProcessForReport:report];
+            
+            NSOperation *lastStep = nil;
+            while ([import hasNextStep]) {
+                lastStep = [import nextStep];
+            }
 
-            [htmlReportType importReport:report];
+            expect(lastStep).to.beInstanceOf([DeleteFileOperation class]);
+        });
 
-            waitUntil(^(DoneCallback done) {
-                if (workQueue.lastOperation) {
-                    done();
-                }
-            });
-
-            [verify(fileManager) deleteFileAtPath:report.url];
+        it(@"moves the content to the reports directory", ^{
+            failure(@"unimplemented");
         });
 
         it(@"leaves the zip file if an error occurs", ^{
@@ -240,6 +233,34 @@ describe(@"HtmlReportType", ^{
         it(@"reports unzip progress updates", ^{
             failure(@"unimplemented");
         });
+    });
+
+    describe(@"importing from directory", ^{
+
+    });
+
+});
+
+describe(@"ValidateHtmlLayoutOperation", ^{
+
+    it(@"validates a zip with index.html at the root level", ^{
+        failure(@"unimplemented");
+    });
+
+    it(@"validates a zip with index.html in a top-level directory", ^{
+        failure(@"unimplemented");
+    });
+
+    it(@"invalidates a zip without index.html", ^{
+        failure(@"unimplemented");
+    });
+
+    it(@"invalidates a zip with index.html in a lower level directory", ^{
+        failure(@"unimplemented");
+    });
+
+    it(@"invalidates a zip with unrecognized entries at the root level", ^{
+        failure(@"unimplemented");
     });
 
 });

@@ -18,6 +18,7 @@
     NSMutableArray *_reports;
     NSFileManager *_fileManager;
     NSURL *_reportsDir;
+    NSOperationQueue *_importQueue;
 }
 
 - (instancetype)initWithReportsDir:(NSURL * const)reportsDir fileManager:(NSFileManager *)fileManager
@@ -31,6 +32,7 @@
     _reports = [NSMutableArray array];
     _reportsDir = reportsDir;
     _fileManager = fileManager;
+    _importQueue = [[NSOperationQueue alloc] init];
 
     return self;
 }
@@ -81,24 +83,31 @@
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
-    id<ReportType> reportType = [self reportTypeForFile:reportUrl.path];
+    id<ReportType> reportType = [self reportTypeForFile:reportUrl];
     if (!reportType) {
         return nil;
     }
+
     Report *report = [[Report alloc] initWithTitle:reportUrl.path];
     report.isEnabled = NO;
     report.url = reportUrl;
     report.reportID = reportUrl.path;
     report.title = reportUrl.lastPathComponent;
     report.summary = @"Importing...";
+
     [_reports addObject:report];
-    [reportType importReport:report];
+
+    // TODO: notify report added
+
+//    id<ImportProcess> import = [reportType createImportProcessForReport:report];
+//    [_importQueue addOperation:[import nextStep]];
+
     return report;
 }
 
 #pragma mark - private_methods
 
-- (id<ReportType>)reportTypeForFile:(NSString *)reportPath
+- (id<ReportType>)reportTypeForFile:(NSURL *)reportPath
 {
     __block id<ReportType> reportType = nil;
     [self.reportTypes enumerateObjectsUsingBlock:^(id<ReportType> maybe, NSUInteger idx, BOOL *stop) {
