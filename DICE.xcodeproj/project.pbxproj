@@ -24,10 +24,6 @@
 		7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC131A8560BD00CA05D4 /* Images.xcassets */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
-		7DE513031B0E6CFD0023F1D5 /* ImportZippedReportOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE513021B0E6CFD0023F1D5 /* ImportZippedReportOperation.m */; };
-		7DE513061B0E88200023F1D5 /* HtmlReportType.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE513051B0E88200023F1D5 /* HtmlReportType.m */; };
-		7DE513091B0E8A1C0023F1D5 /* ReportStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE513081B0E8A1C0023F1D5 /* ReportStore.m */; };
-		7DE5130B1B0F65EF0023F1D5 /* ReportTypeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE5130A1B0F65EF0023F1D5 /* ReportTypeTests.m */; };
 		7DF1E24E1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */; };
 		7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */; };
 		AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B73CA51504D8A8B497186523 /* libPods.a */; };
@@ -148,13 +144,6 @@
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
 		7DA706B61A158E3800B558EC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
-		7DE513011B0E6CFD0023F1D5 /* ImportZippedReportOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImportZippedReportOperation.h; sourceTree = "<group>"; };
-		7DE513021B0E6CFD0023F1D5 /* ImportZippedReportOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImportZippedReportOperation.m; sourceTree = "<group>"; };
-		7DE513041B0E88200023F1D5 /* HtmlReportType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HtmlReportType.h; path = utilities/HtmlReportType.h; sourceTree = "<group>"; };
-		7DE513051B0E88200023F1D5 /* HtmlReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HtmlReportType.m; path = utilities/HtmlReportType.m; sourceTree = "<group>"; };
-		7DE513071B0E8A1C0023F1D5 /* ReportStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportStore.h; sourceTree = "<group>"; };
-		7DE513081B0E8A1C0023F1D5 /* ReportStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportStore.m; sourceTree = "<group>"; };
-		7DE5130A1B0F65EF0023F1D5 /* ReportTypeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportTypeTests.m; sourceTree = "<group>"; };
 		7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPhone.storyboard"; sourceTree = "<group>"; };
 		7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SettingsViewController+SettingsViewController_iPhone.m"; sourceTree = "<group>"; };
 		B73CA51504D8A8B497186523 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -320,7 +309,6 @@
 			children = (
 				7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */,
 				7D4E1C481A1F9475002762B3 /* Supporting Files */,
-				7DE5130A1B0F65EF0023F1D5 /* ReportTypeTests.m */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -362,8 +350,6 @@
 				E3B67F691A716A33000B7397 /* JavaScriptAPI.m */,
 				E3A51FFF18D7579700CE30DD /* ReportAPI.h */,
 				E3A5200018D7579700CE30DD /* ReportAPI.m */,
-				7DE513011B0E6CFD0023F1D5 /* ImportZippedReportOperation.h */,
-				7DE513021B0E6CFD0023F1D5 /* ImportZippedReportOperation.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -371,12 +357,8 @@
 		E361E45B18D3AA7B00E09C1B /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				7DE513041B0E88200023F1D5 /* HtmlReportType.h */,
-				7DE513051B0E88200023F1D5 /* HtmlReportType.m */,
 				E337BCC01811AD7B00D987F9 /* Report.h */,
 				E337BCC11811AD7B00D987F9 /* Report.m */,
-				7DE513071B0E8A1C0023F1D5 /* ReportStore.h */,
-				7DE513081B0E8A1C0023F1D5 /* ReportStore.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -834,7 +816,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */,
-				7DE5130B1B0F65EF0023F1D5 /* ReportTypeTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -858,8 +839,6 @@
 				E39D837B19DF2B95008357DF /* UIXToolbarView.m in Sources */,
 				7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */,
 				E39D837019DF2B95008357DF /* ReaderMainToolbar.m in Sources */,
-				7DE513061B0E88200023F1D5 /* HtmlReportType.m in Sources */,
-				7DE513091B0E8A1C0023F1D5 /* ReportStore.m in Sources */,
 				E39D837A19DF2B95008357DF /* ThumbsViewController.m in Sources */,
 				E39DF1AA18C69DEB00B13D46 /* SettingsViewController.m in Sources */,
 				E39D836A19DF2B95008357DF /* ReaderContentPage.m in Sources */,
@@ -883,7 +862,6 @@
 				E39D837219DF2B95008357DF /* ReaderThumbFetch.m in Sources */,
 				7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */,
 				E3A5200118D7579700CE30DD /* ReportAPI.m in Sources */,
-				7DE513031B0E6CFD0023F1D5 /* ImportZippedReportOperation.m in Sources */,
 				E3A73FC3185559FC00035C76 /* ReportMapAnnotation.m in Sources */,
 				E39D836819DF2B95008357DF /* CGPDFDocument.m in Sources */,
 				E39D837E19DF3B8A008357DF /* PDFViewController.m in Sources */,
