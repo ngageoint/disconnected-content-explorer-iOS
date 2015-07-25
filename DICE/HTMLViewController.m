@@ -116,15 +116,6 @@
 }
 
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"showReportNotes"]) {
-        NoteViewController *noteViewController = (NoteViewController *)segue.destinationViewController;
-        noteViewController.report = self.report;
-    }
-}
-
-
 #pragma mark - notification handling methods
 - (void)reportImportFinished:(NSNotification *)notification
 {
@@ -152,7 +143,8 @@
             NSString *relativeResource = [request.URL.absoluteString substringFromIndex:base.length];
             NSURL *diceURL = [NSURL URLWithString:[NSString stringWithFormat:@"dice://?reportID=%@&resource=%@", self.report.reportID, relativeResource]];
             [[UIApplication sharedApplication] openURL:diceURL];
-        } else { // see if iOS knows about an installed app that can handle this file
+        }
+        else { // see if iOS knows about an installed app that can handle this file
             NSURL *url = request.URL;
             docController = [self setupControllerWithURL:url usingDelegate:self];
             [docController presentOpenInMenuFromRect:CGRectZero inView:self.view animated:YES];
