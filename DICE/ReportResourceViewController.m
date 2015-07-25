@@ -26,8 +26,8 @@
     UIViewController<ResourceHandler> *resourceViewer = [ResourceTypes viewerForResource:self.resource];
     [self addChildViewController:resourceViewer];
     resourceViewer.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    resourceViewer.view.frame = self.resourceView.frame;
-    [self.resourceView addSubview:resourceViewer.view];
+    resourceViewer.view.frame = self.view.frame;
+    [self.view addSubview:resourceViewer.view];
     [resourceViewer didMoveToParentViewController:self];
     
     [resourceViewer handleResource:self.resource forReport:self.report];
