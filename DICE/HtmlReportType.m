@@ -21,7 +21,7 @@
 - (void)main
 {
     @autoreleasepool {
-        
+
     }
 }
 
@@ -60,13 +60,13 @@
 - (HtmlReportType *)initWithFileManager:(id<SimpleFileManager>)fileManager
 {
     self = [super init];
-    
+
     if (!self) {
         return nil;
     }
-    
+
     _fileManager = fileManager;
-    
+
     return self;
 }
 

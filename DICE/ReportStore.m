@@ -84,6 +84,7 @@
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
     id<ReportType> reportType = [self reportTypeForFile:reportUrl];
+
     if (!reportType) {
         return nil;
     }

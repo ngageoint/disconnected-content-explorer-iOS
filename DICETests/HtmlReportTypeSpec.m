@@ -100,17 +100,14 @@ describe(@"HtmlReportType", ^{
 
     HtmlReportType * const htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager];
 
-
     beforeAll(^{
 
     });
-
 
     beforeEach(^{
 
     });
 
-    
     afterEach(^{
         [((MKTBaseMockObject *)fileManager) reset];
     });
@@ -213,7 +210,7 @@ describe(@"HtmlReportType", ^{
             report.url = [reportsDir URLByAppendingPathComponent:@"success.zip"];
 
             id<ImportProcess> import = [htmlReportType createImportProcessForReport:report];
-            
+
             NSOperation *lastStep = nil;
             while ([import hasNextStep]) {
                 lastStep = [import nextStep];

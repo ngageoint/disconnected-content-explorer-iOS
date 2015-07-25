@@ -54,7 +54,7 @@ describe(@"ReportStore", ^{
     beforeAll(^{
 
     });
-    
+
     beforeEach(^{
         // initialize a new ReportStore to ensure all tests are independent
         store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager];
@@ -137,6 +137,7 @@ describe(@"ReportStore", ^{
             Report *report = [store attemptToImportReportFromResource:url];
 
             expect(report).to.beNil;
+
             [verifyCount(redType, never()) createImportProcessForReport:report];
             [verifyCount(blueType, never()) createImportProcessForReport:report];
         });
@@ -154,11 +155,11 @@ describe(@"ReportStore", ^{
         });
 
     });
-    
+
     afterEach(^{
 
     });
-    
+
     afterAll(^{
 
     });
