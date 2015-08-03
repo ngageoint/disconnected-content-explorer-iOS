@@ -66,6 +66,7 @@
         [self attemptToImportReportFromResource:reportUrl];
     }
 
+    // TODO: tests for user guide report
 //    if (_reports.count == 0)
 //    {
 //        [reports addObject:[self getUserGuideReport]];
@@ -86,6 +87,7 @@
     id<ReportType> reportType = [self reportTypeForFile:reportUrl];
 
     if (!reportType) {
+        // TODO: consider adding placeholder report for file to notify user the report is not supported
         return nil;
     }
 
@@ -100,8 +102,10 @@
 
     // TODO: notify report added
 
-//    id<ImportProcess> import = [reportType createImportProcessForReport:report];
-//    [_importQueue addOperation:[import nextStep]];
+    id<ImportProcess> import = [reportType createImportProcessForReport:report];
+
+    // TODO: track pending imports by report object and/or add self as import delegate
+    [_importQueue addOperations:import.steps waitUntilFinished:NO];
 
     return report;
 }

@@ -8,13 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "SimpleFileManager.h"
+#import "ZipFile.h"
 
 @interface UnzipOperation : NSOperation
 
-@property (strong, nonatomic, readonly) NSURL *zipFile;
-@property (strong, nonatomic, readonly) NSURL *destDir;
+@property (readonly) ZipFile *zipFile;
+@property (nonatomic) NSURL *destDir;
 
-- (instancetype)initWithZipFile:(NSURL *)zipFile destDir:(NSURL *)destDir;
+- (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir;
 
 @end

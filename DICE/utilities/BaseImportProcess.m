@@ -9,31 +9,26 @@
 #import "BaseImportProcess.h"
 
 @implementation BaseImportProcess
+{
+    NSInteger _stepCursor;
+}
 
-- (instancetype)initWithReport:(Report *)report
+- (instancetype)initWithReport:(Report *)report steps:(NSArray *)steps
 {
     self = [super init];
     if (!self) {
         return nil;
     }
 
-    _steps = [NSMutableArray array];
+    _steps = steps;
+    _stepCursor = 0;
 
     return self;
 }
 
-- (NSOperation *)nextStep
+- (void)dealloc
 {
-    NSOperation *next = self.steps.firstObject;
-    if (self.steps.count > 0) {
-        [self.steps removeObjectAtIndex:0];
-    }
-    return next;
-}
-
-- (BOOL)hasNextStep
-{
-    return self.steps.count > 0;
+    _steps = nil;
 }
 
 @end

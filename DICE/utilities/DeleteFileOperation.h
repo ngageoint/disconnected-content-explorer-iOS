@@ -10,4 +10,8 @@
 
 @interface DeleteFileOperation : NSOperation
 
+@property (nonatomic, readonly) NSURL *file;
+
+- (instancetype)initWithFile:(NSURL *)file;
+
 @end

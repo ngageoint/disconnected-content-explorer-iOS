@@ -16,11 +16,18 @@
 
 @protocol ImportProcess <NSObject>
 
+/**
+ TODO: document
+ */
 @property (nonatomic, readonly) Report *report;
-@property (nonatomic, readonly) id<ImportDelegate> delegate;
-
-- (NSOperation *)nextStep;
-- (BOOL)hasNextStep;
+/**
+ TODO: document
+ */
+@property (nonatomic, readonly) NSArray *steps;
+/**
+ TODO: document
+ */
+@property (nonatomic) id<ImportDelegate> delegate;
 
 @end
 

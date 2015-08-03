@@ -10,4 +10,25 @@
 
 @implementation DeleteFileOperation
 
+
+- (instancetype)initWithFile:(NSURL *)file
+{
+    self = [super init];
+
+    if (!self) {
+        return nil;
+    }
+
+    _file = file;
+
+    return self;
+}
+
+- (void)main
+{
+    @autoreleasepool {
+        
+    }
+}
+
 @end

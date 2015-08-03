@@ -16,12 +16,12 @@
 /**
  The list of ReportType objects for handling report files
  */
-@property (strong, nonatomic) NSArray *reportTypes;
+@property NSArray *reportTypes;
 
 /**
  The list of Report objects
  */
-@property (strong, nonatomic, readonly) NSArray *reports;
+@property NSArray *reports;
 
 
 /**

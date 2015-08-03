@@ -24,6 +24,9 @@
 		7D3E07951B61449F0077ABCA /* BaseImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D3E07941B61449F0077ABCA /* BaseImportProcess.m */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
+		7D6541C71B67EB290002EBAE /* MoveFileOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541C61B67EB290002EBAE /* MoveFileOperation.m */; };
+		7D6541C91B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */; };
+		7D6541CB1B6C20E80002EBAE /* UnzipOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */; };
 		7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */; };
 		7D75FC121A85603800CA05D4 /* attributions in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC111A85603800CA05D4 /* attributions */; };
 		7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC131A8560BD00CA05D4 /* Images.xcassets */; };
@@ -155,6 +158,10 @@
 		7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
 		7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
 		7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
+		7D6541C51B67EB290002EBAE /* MoveFileOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveFileOperation.h; sourceTree = "<group>"; };
+		7D6541C61B67EB290002EBAE /* MoveFileOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoveFileOperation.m; sourceTree = "<group>"; };
+		7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZippedHtmlImportProcessSpec.m; sourceTree = "<group>"; };
+		7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnzipOperationSpec.m; sourceTree = "<group>"; };
 		7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "ne_50m-110m_land.geojson"; path = "resources/ne_50m-110m_land.geojson"; sourceTree = "<group>"; };
 		7D75FC111A85603800CA05D4 /* attributions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = attributions; path = resources/attributions; sourceTree = "<group>"; };
 		7D75FC131A8560BD00CA05D4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = "<group>"; };
@@ -333,6 +340,8 @@
 				7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */,
 				7DE5130A1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m */,
 				7D1432521B165B990003DD53 /* ReportStoreSpec.m */,
+				7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */,
+				7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -519,6 +528,8 @@
 				7D3E07911B6142250077ABCA /* DeleteFileOperation.m */,
 				7D3E07931B61449F0077ABCA /* BaseImportProcess.h */,
 				7D3E07941B61449F0077ABCA /* BaseImportProcess.m */,
+				7D6541C51B67EB290002EBAE /* MoveFileOperation.h */,
+				7D6541C61B67EB290002EBAE /* MoveFileOperation.m */,
 			);
 			path = utilities;
 			sourceTree = "<group>";
@@ -705,7 +716,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0500;
-				ORGANIZATIONNAME = mil.nga;
+				ORGANIZATIONNAME = "National Geospatial-Intelligence Agency";
 				TargetAttributes = {
 					7D4E1C451A1F9475002762B3 = {
 						CreatedOnToolsVersion = 6.1;
@@ -854,6 +865,8 @@
 			files = (
 				7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */,
 				7DE5130B1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m in Sources */,
+				7D6541CB1B6C20E80002EBAE /* UnzipOperationSpec.m in Sources */,
+				7D6541C91B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m in Sources */,
 				7D1432531B165B990003DD53 /* ReportStoreSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -894,6 +907,7 @@
 				E39D834D19DF2B95008357DF /* ReaderBookDelegate.m in Sources */,
 				E39D836E19DF2B95008357DF /* ReaderDocumentOutline.m in Sources */,
 				E39D837919DF2B95008357DF /* ThumbsMainToolbar.m in Sources */,
+				7D6541C71B67EB290002EBAE /* MoveFileOperation.m in Sources */,
 				E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */,
 				E3B67F6A1A716A33000B7397 /* JavaScriptAPI.m in Sources */,
 				E3AC40FB198ADA3900DE8F41 /* OfflineMapUtility.m in Sources */,

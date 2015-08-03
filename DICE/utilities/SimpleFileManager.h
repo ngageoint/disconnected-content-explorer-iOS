@@ -11,7 +11,7 @@
 
 @protocol FileInfo <NSObject>
 
-@property (readonly, strong, nonatomic) NSURL *path;
+@property (readonly, nonatomic) NSURL *path;
 @property (readonly, nonatomic) BOOL isDirectory;
 @property (readonly, nonatomic) BOOL isRegularFile;
 

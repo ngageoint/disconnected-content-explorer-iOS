@@ -10,4 +10,5 @@ target :DICETests do
   pod 'Specta', '~>1.0'
   pod 'Expecta', '~>1.0'
   pod 'OCMockito', '~>1.4'
+  pod 'OCMock', '~>3.0'
 end

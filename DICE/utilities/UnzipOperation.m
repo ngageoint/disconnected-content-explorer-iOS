@@ -12,11 +12,26 @@
 
 @implementation UnzipOperation
 
-- (instancetype)initWithZipFile:(NSURL *)zipFile destDir:(NSURL *)destDir
++ (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
+{
+    NSSet *keys = [super keyPathsForValuesAffectingValueForKey:key];
+
+    if ([key isEqualToString:@"ready"]) {
+        keys = [keys setByAddingObject:@"destDir"];
+    }
+
+    return keys;
+}
+
+- (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir
 {
     self = [super init];
     if (!self) {
         return nil;
+    }
+
+    if (zipFile == nil) {
+        [NSException raise:@"IllegalArgumentException" format:@"zipFile is nil"];
     }
 
     _zipFile = zipFile;
@@ -28,9 +43,22 @@
 - (void)main
 {
     @autoreleasepool {
-        // do it
+        // TODO: do it
     }
 }
 
+- (BOOL)isReady
+{
+    return self.destDir != nil && super.ready;
+}
+
+- (void)setDestDir:(NSURL *)destDir
+{
+    if (self.executing) {
+        [NSException raise:@"IllegalStateException" format:@"cannot change destDir after UnzipOperation has started"];
+    }
+
+    _destDir = destDir;
+}
 
 @end

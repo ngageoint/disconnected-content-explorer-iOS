@@ -19,8 +19,10 @@
 #import "HtmlReportType.h"
 #import "ResourceTypes.h"
 #import "SimpleFileManager.h"
+#import "MoveFileOperation.h"
 #import "DeleteFileOperation.h"
 #import "UnzipOperation.h"
+#import "FileInZipInfo.h"
 
 
 @interface TestQueue : NSOperationQueue
@@ -94,7 +96,6 @@ SpecBegin(HtmlReportType)
 describe(@"HtmlReportType", ^{
 
     id<SimpleFileManager> const fileManager = mockProtocol(@protocol(SimpleFileManager));
-    TestQueue * const workQueue = [[TestQueue alloc] init];
 
     NSURL * const reportsDir = [NSURL fileURLWithPath:@"/test/reports/"];
 
@@ -175,89 +176,198 @@ describe(@"HtmlReportType", ^{
         expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
     });
 
-    describe(@"importing from zip file", ^{
-
-        it(@"validates the zip file contents first", ^{
-            Report *report = [[Report alloc] init];
-            report.url = [reportsDir URLByAppendingPathComponent:@"validate_test.zip"];
-            id<ImportProcess> import = [htmlReportType createImportProcessForReport:report];
-
-            NSOperation *validate = [import nextStep];
-
-            expect(validate).to.beInstanceOf([ValidateHtmlLayoutOperation class]);
-        });
-
-        it(@"unzips the file to a temporary directory", ^{
-            NSString *uuid = [[NSUUID UUID] UUIDString];
-            NSString *reportName = [NSString stringWithFormat:@"%@.zip", uuid];
-            NSString *tempDirName = [@"temp-" stringByAppendingString:uuid];
-            NSURL *tempDir = [reportsDir URLByAppendingPathComponent:tempDirName];
-
-            Report *report = [[Report alloc] init];
-            report.url = [reportsDir URLByAppendingPathComponent:reportName];
-
-            [given([fileManager createTempDir]) willReturn:tempDir];
-
-            id<ImportProcess> import = [htmlReportType createImportProcessForReport:report];
-            UnzipOperation *unzipStep = (UnzipOperation *) [import nextStep];
-
-            expect(unzipStep.zipFile).to.equal(report.url);
-            expect(unzipStep.destDir).to.equal(tempDir);
-        });
-
-        it(@"deletes the zip file after unzipping successfully", ^{
-            Report *report = [[Report alloc] init];
-            report.url = [reportsDir URLByAppendingPathComponent:@"success.zip"];
-
-            id<ImportProcess> import = [htmlReportType createImportProcessForReport:report];
-
-            NSOperation *lastStep = nil;
-            while ([import hasNextStep]) {
-                lastStep = [import nextStep];
-            }
-
-            expect(lastStep).to.beInstanceOf([DeleteFileOperation class]);
-        });
-
-        it(@"moves the content to the reports directory", ^{
-            failure(@"unimplemented");
-        });
-
-        it(@"leaves the zip file if an error occurs", ^{
-            failure(@"unimplemented");
-        });
-
-        it(@"reports unzip progress updates", ^{
-            failure(@"unimplemented");
-        });
-    });
-
-    describe(@"importing from directory", ^{
-
-    });
-
 });
 
 describe(@"ValidateHtmlLayoutOperation", ^{
 
     it(@"validates a zip with index.html at the root level", ^{
-        failure(@"unimplemented");
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"images/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"images/favicon.gif" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+
+        [op start];
+
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isLayoutValid).to.equal(YES);
+        expect(op.indexDirPath).to.equal(@"");
     });
 
     it(@"validates a zip with index.html in a top-level directory", ^{
-        failure(@"unimplemented");
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/images/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+
+        [op start];
+        
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isLayoutValid).to.equal(YES);
+        expect(op.indexDirPath).to.equal(@"base");
     });
 
     it(@"invalidates a zip without index.html", ^{
-        failure(@"unimplemented");
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"images/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"images/favicon.gif" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"report.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+
+        [op start];
+        
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
     });
 
-    it(@"invalidates a zip with index.html in a lower level directory", ^{
-        failure(@"unimplemented");
+    it(@"invalidates a zip with index.html in a lower-level directory", ^{
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/images/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/sub/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+
+        [op start];
+        
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
     });
 
-    it(@"invalidates a zip with unrecognized entries at the root level", ^{
-        failure(@"unimplemented");
+    it(@"invalidates a zip with root entries and non-root index.html", ^{
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/images/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"root.cruft" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+
+        [op start];
+        
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+    });
+
+    it(@"uses the most shallow index.html", ^{
+        ZipFile *zipFile = mock([ZipFile class]);
+        [[given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base/images/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/sub/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]] willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/images/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/sub/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+        
+        [op start];
+        
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isLayoutValid).to.equal(YES);
+        expect(op.indexDirPath).to.equal(@"");
+
+        op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+
+        [op start];
+
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isLayoutValid).to.equal(YES);
+        expect(op.indexDirPath).to.equal(@"");
+    });
+
+    it(@"validates multiple base dirs with root index.html", ^{
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base1/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base2/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+
+        [op start];
+        
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isLayoutValid).to.equal(YES);
+        expect(op.indexDirPath).to.equal(@"");
+    });
+
+    it(@"invalidates multiple base dirs without root index.html", ^{
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base1/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base2/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base0/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
+
+        [op start];
+
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isLayoutValid).to.equal(NO);
+        expect(op.indexDirPath).to.beNil;
     });
 
 });
