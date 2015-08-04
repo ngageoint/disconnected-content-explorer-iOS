@@ -20,13 +20,12 @@
 		7D1432591B20BA440003DD53 /* HtmlReportType.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D1432581B20BA440003DD53 /* HtmlReportType.m */; };
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
-		7D3E07921B6142250077ABCA /* DeleteFileOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D3E07911B6142250077ABCA /* DeleteFileOperation.m */; };
 		7D3E07951B61449F0077ABCA /* BaseImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D3E07941B61449F0077ABCA /* BaseImportProcess.m */; };
 		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
-		7D6541C71B67EB290002EBAE /* MoveFileOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541C61B67EB290002EBAE /* MoveFileOperation.m */; };
 		7D6541C91B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */; };
 		7D6541CB1B6C20E80002EBAE /* UnzipOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */; };
+		7D6541CF1B70249E0002EBAE /* FileOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541CE1B70249E0002EBAE /* FileOperations.m */; };
 		7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */; };
 		7D75FC121A85603800CA05D4 /* attributions in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC111A85603800CA05D4 /* attributions */; };
 		7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC131A8560BD00CA05D4 /* Images.xcassets */; };
@@ -149,8 +148,6 @@
 		7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
 		7D2FBD171A1C098E003D9946 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
 		7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
-		7D3E07901B6142250077ABCA /* DeleteFileOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteFileOperation.h; sourceTree = "<group>"; };
-		7D3E07911B6142250077ABCA /* DeleteFileOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeleteFileOperation.m; sourceTree = "<group>"; };
 		7D3E07931B61449F0077ABCA /* BaseImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseImportProcess.h; sourceTree = "<group>"; };
 		7D3E07941B61449F0077ABCA /* BaseImportProcess.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseImportProcess.m; sourceTree = "<group>"; };
 		7D4E1C461A1F9475002762B3 /* DICETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DICETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -158,10 +155,10 @@
 		7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
 		7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
 		7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
-		7D6541C51B67EB290002EBAE /* MoveFileOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveFileOperation.h; sourceTree = "<group>"; };
-		7D6541C61B67EB290002EBAE /* MoveFileOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoveFileOperation.m; sourceTree = "<group>"; };
 		7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZippedHtmlImportProcessSpec.m; sourceTree = "<group>"; };
 		7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnzipOperationSpec.m; sourceTree = "<group>"; };
+		7D6541CC1B7024710002EBAE /* FileOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileOperations.h; sourceTree = "<group>"; };
+		7D6541CE1B70249E0002EBAE /* FileOperations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileOperations.m; sourceTree = "<group>"; };
 		7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "ne_50m-110m_land.geojson"; path = "resources/ne_50m-110m_land.geojson"; sourceTree = "<group>"; };
 		7D75FC111A85603800CA05D4 /* attributions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = attributions; path = resources/attributions; sourceTree = "<group>"; };
 		7D75FC131A8560BD00CA05D4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = "<group>"; };
@@ -524,12 +521,10 @@
 				7D1432541B20B8660003DD53 /* UnzipOperation.h */,
 				7D1432551B20B8660003DD53 /* UnzipOperation.m */,
 				7D14325B1B2226020003DD53 /* SimpleFileManager.h */,
-				7D3E07901B6142250077ABCA /* DeleteFileOperation.h */,
-				7D3E07911B6142250077ABCA /* DeleteFileOperation.m */,
 				7D3E07931B61449F0077ABCA /* BaseImportProcess.h */,
 				7D3E07941B61449F0077ABCA /* BaseImportProcess.m */,
-				7D6541C51B67EB290002EBAE /* MoveFileOperation.h */,
-				7D6541C61B67EB290002EBAE /* MoveFileOperation.m */,
+				7D6541CC1B7024710002EBAE /* FileOperations.h */,
+				7D6541CE1B70249E0002EBAE /* FileOperations.m */,
 			);
 			path = utilities;
 			sourceTree = "<group>";
@@ -877,6 +872,7 @@
 			files = (
 				E39D837119DF2B95008357DF /* ReaderThumbCache.m in Sources */,
 				E39D837819DF2B95008357DF /* ReaderViewController.m in Sources */,
+				7D6541CF1B70249E0002EBAE /* FileOperations.m in Sources */,
 				E39D834C19DF2B95008357DF /* ReaderAppDelegate.m in Sources */,
 				E39D837319DF2B95008357DF /* ReaderThumbQueue.m in Sources */,
 				E3FBB31217C9527000E133D6 /* main.m in Sources */,
@@ -895,7 +891,6 @@
 				E39D837A19DF2B95008357DF /* ThumbsViewController.m in Sources */,
 				E39DF1AA18C69DEB00B13D46 /* SettingsViewController.m in Sources */,
 				E39D836A19DF2B95008357DF /* ReaderContentPage.m in Sources */,
-				7D3E07921B6142250077ABCA /* DeleteFileOperation.m in Sources */,
 				E39D836919DF2B95008357DF /* ReaderConstants.m in Sources */,
 				E337BCC21811AD7B00D987F9 /* Report.m in Sources */,
 				E3A73FC01855585200035C76 /* MapViewController.m in Sources */,
@@ -907,7 +902,6 @@
 				E39D834D19DF2B95008357DF /* ReaderBookDelegate.m in Sources */,
 				E39D836E19DF2B95008357DF /* ReaderDocumentOutline.m in Sources */,
 				E39D837919DF2B95008357DF /* ThumbsMainToolbar.m in Sources */,
-				7D6541C71B67EB290002EBAE /* MoveFileOperation.m in Sources */,
 				E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */,
 				E3B67F6A1A716A33000B7397 /* JavaScriptAPI.m in Sources */,
 				E3AC40FB198ADA3900DE8F41 /* OfflineMapUtility.m in Sources */,

@@ -21,6 +21,7 @@
 @protocol SimpleFileManager <NSObject>
 
 - (id<FileInfo>)infoForPath:(NSURL *)path;
+- (BOOL)mkdir:(NSURL *)path;
 - (NSURL *)createTempDir;
 - (BOOL)deleteFileAtPath:(NSURL *)path;
 

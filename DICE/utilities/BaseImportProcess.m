@@ -20,6 +20,7 @@
         return nil;
     }
 
+    _report = report;
     _steps = steps;
     _stepCursor = 0;
 

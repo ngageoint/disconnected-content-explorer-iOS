@@ -11,13 +11,18 @@
 #import "ReportType.h"
 #import "BaseImportProcess.h"
 #import "ZipFile.h"
+#import "SimpleFileManager.h"
 
 
 @interface ZippedHtmlImportProcess : BaseImportProcess <ImportProcess>
 
 @property (readonly) NSURL *destDir;
+@property (readonly) id<SimpleFileManager> fileManager;
 
-- (instancetype)initWithReport:(Report *)report destDir:(NSURL *)destDir zipFile:(ZipFile *)zipFile;
+- (instancetype)initWithReport:(Report *)report
+   destDir:(NSURL *)destDir
+   zipFile:(ZipFile *)zipFile
+   fileManager:(id<SimpleFileManager>)fileManager;
 
 @end
 
@@ -25,6 +30,10 @@
 @interface ValidateHtmlLayoutOperation : NSOperation
 
 @property (readonly) ZipFile *zipFile;
+/**
+ whether the zip contains a valid index.html in a valid location;
+ set after the operation finishes
+ */
 @property (readonly) BOOL isLayoutValid;
 /**
  the path of the directory that contains index.html whithin the zip file;

@@ -19,8 +19,7 @@
 #import "HtmlReportType.h"
 #import "ResourceTypes.h"
 #import "SimpleFileManager.h"
-#import "MoveFileOperation.h"
-#import "DeleteFileOperation.h"
+#import "FileOperations.h"
 #import "UnzipOperation.h"
 #import "FileInZipInfo.h"
 
@@ -292,14 +291,18 @@ describe(@"ValidateHtmlLayoutOperation", ^{
     it(@"uses the most shallow index.html", ^{
         ZipFile *zipFile = mock([ZipFile class]);
         [[given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base/images/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/sub/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base/sub/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
         ]] willReturn:@[
             [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base/images/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/sub/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base/sub/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
         ]];
 
@@ -331,6 +334,8 @@ describe(@"ValidateHtmlLayoutOperation", ^{
     it(@"validates multiple base dirs with root index.html", ^{
         ZipFile *zipFile = mock([ZipFile class]);
         [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base1/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base2/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base1/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base2/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
@@ -352,6 +357,9 @@ describe(@"ValidateHtmlLayoutOperation", ^{
     it(@"invalidates multiple base dirs without root index.html", ^{
         ZipFile *zipFile = mock([ZipFile class]);
         [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base1/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base2/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base0/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base1/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base2/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             [[FileInZipInfo alloc] initWithName:@"base0/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],

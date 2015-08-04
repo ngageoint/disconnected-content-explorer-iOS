@@ -9,7 +9,7 @@
 #import "HtmlReportType.h"
 
 #import "SimpleFileManager.h"
-#import "DeleteFileOperation.h"
+#import "FileOperations.h"
 #import "UnzipOperation.h"
 
 // objective-zip
@@ -85,7 +85,10 @@
 
 @implementation ZippedHtmlImportProcess
 
-- (instancetype)initWithReport:(Report *)report destDir:(NSURL *)destDir zipFile:(ZipFile *)zipFile
+- (instancetype)initWithReport:(Report *)report
+    destDir:(NSURL *)destDir
+    zipFile:(ZipFile *)zipFile
+    fileManager:(id<SimpleFileManager>)fileManager
 {
     ValidateHtmlLayoutOperation *validateStep = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
     validateStep.completionBlock = ^{
@@ -105,6 +108,7 @@
     }
 
     _destDir = destDir;
+    _fileManager = fileManager;
 
     return self;
 }
@@ -115,8 +119,13 @@
     UnzipOperation *unzipStep = self.steps[1];
 
     if (validateStep.isLayoutValid) {
-        NSString *destDirPath = validateStep.indexDirPath;
-        unzipStep.destDir = [NSURL URLWithString:destDirPath relativeToURL:self.destDir];
+        if (validateStep.indexDirPath.length == 0) {
+            NSString *destDirPath = [self.report.url.lastPathComponent stringByDeletingPathExtension];
+            unzipStep.destDir = [self.destDir URLByAppendingPathComponent:destDirPath];
+        }
+        else {
+            unzipStep.destDir = self.destDir;
+        }
     }
     else {
         [unzipStep cancel];
@@ -151,7 +160,7 @@
 
 - (BOOL)couldHandleFile:(NSURL *)filePath
 {
-    id<FileInfo> fileInfo = [_fileManager infoForPath:filePath];
+    id<FileInfo> fileInfo = [self.fileManager infoForPath:filePath];
     if (fileInfo.isRegularFile)
     {
         NSString *ext = [filePath.pathExtension lowercaseString];
@@ -162,7 +171,7 @@
     else if (fileInfo.isDirectory)
     {
         NSURL *indexPath = [filePath URLByAppendingPathComponent:@"index.html"];
-        fileInfo = [_fileManager infoForPath:indexPath];
+        fileInfo = [self.fileManager infoForPath:indexPath];
         return fileInfo && fileInfo.isRegularFile;
     }
 
@@ -173,7 +182,8 @@
 - (id<ImportProcess>)createImportProcessForReport:(Report *)report
 {
     ZipFile *zipFile = [[ZipFile alloc] initWithFileName:report.url.path mode:ZipFileModeUnzip];
-    ZippedHtmlImportProcess *process = [[ZippedHtmlImportProcess alloc] initWithReport:report destDir:nil zipFile:zipFile];
+    ZippedHtmlImportProcess *process = [[ZippedHtmlImportProcess alloc] initWithReport:report
+        destDir:nil zipFile:zipFile fileManager:self.fileManager];
 
     return process;
 }
