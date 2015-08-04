@@ -15,8 +15,15 @@
 
 @interface MkdirOperation : NSOperation
 
-@property (readonly) NSURL *dirUrl;
+/**
+ the URL of the directory to create; the operation will not be ready until
+ this property is non-nil
+ */
+@property (nonatomic) NSURL *dirUrl;
+@property (readonly) BOOL dirWasCreated;
+@property (readonly) BOOL dirExisted;
 
+- (instancetype)init;
 - (instancetype)initWithDirUrl:(NSURL *)dirUrl;
 
 @end

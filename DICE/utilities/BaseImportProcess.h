@@ -12,9 +12,9 @@
 
 @interface BaseImportProcess : NSObject <ImportProcess>
 
-@property (nonatomic, readonly) Report *report;
-@property (nonatomic, readonly) NSArray *steps;
-@property (nonatomic) id<ImportDelegate> delegate;
+@property (readonly) Report *report;
+@property (readonly) NSArray *steps;
+@property id<ImportDelegate> delegate;
 
 - (instancetype)initWithReport:(Report *)report steps:(NSArray *)steps NS_DESIGNATED_INITIALIZER;
 

@@ -8,6 +8,65 @@
 
 #import "FileOperations.h"
 
+
+@implementation MkdirOperation
+
++ (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
+{
+    NSSet *keys = [super keyPathsForValuesAffectingValueForKey:key];
+
+    if ([key isEqualToString:@"ready"]) {
+        keys = [keys setByAddingObject:@"dirUrl"];
+    }
+
+    return keys;
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    return self;
+}
+
+- (instancetype)initWithDirUrl:(NSURL *)dirUrl
+{
+    self = [self init];
+    if (!self) {
+        return nil;
+    }
+
+    _dirUrl = dirUrl;
+
+    return self;
+}
+
+- (BOOL)isReady
+{
+    return self.dirUrl != nil && super.ready;
+}
+
+- (void)setDirUrl:(NSURL *)dirUrl
+{
+    if (self.executing) {
+        [NSException raise:@"IllegalStateException" format:@"cannot change dirUrl after MkdirOperation has started"];
+    }
+
+    _dirUrl = dirUrl;
+}
+
+- (void)main
+{
+    @autoreleasepool {
+        // TODO: do it
+    }
+}
+
+@end
+
+
 @implementation MoveFileOperation
 
 - (void)main

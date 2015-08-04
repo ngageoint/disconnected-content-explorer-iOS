@@ -26,6 +26,7 @@
 		7D6541C91B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */; };
 		7D6541CB1B6C20E80002EBAE /* UnzipOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */; };
 		7D6541CF1B70249E0002EBAE /* FileOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541CE1B70249E0002EBAE /* FileOperations.m */; };
+		7D6541D11B70D89F0002EBAE /* FileOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541D01B70D89F0002EBAE /* FileOperationsSpec.m */; };
 		7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */; };
 		7D75FC121A85603800CA05D4 /* attributions in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC111A85603800CA05D4 /* attributions */; };
 		7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC131A8560BD00CA05D4 /* Images.xcassets */; };
@@ -159,6 +160,7 @@
 		7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnzipOperationSpec.m; sourceTree = "<group>"; };
 		7D6541CC1B7024710002EBAE /* FileOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileOperations.h; sourceTree = "<group>"; };
 		7D6541CE1B70249E0002EBAE /* FileOperations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileOperations.m; sourceTree = "<group>"; };
+		7D6541D01B70D89F0002EBAE /* FileOperationsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileOperationsSpec.m; sourceTree = "<group>"; };
 		7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "ne_50m-110m_land.geojson"; path = "resources/ne_50m-110m_land.geojson"; sourceTree = "<group>"; };
 		7D75FC111A85603800CA05D4 /* attributions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = attributions; path = resources/attributions; sourceTree = "<group>"; };
 		7D75FC131A8560BD00CA05D4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = "<group>"; };
@@ -339,6 +341,7 @@
 				7D1432521B165B990003DD53 /* ReportStoreSpec.m */,
 				7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */,
 				7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */,
+				7D6541D01B70D89F0002EBAE /* FileOperationsSpec.m */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -858,6 +861,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D6541D11B70D89F0002EBAE /* FileOperationsSpec.m in Sources */,
 				7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */,
 				7DE5130B1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m in Sources */,
 				7D6541CB1B6C20E80002EBAE /* UnzipOperationSpec.m in Sources */,

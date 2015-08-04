@@ -19,15 +19,15 @@
 /**
  TODO: document
  */
-@property (nonatomic, readonly) Report *report;
+@property (readonly) Report *report;
 /**
  TODO: document
  */
-@property (nonatomic, readonly) NSArray *steps;
+@property (readonly) NSArray *steps;
 /**
  TODO: document
  */
-@property (nonatomic) id<ImportDelegate> delegate;
+@property id<ImportDelegate> delegate;
 
 @end
 

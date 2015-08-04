@@ -12,19 +12,9 @@
 #import "BaseImportProcess.h"
 #import "ZipFile.h"
 #import "SimpleFileManager.h"
+#import "FileOperations.h"
+#import "UnzipOperation.h"
 
-
-@interface ZippedHtmlImportProcess : BaseImportProcess <ImportProcess>
-
-@property (readonly) NSURL *destDir;
-@property (readonly) id<SimpleFileManager> fileManager;
-
-- (instancetype)initWithReport:(Report *)report
-   destDir:(NSURL *)destDir
-   zipFile:(ZipFile *)zipFile
-   fileManager:(id<SimpleFileManager>)fileManager;
-
-@end
 
 
 @interface ValidateHtmlLayoutOperation : NSOperation
@@ -46,8 +36,23 @@
 @end
 
 
+
 @interface HtmlReportType : NSObject <ReportType>
 
 - (instancetype)initWithFileManager:(NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
+
+@end
+
+
+
+@interface ZippedHtmlImportProcess : BaseImportProcess <ImportProcess>
+
+@property (readonly) NSURL *destDir;
+@property (readonly) id<SimpleFileManager> fileManager;
+
+- (instancetype)initWithReport:(Report *)report
+                       destDir:(NSURL *)destDir
+                       zipFile:(ZipFile *)zipFile
+                   fileManager:(id<SimpleFileManager>)fileManager;
 
 @end

@@ -90,22 +90,31 @@
     zipFile:(ZipFile *)zipFile
     fileManager:(id<SimpleFileManager>)fileManager
 {
-    ValidateHtmlLayoutOperation *validateStep = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
-    validateStep.completionBlock = ^{
-        [self validateStepDidFinish];
-    };
+    ValidateHtmlLayoutOperation *validation = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
-    UnzipOperation *unzipStep = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:nil];
-    [unzipStep addDependency:validateStep];
+    MkdirOperation *makeDestDir = [[MkdirOperation alloc] init];
+    [makeDestDir addDependency:validation];
+
+    UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:nil];
+    [unzip addDependency:makeDestDir];
 
     self = [super initWithReport:report steps:@[
-        validateStep,
-        unzipStep,
+        validation,
+        makeDestDir,
+        unzip,
     ]];
 
     if (!self) {
         return nil;
     }
+
+    __weak ZippedHtmlImportProcess *weakSelf = self;
+    validation.completionBlock = ^{
+        [weakSelf validateStepDidFinish];
+    };
+    makeDestDir.completionBlock = ^{
+        [weakSelf makeDestDirStepDidFinish];
+    };
 
     _destDir = destDir;
     _fileManager = fileManager;
@@ -116,19 +125,40 @@
 - (void)validateStepDidFinish
 {
     ValidateHtmlLayoutOperation *validateStep = self.steps.firstObject;
-    UnzipOperation *unzipStep = self.steps[1];
+    MkdirOperation *makeDestDirStep = self.steps[1];
 
     if (validateStep.isLayoutValid) {
+        NSURL *destDir = self.destDir;
         if (validateStep.indexDirPath.length == 0) {
             NSString *destDirPath = [self.report.url.lastPathComponent stringByDeletingPathExtension];
-            unzipStep.destDir = [self.destDir URLByAppendingPathComponent:destDirPath];
+            destDir = [self.destDir URLByAppendingPathComponent:destDirPath isDirectory:YES];
         }
-        else {
-            unzipStep.destDir = self.destDir;
-        }
+        makeDestDirStep.dirUrl = destDir;
+
     }
     else {
-        [unzipStep cancel];
+        [self cancelRemainingSteps];
+    }
+}
+
+- (void)makeDestDirStepDidFinish
+{
+    MkdirOperation *makeDestDirStep = self.steps[1];
+    if (makeDestDirStep.dirWasCreated || makeDestDirStep.dirExisted) {
+        UnzipOperation *unzipStep = self.steps[2];
+        unzipStep.destDir = makeDestDirStep.dirUrl;
+    }
+    else {
+        [self cancelRemainingSteps];
+    }
+}
+
+- (void)cancelRemainingSteps
+{
+    for (NSOperation *step in self.steps) {
+        if (!step.finished) {
+            [step cancel];
+        }
     }
 }
 
