@@ -12,16 +12,13 @@
 #define HC_SHORTHAND
 #import <OCHamcrest/OCHamcrest.h>
 
-#define MOCKITO_SHORTHAND
-#import <OCMockito/OCMockito.h>
-
 #import <OCMock/OCMock.h>
 
 #import "HtmlReportType.h"
 #import "UnzipOperation.h"
 #import "FileOperations.h"
 #import "SimpleFileManager.h"
-
+#import "ParseReportMetaDataOperation.h"
 #import "ZipFile.h"
 #import "FileInZipInfo.h"
 
@@ -44,21 +41,15 @@
         [entries addObject:[[FileInZipInfo alloc] initWithName:entryName length:0 level:ZipCompressionLevelDefault crypted:NO size:0 date:nil crc32:0]];
     }
 
-    ZipFile *mockZipFile = mock([ZipFile class]);
-    [given([mockZipFile fileName]) willReturn:report.url.path];
-    [given([mockZipFile listFileInZipInfos]) willReturn:entries];
+    ZipFile *mockZipFile = OCMClassMock([ZipFile class]);
+    OCMStub([mockZipFile fileName]).andReturn(report.url.path);
+    OCMStub([mockZipFile listFileInZipInfos]).andReturn(entries);
 
     return mockZipFile;
 }
 
 @end
 
-id mockFinishOp(NSOperation *op) {
-    id mock = OCMPartialMock(op);
-    OCMStub([mock main]);
-    [op start];
-    return mock;
-}
 
 
 SpecBegin(ZippedHtmlImportProcess)
@@ -333,6 +324,52 @@ describe(@"ZippedHtmlImportProcess", ^{
         [(id)makeDestDirStep stopMocking];
     });
 
+    it(@"parses the report metadata if available", ^{
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
+        UnzipOperation *unzip = import.steps[2];
+        ParseReportMetaDataOperation *parseMetaData = import.steps[3];
+
+        expect(parseMetaData.dependencies).to.contain(unzip);
+        expect(parseMetaData.targetReport).to.beIdenticalTo(initialReport);
+
+        [validation start];
+
+        waitUntil(^(DoneCallback done) {
+            if (validation.finished) {
+                done();
+            }
+        });
+
+        expect(parseMetaData.jsonFileUrl).to.equal([reportsDir URLByAppendingPathComponent:@"test/metadata.json"]);
+    });
+
+    it(@"deletes the zip file after unzipping successfully", ^{
+        //        Report *report = [[Report alloc] init];
+        //        report.url = [reportsDir URLByAppendingPathComponent:@"success.zip"];
+        //
+        //        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        //        id<ImportProcess> import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+        //            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+        //
+        //        DeleteFileOperation *deleteStep = import.steps.lastObject;
+        //
+        //        expect(deleteStep.fileUrl).to.equal(report.url);
+
+        failure(@"unimplemented");
+    });
+
+    it(@"leaves the zip file if an error occurs", ^{
+        failure(@"unimplemented");
+    });
+    
+    it(@"reports unzip progress updates", ^{
+        failure(@"unimplemented");
+    });
+
     it(@"unzips the file to a temporary directory", ^{
 //        NSString *uuid = [[NSUUID UUID] UUIDString];
 //        NSString *tempDirName = [@"temp-" stringByAppendingString:uuid];
@@ -354,28 +391,6 @@ describe(@"ZippedHtmlImportProcess", ^{
     it(@"moves the extracted content to the reports directory", ^{
         failure(@"unimplemented - only if unzipping to temp dirs");
     });
-
-    it(@"deletes the zip file after unzipping successfully", ^{
-        Report *report = [[Report alloc] init];
-        report.url = [reportsDir URLByAppendingPathComponent:@"success.zip"];
-
-        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
-        id<ImportProcess> import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-
-        DeleteFileOperation *deleteStep = import.steps.lastObject;
-
-        expect(deleteStep.fileUrl).to.equal(report.url);
-    });
-
-    it(@"leaves the zip file if an error occurs", ^{
-        failure(@"unimplemented");
-    });
-
-    it(@"reports unzip progress updates", ^{
-        failure(@"unimplemented");
-    });
-
     
     afterEach(^{
 

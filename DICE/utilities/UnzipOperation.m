@@ -42,6 +42,10 @@
 
 - (void)main
 {
+    if (self.cancelled) {
+        return;
+    }
+    
     @autoreleasepool {
         // TODO: do it
     }

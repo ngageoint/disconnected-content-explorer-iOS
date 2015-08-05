@@ -25,8 +25,16 @@
     return self;
 }
 
-- (NSURL *) thumbnailURL {
+
+- (NSURL *)thumbnailURL
+{
     return [NSURL URLWithString:self.thumbnail];
+}
+
+
+- (instancetype)setPropertiesByParsingJson:(NSData *)jsonData
+{
+    return self;
 }
 
 @end

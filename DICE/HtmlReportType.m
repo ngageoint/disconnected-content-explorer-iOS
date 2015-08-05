@@ -11,6 +11,7 @@
 #import "SimpleFileManager.h"
 #import "FileOperations.h"
 #import "UnzipOperation.h"
+#import "ParseReportMetaDataOperation.h"
 
 // objective-zip
 #import "ZipFile.h"
@@ -98,10 +99,17 @@
     UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:nil];
     [unzip addDependency:makeDestDir];
 
+    ParseReportMetaDataOperation *parseMetaData = [[ParseReportMetaDataOperation alloc] initWithTargetReport:report];
+    [parseMetaData addDependency:unzip];
+
+//    DeleteFileOperation *deleteZip = [[DeleteFileOperation alloc] initWithFileUrl:report.url];
+//    [deleteZip addDependency:parseMetaData];
+
     self = [super initWithReport:report steps:@[
         validation,
         makeDestDir,
         unzip,
+        parseMetaData,
     ]];
 
     if (!self) {

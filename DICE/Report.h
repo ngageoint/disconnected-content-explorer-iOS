@@ -25,6 +25,14 @@
 @property (nonatomic) int progress;
 @property (nonatomic) BOOL isEnabled;
 
-- (instancetype) initWithTitle:(NSString *)title;
+- (instancetype)initWithTitle:(NSString *)title;
+
+/**
+ Parse the JSON object from the given data and use it to populate the properties
+ of this Report instance.
+
+ @return self
+ */
+- (instancetype)setPropertiesByParsingJson:(NSData *)jsonData;
 
 @end

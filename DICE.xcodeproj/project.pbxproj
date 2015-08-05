@@ -32,6 +32,8 @@
 		7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC131A8560BD00CA05D4 /* Images.xcassets */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
+		7DBD3D0C1B727E1A00918FE1 /* ParseReportMetaDataOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DBD3D0B1B727E1A00918FE1 /* ParseReportMetaDataOperation.m */; };
+		7DBD3D0E1B729F1600918FE1 /* ParseReportMetaDataOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DBD3D0D1B729F1600918FE1 /* ParseReportMetaDataOperationSpec.m */; };
 		7DE513091B0E8A1C0023F1D5 /* ReportStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE513081B0E8A1C0023F1D5 /* ReportStore.m */; };
 		7DE5130B1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE5130A1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m */; };
 		7DF1E24E1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */; };
@@ -168,6 +170,9 @@
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
 		7DA706B61A158E3800B558EC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		7DBD3D0A1B727E1A00918FE1 /* ParseReportMetaDataOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParseReportMetaDataOperation.h; sourceTree = "<group>"; };
+		7DBD3D0B1B727E1A00918FE1 /* ParseReportMetaDataOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParseReportMetaDataOperation.m; sourceTree = "<group>"; };
+		7DBD3D0D1B729F1600918FE1 /* ParseReportMetaDataOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParseReportMetaDataOperationSpec.m; sourceTree = "<group>"; };
 		7DCCF0FB1B156F9A001A526B /* ReportType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportType.h; sourceTree = "<group>"; };
 		7DE513071B0E8A1C0023F1D5 /* ReportStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportStore.h; sourceTree = "<group>"; };
 		7DE513081B0E8A1C0023F1D5 /* ReportStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportStore.m; sourceTree = "<group>"; };
@@ -342,6 +347,7 @@
 				7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */,
 				7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */,
 				7D6541D01B70D89F0002EBAE /* FileOperationsSpec.m */,
+				7DBD3D0D1B729F1600918FE1 /* ParseReportMetaDataOperationSpec.m */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -398,6 +404,8 @@
 				7DE513081B0E8A1C0023F1D5 /* ReportStore.m */,
 				7DCCF0FB1B156F9A001A526B /* ReportType.h */,
 				7D14325C1B24AFB00003DD53 /* ImportProcess.h */,
+				7DBD3D0A1B727E1A00918FE1 /* ParseReportMetaDataOperation.h */,
+				7DBD3D0B1B727E1A00918FE1 /* ParseReportMetaDataOperation.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -866,6 +874,7 @@
 				7DE5130B1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m in Sources */,
 				7D6541CB1B6C20E80002EBAE /* UnzipOperationSpec.m in Sources */,
 				7D6541C91B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m in Sources */,
+				7DBD3D0E1B729F1600918FE1 /* ParseReportMetaDataOperationSpec.m in Sources */,
 				7D1432531B165B990003DD53 /* ReportStoreSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -916,6 +925,7 @@
 				E39D837219DF2B95008357DF /* ReaderThumbFetch.m in Sources */,
 				7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */,
 				7D1432561B20B8660003DD53 /* UnzipOperation.m in Sources */,
+				7DBD3D0C1B727E1A00918FE1 /* ParseReportMetaDataOperation.m in Sources */,
 				E3A5200118D7579700CE30DD /* ReportAPI.m in Sources */,
 				E3A73FC3185559FC00035C76 /* ReportMapAnnotation.m in Sources */,
 				E39D836819DF2B95008357DF /* CGPDFDocument.m in Sources */,
