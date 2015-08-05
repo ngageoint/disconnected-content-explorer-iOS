@@ -178,6 +178,8 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         expect(unzip.ready).to.equal(YES);
         expect(unzip.destDir).to.equal(reportsDir);
+
+        [(id)makeDestDir stopMocking];
     });
 
     it(@"is ready to unzip when the dest dir already existed", ^{
@@ -216,6 +218,8 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         expect(unzip.ready).to.equal(YES);
         expect(unzip.destDir).to.equal(reportsDir);
+
+        [(id)makeDestDir stopMocking];
     });
 
     it(@"cancels the import when the dest dir cannot be created and did not exist", ^{
@@ -247,6 +251,8 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         NSArray *remainingSteps = [import.steps subarrayWithRange:NSMakeRange(2, import.steps.count - 2)];
         assertThat(remainingSteps, everyItem(hasProperty(@"isCancelled", isTrue())));
+
+        [(id)makeDestDir stopMocking];
     });
 
     it(@"unzips to the reports dir when zip has base dir", ^{
@@ -255,6 +261,7 @@ describe(@"ZippedHtmlImportProcess", ^{
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
         ValidateHtmlLayoutOperation *validateStep = import.steps.firstObject;
+        MkdirOperation *makeDestDirStep = OCMPartialMock(import.steps[1]);
         UnzipOperation *unzipStep = import.steps[2];
 
         expect(unzipStep.destDir).to.beNil;
@@ -267,7 +274,21 @@ describe(@"ZippedHtmlImportProcess", ^{
             }
         });
 
+        OCMStub([makeDestDirStep main]);
+        OCMStub([makeDestDirStep dirWasCreated]).andReturn(NO);
+        OCMStub([makeDestDirStep dirExisted]).andReturn(YES);
+
+        [makeDestDirStep start];
+
+        waitUntil(^(DoneCallback done) {
+            if (makeDestDirStep.finished) {
+                done();
+            }
+        });
+
         expect(unzipStep.destDir).to.equal(reportsDir);
+
+        [(id)makeDestDirStep stopMocking];
     });
 
     it(@"creates and unzips to dir named after zip file when zip has no base dir", ^{
@@ -276,13 +297,13 @@ describe(@"ZippedHtmlImportProcess", ^{
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
         ValidateHtmlLayoutOperation *validateStep = import.steps.firstObject;
-        MkdirOperation *mkdirStep = import.steps[1];
+        MkdirOperation *makeDestDirStep = OCMPartialMock(import.steps[1]);
         UnzipOperation *unzipStep = import.steps[2];
 
         NSString *baseDirName = @"ZippedHtmlImportProcessSpec";
         NSURL *destDir = [reportsDir URLByAppendingPathComponent:baseDirName isDirectory:YES];
 
-        expect(mkdirStep.dirUrl).to.beNil;
+        expect(makeDestDirStep.dirUrl).to.beNil;
         expect(unzipStep.destDir).to.beNil;
 
         [validateStep start];
@@ -293,30 +314,45 @@ describe(@"ZippedHtmlImportProcess", ^{
             }
         });
 
-        expect(mkdirStep.dirUrl).to.equal(destDir);
-        expect(unzipStep.destDir).to.equal(destDir);
-    });
+        expect(makeDestDirStep.dirUrl).to.equal(destDir);
 
-    it(@"moves the extracted content to the reports directory", ^{
-        failure(@"unimplemented");
+        OCMStub([makeDestDirStep main]);
+        OCMStub([makeDestDirStep dirExisted]).andReturn(NO);
+        OCMStub([makeDestDirStep dirWasCreated]).andReturn(YES);
+
+        [makeDestDirStep start];
+
+        waitUntil(^(DoneCallback done) {
+            if (makeDestDirStep.finished) {
+                done();
+            }
+        });
+
+        expect(unzipStep.destDir).to.equal(destDir);
+
+        [(id)makeDestDirStep stopMocking];
     });
 
     it(@"unzips the file to a temporary directory", ^{
-        NSString *uuid = [[NSUUID UUID] UUIDString];
-        NSString *tempDirName = [@"temp-" stringByAppendingString:uuid];
-        NSURL *tempDir = [reportsDir URLByAppendingPathComponent:tempDirName];
-
-        [given([fileManager createTempDir]) willReturn:tempDir];
-
-        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
-        id<ImportProcess> import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-        UnzipOperation *unzipStep = import.steps[2];
-
-        expect(unzipStep.zipFile).to.equal(initialReport.url);
-        expect(unzipStep.destDir).to.equal(tempDir);
+//        NSString *uuid = [[NSUUID UUID] UUIDString];
+//        NSString *tempDirName = [@"temp-" stringByAppendingString:uuid];
+//        NSURL *tempDir = [reportsDir URLByAppendingPathComponent:tempDirName];
+//
+//        [given([fileManager createTempDir]) willReturn:tempDir];
+//
+//        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+//        id<ImportProcess> import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+//        UnzipOperation *unzipStep = import.steps[2];
+//
+//        expect(unzipStep.zipFile).to.equal(initialReport.url);
+//        expect(unzipStep.destDir).to.equal(tempDir);
 
         failure(@"unimplemented - unnecessary?  could make concurrency issues simpler");
+    });
+
+    it(@"moves the extracted content to the reports directory", ^{
+        failure(@"unimplemented - only if unzipping to temp dirs");
     });
 
     it(@"deletes the zip file after unzipping successfully", ^{
