@@ -28,11 +28,11 @@
 - (instancetype)initWithTitle:(NSString *)title;
 
 /**
- Parse the JSON object from the given data and use it to populate the properties
- of this Report instance.
+ Set the properties of this report from key-value pairs in the given
+ JSON descriptor dictionary.
 
  @return self
  */
-- (instancetype)setPropertiesByParsingJson:(NSData *)jsonData;
+- (instancetype)setPropertiesFromJsonDescriptor:(NSDictionary *)descriptor;
 
 @end

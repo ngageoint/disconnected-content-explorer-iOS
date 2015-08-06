@@ -6,10 +6,10 @@
 //  Copyright (c) 2015 National Geospatial-Intelligence Agency. All rights reserved.
 //
 
-#import "ParseReportMetaDataOperation.h"
+#import "ParseJsonOperation.h"
 
 
-@implementation ParseReportMetaDataOperation
+@implementation ParseJsonOperation
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
 {
@@ -22,34 +22,35 @@
     return keys;
 }
 
-- (instancetype)initWithTargetReport:(Report *)report
+- (instancetype)init
 {
     self = [super init];
     if (!self) {
         return nil;
     }
 
-    if (report == nil) {
-        [NSException raise:@"IllegalArgumentException" format:@"targetReport is nil"];
-    }
-
-    _targetReport = report;
-
     return self;
 }
 
 - (BOOL)isReady
 {
-    return self.jsonFileUrl != nil && super.ready;
+    return self.jsonUrl != nil && super.ready;
 }
 
-- (void)setJsonFileUrl:(NSURL *)jsonFileUrl
+- (void)setJsonUrl:(NSURL *)jsonFileUrl
 {
     if (self.executing) {
         [NSException raise:@"IllegalStateException" format:@"cannot change jsonFileUrl after ParseReportMetaDataOperation has started"];
     }
 
-    _jsonFileUrl = jsonFileUrl;
+    _jsonUrl = jsonFileUrl;
+}
+
+- (void)main
+{
+    @autoreleasepool {
+        // TODO: do it
+    }
 }
 
 @end

@@ -9,9 +9,6 @@
 #import "BaseImportProcess.h"
 
 @implementation BaseImportProcess
-{
-    NSInteger _stepCursor;
-}
 
 - (instancetype)initWithReport:(Report *)report steps:(NSArray *)steps
 {
@@ -22,14 +19,28 @@
 
     _report = report;
     _steps = steps;
-    _stepCursor = 0;
+
+    for (NSOperation *step in _steps) {
+        [step addObserver:self forKeyPath:@"executing" options:NSKeyValueObservingOptionPrior context:nil];
+        [step addObserver:self forKeyPath:@"finished" options:NSKeyValueObservingOptionPrior context:nil];
+    }
 
     return self;
 }
 
-- (void)dealloc
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    _steps = nil;
+    BOOL isPrior = ((NSNumber *)change[NSKeyValueChangeNotificationIsPriorKey]).boolValue;
+}
+
+- (void)stepWillBeginExecuting:(NSOperation *)step
+{
+
+}
+
+- (void)stepDidFinish:(NSOperation *)step
+{
+    
 }
 
 @end

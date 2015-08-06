@@ -11,7 +11,7 @@
 #import "SimpleFileManager.h"
 #import "FileOperations.h"
 #import "UnzipOperation.h"
-#import "ParseReportMetaDataOperation.h"
+#import "ParseJsonOperation.h"
 
 // objective-zip
 #import "ZipFile.h"
@@ -65,8 +65,13 @@
                     indexDepth = steps.count - 1;
                 }
             }
-            else if (steps.count == 1) {
-                hasNonIndexRootEntries = YES;
+            else {
+                if ([@"metadata.json" isEqualToString:steps.lastObject]) {
+                    _metaDataPath = entry.name;
+                }
+                if (steps.count == 1) {
+                    hasNonIndexRootEntries = YES;
+                }
             }
         }];
 
@@ -99,7 +104,7 @@
     UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:nil];
     [unzip addDependency:makeDestDir];
 
-    ParseReportMetaDataOperation *parseMetaData = [[ParseReportMetaDataOperation alloc] initWithTargetReport:report];
+    ParseJsonOperation *parseMetaData = [[ParseJsonOperation alloc] init];
     [parseMetaData addDependency:unzip];
 
 //    DeleteFileOperation *deleteZip = [[DeleteFileOperation alloc] initWithFileUrl:report.url];
@@ -135,30 +140,42 @@
     ValidateHtmlLayoutOperation *validateStep = self.steps.firstObject;
     MkdirOperation *makeDestDirStep = self.steps[1];
 
-    if (validateStep.isLayoutValid) {
-        NSURL *destDir = self.destDir;
-        if (validateStep.indexDirPath.length == 0) {
-            NSString *destDirPath = [self.report.url.lastPathComponent stringByDeletingPathExtension];
-            destDir = [self.destDir URLByAppendingPathComponent:destDirPath isDirectory:YES];
-        }
-        makeDestDirStep.dirUrl = destDir;
-
-    }
-    else {
+    if (!validateStep.isLayoutValid) {
         [self cancelRemainingSteps];
+        return;
     }
+
+    NSURL *destDir = self.destDir;
+    if (validateStep.indexDirPath.length == 0) {
+        NSString *destDirPath = [self.report.url.lastPathComponent stringByDeletingPathExtension];
+        destDir = [self.destDir URLByAppendingPathComponent:destDirPath isDirectory:YES];
+    }
+    makeDestDirStep.dirUrl = destDir;
 }
 
 - (void)makeDestDirStepDidFinish
 {
     MkdirOperation *makeDestDirStep = self.steps[1];
-    if (makeDestDirStep.dirWasCreated || makeDestDirStep.dirExisted) {
-        UnzipOperation *unzipStep = self.steps[2];
-        unzipStep.destDir = makeDestDirStep.dirUrl;
-    }
-    else {
+
+    if (!(makeDestDirStep.dirWasCreated || makeDestDirStep.dirExisted)) {
         [self cancelRemainingSteps];
+        return;
     }
+
+    UnzipOperation *unzipStep = self.steps[2];
+    unzipStep.destDir = makeDestDirStep.dirUrl;
+}
+
+- (void)unzipStepDidFinish
+{
+
+}
+
+- (void)parseMetaDataStepDidFinish
+{
+    ParseJsonOperation *parseMetaData = self.steps[3];
+    // TODO: update report on main thread
+    [self.report setPropertiesFromJsonDescriptor:parseMetaData.parsedJsonDictionary];
 }
 
 - (void)cancelRemainingSteps

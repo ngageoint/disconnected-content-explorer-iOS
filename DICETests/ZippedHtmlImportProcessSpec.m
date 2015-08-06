@@ -18,7 +18,7 @@
 #import "UnzipOperation.h"
 #import "FileOperations.h"
 #import "SimpleFileManager.h"
-#import "ParseReportMetaDataOperation.h"
+#import "ParseJsonOperation.h"
 #import "ZipFile.h"
 #import "FileInZipInfo.h"
 
@@ -324,6 +324,10 @@ describe(@"ZippedHtmlImportProcess", ^{
         [(id)makeDestDirStep stopMocking];
     });
 
+    it(@"updates the report url after unzipping", ^{
+        
+    });
+
     it(@"parses the report metadata if available", ^{
         ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
@@ -331,10 +335,9 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
         UnzipOperation *unzip = import.steps[2];
-        ParseReportMetaDataOperation *parseMetaData = import.steps[3];
+        ParseJsonOperation *parseMetaData = import.steps[3];
 
         expect(parseMetaData.dependencies).to.contain(unzip);
-        expect(parseMetaData.targetReport).to.beIdenticalTo(initialReport);
 
         [validation start];
 
@@ -344,7 +347,7 @@ describe(@"ZippedHtmlImportProcess", ^{
             }
         });
 
-        expect(parseMetaData.jsonFileUrl).to.equal([reportsDir URLByAppendingPathComponent:@"test/metadata.json"]);
+        expect(parseMetaData.jsonUrl).to.equal([reportsDir URLByAppendingPathComponent:@"test/metadata.json"]);
     });
 
     it(@"deletes the zip file after unzipping successfully", ^{

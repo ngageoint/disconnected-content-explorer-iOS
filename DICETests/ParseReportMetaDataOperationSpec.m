@@ -14,7 +14,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import "ParseReportMetaDataOperation.h"
+#import "ParseJsonOperation.h"
 
 
 SpecBegin(ParseReportMetaDataOperation)
@@ -30,17 +30,17 @@ describe(@"ParseReportMetaDataOperation", ^{
     });
 
     it(@"it throws an exception if report is nil", ^{
-        __block ParseReportMetaDataOperation *op;
+        __block ParseJsonOperation *op;
 
         expect(^{
-            op = [[ParseReportMetaDataOperation alloc] initWithTargetReport:nil];
+            op = [[ParseJsonOperation alloc] init];
         }).to.raiseWithReason(@"IllegalArgumentException", @"targetReport is nil");
 
         expect(op).to.beNil;
     });
 
     it(@"is not ready until json url is set", ^{
-        ParseReportMetaDataOperation *op = [[ParseReportMetaDataOperation alloc] initWithTargetReport:[[Report alloc] init]];
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
 
         id observer = observer = OCMClassMock([NSObject class]);
         OCMExpect([observer observeValueForKeyPath:@"ready" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
@@ -48,17 +48,17 @@ describe(@"ParseReportMetaDataOperation", ^{
         [op addObserver:observer forKeyPath:@"ready" options:0 context:NULL];
 
         expect(op.ready).to.equal(NO);
-        expect(op.jsonFileUrl).to.beNil;
+        expect(op.jsonUrl).to.beNil;
 
-        op.jsonFileUrl = [NSURL URLWithString:@"/metadata.json"];
+        op.jsonUrl = [NSURL URLWithString:@"/metadata.json"];
 
         expect(op.ready).to.equal(YES);
         OCMVerifyAll(observer);
     });
 
     it(@"is not ready until dependencies are finished", ^{
-        ParseReportMetaDataOperation *op = [[ParseReportMetaDataOperation alloc] initWithTargetReport:[[Report alloc] init]];
-        op.jsonFileUrl = [NSURL URLWithString:@"/metadata.json"];
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
+        op.jsonUrl = [NSURL URLWithString:@"/metadata.json"];
 
         NSOperation *holdup = [[NSOperation alloc] init];
         [op addDependency:holdup];
@@ -77,17 +77,17 @@ describe(@"ParseReportMetaDataOperation", ^{
     });
 
     it(@"throws an exception when dest dir change is attempted while executing", ^{
-        ParseReportMetaDataOperation *op = [[ParseReportMetaDataOperation alloc] initWithTargetReport:[[Report alloc] init]];
-        op.jsonFileUrl = [NSURL URLWithString:@"/metadata.json"];
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
+        op.jsonUrl = [NSURL URLWithString:@"/metadata.json"];
 
-        ParseReportMetaDataOperation *mockOp = OCMPartialMock(op);
+        ParseJsonOperation *mockOp = OCMPartialMock(op);
         OCMStub([mockOp isExecuting]).andReturn(YES);
 
         expect(^{
-            op.jsonFileUrl = [NSURL URLWithString:[NSString stringWithFormat:@"/var/%@", op.jsonFileUrl.path]];
+            op.jsonUrl = [NSURL URLWithString:[NSString stringWithFormat:@"/var/%@", op.jsonUrl.path]];
         }).to.raiseWithReason(@"IllegalStateException", @"cannot change jsonFileUrl after ParseReportMetaDataOperation has started");
         
-        expect(op.jsonFileUrl).to.equal([NSURL URLWithString:@"/metadata.json"]);
+        expect(op.jsonUrl).to.equal([NSURL URLWithString:@"/metadata.json"]);
     });
 
     it(@"parses the meta-data and updates the report", ^{

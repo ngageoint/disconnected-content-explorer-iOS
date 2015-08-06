@@ -32,7 +32,7 @@
 }
 
 
-- (instancetype)setPropertiesByParsingJson:(NSData *)jsonData
+- (instancetype)setPropertiesFromJsonDescriptor:(NSDictionary *)descriptor
 {
     return self;
 }

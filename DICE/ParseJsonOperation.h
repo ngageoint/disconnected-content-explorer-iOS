@@ -11,11 +11,9 @@
 #import "Report.h"
 
 
-@interface ParseReportMetaDataOperation : NSOperation
+@interface ParseJsonOperation : NSOperation
 
-@property (readonly) Report *targetReport;
-@property (nonatomic) NSURL *jsonFileUrl;
-
-- (instancetype)initWithTargetReport:(Report *)report;
+@property (nonatomic) NSURL *jsonUrl;
+@property (readonly) NSDictionary *parsedJsonDictionary;
 
 @end

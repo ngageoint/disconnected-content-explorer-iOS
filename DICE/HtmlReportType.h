@@ -30,6 +30,11 @@
  set after the operation finishes; can be the empty string
  */
 @property (readonly) NSString *indexDirPath;
+/**
+ the path of the json meta-data file within the zip file; nil if one is
+ not present
+ */
+@property (readonly) NSString *metaDataPath;
 
 - (instancetype)initWithZipFile:(ZipFile *)zipFile;
 
