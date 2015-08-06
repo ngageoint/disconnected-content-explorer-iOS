@@ -31,10 +31,15 @@
  */
 @property (readonly) NSString *indexDirPath;
 /**
- the path of the json meta-data file within the zip file; nil if one is
+ whether the zip contains a json descriptor file with extra information
+ about the report
+ */
+@property (readonly) BOOL hasDescriptor;
+/**
+ the path of the json descriptor file within the zip file; nil if one is
  not present
  */
-@property (readonly) NSString *metaDataPath;
+@property (readonly) NSString *descriptorPath;
 
 - (instancetype)initWithZipFile:(ZipFile *)zipFile;
 

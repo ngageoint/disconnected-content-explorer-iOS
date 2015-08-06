@@ -18,6 +18,8 @@
 #import "FileInZipInfo.h"
 
 
+
+
 @implementation ValidateHtmlLayoutOperation
 
 /*
@@ -37,6 +39,10 @@
     return self;
 }
 
+- (BOOL)hasDescriptor
+{
+    return _descriptorPath != nil;
+}
 
 - (void)main
 {
@@ -58,7 +64,6 @@
                 if (steps.count == 1) {
                     mostShallowIndexEntry = entry.name;
                     indexDepth = 0;
-                    *stop = YES;
                 }
                 else if (steps.count - 1 < indexDepth) {
                     mostShallowIndexEntry = entry.name;
@@ -67,7 +72,7 @@
             }
             else {
                 if ([@"metadata.json" isEqualToString:steps.lastObject]) {
-                    _metaDataPath = entry.name;
+                    _descriptorPath = entry.name;
                 }
                 if (steps.count == 1) {
                     hasNonIndexRootEntries = YES;
@@ -77,11 +82,19 @@
 
         if (indexDepth > 0 && (hasNonIndexRootEntries || baseDirs.count > 1)) {
             mostShallowIndexEntry = nil;
+            _descriptorPath = nil;
         }
         
         if (mostShallowIndexEntry) {
             _indexDirPath = [mostShallowIndexEntry stringByDeletingLastPathComponent];
             _isLayoutValid = YES;
+        }
+
+        if (_descriptorPath) {
+            NSString *descriptorDir = [_descriptorPath stringByDeletingLastPathComponent];
+            if (![_indexDirPath isEqualToString:descriptorDir]) {
+                _descriptorPath = nil;
+            }
         }
     }
 }

@@ -21,8 +21,8 @@
     _steps = steps;
 
     for (NSOperation *step in _steps) {
-        [step addObserver:self forKeyPath:@"executing" options:NSKeyValueObservingOptionPrior context:nil];
-        [step addObserver:self forKeyPath:@"finished" options:NSKeyValueObservingOptionPrior context:nil];
+        [step addObserver:self forKeyPath:@"isExecuting" options:NSKeyValueObservingOptionPrior context:nil];
+        [step addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionPrior context:nil];
     }
 
     return self;

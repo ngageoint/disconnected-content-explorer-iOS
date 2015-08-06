@@ -19,7 +19,7 @@
 
 SpecBegin(ParseReportMetaDataOperation)
 
-describe(@"ParseReportMetaDataOperation", ^{
+describe(@"ParseJsonOperation", ^{
     
     beforeAll(^{
 
@@ -27,16 +27,6 @@ describe(@"ParseReportMetaDataOperation", ^{
     
     beforeEach(^{
 
-    });
-
-    it(@"it throws an exception if report is nil", ^{
-        __block ParseJsonOperation *op;
-
-        expect(^{
-            op = [[ParseJsonOperation alloc] init];
-        }).to.raiseWithReason(@"IllegalArgumentException", @"targetReport is nil");
-
-        expect(op).to.beNil;
     });
 
     it(@"is not ready until json url is set", ^{

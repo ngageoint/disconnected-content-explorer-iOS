@@ -378,6 +378,81 @@ describe(@"ValidateHtmlLayoutOperation", ^{
         expect(op.indexDirPath).to.beNil;
     });
 
+    it(@"sets the report descriptor url when available next to index.html", ^{
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"base/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/metadata.json" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"base/index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.hasDescriptor).to.equal(NO);
+        expect(op.descriptorPath).to.beNil;
+
+        [op start];
+
+        expect(op.hasDescriptor).to.equal(YES);
+        expect(op.descriptorPath).to.equal(@"base/metadata.json");
+    });
+
+    it(@"sets the report descriptor url when available next to index.html without base dir", ^{
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"metadata.json" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.hasDescriptor).to.equal(NO);
+        expect(op.descriptorPath).to.beNil;
+        
+        [op start];
+        
+        expect(op.hasDescriptor).to.equal(YES);
+        expect(op.descriptorPath).to.equal(@"metadata.json");
+    });
+
+    it(@"does not set the report descriptor if not next to index.html", ^{
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"sub/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"sub/metadata.json" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.hasDescriptor).to.equal(NO);
+        expect(op.descriptorPath).to.beNil;
+        
+        [op start];
+        
+        expect(op.hasDescriptor).to.equal(NO);
+        expect(op.descriptorPath).to.beNil;
+    });
+
+
+    it(@"does not set the report descriptor if not available", ^{
+        ZipFile *zipFile = mock([ZipFile class]);
+        [given([zipFile listFileInZipInfos]) willReturn:@[
+            [[FileInZipInfo alloc] initWithName:@"index.html" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"sub/" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            [[FileInZipInfo alloc] initWithName:@"sub/other.json" length:0 level:ZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+        ]];
+
+        ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+
+        expect(op.hasDescriptor).to.equal(NO);
+        expect(op.descriptorPath).to.beNil;
+        
+        [op start];
+        
+        expect(op.hasDescriptor).to.equal(NO);
+        expect(op.descriptorPath).to.beNil;
+    });
 });
 
 SpecEnd

@@ -328,7 +328,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         
     });
 
-    it(@"parses the report metadata if available", ^{
+    it(@"parses the report descriptor if available", ^{
         ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
@@ -348,6 +348,10 @@ describe(@"ZippedHtmlImportProcess", ^{
         });
 
         expect(parseMetaData.jsonUrl).to.equal([reportsDir URLByAppendingPathComponent:@"test/metadata.json"]);
+    });
+
+    it(@"cancels parsing report descriptor if not available", ^{
+        failure(@"unimplemented");
     });
 
     it(@"deletes the zip file after unzipping successfully", ^{
