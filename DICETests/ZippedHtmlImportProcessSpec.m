@@ -328,7 +328,29 @@ describe(@"ZippedHtmlImportProcess", ^{
         
     });
 
-    it(@"parses the report descriptor if available", ^{
+    it(@"parses the report descriptor if available at root", ^{
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"index.html", @"metadata.json"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
+        UnzipOperation *unzip = import.steps[2];
+        ParseJsonOperation *parseMetaData = import.steps[3];
+
+        expect(parseMetaData.dependencies).to.contain(unzip);
+
+        [validation start];
+
+        waitUntil(^(DoneCallback done) {
+            if (validation.finished) {
+                done();
+            }
+        });
+
+        expect(parseMetaData.jsonUrl).to.equal([reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec/metadata.json"]);
+    });
+
+    it(@"parses the report descriptor if available in base dir", ^{
         ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
@@ -351,7 +373,25 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"cancels parsing report descriptor if not available", ^{
-        failure(@"unimplemented");
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
+        UnzipOperation *unzip = import.steps[2];
+        ParseJsonOperation *parseMetaData = import.steps[3];
+
+        expect(parseMetaData.dependencies).to.contain(unzip);
+
+        [validation start];
+
+        waitUntil(^(DoneCallback done) {
+            if (validation.finished) {
+                done();
+            }
+        });
+
+        expect(parseMetaData.cancelled).to.equal(YES);
     });
 
     it(@"deletes the zip file after unzipping successfully", ^{

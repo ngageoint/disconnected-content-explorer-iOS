@@ -21,8 +21,7 @@
     _steps = steps;
 
     for (NSOperation *step in _steps) {
-        [step addObserver:self forKeyPath:@"isExecuting" options:NSKeyValueObservingOptionPrior context:nil];
-        [step addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionPrior context:nil];
+        [step addObserver:self forKeyPath:@"isFinished" options:0 context:nil];
     }
 
     return self;
@@ -30,7 +29,7 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    BOOL isPrior = ((NSNumber *)change[NSKeyValueChangeNotificationIsPriorKey]).boolValue;
+
 }
 
 - (void)stepWillBeginExecuting:(NSOperation *)step

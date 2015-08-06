@@ -152,6 +152,7 @@
 {
     ValidateHtmlLayoutOperation *validateStep = self.steps.firstObject;
     MkdirOperation *makeDestDirStep = self.steps[1];
+    ParseJsonOperation *parseDescriptorStep = self.steps[3];
 
     if (!validateStep.isLayoutValid) {
         [self cancelRemainingSteps];
@@ -163,7 +164,15 @@
         NSString *destDirPath = [self.report.url.lastPathComponent stringByDeletingPathExtension];
         destDir = [self.destDir URLByAppendingPathComponent:destDirPath isDirectory:YES];
     }
+
     makeDestDirStep.dirUrl = destDir;
+
+    if (validateStep.hasDescriptor) {
+        parseDescriptorStep.jsonUrl = [destDir URLByAppendingPathComponent:validateStep.descriptorPath];
+    }
+    else {
+        [parseDescriptorStep cancel];
+    }
 }
 
 - (void)makeDestDirStepDidFinish
