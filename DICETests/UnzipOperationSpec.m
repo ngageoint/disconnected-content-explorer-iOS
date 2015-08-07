@@ -87,6 +87,10 @@ describe(@"UnzipOperation", ^{
         expect(op.destDir).to.equal([NSURL URLWithString:@"/tmp/"]);
     });
 
+    it(@"reports unzip progress", ^{
+        failure(@"unimplemented");
+    });
+
     afterEach(^{
 
     });

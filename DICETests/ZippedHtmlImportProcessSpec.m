@@ -324,8 +324,64 @@ describe(@"ZippedHtmlImportProcess", ^{
         [(id)makeDestDirStep stopMocking];
     });
 
-    it(@"updates the report url after unzipping", ^{
-        failure(@"unimplemented");
+    it(@"updates the report url after unzipping with base dir", ^{
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
+
+        [validation start];
+
+        waitUntil(^(DoneCallback done) {
+            if (validation.finished) {
+                done();
+            }
+        });
+
+        UnzipOperation *unzip = import.steps[2];
+        UnzipOperation *mockUnzip = OCMPartialMock(unzip);
+        OCMStub([mockUnzip wasSuccessful]).andReturn(YES);
+
+        [import stepWillFinish:unzip stepIndex:2];
+
+        waitUntil(^(DoneCallback done) {
+            if ([import.report.url isEqual:[reportsDir URLByAppendingPathComponent:@"base" isDirectory:YES]]) {
+                done();
+            }
+        });
+
+        expect(import.report.url).to.equal([reportsDir URLByAppendingPathComponent:@"base" isDirectory:YES]);
+    });
+
+    it(@"updates the report url after unzipping without base dir", ^{
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"index.html", @"images/", @"images/icon.png"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
+
+        [validation start];
+
+        waitUntil(^(DoneCallback done) {
+            if (validation.finished) {
+                done();
+            }
+        });
+
+        UnzipOperation *unzip = import.steps[2];
+        UnzipOperation *mockUnzip = OCMPartialMock(unzip);
+        OCMStub([mockUnzip wasSuccessful]).andReturn(YES);
+
+        [import stepWillFinish:unzip stepIndex:2];
+
+        waitUntil(^(DoneCallback done) {
+            if ([import.report.url isEqual:[reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES]]) {
+                done();
+            }
+        });
+        
+        expect(import.report.url).to.equal([reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES]);
     });
 
     it(@"parses the report descriptor if available at root", ^{

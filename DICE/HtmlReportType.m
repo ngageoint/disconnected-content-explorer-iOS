@@ -103,6 +103,9 @@
 
 
 @implementation ZippedHtmlImportProcess
+{
+    NSURL *_reportBaseDir;
+}
 
 - (instancetype)initWithReport:(Report *)report
     destDir:(NSURL *)destDir
@@ -148,23 +151,23 @@
 
     switch (stepIndex) {
         case 0:
-            [self validateStepDidFinish];
+            [self validateStepWillFinish];
             break;
         case 1:
-            [self makeDestDirStepDidFinish];
+            [self makeDestDirStepWillFinish];
             break;
         case 2:
-            [self unzipStepDidFinish];
+            [self unzipStepWillFinish];
             break;
         case 3:
-            [self parseMetaDataStepDidFinish];
+            [self parseDescriptorStepWillFinish];
             break;
         default:
             break;
     }
 }
 
-- (void)validateStepDidFinish
+- (void)validateStepWillFinish
 {
     ValidateHtmlLayoutOperation *validateStep = self.steps.firstObject;
     MkdirOperation *makeDestDirStep = self.steps[1];
@@ -177,21 +180,25 @@
 
     NSURL *destDir = self.destDir;
     if (validateStep.indexDirPath.length == 0) {
-        NSString *destDirPath = [self.report.url.lastPathComponent stringByDeletingPathExtension];
-        destDir = [self.destDir URLByAppendingPathComponent:destDirPath isDirectory:YES];
+        NSString *reportName = [self.report.url.lastPathComponent stringByDeletingPathExtension];
+        _reportBaseDir = [self.destDir URLByAppendingPathComponent:reportName isDirectory:YES];
+        destDir = _reportBaseDir;
+    }
+    else {
+        _reportBaseDir = [self.destDir URLByAppendingPathComponent:validateStep.indexDirPath isDirectory:YES];
     }
 
     makeDestDirStep.dirUrl = destDir;
 
     if (validateStep.hasDescriptor) {
-        parseDescriptorStep.jsonUrl = [destDir URLByAppendingPathComponent:validateStep.descriptorPath];
+        parseDescriptorStep.jsonUrl = [_reportBaseDir URLByAppendingPathComponent:validateStep.descriptorPath.lastPathComponent];
     }
     else {
         [parseDescriptorStep cancel];
     }
 }
 
-- (void)makeDestDirStepDidFinish
+- (void)makeDestDirStepWillFinish
 {
     MkdirOperation *makeDestDirStep = self.steps[1];
 
@@ -204,22 +211,22 @@
     unzipStep.destDir = makeDestDirStep.dirUrl;
 }
 
-- (void)unzipStepDidFinish
+- (void)unzipStepWillFinish
 {
     UnzipOperation *unzip = self.steps[2];
 
-    if (unzip.wasSuccessful) {
+    if (!unzip.wasSuccessful) {
+        [self cancelStepsAfterStep:unzip];
         return;
     }
 
-    [self cancelStepsAfterStep:unzip];
+    [self.report performSelectorOnMainThread:@selector(setUrl:) withObject:_reportBaseDir waitUntilDone:NO];
 }
 
-- (void)parseMetaDataStepDidFinish
+- (void)parseDescriptorStepWillFinish
 {
-    ParseJsonOperation *parseMetaData = self.steps[3];
-    // TODO: update report on main thread
-    [self.report setPropertiesFromJsonDescriptor:parseMetaData.parsedJsonDictionary];
+    ParseJsonOperation *parseDescriptor = self.steps[3];
+    [self.report performSelectorOnMainThread:@selector(setPropertiesFromJsonDescriptor:) withObject:parseDescriptor.parsedJsonDictionary waitUntilDone:NO];
 }
 
 - (void)cancelStepsAfterStep:(NSOperation *)step
