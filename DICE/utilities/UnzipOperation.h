@@ -14,6 +14,10 @@
 
 @property (readonly) ZipFile *zipFile;
 @property (nonatomic) NSURL *destDir;
+/**
+ whether the unzip completed successfully
+ */
+@property (readonly) BOOL wasSuccessful;
 
 - (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir;
 

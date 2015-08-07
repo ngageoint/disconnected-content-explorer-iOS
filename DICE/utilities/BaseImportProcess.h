@@ -18,6 +18,6 @@
 
 - (instancetype)initWithReport:(Report *)report steps:(NSArray *)steps NS_DESIGNATED_INITIALIZER;
 
-- (void)stepDidFinish:(NSOperation *)step;
+- (void)stepWillFinish:(NSOperation *)step stepIndex:(NSUInteger)stepIndex;
 
 @end

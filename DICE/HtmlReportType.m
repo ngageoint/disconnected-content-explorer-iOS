@@ -120,14 +120,15 @@
     ParseJsonOperation *parseMetaData = [[ParseJsonOperation alloc] init];
     [parseMetaData addDependency:unzip];
 
-//    DeleteFileOperation *deleteZip = [[DeleteFileOperation alloc] initWithFileUrl:report.url];
-//    [deleteZip addDependency:parseMetaData];
+    DeleteFileOperation *deleteZip = [[DeleteFileOperation alloc] initWithFileUrl:report.url];
+    [deleteZip addDependency:unzip];
 
     self = [super initWithReport:report steps:@[
         validation,
         makeDestDir,
         unzip,
         parseMetaData,
+        deleteZip,
     ]];
 
     if (!self) {
@@ -146,6 +147,11 @@
     _fileManager = fileManager;
 
     return self;
+}
+
+- (void)stepDidFinish:(NSOperation *)step
+{
+    
 }
 
 - (void)validateStepDidFinish
@@ -190,7 +196,7 @@
 
 - (void)unzipStepDidFinish
 {
-
+    
 }
 
 - (void)parseMetaDataStepDidFinish

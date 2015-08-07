@@ -395,29 +395,40 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"deletes the zip file after unzipping successfully", ^{
-        //        Report *report = [[Report alloc] init];
-        //        report.url = [reportsDir URLByAppendingPathComponent:@"success.zip"];
-        //
-        //        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
-        //        id<ImportProcess> import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-        //            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-        //
-        //        DeleteFileOperation *deleteStep = import.steps.lastObject;
-        //
-        //        expect(deleteStep.fileUrl).to.equal(report.url);
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
-        failure(@"unimplemented");
+        UnzipOperation *unzipStep = import.steps[2];
+        DeleteFileOperation *deleteStep = import.steps.lastObject;
+
+        expect(deleteStep.dependencies).to.contain(unzipStep);
+        expect(deleteStep.fileUrl).to.equal(initialReport.url);
     });
 
     it(@"leaves the zip file if an error occurs", ^{
-        failure(@"unimplemented");
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        UnzipOperation *unzipStep = OCMPartialMock(import.steps[2]);
+        DeleteFileOperation *deleteStep = import.steps.lastObject;
+
+        OCMStub([unzipStep main]);
+        OCMStub([unzipStep wasSuccessful]).andReturn(NO);
+
+        [import stepWillFinish:unzipStep stepIndex:2];
+
+        expect(deleteStep.cancelled).to.equal(YES);
+
+        [(id)unzipStep stopMocking];
     });
     
     it(@"reports unzip progress updates", ^{
         failure(@"unimplemented");
     });
 
-    it(@"unzips the file to a temporary directory", ^{
+    xit(@"unzips the file to a temporary directory", ^{
 //        NSString *uuid = [[NSUUID UUID] UUIDString];
 //        NSString *tempDirName = [@"temp-" stringByAppendingString:uuid];
 //        NSURL *tempDir = [reportsDir URLByAppendingPathComponent:tempDirName];
@@ -435,7 +446,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         failure(@"unimplemented - unnecessary?  could make concurrency issues simpler");
     });
 
-    it(@"moves the extracted content to the reports directory", ^{
+    xit(@"moves the extracted content to the reports directory", ^{
         failure(@"unimplemented - only if unzipping to temp dirs");
     });
     

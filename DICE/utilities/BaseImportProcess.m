@@ -21,7 +21,7 @@
     _steps = steps;
 
     for (NSOperation *step in _steps) {
-        [step addObserver:self forKeyPath:@"isFinished" options:0 context:nil];
+        [step addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionPrior context:nil];
     }
 
     return self;
@@ -29,17 +29,23 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
+    NSUInteger stepIndex = [self.steps indexOfObject:object];
 
-}
+    if (stepIndex == NSNotFound) {
+        return;
+    }
 
-- (void)stepWillBeginExecuting:(NSOperation *)step
-{
-
-}
-
-- (void)stepDidFinish:(NSOperation *)step
-{
+    BOOL isPrior = ((NSNumber *)change[NSKeyValueChangeNotificationIsPriorKey]).boolValue;
     
+    if ([@"isFinished" isEqualToString:keyPath] && isPrior) {
+        [self stepWillFinish:object stepIndex:stepIndex];
+        // TODO: remove observer?
+    }
+}
+
+- (void)stepWillFinish:(NSOperation *)step stepIndex:(NSUInteger)stepIndex
+{
+
 }
 
 @end
