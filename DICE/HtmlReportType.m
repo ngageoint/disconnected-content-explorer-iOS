@@ -135,14 +135,6 @@
         return nil;
     }
 
-    __weak ZippedHtmlImportProcess *weakSelf = self;
-    validation.completionBlock = ^{
-        [weakSelf validateStepDidFinish];
-    };
-    makeDestDir.completionBlock = ^{
-        [weakSelf makeDestDirStepDidFinish];
-    };
-
     _destDir = destDir;
     _fileManager = fileManager;
 
@@ -154,8 +146,21 @@
     NSAssert((stepIndex < self.steps.count && self.steps[stepIndex] == step),
         @"operation %@ at index %u does not belong to %@", step, stepIndex, self);
 
-    if (stepIndex == 2) {
-        [self unzipStepDidFinish];
+    switch (stepIndex) {
+        case 0:
+            [self validateStepDidFinish];
+            break;
+        case 1:
+            [self makeDestDirStepDidFinish];
+            break;
+        case 2:
+            [self unzipStepDidFinish];
+            break;
+        case 3:
+            [self parseMetaDataStepDidFinish];
+            break;
+        default:
+            break;
     }
 }
 

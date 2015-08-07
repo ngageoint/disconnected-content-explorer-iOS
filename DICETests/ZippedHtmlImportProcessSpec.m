@@ -325,7 +325,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"updates the report url after unzipping", ^{
-        
+        failure(@"unimplemented");
     });
 
     it(@"parses the report descriptor if available at root", ^{
