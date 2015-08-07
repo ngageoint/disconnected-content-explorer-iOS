@@ -411,9 +411,10 @@ describe(@"ZippedHtmlImportProcess", ^{
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
              destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
-        UnzipOperation *unzipStep = OCMPartialMock(import.steps[2]);
+        UnzipOperation *unzipStep = import.steps[2];
         DeleteFileOperation *deleteStep = import.steps.lastObject;
 
+        UnzipOperation *mockUnzipStep = OCMPartialMock(unzipStep);
         OCMStub([unzipStep main]);
         OCMStub([unzipStep wasSuccessful]).andReturn(NO);
 
@@ -421,7 +422,7 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         expect(deleteStep.cancelled).to.equal(YES);
 
-        [(id)unzipStep stopMocking];
+        [(id)mockUnzipStep stopMocking];
     });
     
     it(@"reports unzip progress updates", ^{

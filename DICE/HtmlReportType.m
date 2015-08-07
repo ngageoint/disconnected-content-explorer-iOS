@@ -149,9 +149,14 @@
     return self;
 }
 
-- (void)stepDidFinish:(NSOperation *)step
+- (void)stepWillFinish:(NSOperation *)step stepIndex:(NSUInteger)stepIndex
 {
-    
+    NSAssert((stepIndex < self.steps.count && self.steps[stepIndex] == step),
+        @"operation %@ at index %u does not belong to %@", step, stepIndex, self);
+
+    if (stepIndex == 2) {
+        [self unzipStepDidFinish];
+    }
 }
 
 - (void)validateStepDidFinish
@@ -161,7 +166,7 @@
     ParseJsonOperation *parseDescriptorStep = self.steps[3];
 
     if (!validateStep.isLayoutValid) {
-        [self cancelRemainingSteps];
+        [self cancelStepsAfterStep:validateStep];
         return;
     }
 
@@ -186,7 +191,7 @@
     MkdirOperation *makeDestDirStep = self.steps[1];
 
     if (!(makeDestDirStep.dirWasCreated || makeDestDirStep.dirExisted)) {
-        [self cancelRemainingSteps];
+        [self cancelStepsAfterStep:makeDestDirStep];
         return;
     }
 
@@ -196,7 +201,13 @@
 
 - (void)unzipStepDidFinish
 {
-    
+    UnzipOperation *unzip = self.steps[2];
+
+    if (unzip.wasSuccessful) {
+        return;
+    }
+
+    [self cancelStepsAfterStep:unzip];
 }
 
 - (void)parseMetaDataStepDidFinish
@@ -206,13 +217,18 @@
     [self.report setPropertiesFromJsonDescriptor:parseMetaData.parsedJsonDictionary];
 }
 
-- (void)cancelRemainingSteps
+- (void)cancelStepsAfterStep:(NSOperation *)step
 {
-    for (NSOperation *step in self.steps) {
-        if (!step.finished) {
-            [step cancel];
-        }
+    NSUInteger stepIndex = [self.steps indexOfObject:step];
+    while (++stepIndex < self.steps.count) {
+        NSOperation *pendingStep = self.steps[stepIndex];
+        [pendingStep cancel];
     }
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"%@: %@", NSStringFromClass([self class]), self.report.url];
 }
 
 @end
