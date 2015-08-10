@@ -34,11 +34,17 @@
 {
     NSSet *keys = [super keyPathsForValuesAffectingValueForKey:key];
 
-    if ([key isEqualToString:@"ready"]) {
-        keys = [keys setByAddingObject:@"dirUrl"];
+    NSString *isReadyKey = NSStringFromSelector(@selector(isReady));
+    if ([isReadyKey isEqualToString:key]) {
+        keys = [keys setByAddingObject:NSStringFromSelector(@selector(dirUrl))];
     }
 
     return keys;
+}
+
++ (BOOL)automaticallyNotifiesObserversOfDirUrl
+{
+    return NO;
 }
 
 - (instancetype)initWithDirUrl:(NSURL *)dirUrl fileManager:(NSFileManager *)fileManager
@@ -64,7 +70,25 @@
         [NSException raise:@"IllegalStateException" format:@"cannot change dirUrl after MkdirOperation has started"];
     }
 
+    if (dirUrl == self.dirUrl) {
+        return;
+    }
+
+    BOOL wasReady = self.isReady;
+    NSString *dirUrlKey = NSStringFromSelector(@selector(dirUrl));
+    NSString *isReadyKey = NSStringFromSelector(@selector(isReady));
+
+    [self willChangeValueForKey:dirUrlKey];
+    if (!wasReady && dirUrl) {
+        [self willChangeValueForKey:isReadyKey];
+    }
+
     _dirUrl = dirUrl;
+
+    [self didChangeValueForKey:dirUrlKey];
+    if (!wasReady && self.isReady) {
+        [self didChangeValueForKey:isReadyKey];
+    }
 }
 
 - (void)main
@@ -81,7 +105,7 @@
             return;
         }
 
-        _dirWasCreated = [self.fileManager createDirectoryAtURL:self.dirUrl withIntermediateDirectories:NO attributes:nil error:NULL];
+        _dirWasCreated = [self.fileManager createDirectoryAtURL:self.dirUrl withIntermediateDirectories:YES attributes:nil error:NULL];
     }
 }
 

@@ -15,11 +15,16 @@
 {
     NSSet *keys = [super keyPathsForValuesAffectingValueForKey:key];
 
-    if ([key isEqualToString:@"ready"]) {
-        keys = [keys setByAddingObject:@"destDir"];
+    if ([NSStringFromSelector(@selector(isReady)) isEqualToString:key]) {
+        keys = [keys setByAddingObject:NSStringFromSelector(@selector(destDir))];
     }
 
     return keys;
+}
+
++ (BOOL)automaticallyNotifiesObserversOfDestDir
+{
+    return NO;
 }
 
 - (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir
@@ -61,7 +66,25 @@
         [NSException raise:@"IllegalStateException" format:@"cannot change destDir after UnzipOperation has started"];
     }
 
+    if (destDir == self.destDir) {
+        return;
+    }
+
+    BOOL wasReady = self.isReady;
+    NSString *destDirKey = NSStringFromSelector(@selector(destDir));
+    NSString *isReadyKey = NSStringFromSelector(@selector(isReady));
+
+    [self willChangeValueForKey:destDirKey];
+    if ((!wasReady && destDir) || (wasReady && !destDir)) {
+        [self willChangeValueForKey:isReadyKey];
+    }
+
     _destDir = destDir;
+
+    [self didChangeValueForKey:destDirKey];
+    if (self.isReady == !wasReady) {
+        [self didChangeValueForKey:isReadyKey];
+    }
 }
 
 @end

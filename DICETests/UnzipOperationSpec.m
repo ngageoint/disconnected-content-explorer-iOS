@@ -43,9 +43,9 @@ describe(@"UnzipOperation", ^{
         UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:OCMClassMock([ZipFile class]) destDir:nil];
 
         id observer = observer = OCMClassMock([NSObject class]);
-        OCMExpect([observer observeValueForKeyPath:@"ready" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
+        OCMExpect([observer observeValueForKeyPath:@"isReady" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
 
-        [op addObserver:observer forKeyPath:@"ready" options:0 context:NULL];
+        [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
 
         expect(op.ready).to.equal(NO);
         expect(op.destDir).to.beNil;
@@ -54,6 +54,10 @@ describe(@"UnzipOperation", ^{
 
         expect(op.ready).to.equal(YES);
         OCMVerifyAll(observer);
+    });
+
+    it(@"has enough kvo tests", ^{
+        failure(@"add more tests for prior options and different value cases");
     });
 
     it(@"is not ready until dependencies are finished", ^{

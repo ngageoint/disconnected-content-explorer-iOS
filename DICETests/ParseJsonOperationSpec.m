@@ -17,7 +17,7 @@
 #import "ParseJsonOperation.h"
 
 
-SpecBegin(ParseReportMetaDataOperation)
+SpecBegin(ParseJsonOperation)
 
 describe(@"ParseJsonOperation", ^{
     
@@ -33,17 +33,21 @@ describe(@"ParseJsonOperation", ^{
         ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
 
         id observer = observer = OCMClassMock([NSObject class]);
-        OCMExpect([observer observeValueForKeyPath:@"ready" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
+        OCMExpect([observer observeValueForKeyPath:@"isReady" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
 
-        [op addObserver:observer forKeyPath:@"ready" options:0 context:NULL];
+        [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
 
-        expect(op.ready).to.equal(NO);
+        expect(op.isReady).to.equal(NO);
         expect(op.jsonUrl).to.beNil;
 
         op.jsonUrl = [NSURL URLWithString:@"/metadata.json"];
 
-        expect(op.ready).to.equal(YES);
+        expect(op.isReady).to.equal(YES);
         OCMVerifyAll(observer);
+    });
+
+    it(@"has enough kvo tests", ^{
+        failure(@"add more tests for prior options and different value cases");
     });
 
     it(@"is not ready until dependencies are finished", ^{
@@ -80,8 +84,22 @@ describe(@"ParseJsonOperation", ^{
         expect(op.jsonUrl).to.equal([NSURL URLWithString:@"/metadata.json"]);
     });
 
-    it(@"parses the meta-data and updates the report", ^{
-        failure(@"unimplemented");
+    it(@"parses the json", ^{
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
+        op.jsonUrl = [NSURL URLWithString:@"/tmp/metadata.json"];
+
+        NSString *jsonString = @"{\"didItWork\": true, \"number\": 28, \"array\": [1, 2, 3], \"string\": \"ner ner\", \"object\": { \"key\": \"value\" } }";
+        id mockDataClass = OCMClassMock([NSData class]);
+        OCMExpect([mockDataClass dataWithContentsOfURL:op.jsonUrl]).andReturn([jsonString dataUsingEncoding:NSUTF8StringEncoding]);
+
+        [op start];
+
+        NSDictionary *result = op.parsedJsonDictionary;
+        expect(result[@"didItWork"]).to.equal(@YES);
+        expect(result[@"number"]).to.equal(@28);
+        expect(result[@"array"]).to.equal(@[@1, @2, @3]);
+        expect(result[@"string"]).to.equal(@"ner ner");
+        expect(result[@"object"]).to.equal(@{@"key": @"value"});
     });
     
     afterEach(^{

@@ -15,11 +15,17 @@
 {
     NSSet *keys = [super keyPathsForValuesAffectingValueForKey:key];
 
-    if ([@"ready" isEqualToString:key]) {
-        keys = [keys setByAddingObject:NSStringFromSelector(@selector(jsonFileUrl))];
+    NSString *readyKey = NSStringFromSelector(@selector(isReady));
+    if ([readyKey isEqualToString:key]) {
+        keys = [keys setByAddingObject:NSStringFromSelector(@selector(jsonUrl))];
     }
 
     return keys;
+}
+
++ (BOOL)automaticallyNotifiesObserversOfJsonUrl
+{
+    return NO;
 }
 
 - (instancetype)init
@@ -37,19 +43,39 @@
     return self.jsonUrl != nil && super.ready;
 }
 
-- (void)setJsonUrl:(NSURL *)jsonFileUrl
+- (void)setJsonUrl:(NSURL *)jsonUrl
 {
     if (self.executing) {
         [NSException raise:@"IllegalStateException" format:@"cannot change jsonFileUrl after ParseReportMetaDataOperation has started"];
     }
 
-    _jsonUrl = jsonFileUrl;
+    if (self.jsonUrl == jsonUrl) {
+        return;
+    }
+
+    NSString *jsonUrlKey = NSStringFromSelector(@selector(jsonUrl));
+    NSString *isReadyKey = NSStringFromSelector(@selector(isReady));
+
+    BOOL wasReady = self.isReady;
+
+    [self willChangeValueForKey:jsonUrlKey];
+    if (!wasReady && jsonUrl) {
+        [self willChangeValueForKey:isReadyKey];
+    }
+
+    _jsonUrl = jsonUrl;
+
+    [self didChangeValueForKey:jsonUrlKey];
+    if (!wasReady && self.isReady) {
+        [self didChangeValueForKey:isReadyKey];
+    }
 }
 
 - (void)main
 {
     @autoreleasepool {
-        // TODO: do it
+        NSData *jsonData = [NSData dataWithContentsOfURL:self.jsonUrl];
+        _parsedJsonDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     }
 }
 

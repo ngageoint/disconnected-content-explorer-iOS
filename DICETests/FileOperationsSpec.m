@@ -34,9 +34,9 @@ describe(@"MkdirOperation", ^{
         MkdirOperation *op = [[MkdirOperation alloc] init];
 
         id observer = observer = OCMClassMock([NSObject class]);
-        OCMExpect([observer observeValueForKeyPath:@"ready" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
+        OCMExpect([observer observeValueForKeyPath:@"isReady" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
 
-        [op addObserver:observer forKeyPath:@"ready" options:0 context:NULL];
+        [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
 
         expect(op.ready).to.equal(NO);
         expect(op.dirUrl).to.beNil;
@@ -45,6 +45,10 @@ describe(@"MkdirOperation", ^{
 
         expect(op.ready).to.equal(YES);
         OCMVerifyAll(observer);
+    });
+
+    it(@"has enough kvo tests", ^{
+        failure(@"add more tests for prior options and different value cases");
     });
 
     it(@"is not ready until dependencies are finished", ^{
@@ -77,18 +81,49 @@ describe(@"MkdirOperation", ^{
         expect(op.dirUrl).to.equal([NSURL URLWithString:@"/tmp/test"]);
     });
 
-    it(@"makes a directory", ^{
-        MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:[NSURL URLWithString:@"/test"] fileManager:fileManager];
+    it(@"indicates when the directory was created", ^{
+        NSURL *dir = [NSURL URLWithString:@"/tmp/dir"];
+        MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:dir fileManager:fileManager];
 
-        failure(@"unimplemented");
+        OCMExpect([fileManager fileExistsAtPath:dir.path isDirectory:[OCMArg anyPointer]]).andReturn(NO);
+        OCMExpect([fileManager createDirectoryAtURL:dir withIntermediateDirectories:YES attributes:nil error:nil]).andReturn(YES);
+
+        [op start];
+
+        expect(op.dirWasCreated).to.equal(YES);
+        expect(op.dirExisted).to.equal(NO);
+
+        OCMVerifyAll((id)fileManager);
     });
 
     it(@"indicates when the directory already exists", ^{
-        failure(@"unimplemented");
+        NSURL *dir = [NSURL URLWithString:@"/tmp/dir"];
+        MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:dir fileManager:fileManager];
+
+        BOOL isDir = YES;
+        OCMExpect([fileManager fileExistsAtPath:dir.path isDirectory:[OCMArg setToValue:[NSValue valueWithPointer:&isDir]]]).andReturn(YES);
+
+        [op start];
+
+        expect(op.dirWasCreated).to.equal(NO);
+        expect(op.dirExisted).to.equal(YES);
+
+        OCMVerifyAll((id)fileManager);
     });
 
     it(@"indicates when the directory cannot be created", ^{
-        failure(@"unimplemented");
+        NSURL *dir = [NSURL URLWithString:@"/tmp/dir"];
+        MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:dir fileManager:fileManager];
+
+        OCMExpect([fileManager fileExistsAtPath:dir.path isDirectory:[OCMArg anyPointer]]).andReturn(NO);
+        OCMExpect([fileManager createDirectoryAtURL:dir withIntermediateDirectories:YES attributes:nil error:nil]).andReturn(NO);
+
+        [op start];
+
+        expect(op.dirWasCreated).to.equal(NO);
+        expect(op.dirExisted).to.equal(NO);
+
+        OCMVerifyAll((id)fileManager);
     });
     
     afterEach(^{
@@ -98,6 +133,11 @@ describe(@"MkdirOperation", ^{
     afterAll(^{
 
     });
+});
+
+
+describe(@"DeleteFileOperation", ^{
+
 });
 
 SpecEnd
