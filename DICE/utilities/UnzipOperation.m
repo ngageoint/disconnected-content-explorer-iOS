@@ -8,7 +8,6 @@
 
 #import "UnzipOperation.h"
 
-#import "SimpleFileManager.h"
 
 @implementation UnzipOperation
 

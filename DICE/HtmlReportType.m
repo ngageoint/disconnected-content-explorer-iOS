@@ -8,7 +8,6 @@
 
 #import "HtmlReportType.h"
 
-#import "SimpleFileManager.h"
 #import "FileOperations.h"
 #import "UnzipOperation.h"
 #import "ParseJsonOperation.h"
@@ -110,7 +109,7 @@
 - (instancetype)initWithReport:(Report *)report
     destDir:(NSURL *)destDir
     zipFile:(ZipFile *)zipFile
-    fileManager:(id<SimpleFileManager>)fileManager
+    fileManager:(NSFileManager *)fileManager
 {
     ValidateHtmlLayoutOperation *validation = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
@@ -123,7 +122,7 @@
     ParseJsonOperation *parseMetaData = [[ParseJsonOperation alloc] init];
     [parseMetaData addDependency:unzip];
 
-    DeleteFileOperation *deleteZip = [[DeleteFileOperation alloc] initWithFileUrl:report.url];
+    DeleteFileOperation *deleteZip = [[DeleteFileOperation alloc] initWithFileUrl:report.url fileManager:fileManager];
     [deleteZip addDependency:unzip];
 
     self = [super initWithReport:report steps:@[
@@ -139,7 +138,6 @@
     }
 
     _destDir = destDir;
-    _fileManager = fileManager;
 
     return self;
 }
@@ -248,14 +246,14 @@
 
 @interface HtmlReportType ()
 
-@property (strong, nonatomic, readonly) id<SimpleFileManager> fileManager;
+@property (strong, nonatomic, readonly) NSFileManager *fileManager;
 
 @end
 
 
 @implementation HtmlReportType
 
-- (HtmlReportType *)initWithFileManager:(id<SimpleFileManager>)fileManager
+- (HtmlReportType *)initWithFileManager:(NSFileManager *)fileManager
 {
     self = [super init];
 
@@ -271,19 +269,21 @@
 
 - (BOOL)couldHandleFile:(NSURL *)filePath
 {
-    id<FileInfo> fileInfo = [self.fileManager infoForPath:filePath];
-    if (fileInfo.isRegularFile)
+    NSDictionary *attrs = [self.fileManager attributesOfItemAtPath:filePath.path error:nil];
+    NSString *fileType = attrs.fileType;
+
+    if ([NSFileTypeRegular isEqualToString:fileType])
     {
         NSString *ext = [filePath.pathExtension lowercaseString];
         return
             [@"zip" isEqualToString:ext] ||
             [@"html" isEqualToString:ext];
     }
-    else if (fileInfo.isDirectory)
+    else if ([NSFileTypeDirectory isEqualToString:fileType])
     {
         NSURL *indexPath = [filePath URLByAppendingPathComponent:@"index.html"];
-        fileInfo = [self.fileManager infoForPath:indexPath];
-        return fileInfo && fileInfo.isRegularFile;
+        attrs = [self.fileManager attributesOfItemAtPath:indexPath.path error:nil];
+        return attrs && [NSFileTypeRegular isEqualToString:attrs.fileType];
     }
 
     return NO;

@@ -11,7 +11,6 @@
 #import "ReportType.h"
 #import "BaseImportProcess.h"
 #import "ZipFile.h"
-#import "SimpleFileManager.h"
 #import "FileOperations.h"
 #import "UnzipOperation.h"
 
@@ -58,11 +57,10 @@
 @interface ZippedHtmlImportProcess : BaseImportProcess <ImportProcess>
 
 @property (readonly) NSURL *destDir;
-@property (readonly) id<SimpleFileManager> fileManager;
 
 - (instancetype)initWithReport:(Report *)report
                        destDir:(NSURL *)destDir
                        zipFile:(ZipFile *)zipFile
-                   fileManager:(id<SimpleFileManager>)fileManager;
+                   fileManager:(NSFileManager *)fileManager;
 
 @end

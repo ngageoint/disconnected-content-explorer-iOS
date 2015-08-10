@@ -9,6 +9,25 @@
 #import "FileOperations.h"
 
 
+@implementation FileOperation
+
+- (instancetype)initWithFileMananger:(NSFileManager *)fileManager
+{
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+
+    _fileManager = fileManager;
+
+    return self;
+}
+
+@end
+
+
+
+
 @implementation MkdirOperation
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
@@ -22,18 +41,9 @@
     return keys;
 }
 
-- (instancetype)init
+- (instancetype)initWithDirUrl:(NSURL *)dirUrl fileManager:(NSFileManager *)fileManager
 {
-    self = [super init];
-    if (!self) {
-        return nil;
-    }
-    return self;
-}
-
-- (instancetype)initWithDirUrl:(NSURL *)dirUrl
-{
-    self = [self init];
+    self = [super initWithFileMananger:fileManager];
     if (!self) {
         return nil;
     }
@@ -60,47 +70,31 @@
 - (void)main
 {
     @autoreleasepool {
-        // TODO: do it
+        BOOL isDir;
+        BOOL exists = [self.fileManager fileExistsAtPath:self.dirUrl.path isDirectory:&isDir];
+        if (exists) {
+            if (isDir) {
+                _dirExisted = YES;
+                return;
+            }
+            _dirWasCreated = NO;
+            return;
+        }
+
+        _dirWasCreated = [self.fileManager createDirectoryAtURL:self.dirUrl withIntermediateDirectories:NO attributes:nil error:NULL];
     }
 }
 
 @end
 
 
-@implementation MoveFileOperation
-
-- (void)main
-{
-    @autoreleasepool {
-
-    }
-}
-
-- (instancetype)initWithSourceUrl:(NSURL *)source destUrl:(NSURL *)destUrl
-{
-    self = [super init];
-    if (!self) {
-        return nil;
-    }
-
-    return self;
-}
-
-- (instancetype)initWithSourceUrl:(NSURL *)source destDirUrl:(NSURL *)destDir
-{
-    NSURL *dest = [destDir URLByAppendingPathComponent:source.lastPathComponent];
-
-    return [self initWithSourceUrl:source destUrl:dest];
-}
-
-@end
 
 
 @implementation DeleteFileOperation
 
-- (instancetype)initWithFileUrl:(NSURL *)fileUrl
+- (instancetype)initWithFileUrl:(NSURL *)fileUrl fileManager:(NSFileManager *)fileManager
 {
-    self = [super init];
+    self = [super initWithFileMananger:fileManager];
 
     if (!self) {
         return nil;
@@ -114,7 +108,10 @@
 - (void)main
 {
     @autoreleasepool {
-
+        BOOL removed = [self.fileManager removeItemAtURL:self.fileUrl error:nil];
+        if (!removed) {
+            // TODO: something
+        }
     }
 }
 

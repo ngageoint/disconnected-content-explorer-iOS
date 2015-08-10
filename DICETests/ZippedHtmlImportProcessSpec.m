@@ -17,7 +17,6 @@
 #import "HtmlReportType.h"
 #import "UnzipOperation.h"
 #import "FileOperations.h"
-#import "SimpleFileManager.h"
 #import "ParseJsonOperation.h"
 #import "ZipFile.h"
 #import "FileInZipInfo.h"
@@ -56,7 +55,7 @@ SpecBegin(ZippedHtmlImportProcess)
 
 describe(@"ZippedHtmlImportProcess", ^{
 
-    id<SimpleFileManager> fileManager = OCMProtocolMock(@protocol(SimpleFileManager));
+    NSFileManager *fileManager = OCMClassMock([NSFileManager class]);
     NSURL * const reportsDir = [NSURL URLWithString:@"file:///apps/dice/Documents"];
     NSString * const reportFileName = @"ZippedHtmlImportProcessSpec.zip";
 

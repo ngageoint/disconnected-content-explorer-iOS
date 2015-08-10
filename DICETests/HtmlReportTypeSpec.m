@@ -16,9 +16,10 @@
 #define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
 
+#import <OCMock/OCMock.h>
+
 #import "HtmlReportType.h"
 #import "ResourceTypes.h"
-#import "SimpleFileManager.h"
 #import "FileOperations.h"
 #import "UnzipOperation.h"
 #import "FileInZipInfo.h"
@@ -43,73 +44,29 @@
 @end
 
 
-@interface TestFileInfo : NSObject <FileInfo>
 
-@property (strong, readonly, nonatomic) NSURL *path;
-@property (readonly, nonatomic) BOOL isDirectory;
-@property (readonly, nonatomic) BOOL isRegularFile;
-
-@end
-
-
-@implementation TestFileInfo
-
-- (instancetype)initDirectoryWithPath:(NSURL *)path
-{
-    self = [super init];
-
-    _path = path;
-    _isDirectory = YES;
-    _isRegularFile = NO;
-
-    return self;
-}
-
-- (instancetype)initRegularFileWithPath:(NSURL *)path
-{
-    self = [super init];
-
-    _path = path;
-    _isRegularFile = YES;
-    _isDirectory = NO;
-
-    return self;
-}
-
-- (instancetype)initUnkownWithPath:(NSURL *)path
-{
-    self = [super init];
-
-    _path = path;
-    _isDirectory = NO;
-    _isRegularFile = NO;
-
-    return self;
-}
-
-@end
 
 
 SpecBegin(HtmlReportType)
 
 describe(@"HtmlReportType", ^{
 
-    id<SimpleFileManager> const fileManager = mockProtocol(@protocol(SimpleFileManager));
-
     NSURL * const reportsDir = [NSURL fileURLWithPath:@"/test/reports/"];
 
-    HtmlReportType * const htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager];
+    __block NSFileManager *fileManager;
+    __block HtmlReportType *htmlReportType;
 
     beforeAll(^{
 
     });
 
     beforeEach(^{
-
+        fileManager = OCMClassMock([NSFileManager class]);
+        htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager];
     });
 
     afterEach(^{
-        [((MKTBaseMockObject *)fileManager) reset];
+        [(id)fileManager stopMocking];
     });
 
 
@@ -117,8 +74,8 @@ describe(@"HtmlReportType", ^{
         NSURL *dirPath = [reportsDir URLByAppendingPathComponent:@"test_report"];
         NSURL *indexPath = [dirPath URLByAppendingPathComponent:@"index.html"];
 
-        [given([fileManager infoForPath:dirPath]) willReturn:[[TestFileInfo alloc] initDirectoryWithPath:dirPath]];
-        [given([fileManager infoForPath:indexPath]) willReturn:[[TestFileInfo alloc] initRegularFileWithPath:indexPath]];
+        OCMStub([fileManager attributesOfItemAtPath:dirPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeDirectory});
+        OCMStub([fileManager attributesOfItemAtPath:indexPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeRegular});
 
         expect([htmlReportType couldHandleFile:dirPath]).to.equal(YES);
     });
@@ -127,8 +84,8 @@ describe(@"HtmlReportType", ^{
         NSURL *dirPath = [reportsDir URLByAppendingPathComponent:@"test_reports"];
         NSURL *indexPath = [reportsDir URLByAppendingPathComponent:@"index.html"];
 
-        [given([fileManager infoForPath:dirPath]) willReturn:[[TestFileInfo alloc] initDirectoryWithPath:dirPath]];
-        [given([fileManager infoForPath:indexPath]) willReturn:nil];
+        OCMStub([fileManager attributesOfItemAtPath:dirPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeDirectory});
+        OCMStub([fileManager attributesOfItemAtPath:indexPath.path error:nil]).andReturn(nil);
 
         expect([htmlReportType couldHandleFile:dirPath]).to.equal(NO);
     });
@@ -137,8 +94,8 @@ describe(@"HtmlReportType", ^{
         NSURL *dirPath = [reportsDir URLByAppendingPathComponent:@"test_reports"];
         NSURL *indexPath = [reportsDir URLByAppendingPathComponent:@"index.html"];
 
-        [given([fileManager infoForPath:dirPath]) willReturn:[[TestFileInfo alloc] initDirectoryWithPath:dirPath]];
-        [given([fileManager infoForPath:indexPath]) willReturn:[[TestFileInfo alloc] initDirectoryWithPath:dirPath]];
+        OCMStub([fileManager attributesOfItemAtPath:dirPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeDirectory});
+        OCMStub([fileManager attributesOfItemAtPath:indexPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeDirectory});
 
         expect([htmlReportType couldHandleFile:dirPath]).to.equal(NO);
     });
@@ -146,7 +103,7 @@ describe(@"HtmlReportType", ^{
     it(@"could handle a zip file", ^{
         NSURL *zipPath = [reportsDir URLByAppendingPathComponent:@"test_report.zip"];
 
-        [given([fileManager infoForPath:zipPath]) willReturn:[[TestFileInfo alloc] initRegularFileWithPath:zipPath]];
+        OCMStub([fileManager attributesOfItemAtPath:zipPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeRegular});
 
         expect([htmlReportType couldHandleFile:zipPath]).to.equal(YES);
     });
@@ -154,7 +111,7 @@ describe(@"HtmlReportType", ^{
     it(@"could handle an html file", ^{
         NSURL *htmlPath = [reportsDir URLByAppendingPathComponent:@"test_report.html"];
 
-        [given([fileManager infoForPath:htmlPath]) willReturn:[[TestFileInfo alloc] initRegularFileWithPath:htmlPath]];
+        OCMStub([fileManager attributesOfItemAtPath:htmlPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeRegular});
 
         expect([htmlReportType couldHandleFile:htmlPath]).to.equal(YES);
     });
@@ -162,7 +119,7 @@ describe(@"HtmlReportType", ^{
     it(@"could not handle something else", ^{
         NSURL *filePath = [reportsDir URLByAppendingPathComponent:@"test_report.txt"];
 
-        [given([fileManager infoForPath:filePath]) willReturn:[[TestFileInfo alloc] initRegularFileWithPath:filePath]];
+        OCMStub([fileManager attributesOfItemAtPath:filePath.path error:nil]).andReturn(@{NSFileType: NSFileTypeRegular});
 
         expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
     });
@@ -170,7 +127,7 @@ describe(@"HtmlReportType", ^{
     it(@"could not handle a non-regular file or non-directory", ^{
         NSURL *filePath = [reportsDir URLByAppendingPathComponent:@"i_dunno"];
 
-        [given([fileManager infoForPath:filePath]) willReturn:[[TestFileInfo alloc] init]];
+        OCMStub([fileManager attributesOfItemAtPath:filePath.path error:nil]).andReturn(@{NSFileType: NSFileTypeSocket});
 
         expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
     });

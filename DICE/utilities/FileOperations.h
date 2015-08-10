@@ -13,7 +13,18 @@
 #import <Foundation/Foundation.h>
 
 
-@interface MkdirOperation : NSOperation
+@interface FileOperation : NSOperation
+
+@property (readonly) NSFileManager *fileManager;
+
+- (instancetype)initWithFileMananger:(NSFileManager *)fileManager;
+
+@end
+
+
+
+
+@interface MkdirOperation : FileOperation
 
 /**
  the URL of the directory to create; the operation will not be ready until
@@ -23,29 +34,18 @@
 @property (readonly) BOOL dirWasCreated;
 @property (readonly) BOOL dirExisted;
 
-- (instancetype)init;
-- (instancetype)initWithDirUrl:(NSURL *)dirUrl;
-
-@end
-
-
-@interface MoveFileOperation : NSOperation
-
-@property (readonly) NSURL *sourcePathUrl;
-@property (readonly) NSURL *destPathUrl;
-
-- (instancetype)initWithSourceUrl:(NSURL *)source destUrl:(NSURL *)destUrl;
-- (instancetype)initWithSourceUrl:(NSURL *)source destDirUrl:(NSURL *)destDir;
+- (instancetype)initWithDirUrl:(NSURL *)dirUrl fileManager:(NSFileManager *)fileManager;
 
 @end
 
 
 
-@interface DeleteFileOperation : NSOperation
+
+@interface DeleteFileOperation : FileOperation
 
 @property (readonly) NSURL *fileUrl;
 
-- (instancetype)initWithFileUrl:(NSURL *)fileUrl;
+- (instancetype)initWithFileUrl:(NSURL *)fileUrl fileManager:(NSFileManager *)fileManager;
 
 @end
 

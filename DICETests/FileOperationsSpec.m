@@ -18,6 +18,8 @@
 
 SpecBegin(FileOperations)
 
+NSFileManager *fileManager = OCMClassMock([NSFileManager class]);
+
 describe(@"MkdirOperation", ^{
     
     beforeAll(^{
@@ -46,7 +48,7 @@ describe(@"MkdirOperation", ^{
     });
 
     it(@"is not ready until dependencies are finished", ^{
-        MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:[NSURL URLWithString:@"/tmp/test/"]];
+        MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:[NSURL URLWithString:@"/tmp/test/"] fileManager:fileManager];
         NSOperation *holdup = [[NSOperation alloc] init];
         [op addDependency:holdup];
 
@@ -64,7 +66,7 @@ describe(@"MkdirOperation", ^{
     });
 
     it(@"throws an exception when dest dir change is attempted while executing", ^{
-        MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:[NSURL URLWithString:@"/tmp/test"]];
+        MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:[NSURL URLWithString:@"/tmp/test"] fileManager:fileManager];
         MkdirOperation *mockOp = OCMPartialMock(op);
         OCMStub([mockOp isExecuting]).andReturn(YES);
 
@@ -76,6 +78,8 @@ describe(@"MkdirOperation", ^{
     });
 
     it(@"makes a directory", ^{
+        MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:[NSURL URLWithString:@"/test"] fileManager:fileManager];
+
         failure(@"unimplemented");
     });
 
