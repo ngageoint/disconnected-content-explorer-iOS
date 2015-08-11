@@ -32,10 +32,16 @@ describe(@"ParseJsonOperation", ^{
     it(@"is not ready until json url is set", ^{
         ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
 
-        id observer = observer = OCMClassMock([NSObject class]);
+        id observer = observer = OCMStrictClassMock([NSObject class]);
+        [observer setExpectationOrderMatters:YES];
+
+        OCMExpect([observer observeValueForKeyPath:@"isReady" ofObject:op change:hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES) context:NULL]);
+        OCMExpect([observer observeValueForKeyPath:@"jsonUrl" ofObject:op change:hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES) context:NULL]);
+        OCMExpect([observer observeValueForKeyPath:@"jsonUrl" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
         OCMExpect([observer observeValueForKeyPath:@"isReady" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
 
-        [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
+        [op addObserver:observer forKeyPath:@"isReady" options:NSKeyValueObservingOptionPrior context:NULL];
+        [op addObserver:observer forKeyPath:@"jsonUrl" options:NSKeyValueObservingOptionPrior context:NULL];
 
         expect(op.isReady).to.equal(NO);
         expect(op.jsonUrl).to.beNil;
@@ -44,10 +50,6 @@ describe(@"ParseJsonOperation", ^{
 
         expect(op.isReady).to.equal(YES);
         OCMVerifyAll(observer);
-    });
-
-    it(@"has enough kvo tests", ^{
-        failure(@"add more tests for prior options and different value cases");
     });
 
     it(@"is not ready until dependencies are finished", ^{

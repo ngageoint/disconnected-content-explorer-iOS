@@ -33,10 +33,16 @@ describe(@"MkdirOperation", ^{
     it(@"is not ready until dir url is set", ^{
         MkdirOperation *op = [[MkdirOperation alloc] init];
 
-        id observer = observer = OCMClassMock([NSObject class]);
+        id observer = observer = OCMStrictClassMock([NSObject class]);
+        [observer setExpectationOrderMatters:YES];
+
+        OCMExpect([observer observeValueForKeyPath:@"isReady" ofObject:op change:hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES) context:NULL]);
+        OCMExpect([observer observeValueForKeyPath:@"dirUrl" ofObject:op change:hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES) context:NULL]);
+        OCMExpect([observer observeValueForKeyPath:@"dirUrl" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
         OCMExpect([observer observeValueForKeyPath:@"isReady" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
 
-        [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
+        [op addObserver:observer forKeyPath:@"isReady" options:NSKeyValueObservingOptionPrior context:NULL];
+        [op addObserver:observer forKeyPath:@"dirUrl" options:NSKeyValueObservingOptionPrior context:NULL];
 
         expect(op.ready).to.equal(NO);
         expect(op.dirUrl).to.beNil;
@@ -45,10 +51,6 @@ describe(@"MkdirOperation", ^{
 
         expect(op.ready).to.equal(YES);
         OCMVerifyAll(observer);
-    });
-
-    it(@"has enough kvo tests", ^{
-        failure(@"add more tests for prior options and different value cases");
     });
 
     it(@"is not ready until dependencies are finished", ^{
