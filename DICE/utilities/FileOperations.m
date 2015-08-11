@@ -74,21 +74,13 @@
         return;
     }
 
-    BOOL wasReady = self.isReady;
     NSString *dirUrlKey = NSStringFromSelector(@selector(dirUrl));
-    NSString *isReadyKey = NSStringFromSelector(@selector(isReady));
 
     [self willChangeValueForKey:dirUrlKey];
-    if (!wasReady && dirUrl) {
-        [self willChangeValueForKey:isReadyKey];
-    }
 
     _dirUrl = dirUrl;
 
     [self didChangeValueForKey:dirUrlKey];
-    if (!wasReady && self.isReady) {
-        [self didChangeValueForKey:isReadyKey];
-    }
 }
 
 - (void)main
@@ -96,6 +88,7 @@
     @autoreleasepool {
         BOOL isDir;
         BOOL exists = [self.fileManager fileExistsAtPath:self.dirUrl.path isDirectory:&isDir];
+        
         if (exists) {
             if (isDir) {
                 _dirExisted = YES;

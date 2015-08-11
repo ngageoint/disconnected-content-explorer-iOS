@@ -54,21 +54,12 @@
     }
 
     NSString *jsonUrlKey = NSStringFromSelector(@selector(jsonUrl));
-    NSString *isReadyKey = NSStringFromSelector(@selector(isReady));
-
-    BOOL wasReady = self.isReady;
 
     [self willChangeValueForKey:jsonUrlKey];
-    if (!wasReady && jsonUrl) {
-        [self willChangeValueForKey:isReadyKey];
-    }
 
     _jsonUrl = jsonUrl;
 
     [self didChangeValueForKey:jsonUrlKey];
-    if (!wasReady && self.isReady) {
-        [self didChangeValueForKey:isReadyKey];
-    }
 }
 
 - (void)main

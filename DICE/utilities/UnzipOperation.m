@@ -70,21 +70,13 @@
         return;
     }
 
-    BOOL wasReady = self.isReady;
     NSString *destDirKey = NSStringFromSelector(@selector(destDir));
-    NSString *isReadyKey = NSStringFromSelector(@selector(isReady));
 
     [self willChangeValueForKey:destDirKey];
-    if ((!wasReady && destDir) || (wasReady && !destDir)) {
-        [self willChangeValueForKey:isReadyKey];
-    }
 
     _destDir = destDir;
 
     [self didChangeValueForKey:destDirKey];
-    if (self.isReady == !wasReady) {
-        [self didChangeValueForKey:isReadyKey];
-    }
 }
 
 @end
