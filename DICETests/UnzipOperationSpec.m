@@ -93,6 +93,19 @@ describe(@"UnzipOperation", ^{
         expect(op.destDir).to.equal([NSURL URLWithString:@"/tmp/"]);
     });
 
+    it(@"unzips the file", ^{
+        ZipFile *zipFile = nil;
+        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:[NSURL URLWithString:@"/tmp"]];
+
+
+
+        failure(@"unimplemented");
+    });
+
+    it(@"sets the modification time on the unzipped files", ^{
+        failure(@"unimplemented");
+    });
+
     it(@"reports unzip progress", ^{
         failure(@"unimplemented");
     });

@@ -28,8 +28,8 @@
         self.report = report;
         
         CLLocationCoordinate2D coordinate2;
-        coordinate2.latitude = report.lat;
-        coordinate2.longitude = report.lon;
+        coordinate2.latitude = report.lat.doubleValue;
+        coordinate2.longitude = report.lon.doubleValue;
         self.coordinate = coordinate2;
     }
     

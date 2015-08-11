@@ -302,8 +302,8 @@
             report.tileThumbnail = report.thumbnail;
         }
         
-        report.lat = [[json valueForKey:@"lat"] doubleValue];
-        report.lon = [[json valueForKey:@"lon"] doubleValue];
+        report.lat = [json valueForKey:@"lat"];
+        report.lon = [json valueForKey:@"lon"];
         report.fileExtension = fileExtension;
         report.isEnabled = YES;
     }

@@ -323,9 +323,10 @@ describe(@"ZippedHtmlImportProcess", ^{
         [(id)makeDestDirStep stopMocking];
     });
 
-    it(@"updates the report url after unzipping with base dir", ^{
+    it(@"updates the report url on the main thread after unzipping with base dir", ^{
+        Report *report = OCMPartialMock(initialReport);
         ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
-        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
         ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
@@ -338,24 +339,38 @@ describe(@"ZippedHtmlImportProcess", ^{
             }
         });
 
+        NSURL *expectedPath = [reportsDir URLByAppendingPathComponent:@"base" isDirectory:YES];
+        __block BOOL wasMainThread = NO;
+        __block BOOL urlWasSet = NO;
         UnzipOperation *unzip = import.steps[2];
         UnzipOperation *mockUnzip = OCMPartialMock(unzip);
         OCMStub([mockUnzip wasSuccessful]).andReturn(YES);
+        OCMExpect([report setUrl:expectedPath]).andDo(^(NSInvocation *invocation) {
+            wasMainThread = [NSThread currentThread] == [NSThread mainThread];
+            urlWasSet = YES;
+        });
 
-        [import stepWillFinish:unzip stepIndex:2];
+        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [import stepWillFinish:unzip stepIndex:2];
+        });
 
         waitUntil(^(DoneCallback done) {
-            if ([import.report.url isEqual:[reportsDir URLByAppendingPathComponent:@"base" isDirectory:YES]]) {
+            if (urlWasSet) {
                 done();
             }
         });
 
-        expect(import.report.url).to.equal([reportsDir URLByAppendingPathComponent:@"base" isDirectory:YES]);
+        expect(wasMainThread).to.equal(YES);
+        OCMVerifyAll((id)report);
+
+        [(id)report stopMocking];
+        [(id)mockUnzip stopMocking];
     });
 
-    it(@"updates the report url after unzipping without base dir", ^{
-        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"index.html", @"images/", @"images/icon.png"]];
-        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+    it(@"updates the report url on the main thread after unzipping without base dir", ^{
+        Report *report = OCMPartialMock(initialReport);
+        ZipFile *zipFile = [TestUtil mockZipForReport:report entryNames:@[@"index.html", @"images/", @"images/icon.png"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
         ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
@@ -368,19 +383,32 @@ describe(@"ZippedHtmlImportProcess", ^{
             }
         });
 
+        NSURL *expectedPath = [reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES];
+        __block BOOL wasMainThread = NO;
+        __block BOOL urlWasSet = NO;
         UnzipOperation *unzip = import.steps[2];
         UnzipOperation *mockUnzip = OCMPartialMock(unzip);
         OCMStub([mockUnzip wasSuccessful]).andReturn(YES);
+        OCMExpect([report setUrl:expectedPath]).andDo(^(NSInvocation *invocation) {
+            wasMainThread = [NSThread currentThread] == [NSThread mainThread];
+            urlWasSet = YES;
+        });
 
-        [import stepWillFinish:unzip stepIndex:2];
+        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [import stepWillFinish:unzip stepIndex:2];
+        });
 
         waitUntil(^(DoneCallback done) {
-            if ([import.report.url isEqual:[reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES]]) {
+            if (urlWasSet) {
                 done();
             }
         });
-        
-        expect(import.report.url).to.equal([reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES]);
+
+        expect(wasMainThread).to.equal(YES);
+        OCMVerifyAll((id)report);
+
+        [(id)report stopMocking];
+        [(id)mockUnzip stopMocking];
     });
 
     it(@"parses the report descriptor if available at root", ^{
@@ -447,6 +475,40 @@ describe(@"ZippedHtmlImportProcess", ^{
         });
 
         expect(parseMetaData.cancelled).to.equal(YES);
+    });
+
+    it(@"updates the report on the main thread after parsing the descriptor", ^{
+        Report *report = OCMPartialMock(initialReport);
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        __block BOOL wasMainThread = NO;
+        __block BOOL reportUpdated = NO;
+        NSDictionary *descriptor = @{ @"title": @"On Main Thread" };
+        ParseJsonOperation *parseDescriptor = import.steps[3];
+        id mockParseDescriptor = OCMPartialMock(parseDescriptor);
+        OCMStub([mockParseDescriptor parsedJsonDictionary]).andReturn(descriptor);
+        [OCMExpect([report setPropertiesFromJsonDescriptor:[OCMArg any]]) andDo:^(NSInvocation *invocation) {
+            wasMainThread = [NSThread mainThread] == [NSThread currentThread];
+            reportUpdated = YES;
+        }];
+
+        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [import stepWillFinish:parseDescriptor stepIndex:3];
+        });
+
+        waitUntil(^(DoneCallback done) {
+            if (reportUpdated) {
+                done();
+            }
+        });
+
+        expect(wasMainThread).to.equal(YES);
+        OCMVerifyAll((id)report);
+
+        [(id)report stopMocking];
+        [(id)mockParseDescriptor stopMocking];
     });
 
     it(@"deletes the zip file after unzipping successfully", ^{

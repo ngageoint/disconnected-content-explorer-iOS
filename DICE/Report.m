@@ -34,6 +34,34 @@
 
 - (instancetype)setPropertiesFromJsonDescriptor:(NSDictionary *)descriptor
 {
+    [descriptor enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        if ([[NSNull null] isEqual:obj]) {
+            return;
+        }
+
+        if ([@"reportID" isEqualToString:key]) {
+            self.reportID = obj;
+        }
+        if ([@"title" isEqualToString:key]) {
+            self.title = obj;
+        }
+        if ([@"description" isEqualToString:key]) {
+            self.summary = obj;
+        }
+        if ([@"lat" isEqualToString:key]) {
+            self.lat = obj;
+        }
+        if ([@"lon" isEqualToString:key]) {
+            self.lon = obj;
+        }
+        if ([@"thumbnail" isEqualToString:key]) {
+            self.thumbnail = obj;
+        }
+        if ([@"tile_thumbnail" isEqualToString:key]) {
+            self.tileThumbnail = obj;
+        }
+    }];
+
     return self;
 }
 
