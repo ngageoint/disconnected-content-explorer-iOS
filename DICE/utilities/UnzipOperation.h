@@ -10,15 +10,24 @@
 
 #import "ZipFile.h"
 
+@protocol UnzipDelegate <NSObject>
+
+- (NSMutableData *)readBufferForEntry:(FileInZipInfo *)entry;
+
+@end
+
+
 @interface UnzipOperation : NSOperation
 
-@property (readonly) ZipFile *zipFile;
+@property (nonatomic, readonly) ZipFile *zipFile;
 @property (nonatomic) NSURL *destDir;
+@property (nonatomic, readonly) NSFileManager *fileManager;
+@property (nonatomic, weak) id<UnzipDelegate> delegate;
 /**
  whether the unzip completed successfully
  */
 @property (readonly) BOOL wasSuccessful;
 
-- (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir;
+- (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager;
 
 @end

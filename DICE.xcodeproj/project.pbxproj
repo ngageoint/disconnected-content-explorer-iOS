@@ -40,6 +40,8 @@
 		7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */; };
 		7DFA5DB91B740C9D00732426 /* BaseImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DFA5DB81B740C9D00732426 /* BaseImportProcessSpec.m */; };
 		7DFA5DBB1B7A2E8800732426 /* ReportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DFA5DBA1B7A2E8800732426 /* ReportSpec.m */; };
+		7DFA5DBE1B7A91BE00732426 /* test_base_dir.zip in Resources */ = {isa = PBXBuildFile; fileRef = 7DFA5DBC1B7A91BE00732426 /* test_base_dir.zip */; };
+		7DFA5DBF1B7A91BE00732426 /* test_no_base_dir.zip in Resources */ = {isa = PBXBuildFile; fileRef = 7DFA5DBD1B7A91BE00732426 /* test_no_base_dir.zip */; };
 		AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B73CA51504D8A8B497186523 /* libPods.a */; };
 		E32C6C2D17D7C1AB00D694C5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E32C6C2C17D7C1AB00D694C5 /* libz.dylib */; };
 		E337BCC21811AD7B00D987F9 /* Report.m in Sources */ = {isa = PBXBuildFile; fileRef = E337BCC11811AD7B00D987F9 /* Report.m */; };
@@ -182,6 +184,8 @@
 		7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SettingsViewController+SettingsViewController_iPhone.m"; sourceTree = "<group>"; };
 		7DFA5DB81B740C9D00732426 /* BaseImportProcessSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseImportProcessSpec.m; sourceTree = "<group>"; };
 		7DFA5DBA1B7A2E8800732426 /* ReportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportSpec.m; sourceTree = "<group>"; };
+		7DFA5DBC1B7A91BE00732426 /* test_base_dir.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = test_base_dir.zip; sourceTree = "<group>"; };
+		7DFA5DBD1B7A91BE00732426 /* test_no_base_dir.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = test_no_base_dir.zip; sourceTree = "<group>"; };
 		B73CA51504D8A8B497186523 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E32C6C2C17D7C1AB00D694C5 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		E337BCC01811AD7B00D987F9 /* Report.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Report.h; sourceTree = "<group>"; };
@@ -360,6 +364,8 @@
 		7D4E1C481A1F9475002762B3 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				7DFA5DBC1B7A91BE00732426 /* test_base_dir.zip */,
+				7DFA5DBD1B7A91BE00732426 /* test_no_base_dir.zip */,
 				7D4E1C491A1F9475002762B3 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -761,6 +767,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7DFA5DBE1B7A91BE00732426 /* test_base_dir.zip in Resources */,
+				7DFA5DBF1B7A91BE00732426 /* test_no_base_dir.zip in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

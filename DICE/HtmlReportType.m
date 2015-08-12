@@ -116,7 +116,7 @@
     MkdirOperation *makeDestDir = [[MkdirOperation alloc] init];
     [makeDestDir addDependency:validation];
 
-    UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:nil];
+    UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:nil fileManager:fileManager];
     [unzip addDependency:makeDestDir];
 
     ParseJsonOperation *parseMetaData = [[ParseJsonOperation alloc] init];
