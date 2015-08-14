@@ -12,9 +12,137 @@
 #define HC_SHORTHAND
 #import <OCHamcrest/OCHamcrest.h>
 
+#import <OCMockito/OCMockito.h>
+
 #import <OCMock/OCMock.h>
 
 #import "UnzipOperation.h"
+#import "ZipException.h"
+#import "ZipReadStream.h"
+
+
+@interface BadZipFile : ZipFile
+
+@end
+
+@implementation BadZipFile
+
+- (void)goToFirstFileInZip
+{
+    @throw [[ZipException alloc] initWithError:99 reason:@"Bad zip file"];
+}
+
+@end
+
+
+@interface SpecificException : NSException
+
+- (id)initWithName:(NSString *)aName reason:(NSString *)aReason userInfo:(NSDictionary *)aUserInfo;
+
+@end
+
+
+@interface ThrowException : NSObject
+
+- (void)throwException;
+
+@end
+
+
+@interface ExceptionTest : NSOperation
+
+@property ThrowException *thrower;
+@property NSException *exception;
+
+- (instancetype)initWithThrower:(ThrowException *)thrower;
+
+- (void)catchException;
+
+@end
+
+
+@implementation ExceptionTest
+
+- (instancetype)initWithThrower:(ThrowException *)thrower
+{
+    self = [super init];
+    _thrower = thrower;
+    return self;
+}
+
+- (void)main
+{
+    @autoreleasepool {
+        @try {
+            [self doIt];
+        }
+        @catch (SpecificException *exception) {
+            self.exception = exception;
+        }
+        @catch (ZipException *exception) {
+            self.exception = exception;
+        }
+        @catch (NSException *exception) {
+            self.exception = exception;
+        }
+        @finally {
+            self.thrower = nil;
+        }
+    }
+}
+
+- (void)catchException
+{
+    @autoreleasepool {
+        @try {
+            [self doIt];
+        }
+        @catch (SpecificException *exception) {
+            self.exception = exception;
+        }
+        @catch (ZipException *exception) {
+            self.exception = exception;
+        }
+        @catch (NSException *exception) {
+            self.exception = exception;
+        }
+        @finally {
+            self.thrower = nil;
+        }
+    }
+}
+
+- (void)doIt
+{
+    [self.thrower throwException];
+}
+
+@end
+
+
+@implementation ThrowException
+
+- (instancetype)init
+{
+    return (self = [super init]);
+}
+
+- (void)throwException
+{
+
+}
+
+@end
+
+
+@implementation SpecificException
+
+- (id)initWithName:(NSString *)aName reason:(NSString *)aReason userInfo:(NSDictionary *)aUserInfo
+{
+    return (self = [super initWithName:aName reason:aReason userInfo:aUserInfo]);
+}
+
+@end
 
 
 SpecBegin(UnzipOperation)
@@ -60,6 +188,8 @@ describe(@"UnzipOperation", ^{
 
         expect(op.ready).to.equal(YES);
         OCMVerifyAll(observer);
+
+        [observer stopMocking];
     });
 
     it(@"is not ready until dependencies are finished", ^{
@@ -79,6 +209,8 @@ describe(@"UnzipOperation", ^{
         });
 
         expect(op.ready).to.equal(YES);
+
+        [(id)zipFile stopMocking];
     });
 
     it(@"throws an exception when dest dir change is attempted while executing", ^{
@@ -91,6 +223,8 @@ describe(@"UnzipOperation", ^{
         }).to.raiseWithReason(@"IllegalStateException", @"cannot change destDir after UnzipOperation has started");
 
         expect(op.destDir).to.equal([NSURL URLWithString:@"/tmp/"]);
+
+        [(id)mockOp stopMocking];
     });
 
     it(@"unzips with base dir", ^{
@@ -277,6 +411,63 @@ describe(@"UnzipOperation", ^{
 
     it(@"reports unzip progress", ^{
         failure(@"unimplemented");
+    });
+
+    it(@"is unsuccessful when unzipping raises an exception", ^{
+//        ZipFile *zipFile = OCMClassMock([ZipFile class]);
+        ZipFile *zipFile = MKTMock([ZipFile class]);
+        ZipException *zipError = [[ZipException alloc] initWithError:99 reason:@"test error"];
+
+//        [OCMStub([zipFile goToFirstFileInZip]) andThrow:zipError];
+
+//        [MKTGivenVoid([zipFile goToNextFileInZip]) willThrow:zipError];
+
+        expect(zipError).to.beInstanceOf([ZipException class]);
+        
+        NSURL *destDir = [NSURL fileURLWithPath:@"/tmp/test"];
+        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
+
+
+//        OCMStub([zipFile close]);
+
+        [op start];
+
+        expect(op.wasSuccessful).to.equal(NO);
+        expect(op.errorMessage).to.equal(@"Error reading zip file: test error");
+//        OCMVerifyAll((id)zipFile);
+
+        [(id)zipFile stopMocking];
+    });
+
+    it(@"catches ZipException", ^{
+        ZipFile *zipFile = OCMClassMock([ZipFile class]);
+        ZipException *ze = [[ZipException alloc] initWithError:99 reason:@"test error"];
+        [OCMStub([zipFile goToFirstFileInZip]) andThrow:ze];
+
+        @try {
+            [zipFile goToFirstFileInZip];
+        }
+        @catch (ZipException *exception) {
+            expect(exception).to.beInstanceOf([ZipException class]);
+            return;
+        }
+
+        failure(@"did not catch exception");
+    });
+
+    it(@"can mock throw exceptions", ^{
+        ThrowException *thrower = OCMClassMock([ThrowException class]);
+        ExceptionTest *test = [[ExceptionTest alloc] initWithThrower:thrower];
+
+        ZipException *zipError = [[ZipException alloc] initWithError:99 reason:@"test error"];
+        NSException *err = [[SpecificException alloc] initWithName:@"Test" reason:@"Testing" userInfo:nil];
+        [OCMStub([thrower throwException]) andThrow:zipError];
+
+        [test start];
+
+        expect([test.exception class]).to.equal([ZipException class]);
+
+        [(id)thrower stopMocking];
     });
 
     afterEach(^{

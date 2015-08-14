@@ -27,6 +27,7 @@
  whether the unzip completed successfully
  */
 @property (readonly) BOOL wasSuccessful;
+@property (readonly) NSString *errorMessage;
 
 - (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager;
 

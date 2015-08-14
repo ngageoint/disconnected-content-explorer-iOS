@@ -7,6 +7,7 @@
 //
 
 #import "UnzipOperation.h"
+#import "ZipException.h"
 #import "FileInZipInfo.h"
 #import "ZipReadStream.h"
 
@@ -54,46 +55,37 @@
 
 - (void)main
 {
-    if (self.cancelled) {
+    if (self.isCancelled) {
         return;
     }
     
     @autoreleasepool {
-        _bufferSize = 1 << 14; // 16k
+        _bufferSize = 1 << 16; // 64kB
         _entryBuffer = [NSMutableData dataWithLength:(_bufferSize)];
 
-        NSMutableDictionary *dirDates = [NSMutableDictionary dictionary];
-
-        [self.zipFile goToFirstFileInZip];
-        do {
-            FileInZipInfo *entry = [self.zipFile getCurrentFileInZipInfo];
-            NSURL *entryUrl = [self.destDir URLByAppendingPathComponent:entry.name];
-            BOOL entryIsDir = [entry.name hasSuffix:@"/"];
-            if (entryIsDir) {
-                [self createDirectoryForEntry:entry atUrl:entryUrl];
-                [dirDates setObject:entry.date forKey:entryUrl.path];
+        @try {
+            [self commenceUnzip];
+        }
+        @catch (ZipException *e) {
+            _wasSuccessful = NO;
+            _errorMessage = [NSString stringWithFormat:@"Error reading zip file: %@", e.reason];
+        }
+        @catch (NSException *e) {
+            e = (ZipException *)e;
+            if ([[e class] isSubclassOfClass:[ZipException class]]) {
+                _wasSuccessful = NO;
+                _errorMessage = [NSString stringWithFormat:@"Error reading zip file: %@", e.reason];
             }
             else {
-                [self writeFileForEntry:entry atUrl:entryUrl];
-                NSDictionary *modDate = @{ NSFileModificationDate: entry.date };
-                [self.fileManager setAttributes:modDate ofItemAtPath:entryUrl.path error:nil];
+                _wasSuccessful = NO;
+                _errorMessage = e.reason;
             }
-        } while (!self.isCancelled && [self.zipFile goToNextFileInZip]);
-
-        if (self.isCancelled) {
-            return;
         }
-
-        _wasSuccessful = YES;
-
-        // set the directory mod dates last because to ensure that writing the files
-        // while unzipping does not update the mod date
-        for (NSString *dirPath in [dirDates keyEnumerator]) {
-            NSDictionary *modDate = @{ NSFileModificationDate: dirDates[dirPath] };
-            [self.fileManager setAttributes:modDate ofItemAtPath:dirPath error:nil];
+        @finally {
+            _entryBuffer.length = 0;
+            [_entryBuffer release];
+            [self.zipFile close];
         }
-
-        [dirDates removeAllObjects];
     }
 }
 
@@ -119,6 +111,42 @@
     _destDir = destDir;
 
     [self didChangeValueForKey:destDirKey];
+}
+
+- (void)commenceUnzip
+{
+    NSMutableDictionary *dirDates = [NSMutableDictionary dictionary];
+
+    [self.zipFile goToFirstFileInZip];
+    do {
+        FileInZipInfo *entry = [self.zipFile getCurrentFileInZipInfo];
+        NSURL *entryUrl = [self.destDir URLByAppendingPathComponent:entry.name];
+        BOOL entryIsDir = [entry.name hasSuffix:@"/"];
+        if (entryIsDir) {
+            [self createDirectoryForEntry:entry atUrl:entryUrl];
+            [dirDates setObject:entry.date forKey:entryUrl.path];
+        }
+        else {
+            [self writeFileForEntry:entry atUrl:entryUrl];
+            NSDictionary *modDate = @{ NSFileModificationDate: entry.date };
+            [self.fileManager setAttributes:modDate ofItemAtPath:entryUrl.path error:nil];
+        }
+    } while (!self.isCancelled && [self.zipFile goToNextFileInZip]);
+
+    if (self.isCancelled) {
+        return;
+    }
+
+    _wasSuccessful = YES;
+
+    // set the directory mod dates last because to ensure that writing the files
+    // while unzipping does not update the mod date
+    for (NSString *dirPath in [dirDates keyEnumerator]) {
+        NSDictionary *modDate = @{ NSFileModificationDate: dirDates[dirPath] };
+        [self.fileManager setAttributes:modDate ofItemAtPath:dirPath error:nil];
+    }
+
+    [dirDates removeAllObjects];
 }
 
 - (void)createDirectoryForEntry:(FileInZipInfo *)entry atUrl:(NSURL *)dir
