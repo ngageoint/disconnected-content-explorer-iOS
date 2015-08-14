@@ -18,12 +18,14 @@
 
 SpecBegin(FileOperations)
 
-NSFileManager *fileManager = OCMClassMock([NSFileManager class]);
+
 
 describe(@"MkdirOperation", ^{
+
+    __block NSFileManager *fileManager;
     
     beforeAll(^{
-
+        fileManager = OCMClassMock([NSFileManager class]);
     });
     
     beforeEach(^{
@@ -133,7 +135,7 @@ describe(@"MkdirOperation", ^{
     });
     
     afterAll(^{
-
+        [(id)fileManager stopMocking];
     });
 });
 

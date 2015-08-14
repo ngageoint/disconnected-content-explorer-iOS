@@ -83,6 +83,8 @@ describe(@"ZippedHtmlImportProcess", ^{
         ValidateHtmlLayoutOperation *validateStep = import.steps.firstObject;
 
         expect(validateStep.zipFile).to.beIdenticalTo(zipFile);
+
+        [(id)zipFile stopMocking];
     });
 
     it(@"makes the base dir when the validation finishes successfully", ^{
@@ -107,6 +109,8 @@ describe(@"ZippedHtmlImportProcess", ^{
         
         expect(makeDestDirStep.ready).to.equal(YES);
         expect(makeDestDirStep.dirUrl).to.equal([reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES]);
+
+        [(id)zipFile stopMocking];
     });
 
     it(@"cancels the import if the validation fails", ^{
@@ -130,6 +134,8 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         NSArray *remainingSteps = [import.steps subarrayWithRange:NSMakeRange(1, import.steps.count - 1)];
         assertThat(remainingSteps, everyItem(hasProperty(@"isCancelled", isTrue())));
+
+        [(id)zipFile stopMocking];
     });
 
     it(@"is ready to unzip when the dest dir is created", ^{
@@ -170,6 +176,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         expect(unzip.destDir).to.equal(reportsDir);
 
         [(id)makeDestDir stopMocking];
+        [(id)zipFile stopMocking];
     });
 
     it(@"is ready to unzip when the dest dir already existed", ^{
@@ -210,6 +217,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         expect(unzip.destDir).to.equal(reportsDir);
 
         [(id)makeDestDir stopMocking];
+        [(id)zipFile stopMocking];
     });
 
     it(@"cancels the import when the dest dir cannot be created and did not exist", ^{
@@ -243,6 +251,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         assertThat(remainingSteps, everyItem(hasProperty(@"isCancelled", isTrue())));
 
         [(id)makeDestDir stopMocking];
+        [(id)zipFile stopMocking];
     });
 
     it(@"unzips to the reports dir when zip has base dir", ^{
@@ -279,6 +288,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         expect(unzipStep.destDir).to.equal(reportsDir);
 
         [(id)makeDestDirStep stopMocking];
+        [(id)zipFile stopMocking];
     });
 
     it(@"creates and unzips to dir named after zip file when zip has no base dir", ^{
@@ -321,6 +331,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         expect(unzipStep.destDir).to.equal(destDir);
 
         [(id)makeDestDirStep stopMocking];
+        [(id)zipFile stopMocking];
     });
 
     it(@"updates the report url on the main thread after unzipping with base dir", ^{
@@ -365,6 +376,7 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [(id)report stopMocking];
         [(id)mockUnzip stopMocking];
+        [(id)zipFile stopMocking];
     });
 
     it(@"updates the report url on the main thread after unzipping without base dir", ^{
@@ -409,6 +421,7 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [(id)report stopMocking];
         [(id)mockUnzip stopMocking];
+        [(id)zipFile stopMocking];
     });
 
     it(@"parses the report descriptor if available at root", ^{
@@ -431,6 +444,8 @@ describe(@"ZippedHtmlImportProcess", ^{
         });
 
         expect(parseMetaData.jsonUrl).to.equal([reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec/metadata.json"]);
+
+        [(id)zipFile stopMocking];
     });
 
     it(@"parses the report descriptor if available in base dir", ^{
@@ -453,6 +468,8 @@ describe(@"ZippedHtmlImportProcess", ^{
         });
 
         expect(parseMetaData.jsonUrl).to.equal([reportsDir URLByAppendingPathComponent:@"test/metadata.json"]);
+
+        [(id)zipFile stopMocking];
     });
 
     it(@"cancels parsing report descriptor if not available", ^{
@@ -475,6 +492,8 @@ describe(@"ZippedHtmlImportProcess", ^{
         });
 
         expect(parseMetaData.cancelled).to.equal(YES);
+
+        [(id)zipFile stopMocking];
     });
 
     it(@"updates the report on the main thread after parsing the descriptor", ^{
@@ -509,6 +528,7 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [(id)report stopMocking];
         [(id)mockParseDescriptor stopMocking];
+        [(id)zipFile stopMocking];
     });
 
     it(@"deletes the zip file after unzipping successfully", ^{
@@ -521,6 +541,8 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         expect(deleteStep.dependencies).to.contain(unzipStep);
         expect(deleteStep.fileUrl).to.equal(initialReport.url);
+
+        [(id)zipFile stopMocking];
     });
 
     it(@"leaves the zip file if an error occurs", ^{
@@ -532,8 +554,8 @@ describe(@"ZippedHtmlImportProcess", ^{
         DeleteFileOperation *deleteStep = import.steps.lastObject;
 
         UnzipOperation *mockUnzipStep = OCMPartialMock(unzipStep);
-        OCMStub([unzipStep main]);
-        OCMStub([unzipStep wasSuccessful]).andReturn(NO);
+        OCMStub([mockUnzipStep main]);
+        OCMStub([mockUnzipStep wasSuccessful]).andReturn(NO);
 
         [import stepWillFinish:unzipStep stepIndex:2];
 
