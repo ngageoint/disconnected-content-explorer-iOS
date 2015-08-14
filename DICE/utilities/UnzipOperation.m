@@ -67,12 +67,13 @@
             [self commenceUnzip];
         }
         @catch (ZipException *e) {
+            // TODO: this catch block does not activate in tests for some reason - maddening
             _wasSuccessful = NO;
             _errorMessage = [NSString stringWithFormat:@"Error reading zip file: %@", e.reason];
         }
         @catch (NSException *e) {
             e = (ZipException *)e;
-            if ([[e class] isSubclassOfClass:[ZipException class]]) {
+            if ([@"ZipException" isEqualToString:e.name]) {
                 _wasSuccessful = NO;
                 _errorMessage = [NSString stringWithFormat:@"Error reading zip file: %@", e.reason];
             }
