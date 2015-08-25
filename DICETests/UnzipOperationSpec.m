@@ -409,32 +409,53 @@ describe(@"UnzipOperation", ^{
         expect(expectedContents.count).to.equal(0);
     });
 
-    it(@"reports unzip progress", ^{
-        failure(@"unimplemented");
+    it(@"reports unzip progress for percentage changes", ^{
+        NSFileManager *fm = [NSFileManager defaultManager];
+
+        NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
+        NSString *zipFilePath = [bundle pathForResource:@"10x128_bytes" ofType:@"zip"];
+        ZipFile *zipFile = [[ZipFile alloc] initWithFileName:zipFilePath mode:ZipFileModeUnzip];
+        NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
+
+        [fm createDirectoryAtURL:destDir withIntermediateDirectories:YES attributes:nil error:nil];
+
+        id<UnzipDelegate> unzipDelegate = OCMProtocolMock(@protocol(UnzipDelegate));
+        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
+        op.bufferSize = 64;
+        op.delegate = unzipDelegate;
+
+        __block NSMutableArray *percentUpdates = [NSMutableArray array];
+        [[OCMStub([unzipDelegate unzipOperation:op didUpdatePercentComplete:0]) ignoringNonObjectArgs] andDo:^(NSInvocation *invocation) {
+            NSUInteger percent = 0;
+            [invocation getArgument:&percent atIndex:3];
+            [percentUpdates addObject:[NSNumber numberWithUnsignedInteger:percent]];
+        }];
+
+        [op start];
+
+        expect(percentUpdates.count).to.equal(20);
+        [percentUpdates enumerateObjectsUsingBlock:^(NSNumber *percent, NSUInteger idx, BOOL *stop) {
+            expect(percent.unsignedIntegerValue).to.equal((idx + 1) * 5);
+        }];
     });
 
     it(@"is unsuccessful when unzipping raises an exception", ^{
-//        ZipFile *zipFile = OCMClassMock([ZipFile class]);
-        ZipFile *zipFile = MKTMock([ZipFile class]);
+        ZipFile *zipFile = OCMClassMock([ZipFile class]);
         ZipException *zipError = [[ZipException alloc] initWithError:99 reason:@"test error"];
 
-//        [OCMStub([zipFile goToFirstFileInZip]) andThrow:zipError];
-
-//        [MKTGivenVoid([zipFile goToNextFileInZip]) willThrow:zipError];
+        [OCMStub([zipFile goToFirstFileInZip]) andThrow:zipError];
 
         expect(zipError).to.beInstanceOf([ZipException class]);
-        
+        OCMStub([zipFile close]);
+
         NSURL *destDir = [NSURL fileURLWithPath:@"/tmp/test"];
         UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
-
-
-//        OCMStub([zipFile close]);
 
         [op start];
 
         expect(op.wasSuccessful).to.equal(NO);
         expect(op.errorMessage).to.equal(@"Error reading zip file: test error");
-//        OCMVerifyAll((id)zipFile);
+        OCMVerify([zipFile close]);
 
         [(id)zipFile stopMocking];
     });

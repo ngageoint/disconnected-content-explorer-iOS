@@ -14,7 +14,9 @@
 
 @implementation UnzipOperation
 {
-    NSUInteger _bufferSize;
+    NSUInteger _totalUncompressedSize;
+    NSUInteger _percentExtracted;
+    NSUInteger _bytesExtracted;
     NSMutableData *_entryBuffer;
 }
 
@@ -48,6 +50,10 @@
     _zipFile = zipFile;
     _destDir = destDir;
     _fileManager = fileManager;
+    _bufferSize = 1 << 16; // 64kB
+    _totalUncompressedSize = 0;
+    _percentExtracted = 0;
+    _bytesExtracted = 0;
     _wasSuccessful = NO;
 
     return self;
@@ -60,10 +66,10 @@
     }
     
     @autoreleasepool {
-        _bufferSize = 1 << 16; // 64kB
         _entryBuffer = [NSMutableData dataWithLength:(_bufferSize)];
 
         @try {
+            [self calculateTotalSize];
             [self commenceUnzip];
         }
         @catch (ZipException *e) {
@@ -97,7 +103,7 @@
 
 - (void)setDestDir:(NSURL *)destDir
 {
-    if (self.executing) {
+    if (self.isExecuting) {
         [NSException raise:@"IllegalStateException" format:@"cannot change destDir after UnzipOperation has started"];
     }
 
@@ -112,6 +118,23 @@
     _destDir = destDir;
 
     [self didChangeValueForKey:destDirKey];
+}
+
+- (void)setBufferSize:(NSUInteger)bufferSize
+{
+    if (self.isExecuting) {
+        [NSException raise:@"IllegalStateException" format:@"cannot change bufferSize after UnzipOperation has started"];
+    }
+
+    _bufferSize = bufferSize;
+}
+
+- (void)calculateTotalSize
+{
+    NSArray *entries = [self.zipFile listFileInZipInfos];
+    for (FileInZipInfo *entry in entries) {
+        _totalUncompressedSize += entry.length;
+    }
 }
 
 - (void)commenceUnzip
@@ -181,6 +204,14 @@
     while ((count = [read readDataWithBuffer:_entryBuffer])) {
         _entryBuffer.length = count;
         [handle writeData:_entryBuffer];
+        _bytesExtracted += count;
+        NSUInteger percent = floor(100.0f * _bytesExtracted / _totalUncompressedSize);
+        if (percent > _percentExtracted) {
+            _percentExtracted = percent;
+            if (self.delegate) {
+                [self.delegate unzipOperation:self didUpdatePercentComplete:_percentExtracted];
+            }
+        }
         _entryBuffer.length = _bufferSize;
     }
     [read finishedReading];

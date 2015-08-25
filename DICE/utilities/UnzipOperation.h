@@ -10,9 +10,13 @@
 
 #import "ZipFile.h"
 
+
+@class UnzipOperation;
+
+
 @protocol UnzipDelegate <NSObject>
 
-- (NSMutableData *)readBufferForEntry:(FileInZipInfo *)entry;
+- (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent;
 
 @end
 
@@ -22,6 +26,10 @@
 @property (nonatomic, readonly) ZipFile *zipFile;
 @property (nonatomic) NSURL *destDir;
 @property (nonatomic, readonly) NSFileManager *fileManager;
+/**
+ the buffer size in bytes
+ */
+@property (nonatomic) NSUInteger bufferSize;
 @property (nonatomic, weak) id<UnzipDelegate> delegate;
 /**
  whether the unzip completed successfully
