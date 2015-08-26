@@ -409,7 +409,7 @@ describe(@"UnzipOperation", ^{
         expect(expectedContents.count).to.equal(0);
     });
 
-    it(@"reports unzip progress for percentage changes", ^{
+    it(@"reports unzip progress on the main thread for percentage changes", ^{
         NSFileManager *fm = [NSFileManager defaultManager];
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
@@ -424,15 +424,26 @@ describe(@"UnzipOperation", ^{
         op.bufferSize = 64;
         op.delegate = unzipDelegate;
 
-        __block NSMutableArray *percentUpdates = [NSMutableArray array];
+        __block BOOL wasMainThread = YES;
+        NSMutableArray *percentUpdates = [NSMutableArray array];
         [[OCMStub([unzipDelegate unzipOperation:op didUpdatePercentComplete:0]) ignoringNonObjectArgs] andDo:^(NSInvocation *invocation) {
+            wasMainThread = wasMainThread && [NSThread currentThread] == [NSThread mainThread];
             NSUInteger percent = 0;
             [invocation getArgument:&percent atIndex:3];
             [percentUpdates addObject:[NSNumber numberWithUnsignedInteger:percent]];
         }];
 
-        [op start];
+        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [op start];
+        });
 
+        waitUntil(^(DoneCallback done) {
+            if (percentUpdates.count == 20) {
+                done();
+            }
+        });
+
+        expect(wasMainThread).to.equal(YES);
         expect(percentUpdates.count).to.equal(20);
         [percentUpdates enumerateObjectsUsingBlock:^(NSNumber *percent, NSUInteger idx, BOOL *stop) {
             expect(percent.unsignedIntegerValue).to.equal((idx + 1) * 5);
@@ -459,6 +470,13 @@ describe(@"UnzipOperation", ^{
 
         [(id)zipFile stopMocking];
     });
+
+    /*
+     These tests are for a weird condition in which the catch block 
+     for ZipException gets skipped and drops through to NSException.
+     Maybe we can revisit this later, but for now, just check the 
+     name on the NSException that actually gets caught.
+     */
 
     it(@"catches ZipException", ^{
         ZipFile *zipFile = OCMClassMock([ZipFile class]);

@@ -204,18 +204,27 @@
     while ((count = [read readDataWithBuffer:_entryBuffer])) {
         _entryBuffer.length = count;
         [handle writeData:_entryBuffer];
+        _entryBuffer.length = _bufferSize;
         _bytesExtracted += count;
         NSUInteger percent = floor(100.0f * _bytesExtracted / _totalUncompressedSize);
         if (percent > _percentExtracted) {
             _percentExtracted = percent;
-            if (self.delegate) {
-                [self.delegate unzipOperation:self didUpdatePercentComplete:_percentExtracted];
-            }
+            [self sendPercentageUpdate];
         }
-        _entryBuffer.length = _bufferSize;
     }
     [read finishedReading];
     [handle closeFile];
+}
+
+- (void)sendPercentageUpdate
+{
+    if (self.delegate == nil) {
+        return;
+    }
+    NSUInteger percent = _percentExtracted;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate unzipOperation:self didUpdatePercentComplete:percent];
+    });
 }
 
 @end
