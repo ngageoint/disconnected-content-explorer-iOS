@@ -241,7 +241,14 @@
     return [NSString stringWithFormat:@"%@: %@", NSStringFromClass([self class]), self.report.url];
 }
 
+- (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent
+{
+    self.report.summary = [NSString stringWithFormat:@"Unzipping... %d%% complete", percent];
+}
+
 @end
+
+
 
 
 @interface HtmlReportType ()
@@ -249,6 +256,8 @@
 @property (strong, nonatomic, readonly) NSFileManager *fileManager;
 
 @end
+
+
 
 
 @implementation HtmlReportType

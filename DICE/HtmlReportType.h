@@ -54,7 +54,7 @@
 
 
 
-@interface ZippedHtmlImportProcess : BaseImportProcess <ImportProcess>
+@interface ZippedHtmlImportProcess : BaseImportProcess <ImportProcess, UnzipDelegate>
 
 @property (readonly) NSURL *destDir;
 

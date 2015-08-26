@@ -565,7 +565,20 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
     
     it(@"reports unzip progress updates", ^{
-        failure(@"unimplemented");
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        UnzipOperation *unzipStep = import.steps[2];
+
+        [import unzipOperation:unzipStep didUpdatePercentComplete:13];
+        expect(initialReport.summary).to.contain(@"13%");
+
+        [import unzipOperation:unzipStep didUpdatePercentComplete:29];
+        expect(initialReport.summary).to.contain(@"29%");
+
+        [import unzipOperation:unzipStep didUpdatePercentComplete:100];
+        expect(initialReport.summary).to.contain(@"100%");
     });
 
     xit(@"unzips the file to a temporary directory", ^{
