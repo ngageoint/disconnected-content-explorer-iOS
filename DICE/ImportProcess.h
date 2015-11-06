@@ -27,13 +27,19 @@
 /**
  TODO: document
  */
-@property id<ImportDelegate> delegate;
+@property (weak) id<ImportDelegate> delegate;
 
 @end
 
 
 @protocol ImportDelegate <NSObject>
 
-- (void)import:(id<ImportProcess>)import didFinishStep:(NSOperation *)step;
+@optional
+
+- (void)reportWasUpdatedByImportProcess:(id<ImportProcess>)import;
+
+// TODO:
+//- (void)importDidSucceedForImportProcess:(id<ImportProcess>)import;
+//- (void)importDidFailForImportProcess:(id<ImportProcess>)import;
 
 @end

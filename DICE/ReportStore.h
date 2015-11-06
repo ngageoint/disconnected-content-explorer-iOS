@@ -9,9 +9,10 @@
 #import <Foundation/Foundation.h>
 
 #import "Report.h"
+#import "ImportProcess.h"
 
 
-@interface ReportStore : NSObject
+@interface ReportStore : NSObject <ImportDelegate>
 
 /**
  The list of ReportType objects for handling report files

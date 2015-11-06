@@ -5,11 +5,11 @@
 #define HC_SHORTHAND
 #import <OCHamcrest/OCHamcrest.h>
 
-#define MOCKITO_SHORTHAND
-#import <OCMockito/OCMockito.h>
+#import <OCMock/OCMock.h>
 
 #import "ReportStore.h"
 #import "ReportType.h"
+#import "ReportAPI.h"
 
 
 /**
@@ -32,30 +32,70 @@
 @end
 
 
+
+
+@interface TestReportType : NSObject <ReportType>
+
+@property (readonly) NSString *extension;
+@property (readonly) id<ImportProcess> nextImportProcess;
+
+- (instancetype)initWithExtension:(NSString *)ext;
+
+@end
+
+
+
+
+@implementation TestReportType
+
+- (instancetype)initWithExtension:(NSString *)ext
+{
+    if (!(self = [super init])) {
+        return nil;
+    }
+    _nextImportProcess = OCMProtocolMock(@protocol(ImportProcess));
+    _extension = ext;
+    return self;
+}
+
+- (BOOL)couldHandleFile:(NSURL *)reportPath
+{
+    return [reportPath.pathExtension isEqualToString:self.extension];
+}
+
+- (id<ImportProcess>)createImportProcessForReport:(Report *)report
+{
+    id currentImport = self.nextImportProcess;
+    _nextImportProcess = OCMProtocolMock(@protocol(ImportProcess));
+    return currentImport;
+}
+
+@end
+
+
+
+
 SpecBegin(ReportStore)
 
 describe(@"ReportStore", ^{
 
-    id<ReportType> redType = mockProtocol(@protocol(ReportType));
-    id<ReportType> blueType = mockProtocol(@protocol(ReportType));
+    __block TestReportType *redType = [[TestReportType alloc] initWithExtension:@"red"];
+    __block TestReportType *blueType = [[TestReportType alloc] initWithExtension:@"blue"];
 
-    [[given([redType couldHandleFile:nil]) withMatcher:endsWith(@".red")] willReturnBool:YES];
-    [[given([redType couldHandleFile:nil]) withMatcher:isNot(endsWith(@".red"))] willReturnBool:NO];
-
-    [[given([blueType couldHandleFile:nil]) withMatcher:endsWith(@".blue")] willReturnBool:YES];
-    [[given([blueType couldHandleFile:nil]) withMatcher:isNot(endsWith(@".blue"))] willReturnBool:NO];
-
-    NSFileManager *fileManager = mock([NSFileManager class]);
+    __block NSFileManager *fileManager;
+    __block ReportStore *store;
 
     NSURL *reportsDir = [NSURL fileURLWithPath:@"/dice/reports"];
-
-    __block ReportStore *store;
 
     beforeAll(^{
 
     });
 
     beforeEach(^{
+        fileManager = OCMClassMock([NSFileManager class]);
+        OCMStub([fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil])
+            .andReturn(reportsDir);
+
         // initialize a new ReportStore to ensure all tests are independent
         store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager];
         store.reportTypes = @[
@@ -64,18 +104,33 @@ describe(@"ReportStore", ^{
         ];
     });
 
+    afterEach(^{
+        [(id)fileManager stopMocking];
+    });
+
+    afterAll(^{
+        
+    });
+
+    it(@"sends notifications about added reports", ^{
+        NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+        id observer = OCMObserverMock();
+        [notifications addMockObserver:observer name:[ReportNotification reportAdded] object:store];
+
+        failure(@"unimplemented");
+    });
+
     describe(@"loadReports", ^{
 
         beforeEach(^{
-            [given([fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil]) willReturn:reportsDir];
+
         });
 
         it(@"finds the supported files in the reports directory", ^{
-            [given([fileManager contentsOfDirectoryAtURL:reportsDir
+            [OCMStub([fileManager contentsOfDirectoryAtURL:reportsDir
                 includingPropertiesForKeys:nil
                 options:0
-                error:nil])
-                willReturn:@[
+                error:nil]) andReturn:@[
                     [reportsDir URLByAppendingPathComponent:@"report1.red"],
                     [reportsDir URLByAppendingPathComponent:@"report2.blue"],
                     [reportsDir URLByAppendingPathComponent:@"something.else"]
@@ -89,15 +144,12 @@ describe(@"ReportStore", ^{
         });
 
         it(@"removes enabled reports for files no longer in the reports directory", ^{
-            [[given([fileManager contentsOfDirectoryAtURL:reportsDir
+            [OCMExpect([fileManager contentsOfDirectoryAtURL:reportsDir
                 includingPropertiesForKeys:nil
                 options:0
                 error:nil])
-                willReturn:@[
+                andReturn:@[
                     [reportsDir URLByAppendingPathComponent:@"report1.red"],
-                    [reportsDir URLByAppendingPathComponent:@"report2.blue"]
-                ]]
-                willReturn:@[
                     [reportsDir URLByAppendingPathComponent:@"report2.blue"]
                 ]];
 
@@ -110,7 +162,15 @@ describe(@"ReportStore", ^{
             ((Report *)reports[0]).isEnabled = YES;
             ((Report *)reports[1]).isEnabled = YES;
 
-            [given([fileManager fileExistsAtPath:((Report *)reports[0]).url.path]) willReturnBool:NO];
+            [OCMExpect([fileManager contentsOfDirectoryAtURL:reportsDir
+                includingPropertiesForKeys:nil
+                options:0
+                error:nil])
+                andReturn:@[
+                    [reportsDir URLByAppendingPathComponent:@"report2.blue"]
+                ]];
+
+            OCMStub([fileManager fileExistsAtPath:((Report *)reports[0]).url.path]).andReturn(NO);
 
             reports = [store loadReports];
 
@@ -123,23 +183,39 @@ describe(@"ReportStore", ^{
     describe(@"attemptToImportReportFromResource", ^{
 
         it(@"imports a report with the capable ReportType", ^{
+            id redMock = OCMPartialMock(redType);
+            id blueMock = OCMPartialMock(blueType);
+
+            OCMStub([redMock createImportProcessForReport:anything()]).andForwardToRealObject;
+            [[blueMock reject] createImportProcessForReport:anything()];
+            id<ImportProcess> import = redType.nextImportProcess;
+            OCMExpect([import steps]);
+            OCMExpect([import setDelegate:store]);
+
             NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.red"];
             Report *report = [store attemptToImportReportFromResource:url];
 
-            [verify(redType) createImportProcessForReport:report];
-            [verifyCount(blueType, never()) createImportProcessForReport:report];
+            OCMVerify([redMock createImportProcessForReport:report]);
+            OCMVerifyAll((id)import);
 
-            failure(@"verify interaction with ImportProcess");
+            [redMock stopMocking];
+            [blueMock stopMocking];
         });
 
         it(@"returns nil if the report cannot be imported", ^{
+            id redMock = OCMPartialMock(redType);
+            id blueMock = OCMPartialMock(blueType);
+
+            OCMStub([[redMock reject] createImportProcessForReport:anything()]);
+            OCMStub([[blueMock reject] createImportProcessForReport:anything()]);
+
             NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.green"];
             Report *report = [store attemptToImportReportFromResource:url];
 
             expect(report).to.beNil;
 
-            [verifyCount(redType, never()) createImportProcessForReport:report];
-            [verifyCount(blueType, never()) createImportProcessForReport:report];
+            [redMock stopMocking];
+            [blueMock stopMocking];
         });
 
         it(@"adds the initial report to the report list", ^{
@@ -156,13 +232,6 @@ describe(@"ReportStore", ^{
 
     });
 
-    afterEach(^{
-
-    });
-
-    afterAll(^{
-
-    });
 });
 
 SpecEnd

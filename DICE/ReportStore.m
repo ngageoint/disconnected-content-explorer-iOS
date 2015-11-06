@@ -103,6 +103,7 @@
     // TODO: notify report added
 
     id<ImportProcess> import = [reportType createImportProcessForReport:report];
+    import.delegate = self;
 
     // TODO: track pending imports by report object and/or add self as import delegate
     [_importQueue addOperations:import.steps waitUntilFinished:NO];
@@ -122,6 +123,11 @@
         }
     }];
     return reportType;
+}
+
+- (void)reportWasUpdatedByImportProcess:(id<ImportProcess>)import
+{
+
 }
 
 @end

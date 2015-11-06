@@ -14,7 +14,7 @@
 
 @property (readonly) Report *report;
 @property (readonly) NSArray *steps;
-@property id<ImportDelegate> delegate;
+@property (weak) id<ImportDelegate> delegate;
 
 - (instancetype)initWithReport:(Report *)report steps:(NSArray *)steps NS_DESIGNATED_INITIALIZER;
 
