@@ -286,8 +286,7 @@ describe(@"UnzipOperation", ^{
         [comps setMonth:8];
         [comps setYear:2015];
         [comps setHour:12];
-        [comps setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"MDT"]];
-        NSDate *modDate = [[NSCalendar currentCalendar] dateFromComponents:comps];
+        NSDate *modDate = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] dateFromComponents:comps];
 
         NSDirectoryEnumerator *extractedContents = [fm enumeratorAtURL:destDir
             includingPropertiesForKeys:@[
@@ -376,8 +375,7 @@ describe(@"UnzipOperation", ^{
         [comps setMonth:8];
         [comps setYear:2015];
         [comps setHour:12];
-        [comps setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"MDT"]];
-        NSDate *modDate = [[NSCalendar currentCalendar] dateFromComponents:comps];
+        NSDate *modDate = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] dateFromComponents:comps];
 
         NSDirectoryEnumerator *extractedContents = [fm enumeratorAtURL:destDir
             includingPropertiesForKeys:@[
