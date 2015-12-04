@@ -21,7 +21,13 @@
     NSOperationQueue *_importQueue;
 }
 
-- (instancetype)initWithReportsDir:(NSURL * const)reportsDir fileManager:(NSFileManager *)fileManager
+- (instancetype)init
+{
+    NSURL *docsDir = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
+    return [self initWithReportsDir:docsDir fileManager:[NSFileManager defaultManager]];
+}
+
+- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager
 {
     self = [super init];
     if (!self)
@@ -100,7 +106,7 @@
 
     [_reports addObject:report];
 
-    // TODO: notify report added
+    [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
 
     id<ImportProcess> import = [reportType createImportProcessForReport:report];
     import.delegate = self;
@@ -127,7 +133,7 @@
 
 - (void)reportWasUpdatedByImportProcess:(id<ImportProcess>)import
 {
-
+    // TODO: dispatch notifications
 }
 
 @end

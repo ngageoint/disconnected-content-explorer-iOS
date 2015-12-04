@@ -112,14 +112,6 @@ describe(@"ReportStore", ^{
         
     });
 
-    it(@"sends notifications about added reports", ^{
-        NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
-        id observer = OCMObserverMock();
-        [notifications addMockObserver:observer name:[ReportNotification reportAdded] object:store];
-
-        failure(@"unimplemented");
-    });
-
     describe(@"loadReports", ^{
 
         beforeEach(^{
@@ -178,6 +170,36 @@ describe(@"ReportStore", ^{
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
         });
 
+
+        it(@"sends notifications about added reports", ^{
+            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+
+            NSMutableArray *received = [NSMutableArray array];
+            [notifications addObserverForName:[ReportNotification reportAdded] object:store queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+                [received addObject:note];
+            }];
+
+            [OCMStub([fileManager contentsOfDirectoryAtURL:reportsDir
+                                includingPropertiesForKeys:nil options:0 error:nil])
+             andReturn:@[
+                 [reportsDir URLByAppendingPathComponent:@"report1.red"],
+                 [reportsDir URLByAppendingPathComponent:@"report2.blue"]
+             ]];
+
+            NSArray *reports = [store loadReports];
+
+            expect(received.count).to.equal(2);
+
+            [received enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSNotification *note = obj;
+                Report *report = note.userInfo[@"report"];
+                
+                expect(note.name).to.equal([ReportNotification reportAdded]);
+                expect(report).to.beIdenticalTo(reports[idx]);
+            }];
+            
+        });
+
     });
 
     describe(@"attemptToImportReportFromResource", ^{
@@ -228,6 +250,23 @@ describe(@"ReportStore", ^{
             expect(report.summary).to.equal(@"Importing...");
             expect(report.error).to.beNil;
             expect(report.isEnabled).to.equal(NO);
+        });
+
+        it(@"sends a notification about adding the report", ^{
+            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+
+            __block NSNotification *received = nil;
+            [notifications addObserverForName:[ReportNotification reportAdded] object:store queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+                received = note;
+            }];
+
+            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
+
+            Report *receivedReport = received.userInfo[@"report"];
+
+            expect(received.name).to.equal([ReportNotification reportAdded]);
+            expect(receivedReport).to.beIdenticalTo(report);
+
         });
 
     });
