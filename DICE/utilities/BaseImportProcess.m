@@ -27,6 +27,11 @@
     return self;
 }
 
+- (instancetype)init
+{
+    return [self initWithReport:nil steps:nil];
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     NSUInteger stepIndex = [self.steps indexOfObject:object];
