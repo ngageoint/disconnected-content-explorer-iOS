@@ -569,6 +569,12 @@ describe(@"ZippedHtmlImportProcess", ^{
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
              destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
+        id<ImportDelegate> importListener = OCMProtocolMock(@protocol(ImportDelegate));
+        import.delegate = importListener;
+        OCMExpect([importListener reportWasUpdatedByImportProcess:import]);
+        OCMExpect([importListener reportWasUpdatedByImportProcess:import]);
+        OCMExpect([importListener reportWasUpdatedByImportProcess:import]);
+
         UnzipOperation *unzipStep = import.steps[2];
 
         [import unzipOperation:unzipStep didUpdatePercentComplete:13];
@@ -579,6 +585,8 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [import unzipOperation:unzipStep didUpdatePercentComplete:100];
         expect(initialReport.summary).to.contain(@"100%");
+
+        OCMVerifyAll((id)importListener);
     });
 
     xit(@"unzips the file to a temporary directory", ^{

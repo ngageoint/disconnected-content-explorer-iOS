@@ -118,6 +118,7 @@
 
     UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:nil fileManager:fileManager];
     [unzip addDependency:makeDestDir];
+    unzip.delegate = self;
 
     ParseJsonOperation *parseMetaData = [[ParseJsonOperation alloc] init];
     [parseMetaData addDependency:unzip];
@@ -243,7 +244,8 @@
 
 - (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent
 {
-    self.report.summary = [NSString stringWithFormat:@"Unzipping... %d%% complete", percent];
+    self.report.summary = [NSString stringWithFormat:@"Unzipping... %lu%% complete", (unsigned long)percent];
+    [self.delegate reportWasUpdatedByImportProcess:self];
 }
 
 @end
