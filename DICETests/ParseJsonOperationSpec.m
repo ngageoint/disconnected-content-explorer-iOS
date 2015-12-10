@@ -63,13 +63,11 @@ describe(@"ParseJsonOperation", ^{
 
         [holdup start];
 
-        waitUntil(^(DoneCallback done) {
-            if (holdup.finished) {
-                done();
-            }
-        });
-
-        expect(op.ready).to.equal(YES);
+        NSPredicate *isFinished = [NSPredicate predicateWithFormat:@"finished = YES"];
+        [self expectationForPredicate:isFinished evaluatedWithObject:holdup handler:nil];
+        [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
+            expect(op.ready).to.equal(YES);
+        }];
     });
 
     it(@"throws an exception when dest dir change is attempted while executing", ^{

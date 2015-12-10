@@ -101,12 +101,7 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [validateStep start];
 
-        waitUntil(^(DoneCallback done) {
-            if (validateStep.finished) {
-                done();
-            }
-        });
-        
+        expect(validateStep.finished).to.equal(YES);
         expect(makeDestDirStep.ready).to.equal(YES);
         expect(makeDestDirStep.dirUrl).to.equal([reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES]);
 
@@ -121,12 +116,6 @@ describe(@"ZippedHtmlImportProcess", ^{
         ValidateHtmlLayoutOperation *validateStep = import.steps.firstObject;
 
         [validateStep start];
-
-        waitUntil(^(DoneCallback done) {
-            if (validateStep.finished) {
-                done();
-            }
-        });
 
         expect(validateStep.finished).to.equal(YES);
         expect(validateStep.cancelled).to.equal(NO);
@@ -151,31 +140,19 @@ describe(@"ZippedHtmlImportProcess", ^{
         expect(unzip.ready).to.equal(NO);
         expect(unzip.destDir).to.beNil;
 
-        makeDestDir = OCMPartialMock(makeDestDir);
-        OCMStub([makeDestDir main]);
-        OCMStub([makeDestDir dirWasCreated]).andReturn(YES);
-        OCMStub([makeDestDir dirExisted]).andReturn(NO);
+        id makeDestDirMock = OCMPartialMock(makeDestDir);
+        OCMStub([makeDestDirMock main]);
+        OCMStub([makeDestDirMock dirWasCreated]).andReturn(YES);
+        OCMStub([makeDestDirMock dirExisted]).andReturn(NO);
 
         [validation start];
 
-        waitUntil(^(DoneCallback done) {
-            if (validation.finished) {
-                done();
-            }
-        });
-
         [makeDestDir start];
-
-        waitUntil(^(DoneCallback done) {
-            if (makeDestDir.finished) {
-                done();
-            }
-        });
 
         expect(unzip.ready).to.equal(YES);
         expect(unzip.destDir).to.equal(reportsDir);
 
-        [(id)makeDestDir stopMocking];
+        [(id)makeDestDirMock stopMocking];
         [(id)zipFile stopMocking];
     });
 
@@ -192,31 +169,19 @@ describe(@"ZippedHtmlImportProcess", ^{
         expect(unzip.ready).to.equal(NO);
         expect(unzip.destDir).to.beNil;
 
-        makeDestDir = OCMPartialMock(makeDestDir);
-        OCMStub([makeDestDir main]);
-        OCMStub([makeDestDir dirWasCreated]).andReturn(NO);
-        OCMStub([makeDestDir dirExisted]).andReturn(YES);
+        id makeDestDirMock = OCMPartialMock(makeDestDir);
+        OCMStub([makeDestDirMock main]);
+        OCMStub([makeDestDirMock dirWasCreated]).andReturn(NO);
+        OCMStub([makeDestDirMock dirExisted]).andReturn(YES);
 
         [validation start];
 
-        waitUntil(^(DoneCallback done) {
-            if ([validation isFinished]) {
-                done();
-            }
-        });
-
         [makeDestDir start];
-
-        waitUntil(^(DoneCallback done) {
-            if (makeDestDir.finished) {
-                done();
-            }
-        });
 
         expect(unzip.ready).to.equal(YES);
         expect(unzip.destDir).to.equal(reportsDir);
 
-        [(id)makeDestDir stopMocking];
+        [(id)makeDestDirMock stopMocking];
         [(id)zipFile stopMocking];
     });
 
@@ -233,19 +198,7 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [validation start];
 
-        waitUntil(^(DoneCallback done) {
-            if (validation.finished) {
-                done();
-            }
-        });
-
         [makeDestDir start];
-
-        waitUntil(^(DoneCallback done) {
-            if (makeDestDir.finished) {
-                done();
-            }
-        });
 
         NSArray *remainingSteps = [import.steps subarrayWithRange:NSMakeRange(2, import.steps.count - 2)];
         assertThat(remainingSteps, everyItem(hasProperty(@"isCancelled", isTrue())));
@@ -267,23 +220,11 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [validateStep start];
 
-        waitUntil(^(DoneCallback done) {
-            if (validateStep.finished) {
-                done();
-            }
-        });
-
         OCMStub([makeDestDirStep main]);
         OCMStub([makeDestDirStep dirWasCreated]).andReturn(NO);
         OCMStub([makeDestDirStep dirExisted]).andReturn(YES);
 
         [makeDestDirStep start];
-
-        waitUntil(^(DoneCallback done) {
-            if (makeDestDirStep.finished) {
-                done();
-            }
-        });
 
         expect(unzipStep.destDir).to.equal(reportsDir);
 
@@ -308,12 +249,6 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [validateStep start];
 
-        waitUntil(^(DoneCallback done) {
-            if (validateStep.finished) {
-                done();
-            }
-        });
-
         expect(makeDestDirStep.dirUrl).to.equal(destDir);
 
         OCMStub([makeDestDirStep main]);
@@ -321,12 +256,6 @@ describe(@"ZippedHtmlImportProcess", ^{
         OCMStub([makeDestDirStep dirWasCreated]).andReturn(YES);
 
         [makeDestDirStep start];
-
-        waitUntil(^(DoneCallback done) {
-            if (makeDestDirStep.finished) {
-                done();
-            }
-        });
 
         expect(unzipStep.destDir).to.equal(destDir);
 
@@ -344,35 +273,24 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [validation start];
 
-        waitUntil(^(DoneCallback done) {
-            if (validation.finished) {
-                done();
-            }
-        });
-
+        XCTestExpectation *urlWasSetOnMainThread = [self expectationWithDescription:@"report url was set on main thread"];
         NSURL *expectedPath = [reportsDir URLByAppendingPathComponent:@"base" isDirectory:YES];
-        __block BOOL wasMainThread = NO;
-        __block BOOL urlWasSet = NO;
         UnzipOperation *unzip = import.steps[2];
         UnzipOperation *mockUnzip = OCMPartialMock(unzip);
         OCMStub([mockUnzip wasSuccessful]).andReturn(YES);
         OCMExpect([report setUrl:expectedPath]).andDo(^(NSInvocation *invocation) {
-            wasMainThread = [NSThread currentThread] == [NSThread mainThread];
-            urlWasSet = YES;
-        });
-
-        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [import stepWillFinish:unzip stepIndex:2];
-        });
-
-        waitUntil(^(DoneCallback done) {
-            if (urlWasSet) {
-                done();
+            if ([NSThread currentThread] == [NSThread mainThread]) {
+                [urlWasSetOnMainThread fulfill];
             }
         });
 
-        expect(wasMainThread).to.equal(YES);
-        OCMVerifyAll((id)report);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [import stepWillFinish:unzip stepIndex:2];
+        });
+
+        [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+            OCMVerifyAll((id)report);
+        }];
 
         [(id)report stopMocking];
         [(id)mockUnzip stopMocking];
@@ -389,35 +307,27 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [validation start];
 
-        waitUntil(^(DoneCallback done) {
-            if (validation.finished) {
-                done();
-            }
-        });
-
+        XCTestExpectation *urlWasSetOnMainThread = [self expectationWithDescription:@"report url was set on main thread"];
         NSURL *expectedPath = [reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES];
-        __block BOOL wasMainThread = NO;
-        __block BOOL urlWasSet = NO;
         UnzipOperation *unzip = import.steps[2];
         UnzipOperation *mockUnzip = OCMPartialMock(unzip);
         OCMStub([mockUnzip wasSuccessful]).andReturn(YES);
         OCMExpect([report setUrl:expectedPath]).andDo(^(NSInvocation *invocation) {
-            wasMainThread = [NSThread currentThread] == [NSThread mainThread];
-            urlWasSet = YES;
-        });
-
-        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [import stepWillFinish:unzip stepIndex:2];
-        });
-
-        waitUntil(^(DoneCallback done) {
-            if (urlWasSet) {
-                done();
+            if ([NSThread currentThread] == [NSThread mainThread]) {
+                [urlWasSetOnMainThread fulfill];
             }
         });
 
-        expect(wasMainThread).to.equal(YES);
-        OCMVerifyAll((id)report);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [import stepWillFinish:unzip stepIndex:2];
+        });
+
+        [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+            if (error) {
+                failure(error.description);
+            }
+            OCMVerifyAll((id)report);
+        }];
 
         [(id)report stopMocking];
         [(id)mockUnzip stopMocking];
@@ -437,12 +347,6 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [validation start];
 
-        waitUntil(^(DoneCallback done) {
-            if (validation.finished) {
-                done();
-            }
-        });
-
         expect(parseMetaData.jsonUrl).to.equal([reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec/metadata.json"]);
 
         [(id)zipFile stopMocking];
@@ -460,12 +364,6 @@ describe(@"ZippedHtmlImportProcess", ^{
         expect(parseMetaData.dependencies).to.contain(unzip);
 
         [validation start];
-
-        waitUntil(^(DoneCallback done) {
-            if (validation.finished) {
-                done();
-            }
-        });
 
         expect(parseMetaData.jsonUrl).to.equal([reportsDir URLByAppendingPathComponent:@"test/metadata.json"]);
 
@@ -485,12 +383,6 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         [validation start];
 
-        waitUntil(^(DoneCallback done) {
-            if (validation.finished) {
-                done();
-            }
-        });
-
         expect(parseMetaData.cancelled).to.equal(YES);
 
         [(id)zipFile stopMocking];
@@ -502,29 +394,27 @@ describe(@"ZippedHtmlImportProcess", ^{
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
-        __block BOOL wasMainThread = NO;
-        __block BOOL reportUpdated = NO;
+        XCTestExpectation *updatedOnMainThread = [self expectationWithDescription:@"report meta-data updated on main thread"];
         NSDictionary *descriptor = @{ @"title": @"On Main Thread" };
         ParseJsonOperation *parseDescriptor = import.steps[3];
         id mockParseDescriptor = OCMPartialMock(parseDescriptor);
         OCMStub([mockParseDescriptor parsedJsonDictionary]).andReturn(descriptor);
         [OCMExpect([report setPropertiesFromJsonDescriptor:[OCMArg any]]) andDo:^(NSInvocation *invocation) {
-            wasMainThread = [NSThread mainThread] == [NSThread currentThread];
-            reportUpdated = YES;
+            if ([NSThread mainThread] == [NSThread currentThread]) {
+                [updatedOnMainThread fulfill];
+            }
         }];
 
-        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [import stepWillFinish:parseDescriptor stepIndex:3];
         });
 
-        waitUntil(^(DoneCallback done) {
-            if (reportUpdated) {
-                done();
+        [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+            if (error) {
+                failure(error.description);
             }
-        });
-
-        expect(wasMainThread).to.equal(YES);
-        OCMVerifyAll((id)report);
+            OCMVerifyAll((id)report);
+        }];
 
         [(id)report stopMocking];
         [(id)mockParseDescriptor stopMocking];

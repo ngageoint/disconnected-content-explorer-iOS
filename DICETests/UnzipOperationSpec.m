@@ -202,13 +202,11 @@ describe(@"UnzipOperation", ^{
 
         [holdup start];
 
-        waitUntil(^(DoneCallback done) {
-            if (holdup.finished) {
-                done();
-            }
-        });
-
-        expect(op.ready).to.equal(YES);
+        NSPredicate *isFinished = [NSPredicate predicateWithFormat:@"finished = YES"];
+        [self expectationForPredicate:isFinished evaluatedWithObject:holdup handler:nil];
+        [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
+            expect(op.ready).to.equal(YES);
+        }];
 
         [(id)zipFile stopMocking];
     });
@@ -435,17 +433,16 @@ describe(@"UnzipOperation", ^{
             [op start];
         });
 
-        waitUntil(^(DoneCallback done) {
-            if (percentUpdates.count == 20) {
-                done();
-            }
-        });
-
-        expect(wasMainThread).to.equal(YES);
-        expect(percentUpdates.count).to.equal(20);
-        [percentUpdates enumerateObjectsUsingBlock:^(NSNumber *percent, NSUInteger idx, BOOL *stop) {
-            expect(percent.unsignedIntegerValue).to.equal((idx + 1) * 5);
+        NSPredicate *isFinished = [NSPredicate predicateWithFormat:@"SELF[SIZE] = 20"];
+        [self expectationForPredicate:isFinished evaluatedWithObject:percentUpdates handler:nil];
+        [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
+            expect(wasMainThread).to.equal(YES);
+            expect(percentUpdates.count).to.equal(20);
+            [percentUpdates enumerateObjectsUsingBlock:^(NSNumber *percent, NSUInteger idx, BOOL *stop) {
+                expect(percent.unsignedIntegerValue).to.equal((idx + 1) * 5);
+            }];
         }];
+
     });
 
     it(@"is unsuccessful when unzipping raises an exception", ^{
