@@ -34,18 +34,29 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    NSUInteger stepIndex = [self.steps indexOfObject:object];
+    if (![@"isFinished" isEqualToString:keyPath]) {
+        return;
+    }
+
+    NSUInteger stepIndex = [self.steps indexOfObjectIdenticalTo:object];
 
     if (stepIndex == NSNotFound) {
         return;
     }
 
     BOOL isPrior = ((NSNumber *)change[NSKeyValueChangeNotificationIsPriorKey]).boolValue;
-    
-    if ([@"isFinished" isEqualToString:keyPath] && isPrior) {
+    if (isPrior) {
         [self stepWillFinish:object stepIndex:stepIndex];
-        // TODO: remove observer?
     }
+    else {
+        NSUInteger pos = [self.steps indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            return !([(NSOperation *)obj isFinished] || [(NSOperation *)obj isCancelled]);
+        }];
+        if (pos == NSNotFound) {
+            [self.delegate importDidFinishForImportProcess:self];
+        }
+    }
+
 }
 
 - (void)stepWillFinish:(NSOperation *)step stepIndex:(NSUInteger)stepIndex

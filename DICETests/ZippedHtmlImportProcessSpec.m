@@ -184,7 +184,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
-        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
+        ValidateHtmlLayoutOperation *validation = OCMPartialMock(import.steps.firstObject);
         MkdirOperation *makeDestDir = import.steps[1];
         UnzipOperation *unzip = import.steps[2];
 
@@ -200,7 +200,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         [validation start];
 
         waitUntil(^(DoneCallback done) {
-            if (validation.finished) {
+            if ([validation isFinished]) {
                 done();
             }
         });
@@ -589,6 +589,52 @@ describe(@"ZippedHtmlImportProcess", ^{
         OCMVerifyAll((id)importListener);
     });
 
+    it(@"notifies the delegate when finished", ^{
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        id<ImportDelegate> importListener = OCMProtocolMock(@protocol(ImportDelegate));
+        import.delegate = importListener;
+        OCMExpect([importListener importDidFinishForImportProcess:import]);
+
+        id validateStep = OCMPartialMock(import.steps[0]);
+        id mkdirStep = OCMPartialMock(import.steps[1]);
+        id unzipStep = OCMPartialMock(import.steps[2]);
+        id parseStep = OCMPartialMock(import.steps[3]);
+        id deleteStep = OCMPartialMock(import.steps[4]);
+        for (id mockStep in @[validateStep, mkdirStep, unzipStep, parseStep, deleteStep]) {
+            [OCMStub([mockStep main]) andDo:^(NSInvocation *invocation) {
+                NSLog(@"running operation %@", NSStringFromClass([invocation.target class]));
+            }];
+        }
+
+        [OCMStub([validateStep isLayoutValid]) andReturnValue:@YES];
+        [OCMStub([validateStep indexDirPath]) andReturn:@"base"];
+        [OCMStub([validateStep hasDescriptor]) andReturnValue:@NO];
+        [OCMStub([mkdirStep dirExisted]) andReturnValue:@NO];
+        [OCMStub([mkdirStep dirWasCreated]) andReturnValue:@NO];
+        [OCMStub([unzipStep wasSuccessful]) andReturnValue:@YES];
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperations:import.steps waitUntilFinished:NO];
+
+        NSPredicate *isImportFinished = [NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            BOOL finished = [deleteStep isFinished] && [parseStep isCancelled];
+            return finished;
+        }];
+        [self expectationForPredicate:isImportFinished evaluatedWithObject:import handler:nil];
+
+        [self waitForExpectationsWithTimeout:3.0 handler:^(NSError * _Nullable error) {
+
+            OCMVerifyAll((id)importListener);
+
+            for (id mockStep in @[validateStep, mkdirStep, unzipStep, parseStep, deleteStep]) {
+                OCMStub([mockStep stopMocking]);
+            }
+        }];
+    });
+
     xit(@"unzips the file to a temporary directory", ^{
 //        NSString *uuid = [[NSUUID UUID] UUIDString];
 //        NSString *tempDirName = [@"temp-" stringByAppendingString:uuid];
@@ -610,7 +656,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     xit(@"moves the extracted content to the reports directory", ^{
         failure(@"unimplemented - only if unzipping to temp dirs");
     });
-    
+
     afterEach(^{
 
     });

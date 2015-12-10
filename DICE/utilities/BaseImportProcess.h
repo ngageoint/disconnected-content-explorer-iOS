@@ -10,6 +10,11 @@
 
 #import "ImportProcess.h"
 
+/**
+ Be aware that observeValueForKeyPath:ofObject:change:context: observes the state properties of
+ the NSOperation objects in the steps array, which triggers the call to stepWillFinish:stepIndex:,
+ as well as importDidFinishForImportProcess: on the ImportDelegate.
+ */
 @interface BaseImportProcess : NSObject <ImportProcess>
 
 @property (readonly) Report *report;

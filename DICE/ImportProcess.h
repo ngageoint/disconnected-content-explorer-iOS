@@ -37,6 +37,7 @@
 @optional
 
 - (void)reportWasUpdatedByImportProcess:(id<ImportProcess>)import;
+- (void)importDidFinishForImportProcess:(id<ImportProcess>)import;
 
 // TODO:
 //- (void)importDidSucceedForImportProcess:(id<ImportProcess>)import;
