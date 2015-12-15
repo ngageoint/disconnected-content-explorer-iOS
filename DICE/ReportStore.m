@@ -15,10 +15,11 @@
 
 @implementation ReportStore
 {
-    NSMutableArray *_reports;
+    NSMutableArray<Report *> *_reports;
     NSFileManager *_fileManager;
     NSURL *_reportsDir;
     NSOperationQueue *_importQueue;
+    NSMutableDictionary<NSURL *, id<ImportProcess>> *_pendingImports;
 }
 
 - (instancetype)init
@@ -30,8 +31,7 @@
 - (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager
 {
     self = [super init];
-    if (!self)
-    {
+    if (!self) {
         return nil;
     }
 
@@ -39,23 +39,24 @@
     _reportsDir = reportsDir;
     _fileManager = fileManager;
     _importQueue = [[NSOperationQueue alloc] init];
+    _pendingImports = [NSMutableDictionary dictionary];
 
     return self;
 }
 
 
-- (NSArray *)loadReports
+- (NSArray<Report *> *)loadReports
 {
     [_reports filterUsingPredicate:[NSPredicate predicateWithBlock:
         ^BOOL (Report *report, NSDictionary *bindings) {
-            return !(report.isEnabled && ![_fileManager fileExistsAtPath:report.url.path]);
+            BOOL importing = [_pendingImports objectForKey:report.url] != nil;
+            return importing;
             // TODO: dispatch report removed notification?
         }]];
 
     NSArray *files = [_fileManager contentsOfDirectoryAtURL:_reportsDir includingPropertiesForKeys:nil options:0 error:nil];
 
-    for (NSURL *file in files)
-    {
+    for (NSURL *file in files) {
         NSLog(@"ReportAPI: attempting to add report from file %@", file);
         /*
          * While seemingly unnecessary, this bit of code avoids an error that arises
@@ -90,6 +91,12 @@
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
+    id<ImportProcess> import = [_pendingImports objectForKey:reportUrl];
+
+    if (import) {
+        return import.report;
+    }
+
     id<ReportType> reportType = [self reportTypeForFile:reportUrl];
 
     if (!reportType) {
@@ -108,8 +115,9 @@
 
     [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
 
-    id<ImportProcess> import = [reportType createImportProcessForReport:report];
+    import = [reportType createImportProcessForReport:report];
     import.delegate = self;
+    [_pendingImports setObject:import forKey:reportUrl];
 
     // TODO: track pending imports by report object and/or add self as import delegate
     [_importQueue addOperations:import.steps waitUntilFinished:NO];
@@ -117,23 +125,41 @@
     return report;
 }
 
-#pragma mark - private_methods
-
-- (id<ReportType>)reportTypeForFile:(NSURL *)reportPath
-{
-    __block id<ReportType> reportType = nil;
-    [self.reportTypes enumerateObjectsUsingBlock:^(id<ReportType> maybe, NSUInteger idx, BOOL *stop) {
-        if ([maybe couldHandleFile:reportPath]) {
-            reportType = maybe;
-            *stop = YES;
-        }
-    }];
-    return reportType;
-}
+#pragma mark - ImportDelegate methods
 
 - (void)reportWasUpdatedByImportProcess:(id<ImportProcess>)import
 {
     // TODO: dispatch notifications
+}
+
+- (void)importDidFinishForImportProcess:(id<ImportProcess>)import
+{
+    NSSet<NSURL *> *keys = [_pendingImports keysOfEntriesPassingTest:^BOOL(NSURL * _Nonnull key, id<ImportProcess>  _Nonnull obj, BOOL * _Nonnull stop) {
+        return obj == import;
+    }];
+    [_pendingImports removeObjectsForKeys:[keys allObjects]];
+}
+
+#pragma mark - private_methods
+
+- (id<ReportType>)reportTypeForFile:(NSURL *)reportPath
+{
+    for (id<ReportType> maybe in self.reportTypes) {
+        if ([maybe couldHandleFile:reportPath]) {
+            return maybe;
+        }
+    }
+    return nil;
+}
+
+- (Report *)reportForPath:(NSURL *)path
+{
+    for (Report *candidate in self.reports) {
+        if ([candidate.url isEqual:path]) {
+            return candidate;
+        }
+    }
+    return nil;
 }
 
 @end

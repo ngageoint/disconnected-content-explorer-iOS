@@ -10,6 +10,7 @@
 
 #import "Report.h"
 #import "ImportProcess.h"
+#import "ReportType.h"
 
 
 @interface ReportStore : NSObject <ImportDelegate>
@@ -17,12 +18,12 @@
 /**
  The list of ReportType objects for handling report files
  */
-@property NSArray *reportTypes;
+@property NSArray<id<ReportType>> *reportTypes;
 
 /**
  The list of Report objects
  */
-@property NSArray *reports;
+@property NSArray<Report *> *reports;
 
 
 /**
@@ -46,7 +47,7 @@
  
  @return (NSArray *) the list of Report objects that were found
  */
-- (NSArray *)loadReports;
+- (NSArray<Report *> *)loadReports;
 
 /**
  Import the resource the given URL references as a Report.  The import will occur

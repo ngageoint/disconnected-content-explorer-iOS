@@ -55,11 +55,11 @@ SpecBegin(ZippedHtmlImportProcess)
 
 describe(@"ZippedHtmlImportProcess", ^{
 
-    NSFileManager *fileManager = OCMClassMock([NSFileManager class]);
     NSURL * const reportsDir = [NSURL URLWithString:@"file:///apps/dice/Documents"];
     NSString * const reportFileName = @"ZippedHtmlImportProcessSpec.zip";
 
     __block Report *initialReport;
+    __block NSFileManager *fileManager;
 
     beforeAll(^{
 
@@ -69,8 +69,18 @@ describe(@"ZippedHtmlImportProcess", ^{
         initialReport = [[Report alloc] init];
         initialReport.url = [reportsDir URLByAppendingPathComponent:reportFileName];
         initialReport.title = reportFileName;
+
+        fileManager = OCMClassMock([NSFileManager class]);
     });
 
+    afterEach(^{
+        [(id)fileManager stopMocking];
+        fileManager = nil;
+    });
+
+    afterAll(^{
+        
+    });
 
     it(@"validates the zip file contents first", ^{
         ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[
@@ -100,6 +110,14 @@ describe(@"ZippedHtmlImportProcess", ^{
         expect(makeDestDirStep.dirUrl).to.beNil;
 
         [validateStep start];
+
+        NSPredicate *canProceed = [NSPredicate predicateWithFormat:@"%@.finished == YES AND %@.ready == YES", validateStep, makeDestDirStep];
+        [self expectationForPredicate:canProceed evaluatedWithObject:self handler:nil];
+        [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+            if (error) {
+                failure(error.description);
+            }
+        }];
 
         expect(validateStep.finished).to.equal(YES);
         expect(makeDestDirStep.ready).to.equal(YES);
@@ -146,6 +164,14 @@ describe(@"ZippedHtmlImportProcess", ^{
         OCMStub([makeDestDirMock dirExisted]).andReturn(NO);
 
         [validation start];
+
+        NSPredicate *canProceed = [NSPredicate predicateWithFormat:@"%@.finished == YES AND %@.ready == YES", validation, makeDestDir];
+        [self expectationForPredicate:canProceed evaluatedWithObject:makeDestDir handler:nil];
+        [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+            if (error) {
+                failure(error.description);
+            }
+        }];
 
         [makeDestDir start];
 
@@ -547,13 +573,6 @@ describe(@"ZippedHtmlImportProcess", ^{
         failure(@"unimplemented - only if unzipping to temp dirs");
     });
 
-    afterEach(^{
-
-    });
-    
-    afterAll(^{
-
-    });
 });
 
 SpecEnd
