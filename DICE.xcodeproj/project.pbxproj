@@ -21,26 +21,18 @@
 		7D172A6C1A2E59E1001EF965 /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */; };
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
 		7D3E07951B61449F0077ABCA /* BaseImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D3E07941B61449F0077ABCA /* BaseImportProcess.m */; };
-		7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
-		7D6541C91B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */; };
-		7D6541CB1B6C20E80002EBAE /* UnzipOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */; };
 		7D6541CF1B70249E0002EBAE /* FileOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541CE1B70249E0002EBAE /* FileOperations.m */; };
-		7D6541D11B70D89F0002EBAE /* FileOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541D01B70D89F0002EBAE /* FileOperationsSpec.m */; };
 		7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */; };
 		7D75FC121A85603800CA05D4 /* attributions in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC111A85603800CA05D4 /* attributions */; };
 		7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC131A8560BD00CA05D4 /* Images.xcassets */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
 		7DBD3D0C1B727E1A00918FE1 /* ParseJsonOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DBD3D0B1B727E1A00918FE1 /* ParseJsonOperation.m */; };
-		7DBD3D0E1B729F1600918FE1 /* ParseJsonOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DBD3D0D1B729F1600918FE1 /* ParseJsonOperationSpec.m */; };
 		7DE513091B0E8A1C0023F1D5 /* ReportStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE513081B0E8A1C0023F1D5 /* ReportStore.m */; };
-		7DE5130B1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE5130A1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m */; };
 		7DEC14261B7E235D00D4CBB8 /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7DEC14231B7E224100D4CBB8 /* resources */; };
 		7DF1E24E1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */; };
 		7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */; };
-		7DFA5DB91B740C9D00732426 /* BaseImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DFA5DB81B740C9D00732426 /* BaseImportProcessSpec.m */; };
-		7DFA5DBB1B7A2E8800732426 /* ReportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DFA5DBA1B7A2E8800732426 /* ReportSpec.m */; };
 		AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B73CA51504D8A8B497186523 /* libPods.a */; };
 		E32C6C2D17D7C1AB00D694C5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E32C6C2C17D7C1AB00D694C5 /* libz.dylib */; };
 		E337BCC21811AD7B00D987F9 /* Report.m in Sources */ = {isa = PBXBuildFile; fileRef = E337BCC11811AD7B00D987F9 /* Report.m */; };
@@ -922,14 +914,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D6541D11B70D89F0002EBAE /* FileOperationsSpec.m in Sources */,
-				7D4E1C521A1F94A5002762B3 /* ResourceTypesTests.m in Sources */,
-				7DFA5DB91B740C9D00732426 /* BaseImportProcessSpec.m in Sources */,
-				7DE5130B1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m in Sources */,
-				7DFA5DBB1B7A2E8800732426 /* ReportSpec.m in Sources */,
-				7D6541CB1B6C20E80002EBAE /* UnzipOperationSpec.m in Sources */,
-				7D6541C91B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m in Sources */,
-				7DBD3D0E1B729F1600918FE1 /* ParseJsonOperationSpec.m in Sources */,
 				7D1432531B165B990003DD53 /* ReportStoreSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

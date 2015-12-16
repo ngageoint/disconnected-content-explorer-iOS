@@ -16,8 +16,6 @@
 #define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
 
-#import <OCMock/OCMock.h>
-
 #import "HtmlReportType.h"
 #import "ResourceTypes.h"
 #import "FileOperations.h"
@@ -61,12 +59,12 @@ describe(@"HtmlReportType", ^{
     });
 
     beforeEach(^{
-        fileManager = OCMClassMock([NSFileManager class]);
+        fileManager = mock([NSFileManager class]);
         htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager];
     });
 
     afterEach(^{
-        [(id)fileManager stopMocking];
+        stopMocking(fileManager);
     });
 
 
@@ -74,8 +72,8 @@ describe(@"HtmlReportType", ^{
         NSURL *dirPath = [reportsDir URLByAppendingPathComponent:@"test_report"];
         NSURL *indexPath = [dirPath URLByAppendingPathComponent:@"index.html"];
 
-        OCMStub([fileManager attributesOfItemAtPath:dirPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeDirectory});
-        OCMStub([fileManager attributesOfItemAtPath:indexPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeRegular});
+        [given([fileManager attributesOfItemAtPath:dirPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
+        [given([fileManager attributesOfItemAtPath:indexPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
         expect([htmlReportType couldHandleFile:dirPath]).to.equal(YES);
     });
@@ -84,8 +82,8 @@ describe(@"HtmlReportType", ^{
         NSURL *dirPath = [reportsDir URLByAppendingPathComponent:@"test_reports"];
         NSURL *indexPath = [reportsDir URLByAppendingPathComponent:@"index.html"];
 
-        OCMStub([fileManager attributesOfItemAtPath:dirPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeDirectory});
-        OCMStub([fileManager attributesOfItemAtPath:indexPath.path error:nil]).andReturn(nil);
+        [given([fileManager attributesOfItemAtPath:dirPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
+        [given([fileManager attributesOfItemAtPath:indexPath.path error:nil]) willReturn:nil];
 
         expect([htmlReportType couldHandleFile:dirPath]).to.equal(NO);
     });
@@ -94,8 +92,8 @@ describe(@"HtmlReportType", ^{
         NSURL *dirPath = [reportsDir URLByAppendingPathComponent:@"test_reports"];
         NSURL *indexPath = [reportsDir URLByAppendingPathComponent:@"index.html"];
 
-        OCMStub([fileManager attributesOfItemAtPath:dirPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeDirectory});
-        OCMStub([fileManager attributesOfItemAtPath:indexPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeDirectory});
+        [given([fileManager attributesOfItemAtPath:dirPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
+        [given([fileManager attributesOfItemAtPath:indexPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
 
         expect([htmlReportType couldHandleFile:dirPath]).to.equal(NO);
     });
@@ -103,7 +101,7 @@ describe(@"HtmlReportType", ^{
     it(@"could handle a zip file", ^{
         NSURL *zipPath = [reportsDir URLByAppendingPathComponent:@"test_report.zip"];
 
-        OCMStub([fileManager attributesOfItemAtPath:zipPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeRegular});
+        [given([fileManager attributesOfItemAtPath:zipPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
         expect([htmlReportType couldHandleFile:zipPath]).to.equal(YES);
     });
@@ -111,7 +109,7 @@ describe(@"HtmlReportType", ^{
     it(@"could handle an html file", ^{
         NSURL *htmlPath = [reportsDir URLByAppendingPathComponent:@"test_report.html"];
 
-        OCMStub([fileManager attributesOfItemAtPath:htmlPath.path error:nil]).andReturn(@{NSFileType: NSFileTypeRegular});
+        [given([fileManager attributesOfItemAtPath:htmlPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
         expect([htmlReportType couldHandleFile:htmlPath]).to.equal(YES);
     });
@@ -119,7 +117,7 @@ describe(@"HtmlReportType", ^{
     it(@"could not handle something else", ^{
         NSURL *filePath = [reportsDir URLByAppendingPathComponent:@"test_report.txt"];
 
-        OCMStub([fileManager attributesOfItemAtPath:filePath.path error:nil]).andReturn(@{NSFileType: NSFileTypeRegular});
+        [given([fileManager attributesOfItemAtPath:filePath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
         expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
     });
@@ -127,7 +125,7 @@ describe(@"HtmlReportType", ^{
     it(@"could not handle a non-regular file or non-directory", ^{
         NSURL *filePath = [reportsDir URLByAppendingPathComponent:@"i_dunno"];
 
-        OCMStub([fileManager attributesOfItemAtPath:filePath.path error:nil]).andReturn(@{NSFileType: NSFileTypeSocket});
+        [given([fileManager attributesOfItemAtPath:filePath.path error:nil]) willReturn:@{NSFileType: NSFileTypeSocket}];
 
         expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
     });
