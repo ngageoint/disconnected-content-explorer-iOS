@@ -455,134 +455,110 @@ describe(@"ReportStore", ^{
             [verify(targetType) createImportProcessForReport:report];
         });
 
-//        it(@"returns nil if the report cannot be imported", ^{
-//            id redMock = OCMPartialMock(redType);
-//            id blueMock = OCMPartialMock(blueType);
-//
-//            OCMStub([[redMock reject] createImportProcessForReport:anything()]);
-//            OCMStub([[blueMock reject] createImportProcessForReport:anything()]);
-//
-//            NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.green"];
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            expect(report).to.beNil;
-//
-//            [redMock stopMocking];
-//            [blueMock stopMocking];
-//        });
-//
-//        it(@"adds the initial report to the report list", ^{
-//            
-//            XCTestExpectation *importFinished = [self expectationWithDescription:@"import finished"];
-//            TestImportProcess *import = redType.nextImportProcess;
-//            import.isBlocked = YES;
-//            import.completeBlock = ^{
-//                [importFinished fulfill];
-//            };
-//
-//            NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.red"];
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            expect(store.reports).to.contain(report);
-//            expect(report.reportID).to.equal(report.url.path);
-//            expect(report.title).to.equal(report.url.lastPathComponent);
-//            expect(report.summary).to.equal(@"Importing...");
-//            expect(report.error).to.beNil;
-//            expect(report.isEnabled).to.equal(NO);
-//
-//            import.isBlocked = NO;
-//
-//            [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
-//                if (error) {
-//                    failure(error.description);
-//                }
-//            }];
-//        });
-//
-//        it(@"sends a notification about adding the report", ^{
-//            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
-//
-//            XCTestExpectation *importFinished = [self expectationWithDescription:@"import finished"];
-//            XCTestExpectation *notificationReceived = [self expectationWithDescription:@"notification received"];
-//
-//            __block NSNotification *received = nil;
-//            id observer = [notifications addObserverForName:[ReportNotification reportAdded] object:store queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-//                [notificationReceived fulfill];
-//                received = note;
-//            }];
-//
-//            redType.nextImportProcess.completeBlock = ^{
-//                [importFinished fulfill];
-//            };
-//
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
-//
-//            [self waitForExpectationsWithTimeout:2.0 handler:^(NSError * _Nullable error) {
-//                [notifications removeObserver:observer];
-//                if (error) {
-//                    failure(error.description);
-//                }
-//            }];
-//
-//            Report *receivedReport = received.userInfo[@"report"];
-//
-//            expect(received.name).to.equal([ReportNotification reportAdded]);
-//            expect(receivedReport).to.beIdenticalTo(report);
-//        });
-//
-//        it(@"does not start an import for a report file it is already importing", ^{
-//
-//            NSURL *reportUrl = [reportsDir URLByAppendingPathComponent:@"report1.red"];
-//
-//            XCTestExpectation *importFinished = [self expectationWithDescription:@"import finished"];
-//            TestImportProcess *import = redType.nextImportProcess;
-//            import.isBlocked = YES;
-//            import.completeBlock = ^{
-//                [importFinished fulfill];
-//            };
-//
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
-//
-//            id redMock = OCMPartialMock(redType);
-//            OCMStub([[redMock reject] createImportProcessForReport:anything()]);
-//
-//            Report *sameReport = [store attemptToImportReportFromResource:reportUrl];
-//
-//            expect(sameReport).to.beIdenticalTo(report);
-//            OCMVerifyAll(redMock);
-//            [redMock stopMocking];
-//
-//            import.isBlocked = NO;
-//
-//            [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
-//                if (error) {
-//                    failure(error.description);
-//                }
-//            }];
-//        });
-//
-//        it(@"does not add a report if it is already importing the report file", ^{
-//            NSURL *reportUrl = [reportsDir URLByAppendingPathComponent:@"report1.red"];
-//
-//            TestImportProcess *import = redType.nextImportProcess;
-//            import.isBlocked = YES;
-//
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
-//
-//            __block BOOL notified = NO;
-//            id<NSObject> observer = [[NSNotificationCenter defaultCenter] addObserverForName:[ReportNotification reportAdded] object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-//                notified = note.userInfo[@"report"] == report;
-//            }];
-//
-//            [store attemptToImportReportFromResource:reportUrl];
-//
-//            import.isBlocked = NO;
-//            [[NSNotificationCenter defaultCenter] removeObserver:observer name:[ReportNotification reportAdded] object:nil];
-//
-//            expect(notified).to.equal(NO);
-//        });
+        it(@"returns nil if the report cannot be imported", ^{
+            NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.green"];
+            Report *report = [store attemptToImportReportFromResource:url];
 
-        xit(@"sends a notification when the import finishes", ^{
+            expect(report).to.beNil;
+        });
+
+        it(@"adds the initial report to the report list", ^{
+            TestImportProcess *import = [redType.nextImportProcess setFinishExpectationForTest:self];
+            import.isBlocked = YES;
+
+            NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.red"];
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            expect(store.reports).to.contain(report);
+            expect(report.reportID).to.equal(report.url.path);
+            expect(report.title).to.equal(report.url.lastPathComponent);
+            expect(report.summary).to.equal(@"Importing...");
+            expect(report.error).to.beNil;
+            expect(report.isEnabled).to.equal(NO);
+
+            import.isBlocked = NO;
+
+            [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
+                if (error) {
+                    failure(error.description);
+                }
+            }];
+        });
+
+        it(@"sends a notification about adding the report", ^{
+            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+
+            XCTestExpectation *notificationReceived = [self expectationWithDescription:@"notification received"];
+
+            __block NSNotification *received = nil;
+            id observer = [notifications addObserverForName:[ReportNotification reportAdded] object:store queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+                [notificationReceived fulfill];
+                received = note;
+            }];
+
+            [redType.nextImportProcess setFinishExpectationForTest:self];
+
+            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
+
+            [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+                [notifications removeObserver:observer];
+                if (error) {
+                    failure(error.description);
+                }
+            }];
+
+            Report *receivedReport = received.userInfo[@"report"];
+
+            expect(received.name).to.equal([ReportNotification reportAdded]);
+            expect(receivedReport).to.beIdenticalTo(report);
+        });
+
+        it(@"does not start an import for a report file it is already importing", ^{
+            TestImportProcess *import = [[[TestImportProcess alloc] initWithTest:self] setFinishExpectationForTest:self];
+            import.isBlocked = YES;
+
+            id<ReportType> type = mockProtocol(@protocol(ReportType));
+            [[given([type couldHandleFile:endsWith(@"report1.red")]) willReturnBool:YES] willReturnBool:YES];
+            [given([type createImportProcessForReport:anything()]) willDo:^id(NSInvocation *invocation) {
+                Report *report;
+                [invocation getArgument:&report atIndex:2];
+                import.report = report;
+                return import;
+            }];
+
+            __block Report *notificationReport;
+            id<NSObject> observer = [[NSNotificationCenter defaultCenter] addObserverForName:[ReportNotification reportAdded] object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+                notificationReport = note.userInfo[@"report"];
+            }];
+
+            ReportStore *testStore = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager];
+            testStore.reportTypes = @[type];
+
+            NSURL *reportUrl = [reportsDir URLByAppendingPathComponent:@"report1.red"];
+            Report *report = [testStore attemptToImportReportFromResource:reportUrl];
+
+            expect(testStore.reports.count).to.equal(1);
+            expect(notificationReport).to.beIdenticalTo(report);
+
+            notificationReport = nil;
+            Report *sameReport = [testStore attemptToImportReportFromResource:reportUrl];
+
+            expect(sameReport).to.beIdenticalTo(report);
+            expect(testStore.reports.count).to.equal(1);
+            expect(notificationReport).to.beNil;
+            [verifyCount(type, times(1)) createImportProcessForReport:anything()];
+
+            import.isBlocked = NO;
+
+            [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+                [[NSNotificationCenter defaultCenter] removeObserver:observer];
+                if (error) {
+                    failure(error.description);
+                }
+            }];
+        });
+
+        it(@"sends a notification when the import finishes", ^{
             failure(@"unimplemented");
         });
 

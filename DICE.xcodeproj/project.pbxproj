@@ -22,6 +22,14 @@
 		7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D2FBD181A1C098E003D9946 /* ReportCollectionViewController.m */; };
 		7D3E07951B61449F0077ABCA /* BaseImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D3E07941B61449F0077ABCA /* BaseImportProcess.m */; };
 		7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */; };
+		7D5D71A41C22119C00F94514 /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D4E1C511A1F94A5002762B3 /* ResourceTypesTests.m */; };
+		7D5D71A51C2211A000F94514 /* HtmlReportTypeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE5130A1B0F65EF0023F1D5 /* HtmlReportTypeSpec.m */; };
+		7D5D71A61C2211A600F94514 /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541C81B6BAAD70002EBAE /* ZippedHtmlImportProcessSpec.m */; };
+		7D5D71A71C2211A900F94514 /* UnzipOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541CA1B6C20E80002EBAE /* UnzipOperationSpec.m */; };
+		7D5D71A81C2211AD00F94514 /* FileOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541D01B70D89F0002EBAE /* FileOperationsSpec.m */; };
+		7D5D71A91C2211B100F94514 /* ParseJsonOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DBD3D0D1B729F1600918FE1 /* ParseJsonOperationSpec.m */; };
+		7D5D71AA1C2211B400F94514 /* BaseImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DFA5DB81B740C9D00732426 /* BaseImportProcessSpec.m */; };
+		7D5D71AB1C2211B800F94514 /* ReportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DFA5DBA1B7A2E8800732426 /* ReportSpec.m */; };
 		7D6541CF1B70249E0002EBAE /* FileOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6541CE1B70249E0002EBAE /* FileOperations.m */; };
 		7D75FBFA1A852C9400CA05D4 /* ne_50m-110m_land.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FBF91A852C9400CA05D4 /* ne_50m-110m_land.geojson */; };
 		7D75FC121A85603800CA05D4 /* attributions in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC111A85603800CA05D4 /* attributions */; };
@@ -914,7 +922,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D5D71A81C2211AD00F94514 /* FileOperationsSpec.m in Sources */,
 				7D1432531B165B990003DD53 /* ReportStoreSpec.m in Sources */,
+				7D5D71AA1C2211B400F94514 /* BaseImportProcessSpec.m in Sources */,
+				7D5D71A91C2211B100F94514 /* ParseJsonOperationSpec.m in Sources */,
+				7D5D71AB1C2211B800F94514 /* ReportSpec.m in Sources */,
+				7D5D71A51C2211A000F94514 /* HtmlReportTypeSpec.m in Sources */,
+				7D5D71A71C2211A900F94514 /* UnzipOperationSpec.m in Sources */,
+				7D5D71A61C2211A600F94514 /* ZippedHtmlImportProcessSpec.m in Sources */,
+				7D5D71A41C22119C00F94514 /* ResourceTypesTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
