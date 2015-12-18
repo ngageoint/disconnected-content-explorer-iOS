@@ -28,7 +28,15 @@ describe(@"BaseImportProcess", ^{
     beforeEach(^{
 
     });
-    
+
+    afterEach(^{
+
+    });
+
+    afterAll(^{
+        
+    });
+
     it(@"calls stepWillFinish before dependent operations are ready", ^{
         NSOperation *op1 = [[NSOperation alloc] init];
         NSOperation *op2 = [[NSOperation alloc] init];
@@ -67,13 +75,6 @@ describe(@"BaseImportProcess", ^{
         [(id)import stopMocking];
     });
 
-    afterEach(^{
-
-    });
-    
-    afterAll(^{
-
-    });
 });
 
 SpecEnd

@@ -14,22 +14,27 @@
 @protocol ImportDelegate;
 
 
+
 @protocol ImportProcess <NSObject>
 
 /**
  TODO: document
  */
 @property (readonly) Report *report;
+
 /**
- TODO: document
+ An array of NSOperation objects that perform the work of importing
+ the report
  */
 @property (readonly) NSArray *steps;
+
 /**
  TODO: document
  */
 @property (weak) id<ImportDelegate> delegate;
 
 @end
+
 
 
 @protocol ImportDelegate <NSObject>

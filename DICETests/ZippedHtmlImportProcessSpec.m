@@ -12,7 +12,8 @@
 #define HC_SHORTHAND
 #import <OCHamcrest/OCHamcrest.h>
 
-#import <OCMock/OCMock.h>
+#define MOCKITO_SHORTHAND
+#import <OCMockito/OCMockito.h>
 
 #import "HtmlReportType.h"
 #import "UnzipOperation.h"
@@ -40,9 +41,9 @@
         [entries addObject:[[FileInZipInfo alloc] initWithName:entryName length:0 level:ZipCompressionLevelDefault crypted:NO size:0 date:nil crc32:0]];
     }
 
-    ZipFile *mockZipFile = OCMClassMock([ZipFile class]);
-    OCMStub([mockZipFile fileName]).andReturn(report.url.path);
-    OCMStub([mockZipFile listFileInZipInfos]).andReturn(entries);
+    ZipFile *mockZipFile = mock([ZipFile class]);
+    [given([mockZipFile fileName]) willReturnBool:report.url.path];
+    [given([mockZipFile listFileInZipInfos]) willReturn:entries];
 
     return mockZipFile;
 }
@@ -50,13 +51,12 @@
 @end
 
 
-
 SpecBegin(ZippedHtmlImportProcess)
 
 describe(@"ZippedHtmlImportProcess", ^{
 
     NSURL * const reportsDir = [NSURL URLWithString:@"file:///apps/dice/Documents"];
-    NSString * const reportFileName = @"ZippedHtmlImportProcessSpec.zip";
+    NSString * const reportFileName = @"ZippedHtml.zip";
 
     __block Report *initialReport;
     __block NSFileManager *fileManager;
@@ -70,11 +70,11 @@ describe(@"ZippedHtmlImportProcess", ^{
         initialReport.url = [reportsDir URLByAppendingPathComponent:reportFileName];
         initialReport.title = reportFileName;
 
-        fileManager = OCMClassMock([NSFileManager class]);
+        fileManager = mock([NSFileManager class]);
     });
 
     afterEach(^{
-        [(id)fileManager stopMocking];
+        stopMocking(fileManager);
         fileManager = nil;
     });
 
@@ -94,7 +94,7 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         expect(validateStep.zipFile).to.beIdenticalTo(zipFile);
 
-        [(id)zipFile stopMocking];
+        stopMocking(zipFile);
     });
 
     it(@"makes the base dir when the validation finishes successfully", ^{
@@ -123,7 +123,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         expect(makeDestDirStep.ready).to.equal(YES);
         expect(makeDestDirStep.dirUrl).to.equal([reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES]);
 
-        [(id)zipFile stopMocking];
+        stopMocking(zipFile);
     });
 
     it(@"cancels the import if the validation fails", ^{
@@ -142,7 +142,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         NSArray *remainingSteps = [import.steps subarrayWithRange:NSMakeRange(1, import.steps.count - 1)];
         assertThat(remainingSteps, everyItem(hasProperty(@"isCancelled", isTrue())));
 
-        [(id)zipFile stopMocking];
+        stopMocking(zipFile);
     });
 
     it(@"is ready to unzip when the dest dir is created", ^{

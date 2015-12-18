@@ -224,7 +224,7 @@
     return [reportPath.pathExtension isEqualToString:self.extension];
 }
 
-- (id<ImportProcess>)createImportProcessForReport:(Report *)report
+- (id<ImportProcess>)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
     TestImportProcess *currentImport = self.nextImportProcess;
     [currentImport setReport:report];
@@ -433,9 +433,9 @@ describe(@"ReportStore", ^{
             id<ReportType> targetType = mockProtocol(@protocol(ReportType));
             [given([targetType couldHandleFile:endsWith(@".red")]) willReturnBool:YES];
             [given([targetType couldHandleFile:isNot(endsWith(@".red"))]) willReturnBool:NO];
-            [given([targetType createImportProcessForReport:anything()]) willReturn:targetImport];
+            [given([targetType createProcessToImportReport:anything() toDir:reportsDir]) willReturn:targetImport];
             id<ReportType> otherType = mockProtocol(@protocol(ReportType));
-            [given([otherType createImportProcessForReport:anything()]) willDo:^id(NSInvocation *invocation) {
+            [given([otherType createProcessToImportReport:anything() toDir:reportsDir]) willDo:^id(NSInvocation *invocation) {
                 failure(@"wrong report type");
                 return nil;
             }];
@@ -452,7 +452,7 @@ describe(@"ReportStore", ^{
                 }
             }];
 
-            [verify(targetType) createImportProcessForReport:report];
+            [verify(targetType) createProcessToImportReport:report toDir:reportsDir];
         });
 
         it(@"returns nil if the report cannot be imported", ^{
@@ -519,7 +519,7 @@ describe(@"ReportStore", ^{
 
             id<ReportType> type = mockProtocol(@protocol(ReportType));
             [[given([type couldHandleFile:endsWith(@"report1.red")]) willReturnBool:YES] willReturnBool:YES];
-            [given([type createImportProcessForReport:anything()]) willDo:^id(NSInvocation *invocation) {
+            [given([type createProcessToImportReport:anything() toDir:reportsDir]) willDo:^id(NSInvocation *invocation) {
                 Report *report;
                 [invocation getArgument:&report atIndex:2];
                 import.report = report;
@@ -546,7 +546,7 @@ describe(@"ReportStore", ^{
             expect(sameReport).to.beIdenticalTo(report);
             expect(testStore.reports.count).to.equal(1);
             expect(notificationReport).to.beNil;
-            [verifyCount(type, times(1)) createImportProcessForReport:anything()];
+            [verifyCount(type, times(1)) createProcessToImportReport:anything() toDir:reportsDir];
 
             import.isBlocked = NO;
 

@@ -16,6 +16,14 @@
 
 
 
+@interface HtmlReportType : NSObject <ReportType>
+
+- (instancetype)initWithFileManager:(NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
+
+@end
+
+
+
 @interface ValidateHtmlLayoutOperation : NSOperation
 
 @property (readonly) ZipFile *zipFile;
@@ -46,11 +54,14 @@
 
 
 
-@interface HtmlReportType : NSObject <ReportType>
+typedef NS_ENUM(NSUInteger, ZippedHtmlImportStep) {
+    ZippedHtmlImportValidateStep,
+    ZippedHtmlImportMkdirStep,
+    ZippedHtmlImportUnzipStep,
+    ZippedHtmlImportParseDescriptorStep,
+    ZippedHtmlImportDeleteStep
+};
 
-- (instancetype)initWithFileManager:(NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
-
-@end
 
 
 

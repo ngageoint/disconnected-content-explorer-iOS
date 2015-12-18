@@ -115,7 +115,7 @@
 
     [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
 
-    import = [reportType createImportProcessForReport:report];
+    import = [reportType createProcessToImportReport:report toDir:_reportsDir];
     import.delegate = self;
     [_pendingImports setObject:import forKey:reportUrl];
 
