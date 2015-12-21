@@ -16,8 +16,9 @@
 #define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
 
-#import "HtmlReportType.h"
 #import "ResourceTypes.h"
+#import "HtmlReportType.h"
+#import "ValidateHtmlLayoutOperation.h"
 #import "FileOperations.h"
 #import "UnzipOperation.h"
 #import "FileInZipInfo.h"

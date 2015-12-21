@@ -49,6 +49,8 @@
 - (instancetype)setFinishExpectationForTest:(XCTestCase *)test;
 - (instancetype)setFinishBlock:(void (^)(void))block;
 
+- (NSOperation *)nextStep;
+
 @end
 
 
@@ -72,6 +74,7 @@
     NSCondition *_blockedCondition;
     void (^_finishBlock)(void);
     XCTestExpectation *_finishedExpectation;
+    NSUInteger _stepCursor;
 }
 
 - (instancetype)init
@@ -87,6 +90,7 @@
 
     self = [super init];
 
+    _stepCursor = 0;
     _test = test;
     _isBlocked = NO;
     _blockedCondition = [[NSCondition alloc] init];
@@ -186,6 +190,14 @@
     }
     _finishedExpectation = [test expectationWithDescription:@"import finished"];
     return self;
+}
+
+- (NSOperation *)nextStep
+{
+    if (_stepCursor >= _steps.count) {
+        return nil;
+    }
+    return [_steps objectAtIndex:_stepCursor++];
 }
 
 @end

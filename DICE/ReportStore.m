@@ -120,7 +120,10 @@
     [_pendingImports setObject:import forKey:reportUrl];
 
     // TODO: track pending imports by report object and/or add self as import delegate
-    [_importQueue addOperations:import.steps waitUntilFinished:NO];
+    NSOperation *step;
+    while ((step = [import nextStep]) != nil) {
+        [_importQueue addOperation:step];
+    }
 
     return report;
 }

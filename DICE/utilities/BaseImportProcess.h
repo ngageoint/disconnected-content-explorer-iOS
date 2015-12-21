@@ -11,17 +11,31 @@
 #import "ImportProcess.h"
 
 /**
- Be aware that observeValueForKeyPath:ofObject:change:context: observes the state properties of
- the NSOperation objects in the steps array, which triggers the call to stepWillFinish:stepIndex:,
- as well as importDidFinishForImportProcess: on the ImportDelegate.
+ This is an abstract class that takes care of setting up the key-value observing on the
+ NSOperation instances the subclass creates to notify the subclass that the operations
+ will finish.  Therefore, subclasses overriding -observeValueForKeyPath:ofObject:change:context:
+ should call the superclass implementation in order for the -stepWillFinish: message to
+ be sent and consumed by the subclass, which is reason for this class's existance.
  */
 @interface BaseImportProcess : NSObject <ImportProcess>
 
 @property (readonly) Report *report;
-@property (readonly) NSArray *steps;
 @property (weak) id<ImportDelegate> delegate;
 
-- (instancetype)initWithReport:(Report *)report steps:(NSArray *)steps NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithReport:(Report *)report NS_DESIGNATED_INITIALIZER;
+
+- (NSOperation *)nextStep;
+
+/**
+ *  Subclasses should override/implement this method to create the NSOperation instances
+ *  that will complete the import of the report for this BaseImportProcess.
+ *  BaseImportProcess will listen for KVO notifications on the returned NSOperation
+ *  instances in order to call the subclass implementation of -stepWillFinish:.  It
+ *  is therefor important that the subclass override this method and not -nextStep:.
+ *
+ *  @return the next NSOperation step
+ */
+- (NSOperation *)createNextStep; //After:(NSArray *)steps
 
 /**
  Subclasses can override this method perform housekeeping between steps, such as 
@@ -36,8 +50,7 @@
  NSOperation argument is in fact an operation this BaseImportProcess owns.
  
  @param step the NSOperation step that will finish
- @param stepIndex the index of the finishing step in the self.steps array
  */
-- (void)stepWillFinish:(NSOperation *)step stepIndex:(NSUInteger)stepIndex;
+- (void)stepWillFinish:(NSOperation *)step;
 
 @end

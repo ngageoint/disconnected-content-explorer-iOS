@@ -36,6 +36,8 @@
 		7D75FC141A8560BD00CA05D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D75FC131A8560BD00CA05D4 /* Images.xcassets */; };
 		7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */; };
 		7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA706B61A158E3800B558EC /* MobileCoreServices.framework */; };
+		7DB972A21C28B55900CA7B5E /* ZippedHtmlImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DB972A11C28B55900CA7B5E /* ZippedHtmlImportProcess.m */; };
+		7DB972A51C28B6EC00CA7B5E /* ValidateHtmlLayoutOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DB972A41C28B6EC00CA7B5E /* ValidateHtmlLayoutOperation.m */; };
 		7DBD3D0C1B727E1A00918FE1 /* ParseJsonOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DBD3D0B1B727E1A00918FE1 /* ParseJsonOperation.m */; };
 		7DE513091B0E8A1C0023F1D5 /* ReportStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DE513081B0E8A1C0023F1D5 /* ReportStore.m */; };
 		7DEC14261B7E235D00D4CBB8 /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7DEC14231B7E224100D4CBB8 /* resources */; };
@@ -185,6 +187,10 @@
 		7DA393EE1A1EA09000DE9649 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		7DA393EF1A1EA09000DE9649 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
 		7DA706B61A158E3800B558EC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		7DB972A01C28B55900CA7B5E /* ZippedHtmlImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZippedHtmlImportProcess.h; sourceTree = "<group>"; };
+		7DB972A11C28B55900CA7B5E /* ZippedHtmlImportProcess.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZippedHtmlImportProcess.m; sourceTree = "<group>"; };
+		7DB972A31C28B6EC00CA7B5E /* ValidateHtmlLayoutOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValidateHtmlLayoutOperation.h; sourceTree = "<group>"; };
+		7DB972A41C28B6EC00CA7B5E /* ValidateHtmlLayoutOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValidateHtmlLayoutOperation.m; sourceTree = "<group>"; };
 		7DBD3D0A1B727E1A00918FE1 /* ParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseJsonOperation.h; path = ../ParseJsonOperation.h; sourceTree = "<group>"; };
 		7DBD3D0B1B727E1A00918FE1 /* ParseJsonOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ParseJsonOperation.m; path = ../ParseJsonOperation.m; sourceTree = "<group>"; };
 		7DBD3D0D1B729F1600918FE1 /* ParseJsonOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParseJsonOperationSpec.m; sourceTree = "<group>"; };
@@ -425,6 +431,10 @@
 				7DE513081B0E8A1C0023F1D5 /* ReportStore.m */,
 				7DCCF0FB1B156F9A001A526B /* ReportType.h */,
 				7D14325C1B24AFB00003DD53 /* ImportProcess.h */,
+				7DB972A01C28B55900CA7B5E /* ZippedHtmlImportProcess.h */,
+				7DB972A11C28B55900CA7B5E /* ZippedHtmlImportProcess.m */,
+				7DB972A31C28B6EC00CA7B5E /* ValidateHtmlLayoutOperation.h */,
+				7DB972A41C28B6EC00CA7B5E /* ValidateHtmlLayoutOperation.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -966,6 +976,7 @@
 				7D3E07951B61449F0077ABCA /* BaseImportProcess.m in Sources */,
 				E3BC6EE4192E7A8700096EE5 /* HTMLViewController.m in Sources */,
 				7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */,
+				7DB972A21C28B55900CA7B5E /* ZippedHtmlImportProcess.m in Sources */,
 				E39D837519DF2B95008357DF /* ReaderThumbRequest.m in Sources */,
 				E39D834D19DF2B95008357DF /* ReaderBookDelegate.m in Sources */,
 				E39D836E19DF2B95008357DF /* ReaderDocumentOutline.m in Sources */,
@@ -987,6 +998,7 @@
 				E39D837E19DF3B8A008357DF /* PDFViewController.m in Sources */,
 				E39D836D19DF2B95008357DF /* ReaderDocument.m in Sources */,
 				7D1432591B20BA440003DD53 /* HtmlReportType.m in Sources */,
+				7DB972A51C28B6EC00CA7B5E /* ValidateHtmlLayoutOperation.m in Sources */,
 				E39D836F19DF2B95008357DF /* ReaderMainPagebar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

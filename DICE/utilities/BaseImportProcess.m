@@ -10,18 +10,12 @@
 
 @implementation BaseImportProcess
 
-- (instancetype)initWithReport:(Report *)report steps:(NSArray *)steps
+- (instancetype)initWithReport:(Report *)report
 {
     self = [super init];
+
     if (!self) {
         return nil;
-    }
-
-    _report = report;
-    _steps = steps;
-
-    for (NSOperation *step in _steps) {
-        [step addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionPrior context:nil];
     }
 
     return self;
@@ -29,7 +23,7 @@
 
 - (instancetype)init
 {
-    return [self initWithReport:nil steps:nil];
+    return [self initWithReport:nil];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -38,30 +32,31 @@
         return;
     }
 
-    NSUInteger stepIndex = [self.steps indexOfObjectIdenticalTo:object];
-
-    if (stepIndex == NSNotFound) {
-        return;
-    }
-
     BOOL isPrior = ((NSNumber *)change[NSKeyValueChangeNotificationIsPriorKey]).boolValue;
     if (isPrior) {
-        [self stepWillFinish:object stepIndex:stepIndex];
+        [self stepWillFinish:object];
     }
     else {
-        NSUInteger pos = [self.steps indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            return !([(NSOperation *)obj isFinished] || [(NSOperation *)obj isCancelled]);
-        }];
-        if (pos == NSNotFound) {
-            [self.delegate importDidFinishForImportProcess:self];
-        }
+        [object removeObserver:self forKeyPath:@"isFinished"];
     }
 
 }
 
-- (void)stepWillFinish:(NSOperation *)step stepIndex:(NSUInteger)stepIndex
+- (NSOperation *)nextStep
 {
+    NSOperation *step = [self createNextStep];
+   [step addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionPrior context:nil];
+    return step;
+}
 
+- (NSOperation *)createNextStep
+{
+    return nil;
+}
+
+- (void)stepWillFinish:(NSOperation *)step
+{
+    
 }
 
 @end

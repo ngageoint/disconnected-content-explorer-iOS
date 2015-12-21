@@ -23,15 +23,22 @@
 @property (readonly) Report *report;
 
 /**
- An array of NSOperation objects that perform the work of importing
- the report
- */
-@property (readonly) NSArray *steps;
-
-/**
  TODO: document
  */
 @property (weak) id<ImportDelegate> delegate;
+
+/**
+ *  Return the next step in the import process.  The ImportProcess
+ *  should retain references to the NSOperation steps it creates
+ *  as necessary, either explicitly or implicitly through key-value
+ *  observation, block closure, etc.  Additionally, the caller may
+ *  begin executing the NSOperation instances before calling this
+ *  method enough to create all the steps.
+ *
+ *  @return the next NSOperation in the import process or nil when
+ *      there are no more steps
+ */
+- (NSOperation *)nextStep;
 
 @end
 
