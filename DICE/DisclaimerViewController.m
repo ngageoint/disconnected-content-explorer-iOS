@@ -38,10 +38,6 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (IBAction)exitTapped:(id)sender {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"preventDisclaimer"];
-    exit(0);
-}
 
 - (IBAction)switchChanged:(UISwitch*)sender {
     if ([sender isOn]) {
