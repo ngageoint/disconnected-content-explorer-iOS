@@ -15,6 +15,8 @@
 #define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
 
+#import "ZippedHtmlImportProcess.h"
+#import "ValidateHtmlLayoutOperation.h"
 #import "HtmlReportType.h"
 #import "UnzipOperation.h"
 #import "FileOperations.h"
@@ -82,20 +84,20 @@ describe(@"ZippedHtmlImportProcess", ^{
         
     });
 
-//    it(@"validates the zip file contents first", ^{
-//        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[
-//            @"base/",
-//            @"base/index.html"
-//        ]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        ValidateHtmlLayoutOperation *validateStep = import.steps.firstObject;
-//
-//        expect(validateStep.zipFile).to.beIdenticalTo(zipFile);
-//
-//        stopMocking(zipFile);
-//    });
+    it(@"validates the zip file contents first", ^{
+        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[
+            @"base/",
+            @"base/index.html"
+        ]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        ValidateHtmlLayoutOperation *validateStep = import.steps.firstObject;
+
+        expect(validateStep.zipFile).to.beIdenticalTo(zipFile);
+
+        stopMocking(zipFile);
+    });
 //
 //    it(@"makes the base dir when the validation finishes successfully", ^{
 //        ZipFile *zipFile = [TestUtil mockZipForReport:initialReport entryNames:@[@"icon.gif", @"index.html"]];
