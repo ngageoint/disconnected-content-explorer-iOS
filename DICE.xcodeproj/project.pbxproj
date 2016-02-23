@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04FF40A11C7CA27E00B71807 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A01C7CA27E00B71807 /* DICEConstants.m */; };
+		04FF40A41C7CA76E00B71807 /* GeoPackageMapOverlays.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */; };
 		780CE859C439FF232AC4B784 /* libPods-DICETests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5EC182CE7857459FD4736E05 /* libPods-DICETests.a */; };
 		7D0B49171A0D489D0044236B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49161A0D489D0044236B /* CoreData.framework */; };
 		7D0B49191A0D48CF0044236B /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49181A0D48CF0044236B /* CFNetwork.framework */; };
@@ -116,6 +118,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		04FF409F1C7CA27E00B71807 /* DICEConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEConstants.h; sourceTree = "<group>"; };
+		04FF40A01C7CA27E00B71807 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
+		04FF40A21C7CA76E00B71807 /* GeoPackageMapOverlays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapOverlays.h; sourceTree = "<group>"; };
+		04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapOverlays.m; sourceTree = "<group>"; };
 		0EFD368FB6CD328139F3BE06 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		36DFBBC94E870600BA2AB2FE /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		50CBA573252A64B7ADEE02F0 /* Pods-DICETests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICETests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DICETests/Pods-DICETests.release.xcconfig"; sourceTree = "<group>"; };
@@ -504,6 +510,8 @@
 				E3A73FBF1855585200035C76 /* MapViewController.m */,
 				E3A73FC1185559FC00035C76 /* ReportMapAnnotation.h */,
 				E3A73FC2185559FC00035C76 /* ReportMapAnnotation.m */,
+				04FF40A21C7CA76E00B71807 /* GeoPackageMapOverlays.h */,
+				04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */,
 			);
 			name = "Map View";
 			sourceTree = "<group>";
@@ -604,6 +612,8 @@
 				7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */,
 				E3EF82501A898A3F006513CA /* DisclaimerViewController.h */,
 				E3EF82511A898A3F006513CA /* DisclaimerViewController.m */,
+				04FF409F1C7CA27E00B71807 /* DICEConstants.h */,
+				04FF40A01C7CA27E00B71807 /* DICEConstants.m */,
 			);
 			path = DICE;
 			sourceTree = "<group>";
@@ -869,6 +879,7 @@
 				E39D837419DF2B95008357DF /* ReaderThumbRender.m in Sources */,
 				E39D837719DF2B95008357DF /* ReaderThumbView.m in Sources */,
 				E39D837B19DF2B95008357DF /* UIXToolbarView.m in Sources */,
+				04FF40A11C7CA27E00B71807 /* DICEConstants.m in Sources */,
 				7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */,
 				E39D837019DF2B95008357DF /* ReaderMainToolbar.m in Sources */,
 				E39D837A19DF2B95008357DF /* ThumbsViewController.m in Sources */,
@@ -886,6 +897,7 @@
 				E39D837919DF2B95008357DF /* ThumbsMainToolbar.m in Sources */,
 				E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */,
 				E3B67F6A1A716A33000B7397 /* JavaScriptAPI.m in Sources */,
+				04FF40A41C7CA76E00B71807 /* GeoPackageMapOverlays.m in Sources */,
 				E3AC40FB198ADA3900DE8F41 /* OfflineMapUtility.m in Sources */,
 				E3F3A44E1857D0DE00253290 /* NoteViewController.m in Sources */,
 				E3BC6EE1192E7A7B00096EE5 /* ListViewController.m in Sources */,
@@ -1017,7 +1029,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
@@ -1044,7 +1056,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
@@ -1061,12 +1073,13 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = mil.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
@@ -1083,12 +1096,13 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = mil.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";

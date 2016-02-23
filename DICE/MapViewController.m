@@ -4,12 +4,14 @@
 //
 
 #import "MapViewController.h"
+#import "GeoPackageMapOverlays.h"
 
 #define METERS_PER_MILE = 1609.344
 
 @interface MapViewController ()
 
 @property (weak, nonatomic) IBOutlet UIView *noLocationsView;
+@property (nonatomic, strong) GeoPackageMapOverlays * geoPackageOverlays;
 
 @end
 
@@ -25,6 +27,7 @@
     self.noLocationsView.layer.cornerRadius = 10.0;
     self.mapView.delegate = self;
     polygonsAdded = NO;
+    self.geoPackageOverlays = [[GeoPackageMapOverlays alloc] initWithMapView: self.mapView];
 }
 
 
@@ -34,7 +37,7 @@
     
     if (!polygonsAdded) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.mapView addOverlays:[OfflineMapUtility getPolygons]];
+            [self.mapView addOverlays:[OfflineMapUtility getPolygons] level:MKOverlayLevelAboveRoads];
             polygonsAdded = YES;
         });
     }
@@ -49,16 +52,26 @@
     [notUserLocations removeObject:self.mapView.userLocation];
     [self.mapView removeAnnotations:notUserLocations];
 
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
+    dispatch_async(queue, ^{
+        [self update];
+    });
+}
+
+-(void) update{
     for (Report * report in self.reports) {
         // TODO: this check needs to be a null check or hasLocation or something else better
         if (report.lat != 0.0f && report.lon != 0.0f) {
             ReportMapAnnotation *annotation = [[ReportMapAnnotation alloc] initWithReport:report];
-            [self.mapView addAnnotation:(id)annotation];
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                [self.mapView addAnnotation:(id)annotation];
+            });
             self.noLocationsView.hidden = YES;
         }
     }
+    
+    [self.geoPackageOverlays updateMap];
 }
-
 
 - (void)didReceiveMemoryWarning
 {
@@ -70,13 +83,10 @@
 #pragma mark Map view delegate methods
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id)annotation
 {
-    if([annotation isKindOfClass:[MKUserLocation class]])
-        return nil;
-    
-    static NSString *annotationIdentifier = @"ReportMapAnnotation";
-    MKAnnotationView *annotationView = [mapView dequeueReusableAnnotationViewWithIdentifier:annotationIdentifier];
     
     if ([annotation isKindOfClass:[ReportMapAnnotation class]]) {
+        static NSString *annotationIdentifier = @"ReportMapAnnotation";
+        MKAnnotationView *annotationView = [mapView dequeueReusableAnnotationViewWithIdentifier:annotationIdentifier];
         ReportMapAnnotation *customAnnotation = annotation;
         
         if (!annotationView) {
@@ -88,48 +98,56 @@
         }
         
         annotationView.image = [UIImage imageNamed:@"map-point"];
+        return annotationView;
     }
     
-    return annotationView;
+    return nil;
 }
 
-
-- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay
-{
-    MKPolygonView *polygonView = [[MKPolygonView alloc] initWithOverlay:overlay];
-    
-    if ([overlay isKindOfClass:[MKPolygon class]]) {
+- (MKOverlayRenderer *) mapView:(MKMapView *) mapView rendererForOverlay:(id < MKOverlay >) overlay {
+    if ([overlay isKindOfClass:[MKTileOverlay class]]) {
+        return [[MKTileOverlayRenderer alloc] initWithTileOverlay:overlay];
+    } else if ([overlay isKindOfClass:[MKPolygon class]]) {
         
+        MKPolygon *polygon = (MKPolygon *) overlay;
+        MKPolygonRenderer *renderer = [[MKPolygonRenderer alloc] initWithPolygon:polygon];
+
         if ([overlay.title isEqualToString:@"ocean"]) {
-            polygonView.fillColor = [UIColor colorWithRed:127/255.0 green:153/255.0 blue:151/255.0 alpha:1.0];
-            polygonView.strokeColor = [UIColor clearColor];
-            polygonView.lineWidth = 0.0;
-            polygonView.opaque = TRUE;
+            renderer.fillColor = [UIColor colorWithRed:127/255.0 green:153/255.0 blue:151/255.0 alpha:1.0];
+            renderer.strokeColor = [UIColor clearColor];
+            renderer.lineWidth = 0.0;
+            //renderer.opaque = TRUE;
         }
         else if ([overlay.title isEqualToString:@"feature"]) {
-            polygonView.fillColor = [UIColor colorWithRed:221/255.0 green:221/255.0 blue:221/255.0 alpha:1.0];
-            polygonView.strokeColor = [UIColor clearColor];
-            polygonView.lineWidth = 0.0;
-            polygonView.opaque = TRUE;
+            renderer.fillColor = [UIColor colorWithRed:221/255.0 green:221/255.0 blue:221/255.0 alpha:1.0];
+            renderer.strokeColor = [UIColor clearColor];
+            renderer.lineWidth = 0.0;
+            //renderer.opaque = TRUE;
         }
         else {
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
             NSString *maptype = [defaults stringForKey:@"maptype"];
             if ([@"Offline" isEqual:maptype]) {
-                polygonView.fillColor = [[UIColor whiteColor] colorWithAlphaComponent:1.0];
+                renderer.fillColor = [[UIColor whiteColor] colorWithAlphaComponent:1.0];
             }
             else {
-                polygonView.fillColor = [[UIColor yellowColor] colorWithAlphaComponent:0.2];
+                renderer.fillColor = [[UIColor yellowColor] colorWithAlphaComponent:0.2];
             }
-            polygonView.lineWidth = 2;
-            polygonView.strokeColor = [UIColor orangeColor];
+            renderer.lineWidth = 2;
+            renderer.strokeColor = [UIColor orangeColor];
         }
         
-		return polygonView;
-	}
-	return nil;
+        return renderer;
+    } else if ([overlay isKindOfClass:[MKPolyline class]]) {
+        MKPolyline *polyline = (MKPolyline *) overlay;
+        MKPolylineRenderer *renderer = [[MKPolylineRenderer alloc] initWithPolyline:polyline];
+        renderer.strokeColor = [UIColor blackColor];
+        renderer.lineWidth = 1;
+        return renderer;
+    }
+    
+    return nil;
 }
-
 
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control
 {
