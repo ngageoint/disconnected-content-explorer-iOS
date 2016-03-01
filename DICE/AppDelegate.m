@@ -66,8 +66,18 @@
         // Handle GeoPackage files
         if([GPKGGeoPackageValidate hasGeoPackageExtension:fileUrl]){
             // Import the GeoPackage file
-            if([self importGeoPackageFile:fileUrl]){
-                // TODO add to the list of active?
+            NSString * name = [[fileUrl lastPathComponent] stringByDeletingPathExtension];
+            if([self importGeoPackageFile:fileUrl withName:name]){
+                // Set the new GeoPackage as active
+                NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+                if(selectedCaches == nil){
+                    selectedCaches = [[NSMutableDictionary alloc] init];
+                }
+                [selectedCaches setObject:[[NSMutableArray alloc] init] forKey:name];
+                [defaults setObject:selectedCaches forKey:DICE_SELECTED_CACHES];
+                [defaults setObject:nil forKey:DICE_SELECTED_CACHES_UPDATED];
+                [defaults synchronize];
             }
         }else{
             // another app's UIDocumentInteractionController wants to use DICE to open a file
@@ -86,19 +96,19 @@
     return YES;
 }
 
--(BOOL) importGeoPackageFile: (NSString *) path{
+-(BOOL) importGeoPackageFile: (NSString *) path withName: (NSString *) name{
     // Import the GeoPackage file
     BOOL imported = false;
     GPKGGeoPackageManager * manager = [GPKGGeoPackageFactory getManager];
     @try {
-        imported = [manager importGeoPackageFromPath:path andOverride:true andMove:true];
+        imported = [manager importGeoPackageFromPath:path withName:name andOverride:true andMove:true];
     }
     @finally {
         [manager close];
     }
     
     if(!imported){
-        NSLog(@"Error importing GeoPackage file: %@", path);
+        NSLog(@"Error importing GeoPackage file: %@, name: %@", path, name);
     }
     
     return imported;

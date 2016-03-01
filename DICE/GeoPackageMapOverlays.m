@@ -16,11 +16,14 @@
 #import "GPKGNumberFeaturesTile.h"
 #import "GPKGFeatureOverlayQuery.h"
 #import "GPKGMapShapeConverter.h"
+#import "GeoPackageMapData.h"
+#import "DICEConstants.h"
 
 @interface GeoPackageMapOverlays()
     @property (nonatomic, strong) MKMapView *mapView;
     @property (nonatomic, strong) GPKGGeoPackageManager * manager;
     @property (nonatomic, strong) GPKGGeoPackageCache *cache;
+    @property (nonatomic, strong) NSMutableDictionary<NSString *, GeoPackageMapData *> *mapData;
 @end
 
 @implementation GeoPackageMapOverlays
@@ -30,6 +33,7 @@
         self.mapView = mapView;
         self.manager = [GPKGGeoPackageFactory getManager];
         self.cache = [[GPKGGeoPackageCache alloc]initWithManager:self.manager];
+        self.mapData = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -37,43 +41,132 @@
 
 -(void) updateMap{
     
-    // Add the GeoPackage caches
-    NSArray * geoPackages = [self.manager databases];
-    for(NSString * geoPackage in geoPackages){
-        
-        // Make sure the GeoPackage file exists
-        NSString * filePath = [self.manager documentsPathForDatabase:geoPackage];
-        if(filePath != nil && [[NSFileManager defaultManager] fileExistsAtPath:filePath]){
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    
+    NSMutableDictionary<NSString *, GeoPackageMapData *> *newMapData = [[NSMutableDictionary alloc] init];
+    
+    if(selectedCaches != nil){
+    
+        // Add the GeoPackage caches
+        for(NSString * name in [selectedCaches allKeys]){
             
-            [self addGeoPackageWithName:geoPackage];
+            BOOL deleteFromSelected = YES;
             
-        }else{
-            // Delete if the file was deleted
-            [self.manager delete:geoPackage];
+            // Make sure the GeoPackage exists
+            if([self.manager exists:name]){
+            
+                // Make sure the GeoPackage file exists
+                NSString * filePath = [self.manager documentsPathForDatabase:name];
+                if(filePath != nil && [[NSFileManager defaultManager] fileExistsAtPath:filePath]){
+                    
+                    deleteFromSelected = NO;
+                    
+                    NSMutableArray * selected = [[selectedCaches objectForKey:name] mutableCopy];
+                    
+                    // Close a previously open GeoPackage connection if a new GeoPackage version
+                    if([selected count] == 0){
+                        [self.cache close:name];
+                    }
+                    
+                    GPKGGeoPackage * geoPackage = [self.cache getOrOpen:name];
+                    
+                    GeoPackageMapData * existingGeoPackageData = [self.mapData objectForKey:name];
+                    
+                    // If the GeoPackage is selected with no tables, select all of them as it is a new version
+                    if([selected count] == 0){
+                        [selected addObjectsFromArray:[geoPackage getTables]];
+                        [selectedCaches setObject:selected forKey:name];
+                        [defaults setObject:selectedCaches forKey:DICE_SELECTED_CACHES];
+                        [defaults synchronize];
+                        
+                        if(existingGeoPackageData != nil){
+                            [existingGeoPackageData removeFromMapView:self.mapView];
+                            existingGeoPackageData = nil;
+                        }
+                    }
+                    
+                    GeoPackageMapData * geoPackageData = [[GeoPackageMapData alloc] initWithName:geoPackage.name];
+                    [newMapData setObject:geoPackageData forKey:geoPackage.name];
+                    
+                    [self addGeoPackage:geoPackage andSelected:selected andData:geoPackageData andExistingData:existingGeoPackageData];
+                    
+                }else{
+                    // Delete if the file was deleted
+                    [self.manager delete:name];
+                }
+            }
+            
+            // Remove the GeoPackage from the list of selected
+            if(deleteFromSelected){
+                [selectedCaches removeObjectForKey:name];
+                [defaults setObject:selectedCaches forKey:DICE_SELECTED_CACHES];
+                [defaults synchronize];
+            }
         }
+        
     }
 
+    // Remove GeoPackage tables from the map that are no longer selected
+    for(GeoPackageMapData * oldGeoPackageMapData in [self.mapData allValues]){
+        
+        GeoPackageMapData * newGeoPackageMapData = [newMapData objectForKey:[oldGeoPackageMapData getName]];
+        if(newGeoPackageMapData == nil){
+            [oldGeoPackageMapData removeFromMapView:self.mapView];
+            [self.cache close:[oldGeoPackageMapData getName]];
+        }else{
+            
+            for(GeoPackageTableMapData * oldGeoPackageTableMapData in [oldGeoPackageMapData getTables]){
+                
+                GeoPackageTableMapData * newGeoPackageTableMapData = [newGeoPackageMapData getTable:[oldGeoPackageTableMapData getName]];
+                
+                if(newGeoPackageTableMapData == nil){
+                    [oldGeoPackageTableMapData removeFromMapView:self.mapView];
+                }
+            }
+            
+        }
+        
+    }
+    
+    self.mapData = newMapData;
 }
 
--(void) addGeoPackageWithName: (NSString *) name{
+-(void) addGeoPackage: (GPKGGeoPackage *) geoPackage andSelected: (NSMutableArray *) selected andData: (GeoPackageMapData *) data andExistingData: (GeoPackageMapData *) existingData{
     
-    GPKGGeoPackage * geoPackage = [self.cache getOrOpen:name];
-    
-    for(NSString * tileTable in [geoPackage getTileTables]){
-        [self addTileTableWithGeoPackage:geoPackage andName:tileTable];
-    }
-    
-    for(NSString * featureTable in [geoPackage getFeatureTables]){
-        [self addFeatureTableWithGeoPackage:geoPackage andName:featureTable];
+    for(NSString * table in selected){
+        
+        BOOL addNew = true;
+        
+        if(existingData != nil){
+            GeoPackageTableMapData * tableData = [existingData getTable:table];
+            if(tableData != nil){
+                addNew = false;
+                [data addTable:tableData];
+            }
+        }
+        
+        if(addNew){
+            if([geoPackage isTileTable:table]){
+                [self addTileTableWithGeoPackage:geoPackage andName:table andData:data];
+            } else if([geoPackage isFeatureTable:table]){
+                [self addFeatureTableWithGeoPackage:geoPackage andName:table andData:data];
+            }
+        }
+        
     }
     
 }
 
--(void) addTileTableWithGeoPackage: (GPKGGeoPackage *) geoPackage andName: (NSString *) name{
+-(void) addTileTableWithGeoPackage: (GPKGGeoPackage *) geoPackage andName: (NSString *) name andData: (GeoPackageMapData *) data{
+    
+    GeoPackageTableMapData * tableData = [[GeoPackageTableMapData alloc] initWithName:name];
+    [data addTable:tableData];
     
     // Create a new GeoPackage tile provider and add to the map
     GPKGTileDao * tileDao = [geoPackage getTileDaoWithTableName:name];
     GPKGBoundedOverlay * geoPackageTileOverlay = [GPKGOverlayFactory getBoundedOverlay:tileDao];
+    [tableData setBoundedOverlay:geoPackageTileOverlay];
     geoPackageTileOverlay.canReplaceMapContent = false;
     
     // Check for linked feature tables
@@ -90,16 +183,19 @@
         
         // Add the feature overlay query
         GPKGFeatureOverlayQuery * featureOverlayQuery = [[GPKGFeatureOverlayQuery alloc] initWithBoundedOverlay:geoPackageTileOverlay andFeatureTiles:featureTiles];
-        // TODO maintain the feature overlay query
+        [tableData addFeatureOverlayQuery:featureOverlayQuery];
     }
     
     dispatch_sync(dispatch_get_main_queue(), ^{
-        [self.mapView addOverlay:geoPackageTileOverlay level:MKOverlayLevelAboveLabels];
+        [self.mapView addOverlay:geoPackageTileOverlay level:MKOverlayLevelAboveRoads];
     });
     
 }
 
--(void) addFeatureTableWithGeoPackage: (GPKGGeoPackage *) geoPackage andName: (NSString *) name{
+-(void) addFeatureTableWithGeoPackage: (GPKGGeoPackage *) geoPackage andName: (NSString *) name andData: (GeoPackageMapData *) data{
+    
+    GeoPackageTableMapData * tableData = [[GeoPackageTableMapData alloc] initWithName:name];
+    [data addTable:tableData];
     
     // Create a new GeoPackage tile provider and add to the map
     GPKGFeatureDao * featureDao = [geoPackage getFeatureDaoWithTableName:name];
@@ -110,9 +206,9 @@
         GPKGFeatureTiles * featureTiles = [[GPKGFeatureTiles alloc] initWithFeatureDao:featureDao];
         int maxFeaturesPerTile = 0;
         if([featureDao getGeometryType] == WKB_POINT){
-            maxFeaturesPerTile = 1000; // TODO
+            maxFeaturesPerTile = (int)DICE_CACHE_FEATURE_TILES_MAX_POINTS_PER_TILE;
         }else{
-            maxFeaturesPerTile = 500; // TODO
+            maxFeaturesPerTile = (int)DICE_CACHE_FEATURE_TILES_MAX_FEATURES_PER_TILE;
         }
         [featureTiles setMaxFeaturesPerTile:[NSNumber numberWithInt:maxFeaturesPerTile]];
         GPKGNumberFeaturesTile * numberFeaturesTile = [[GPKGNumberFeaturesTile alloc] init];
@@ -123,6 +219,7 @@
         // Adjust the feature tiles draw paint attributes here as needed to change how
         // features are drawn on tiles
         GPKGFeatureOverlay * featureOverlay = [[GPKGFeatureOverlay alloc] initWithFeatureTiles:featureTiles];
+        [tableData setBoundedOverlay:featureOverlay];
         [featureOverlay setMinZoom:[NSNumber numberWithInt:[featureDao getZoomLevel]]];
         
         GPKGFeatureTileTableLinker * linker = [[GPKGFeatureTileTableLinker alloc] initWithGeoPackage:geoPackage];
@@ -130,7 +227,7 @@
         [featureOverlay ignoreTileDaos:tileDaos];
         
         GPKGFeatureOverlayQuery * featureOverlayQuery = [[GPKGFeatureOverlayQuery alloc] initWithFeatureOverlay:featureOverlay];
-        // TODO maintain the feature overlay query
+        [tableData addFeatureOverlayQuery:featureOverlayQuery];
         
         featureOverlay.canReplaceMapContent = false;
         
@@ -140,9 +237,9 @@
     }else{
         int maxFeaturesPerTable = 0;
         if([featureDao getGeometryType] == WKB_POINT){
-            maxFeaturesPerTable = 1000; // TODO
+            maxFeaturesPerTable = (int)DICE_CACHE_FEATURES_MAX_POINTS_PER_TABLE;
         }else{
-            maxFeaturesPerTable = 500; // TODO
+            maxFeaturesPerTable = (int)DICE_CACHE_FEATURES_MAX_FEATURES_PER_TABLE;
         }
         GPKGProjection * projection = featureDao.projection;
         GPKGMapShapeConverter * shapeConverter = [[GPKGMapShapeConverter alloc] initWithProjection:projection];
@@ -157,6 +254,7 @@
                     WKBGeometry * geometry = geometryData.geometry;
                     if(geometry != nil){
                         GPKGMapShape * shape = [shapeConverter toShapeWithGeometry:geometry];
+                        [tableData addMapShape:shape];
                         dispatch_sync(dispatch_get_main_queue(), ^{
                             [GPKGMapShapeConverter addMapShape:shape toMapView:self.mapView];
                         });

@@ -5,6 +5,7 @@
 
 #import "MapViewController.h"
 #import "GeoPackageMapOverlays.h"
+#import "DICEConstants.h"
 
 #define METERS_PER_MILE = 1609.344
 
@@ -12,6 +13,7 @@
 
 @property (weak, nonatomic) IBOutlet UIView *noLocationsView;
 @property (nonatomic, strong) GeoPackageMapOverlays * geoPackageOverlays;
+@property (nonatomic, strong) NSMutableArray<ReportMapAnnotation *> * reportAnnotations;
 
 @end
 
@@ -28,6 +30,11 @@
     self.mapView.delegate = self;
     polygonsAdded = NO;
     self.geoPackageOverlays = [[GeoPackageMapOverlays alloc] initWithMapView: self.mapView];
+    self.reportAnnotations = [[NSMutableArray alloc] init];
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:YES forKey:DICE_ZOOM_TO_REPORTS];
+    [defaults synchronize];
 }
 
 
@@ -36,41 +43,97 @@
     [super viewWillAppear:animated];
     
     if (!polygonsAdded) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.mapView addOverlays:[OfflineMapUtility getPolygons] level:MKOverlayLevelAboveRoads];
-            polygonsAdded = YES;
-        });
+        [self.mapView addOverlays:[OfflineMapUtility getPolygons] level:MKOverlayLevelAboveRoads];
+        polygonsAdded = YES;
     }
     
-    self.noLocationsView.hidden = NO;
-
-    CLLocationCoordinate2D zoomLocation;
-    zoomLocation.latitude = 40.740848;
-    zoomLocation.longitude= -73.991145;
+    [self update];
     
-    NSMutableArray *notUserLocations = [NSMutableArray arrayWithArray:self.mapView.annotations];
-    [notUserLocations removeObject:self.mapView.userLocation];
-    [self.mapView removeAnnotations:notUserLocations];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults addObserver:self
+               forKeyPath:DICE_SELECTED_CACHES_UPDATED
+                  options:NSKeyValueObservingOptionNew
+                  context:NULL];
+}
 
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
-    dispatch_async(queue, ^{
-        [self update];
-    });
+- (void) viewWillDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults removeObserver:self forKeyPath:DICE_SELECTED_CACHES_UPDATED];
+}
+
+-(void) observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+    if ([DICE_SELECTED_CACHES_UPDATED isEqualToString:keyPath]) {
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
+        dispatch_async(queue, ^{
+            [self.geoPackageOverlays updateMap];
+        });
+    }
 }
 
 -(void) update{
-    for (Report * report in self.reports) {
-        // TODO: this check needs to be a null check or hasLocation or something else better
-        if (report.lat != 0.0f && report.lon != 0.0f) {
-            ReportMapAnnotation *annotation = [[ReportMapAnnotation alloc] initWithReport:report];
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [self.mapView addAnnotation:(id)annotation];
-            });
-            self.noLocationsView.hidden = YES;
-        }
-    }
     
-    [self.geoPackageOverlays updateMap];
+    self.noLocationsView.hidden = NO;
+    
+    [self.mapView removeAnnotations:self.reportAnnotations];
+    [self.reportAnnotations removeAllObjects];
+    
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
+    dispatch_async(queue, ^{
+    
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        BOOL zoom = [defaults boolForKey:DICE_ZOOM_TO_REPORTS];
+        if(zoom){
+            [defaults setBool:NO forKey:DICE_ZOOM_TO_REPORTS];
+            [defaults synchronize];
+        }
+        
+        MKMapRect zoomRect = MKMapRectNull;
+        
+        for (Report * report in self.reports) {
+            // TODO: this check needs to be a null check or hasLocation or something else better
+            if (report.lat != 0.0f && report.lon != 0.0f) {
+                ReportMapAnnotation *annotation = [[ReportMapAnnotation alloc] initWithReport:report];
+                [self.reportAnnotations addObject:annotation];
+                
+                if(zoom){
+                    MKMapPoint mapPoint = MKMapPointForCoordinate(annotation.coordinate);
+                    MKMapRect pointRect = MKMapRectMake(mapPoint.x, mapPoint.y, 0.1, 0.1);
+                    if (MKMapRectIsNull(zoomRect)) {
+                        zoomRect = pointRect;
+                    } else {
+                        zoomRect = MKMapRectUnion(zoomRect, pointRect);
+                    }
+                }
+                
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    [self.mapView addAnnotation:(id)annotation];
+                });
+                if(!self.noLocationsView.hidden){
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        self.noLocationsView.hidden = YES;
+                    });
+                }
+            }
+        }
+        
+        // Zoom to the reports
+        if (!MKMapRectIsNull(zoomRect)) {
+            float widthPadding = self.mapView.frame.size.width * .1;
+            float heightPadding = self.mapView.frame.size.height * .1;
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                [self.mapView setVisibleMapRect:zoomRect edgePadding:UIEdgeInsetsMake(heightPadding, widthPadding, heightPadding, widthPadding) animated:YES];
+            });
+        }
+        
+        [self.geoPackageOverlays updateMap];
+        
+    });
 }
 
 - (void)didReceiveMemoryWarning
@@ -141,8 +204,8 @@
     } else if ([overlay isKindOfClass:[MKPolyline class]]) {
         MKPolyline *polyline = (MKPolyline *) overlay;
         MKPolylineRenderer *renderer = [[MKPolylineRenderer alloc] initWithPolyline:polyline];
-        renderer.strokeColor = [UIColor blackColor];
-        renderer.lineWidth = 1;
+        renderer.strokeColor = [UIColor orangeColor];
+        renderer.lineWidth = 2;
         return renderer;
     }
     
