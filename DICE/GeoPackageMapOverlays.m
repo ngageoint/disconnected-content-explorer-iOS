@@ -18,6 +18,7 @@
 #import "GPKGMapShapeConverter.h"
 #import "GeoPackageMapData.h"
 #import "DICEConstants.h"
+#import "WKBGeometryPrinter.h"
 
 @interface GeoPackageMapOverlays()
     @property (nonatomic, strong) MKMapView *mapView;
@@ -254,6 +255,27 @@
                     WKBGeometry * geometry = geometryData.geometry;
                     if(geometry != nil){
                         GPKGMapShape * shape = [shapeConverter toShapeWithGeometry:geometry];
+                        if([shape.shape isKindOfClass:[GPKGMapPoint class]]){
+                            NSMutableString * title = [[NSMutableString alloc] init];
+                            int geometryColumn = [featureRow getGeometryColumnIndex];
+                            for(int i = 0; i < [featureRow columnCount]; i++){
+                                if(i != geometryColumn){
+                                    NSObject * value = [featureRow getValueWithIndex:i];
+                                    if(value != nil){
+                                        if([title length] > 0){
+                                            [title appendString:@"\n"];
+                                        }
+                                        [title appendFormat:@"%@: %@", [featureRow getColumnNameWithIndex:i], value];
+                                    }
+                                }
+                            }
+                            
+                            if([title length] > 0){
+                                [title appendString:@"\n\n"];
+                            }
+                            [title appendFormat:@"%@", [WKBGeometryPrinter getGeometryString:geometry]];
+                            [((GPKGMapPoint *)shape.shape) setData:title];
+                        }
                         [tableData addMapShape:shape];
                         dispatch_sync(dispatch_get_main_queue(), ^{
                             [GPKGMapShapeConverter addMapShape:shape toMapView:self.mapView];
