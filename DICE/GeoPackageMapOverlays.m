@@ -257,15 +257,13 @@
                         GPKGMapShape * shape = [shapeConverter toShapeWithGeometry:geometry];
                         if([shape.shape isKindOfClass:[GPKGMapPoint class]]){
                             NSMutableString * title = [[NSMutableString alloc] init];
+                            [title appendFormat:@"%@ - %@\n", featureDao.databaseName, featureDao.tableName];
                             int geometryColumn = [featureRow getGeometryColumnIndex];
                             for(int i = 0; i < [featureRow columnCount]; i++){
                                 if(i != geometryColumn){
                                     NSObject * value = [featureRow getValueWithIndex:i];
                                     if(value != nil){
-                                        if([title length] > 0){
-                                            [title appendString:@"\n"];
-                                        }
-                                        [title appendFormat:@"%@: %@", [featureRow getColumnNameWithIndex:i], value];
+                                        [title appendFormat:@"\n%@: %@", [featureRow getColumnNameWithIndex:i], value];
                                     }
                                 }
                             }
