@@ -32,6 +32,9 @@
     self.geoPackageOverlays = [[GeoPackageMapOverlays alloc] initWithMapView: self.mapView];
     self.reportAnnotations = [[NSMutableArray alloc] init];
     
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(mapTap:)];
+    [self.mapView addGestureRecognizer:tap];
+    
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setBool:YES forKey:DICE_ZOOM_TO_REPORTS];
     [defaults synchronize];
@@ -179,13 +182,11 @@
             renderer.fillColor = [UIColor colorWithRed:127/255.0 green:153/255.0 blue:151/255.0 alpha:1.0];
             renderer.strokeColor = [UIColor clearColor];
             renderer.lineWidth = 0.0;
-            //renderer.opaque = TRUE;
         }
         else if ([overlay.title isEqualToString:@"feature"]) {
             renderer.fillColor = [UIColor colorWithRed:221/255.0 green:221/255.0 blue:221/255.0 alpha:1.0];
             renderer.strokeColor = [UIColor clearColor];
             renderer.lineWidth = 0.0;
-            //renderer.opaque = TRUE;
         }
         else {
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -216,6 +217,32 @@
 {
     _selectedReport = ((ReportMapAnnotation *)view.annotation).report;
     [self.delegate reportSelectedToView:_selectedReport];
+}
+
+-(void)mapTap:(UIGestureRecognizer*)gesture {
+    UITapGestureRecognizer *tap = (UITapGestureRecognizer *)gesture;
+    if (tap.state == UIGestureRecognizerStateEnded) {
+        CGPoint tapPoint = [tap locationInView:self.mapView];
+        CLLocationCoordinate2D tapCoord = [self.mapView convertPoint:tapPoint toCoordinateFromView:self.mapView];
+        
+        NSString * clickMessage = [self.geoPackageOverlays onMapClickWithLocationCoordinate:tapCoord andMap:self.mapView];
+        if(clickMessage != nil){
+            UIAlertController *alert = [UIAlertController
+                                        alertControllerWithTitle:nil
+                                        message:clickMessage
+                                        preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction* ok = [UIAlertAction
+                                 actionWithTitle:@"OK"
+                                 style:UIAlertActionStyleDefault
+                                 handler:^(UIAlertAction * action)
+                                 {
+                                     [alert dismissViewControllerAnimated:YES completion:nil];
+                                     
+                                 }];
+            [alert addAction:ok];
+            [self presentViewController:alert animated:YES completion:nil];
+        }
+    }
 }
 
 @end

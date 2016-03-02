@@ -40,18 +40,18 @@
 				<string>com.adobe.pdf</string>
 			</array>
 		</dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <array/>
-            <key>CFBundleTypeName</key>
-            <string>GeoPackage</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>mil.nga.giat.DICE.geoPackageUTIHandler.csm</string>
-            </array>
-        </dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<array/>
+			<key>CFBundleTypeName</key>
+			<string>GeoPackage</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>mil.nga.giat.DICE.geoPackageUTIHandler.csm</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
@@ -136,24 +136,24 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-    <key>UTExportedTypeDeclarations</key>
-    <array>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.database</string>
-            </array>
-            <key>UTTypeIdentifier</key>
-            <string>mil.nga.giat.DICE.geoPackageUTIHandler.csm</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>gpkg</string>
-                    <string>gpkx</string>
-                </array>
-            </dict>
-        </dict>
-    </array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.database</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>mil.nga.giat.DICE.geoPackageUTIHandler.csm</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>gpkg</string>
+					<string>gpkx</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>

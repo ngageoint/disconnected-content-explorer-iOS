@@ -276,4 +276,18 @@
     
 }
 
+-(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+    NSMutableString * clickMessage = [[NSMutableString alloc] init];
+    for(GeoPackageMapData * mapData in [self.mapData allValues]){
+        NSString * message = [mapData onMapClickWithLocationCoordinate:locationCoordinate andMap:mapView];
+        if(message != nil){
+            if([clickMessage length] > 0){
+                [clickMessage appendString:@"\n\n"];
+            }
+            [clickMessage appendString:message];
+        }
+    }
+    return [clickMessage length] > 0 ? clickMessage : nil;
+}
+
 @end

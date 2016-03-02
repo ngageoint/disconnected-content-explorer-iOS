@@ -57,4 +57,24 @@
     }
 }
 
+-(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+    NSMutableString * message = nil;
+    
+    if(self.featureOverlayQueries != nil){
+        for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
+            NSString * overlayMessage = [featureOverlayQuery buildMapClickMessageWithLocationCoordinate:locationCoordinate andMapView:mapView];
+            if(overlayMessage != nil){
+                if(message == nil){
+                    message = [[NSMutableString alloc] init];
+                }else{
+                    [message appendString:@"\n\n"];
+                }
+                [message appendString:overlayMessage];
+            }
+        }
+    }
+    
+    return message;
+}
+
 @end

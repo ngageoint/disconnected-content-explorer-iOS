@@ -26,4 +26,6 @@
 
 -(void) removeFromMapView: (MKMapView *) mapView;
 
+-(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView;
+
 @end

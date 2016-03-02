@@ -15,4 +15,6 @@
 
 -(void) updateMap;
 
+-(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView;
+
 @end
