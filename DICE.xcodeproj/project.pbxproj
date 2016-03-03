@@ -345,7 +345,20 @@
 				048A7B821C87AA31007BCA5D /* MapOverlayCellItem.h */,
 				048A7B831C87AA31007BCA5D /* MapOverlayCellItem.m */,
 			);
-			name = Overlay;
+			path = Overlay;
+			sourceTree = "<group>";
+		};
+		048A7B851C88D06E007BCA5D /* GeoPackage */ = {
+			isa = PBXGroup;
+			children = (
+				04FF40A21C7CA76E00B71807 /* GeoPackageMapOverlays.h */,
+				04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */,
+				048A7B6F1C84DF44007BCA5D /* GeoPackageMapData.h */,
+				048A7B701C84DF44007BCA5D /* GeoPackageMapData.m */,
+				048A7B721C84E1F8007BCA5D /* GeoPackageTableMapData.h */,
+				048A7B731C84E1F8007BCA5D /* GeoPackageTableMapData.m */,
+			);
+			path = GeoPackage;
 			sourceTree = "<group>";
 		};
 		7D4E1C471A1F9475002762B3 /* DICETests */ = {
@@ -544,19 +557,15 @@
 		E3F3A4491857CDD600253290 /* Map View */ = {
 			isa = PBXGroup;
 			children = (
+				048A7B851C88D06E007BCA5D /* GeoPackage */,
 				048A7B781C877EBD007BCA5D /* Overlay */,
 				E3A73FBE1855585200035C76 /* MapViewController.h */,
 				E3A73FBF1855585200035C76 /* MapViewController.m */,
 				E3A73FC1185559FC00035C76 /* ReportMapAnnotation.h */,
 				E3A73FC2185559FC00035C76 /* ReportMapAnnotation.m */,
-				04FF40A21C7CA76E00B71807 /* GeoPackageMapOverlays.h */,
-				04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */,
-				048A7B6F1C84DF44007BCA5D /* GeoPackageMapData.h */,
-				048A7B701C84DF44007BCA5D /* GeoPackageMapData.m */,
-				048A7B721C84E1F8007BCA5D /* GeoPackageTableMapData.h */,
-				048A7B731C84E1F8007BCA5D /* GeoPackageTableMapData.m */,
 			);
 			name = "Map View";
+			path = Map;
 			sourceTree = "<group>";
 		};
 		E3F3A44A1857CDE400253290 /* Report View */ = {
