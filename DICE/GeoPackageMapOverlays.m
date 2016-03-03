@@ -40,6 +40,10 @@
     return self;
 }
 
+-(BOOL) hasGeoPackages{
+    return [self.manager count] > 0;
+}
+
 -(void) updateMap{
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -188,7 +192,7 @@
     }
     
     dispatch_sync(dispatch_get_main_queue(), ^{
-        [self.mapView addOverlay:geoPackageTileOverlay level:MKOverlayLevelAboveRoads];
+        [self.mapView addOverlay:geoPackageTileOverlay level:([featureDaos count] > 0 ? MKOverlayLevelAboveLabels :MKOverlayLevelAboveRoads)];
     });
     
 }
@@ -296,10 +300,10 @@
     
 }
 
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+-(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate{
     NSMutableString * clickMessage = [[NSMutableString alloc] init];
     for(GeoPackageMapData * mapData in [self.mapData allValues]){
-        NSString * message = [mapData onMapClickWithLocationCoordinate:locationCoordinate andMap:mapView];
+        NSString * message = [mapData onMapClickWithLocationCoordinate:locationCoordinate andMap:self.mapView];
         if(message != nil){
             if([clickMessage length] > 0){
                 [clickMessage appendString:@"\n\n"];

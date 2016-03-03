@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		048A7B711C84DF44007BCA5D /* GeoPackageMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B701C84DF44007BCA5D /* GeoPackageMapData.m */; };
 		048A7B741C84E1F8007BCA5D /* GeoPackageTableMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B731C84E1F8007BCA5D /* GeoPackageTableMapData.m */; };
+		048A7B771C876F28007BCA5D /* MapOverlayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B761C876F28007BCA5D /* MapOverlayController.m */; };
+		048A7B7B1C877FC2007BCA5D /* MapOverlayTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B7A1C877FC2007BCA5D /* MapOverlayTableCell.m */; };
+		048A7B7E1C878004007BCA5D /* MapOverlayActiveSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B7D1C878004007BCA5D /* MapOverlayActiveSwitch.m */; };
+		048A7B811C87804A007BCA5D /* MapOverlayChildTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B801C87804A007BCA5D /* MapOverlayChildTableCell.m */; };
+		048A7B841C87AA31007BCA5D /* MapOverlayCellItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B831C87AA31007BCA5D /* MapOverlayCellItem.m */; };
 		04FF40A11C7CA27E00B71807 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A01C7CA27E00B71807 /* DICEConstants.m */; };
 		04FF40A41C7CA76E00B71807 /* GeoPackageMapOverlays.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */; };
 		780CE859C439FF232AC4B784 /* libPods-DICETests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5EC182CE7857459FD4736E05 /* libPods-DICETests.a */; };
@@ -124,6 +129,16 @@
 		048A7B701C84DF44007BCA5D /* GeoPackageMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapData.m; sourceTree = "<group>"; };
 		048A7B721C84E1F8007BCA5D /* GeoPackageTableMapData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageTableMapData.h; sourceTree = "<group>"; };
 		048A7B731C84E1F8007BCA5D /* GeoPackageTableMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageTableMapData.m; sourceTree = "<group>"; };
+		048A7B751C876F28007BCA5D /* MapOverlayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayController.h; sourceTree = "<group>"; };
+		048A7B761C876F28007BCA5D /* MapOverlayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayController.m; sourceTree = "<group>"; };
+		048A7B791C877FC2007BCA5D /* MapOverlayTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayTableCell.h; sourceTree = "<group>"; };
+		048A7B7A1C877FC2007BCA5D /* MapOverlayTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayTableCell.m; sourceTree = "<group>"; };
+		048A7B7C1C878004007BCA5D /* MapOverlayActiveSwitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayActiveSwitch.h; sourceTree = "<group>"; };
+		048A7B7D1C878004007BCA5D /* MapOverlayActiveSwitch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayActiveSwitch.m; sourceTree = "<group>"; };
+		048A7B7F1C87804A007BCA5D /* MapOverlayChildTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayChildTableCell.h; sourceTree = "<group>"; };
+		048A7B801C87804A007BCA5D /* MapOverlayChildTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayChildTableCell.m; sourceTree = "<group>"; };
+		048A7B821C87AA31007BCA5D /* MapOverlayCellItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayCellItem.h; sourceTree = "<group>"; };
+		048A7B831C87AA31007BCA5D /* MapOverlayCellItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayCellItem.m; sourceTree = "<group>"; };
 		04FF409F1C7CA27E00B71807 /* DICEConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEConstants.h; sourceTree = "<group>"; };
 		04FF40A01C7CA27E00B71807 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
 		04FF40A21C7CA76E00B71807 /* GeoPackageMapOverlays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapOverlays.h; sourceTree = "<group>"; };
@@ -316,6 +331,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		048A7B781C877EBD007BCA5D /* Overlay */ = {
+			isa = PBXGroup;
+			children = (
+				048A7B751C876F28007BCA5D /* MapOverlayController.h */,
+				048A7B761C876F28007BCA5D /* MapOverlayController.m */,
+				048A7B791C877FC2007BCA5D /* MapOverlayTableCell.h */,
+				048A7B7A1C877FC2007BCA5D /* MapOverlayTableCell.m */,
+				048A7B7C1C878004007BCA5D /* MapOverlayActiveSwitch.h */,
+				048A7B7D1C878004007BCA5D /* MapOverlayActiveSwitch.m */,
+				048A7B7F1C87804A007BCA5D /* MapOverlayChildTableCell.h */,
+				048A7B801C87804A007BCA5D /* MapOverlayChildTableCell.m */,
+				048A7B821C87AA31007BCA5D /* MapOverlayCellItem.h */,
+				048A7B831C87AA31007BCA5D /* MapOverlayCellItem.m */,
+			);
+			name = Overlay;
+			sourceTree = "<group>";
+		};
 		7D4E1C471A1F9475002762B3 /* DICETests */ = {
 			isa = PBXGroup;
 			children = (
@@ -512,6 +544,7 @@
 		E3F3A4491857CDD600253290 /* Map View */ = {
 			isa = PBXGroup;
 			children = (
+				048A7B781C877EBD007BCA5D /* Overlay */,
 				E3A73FBE1855585200035C76 /* MapViewController.h */,
 				E3A73FBF1855585200035C76 /* MapViewController.m */,
 				E3A73FC1185559FC00035C76 /* ReportMapAnnotation.h */,
@@ -877,6 +910,7 @@
 			files = (
 				E39D837119DF2B95008357DF /* ReaderThumbCache.m in Sources */,
 				E39D837819DF2B95008357DF /* ReaderViewController.m in Sources */,
+				048A7B771C876F28007BCA5D /* MapOverlayController.m in Sources */,
 				E39D834C19DF2B95008357DF /* ReaderAppDelegate.m in Sources */,
 				E39D837319DF2B95008357DF /* ReaderThumbQueue.m in Sources */,
 				E3FBB31217C9527000E133D6 /* main.m in Sources */,
@@ -884,12 +918,15 @@
 				E39D836C19DF2B95008357DF /* ReaderContentView.m in Sources */,
 				7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */,
 				E3EF82521A898A3F006513CA /* DisclaimerViewController.m in Sources */,
+				048A7B841C87AA31007BCA5D /* MapOverlayCellItem.m in Sources */,
 				E3D7820E18517375001BB04B /* ReportViewCell.m in Sources */,
 				7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */,
 				E39D837419DF2B95008357DF /* ReaderThumbRender.m in Sources */,
 				E39D837719DF2B95008357DF /* ReaderThumbView.m in Sources */,
 				E39D837B19DF2B95008357DF /* UIXToolbarView.m in Sources */,
 				04FF40A11C7CA27E00B71807 /* DICEConstants.m in Sources */,
+				048A7B7E1C878004007BCA5D /* MapOverlayActiveSwitch.m in Sources */,
+				048A7B7B1C877FC2007BCA5D /* MapOverlayTableCell.m in Sources */,
 				7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */,
 				E39D837019DF2B95008357DF /* ReaderMainToolbar.m in Sources */,
 				E39D837A19DF2B95008357DF /* ThumbsViewController.m in Sources */,
@@ -897,6 +934,7 @@
 				E39D836A19DF2B95008357DF /* ReaderContentPage.m in Sources */,
 				E39D836919DF2B95008357DF /* ReaderConstants.m in Sources */,
 				E337BCC21811AD7B00D987F9 /* Report.m in Sources */,
+				048A7B811C87804A007BCA5D /* MapOverlayChildTableCell.m in Sources */,
 				E3A73FC01855585200035C76 /* MapViewController.m in Sources */,
 				E39D837619DF2B95008357DF /* ReaderThumbsView.m in Sources */,
 				E3BC6EE4192E7A8700096EE5 /* HTMLViewController.m in Sources */,

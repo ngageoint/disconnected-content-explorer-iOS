@@ -13,6 +13,7 @@
 @interface MapViewController ()
 
 @property (weak, nonatomic) IBOutlet UIView *noLocationsView;
+@property (weak, nonatomic) IBOutlet UIButton *overlaysButton;
 @property (nonatomic, strong) GeoPackageMapOverlays * geoPackageOverlays;
 @property (nonatomic, strong) NSMutableArray<ReportMapAnnotation *> * reportAnnotations;
 @property (nonatomic, strong) NSNumberFormatter *locationDecimalFormatter;
@@ -80,6 +81,9 @@ static NSString *mapPointPinReuseIdentifier = @"mapPointPinReuseIdentifier";
                         change:(NSDictionary *)change
                        context:(void *)context {
     if ([DICE_SELECTED_CACHES_UPDATED isEqualToString:keyPath]) {
+        
+        self.overlaysButton.hidden = ![self.geoPackageOverlays hasGeoPackages];
+        
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
         dispatch_async(queue, ^{
             [self.geoPackageOverlays updateMap];
@@ -93,6 +97,8 @@ static NSString *mapPointPinReuseIdentifier = @"mapPointPinReuseIdentifier";
     
     [self.mapView removeAnnotations:self.reportAnnotations];
     [self.reportAnnotations removeAllObjects];
+    
+    self.overlaysButton.hidden = ![self.geoPackageOverlays hasGeoPackages];
     
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
     dispatch_async(queue, ^{
@@ -276,7 +282,7 @@ static NSString *mapPointPinReuseIdentifier = @"mapPointPinReuseIdentifier";
         CGPoint tapPoint = [tap locationInView:self.mapView];
         CLLocationCoordinate2D tapCoord = [self.mapView convertPoint:tapPoint toCoordinateFromView:self.mapView];
         
-        NSString * clickMessage = [self.geoPackageOverlays onMapClickWithLocationCoordinate:tapCoord andMap:self.mapView];
+        NSString * clickMessage = [self.geoPackageOverlays onMapClickWithLocationCoordinate:tapCoord];
         [self displayMessage:clickMessage];
     }
 }
