@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		048A7B711C84DF44007BCA5D /* GeoPackageMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B701C84DF44007BCA5D /* GeoPackageMapData.m */; };
+		048A7B741C84E1F8007BCA5D /* GeoPackageTableMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B731C84E1F8007BCA5D /* GeoPackageTableMapData.m */; };
+		048A7B771C876F28007BCA5D /* MapOverlayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B761C876F28007BCA5D /* MapOverlayController.m */; };
+		048A7B7B1C877FC2007BCA5D /* MapOverlayTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B7A1C877FC2007BCA5D /* MapOverlayTableCell.m */; };
+		048A7B7E1C878004007BCA5D /* MapOverlayActiveSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B7D1C878004007BCA5D /* MapOverlayActiveSwitch.m */; };
+		048A7B811C87804A007BCA5D /* MapOverlayChildTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B801C87804A007BCA5D /* MapOverlayChildTableCell.m */; };
+		048A7B841C87AA31007BCA5D /* MapOverlayCellItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B831C87AA31007BCA5D /* MapOverlayCellItem.m */; };
+		04FF40A11C7CA27E00B71807 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A01C7CA27E00B71807 /* DICEConstants.m */; };
+		04FF40A41C7CA76E00B71807 /* GeoPackageMapOverlays.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */; };
 		780CE859C439FF232AC4B784 /* libPods-DICETests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5EC182CE7857459FD4736E05 /* libPods-DICETests.a */; };
 		7D0B49171A0D489D0044236B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49161A0D489D0044236B /* CoreData.framework */; };
 		7D0B49191A0D48CF0044236B /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D0B49181A0D48CF0044236B /* CFNetwork.framework */; };
@@ -116,6 +125,24 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		048A7B6F1C84DF44007BCA5D /* GeoPackageMapData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapData.h; sourceTree = "<group>"; };
+		048A7B701C84DF44007BCA5D /* GeoPackageMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapData.m; sourceTree = "<group>"; };
+		048A7B721C84E1F8007BCA5D /* GeoPackageTableMapData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageTableMapData.h; sourceTree = "<group>"; };
+		048A7B731C84E1F8007BCA5D /* GeoPackageTableMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageTableMapData.m; sourceTree = "<group>"; };
+		048A7B751C876F28007BCA5D /* MapOverlayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayController.h; sourceTree = "<group>"; };
+		048A7B761C876F28007BCA5D /* MapOverlayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayController.m; sourceTree = "<group>"; };
+		048A7B791C877FC2007BCA5D /* MapOverlayTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayTableCell.h; sourceTree = "<group>"; };
+		048A7B7A1C877FC2007BCA5D /* MapOverlayTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayTableCell.m; sourceTree = "<group>"; };
+		048A7B7C1C878004007BCA5D /* MapOverlayActiveSwitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayActiveSwitch.h; sourceTree = "<group>"; };
+		048A7B7D1C878004007BCA5D /* MapOverlayActiveSwitch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayActiveSwitch.m; sourceTree = "<group>"; };
+		048A7B7F1C87804A007BCA5D /* MapOverlayChildTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayChildTableCell.h; sourceTree = "<group>"; };
+		048A7B801C87804A007BCA5D /* MapOverlayChildTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayChildTableCell.m; sourceTree = "<group>"; };
+		048A7B821C87AA31007BCA5D /* MapOverlayCellItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayCellItem.h; sourceTree = "<group>"; };
+		048A7B831C87AA31007BCA5D /* MapOverlayCellItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayCellItem.m; sourceTree = "<group>"; };
+		04FF409F1C7CA27E00B71807 /* DICEConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEConstants.h; sourceTree = "<group>"; };
+		04FF40A01C7CA27E00B71807 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
+		04FF40A21C7CA76E00B71807 /* GeoPackageMapOverlays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapOverlays.h; sourceTree = "<group>"; };
+		04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapOverlays.m; sourceTree = "<group>"; };
 		0EFD368FB6CD328139F3BE06 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		36DFBBC94E870600BA2AB2FE /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		50CBA573252A64B7ADEE02F0 /* Pods-DICETests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICETests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DICETests/Pods-DICETests.release.xcconfig"; sourceTree = "<group>"; };
@@ -304,6 +331,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		048A7B781C877EBD007BCA5D /* Overlay */ = {
+			isa = PBXGroup;
+			children = (
+				048A7B751C876F28007BCA5D /* MapOverlayController.h */,
+				048A7B761C876F28007BCA5D /* MapOverlayController.m */,
+				048A7B791C877FC2007BCA5D /* MapOverlayTableCell.h */,
+				048A7B7A1C877FC2007BCA5D /* MapOverlayTableCell.m */,
+				048A7B7C1C878004007BCA5D /* MapOverlayActiveSwitch.h */,
+				048A7B7D1C878004007BCA5D /* MapOverlayActiveSwitch.m */,
+				048A7B7F1C87804A007BCA5D /* MapOverlayChildTableCell.h */,
+				048A7B801C87804A007BCA5D /* MapOverlayChildTableCell.m */,
+				048A7B821C87AA31007BCA5D /* MapOverlayCellItem.h */,
+				048A7B831C87AA31007BCA5D /* MapOverlayCellItem.m */,
+			);
+			path = Overlay;
+			sourceTree = "<group>";
+		};
+		048A7B851C88D06E007BCA5D /* GeoPackage */ = {
+			isa = PBXGroup;
+			children = (
+				04FF40A21C7CA76E00B71807 /* GeoPackageMapOverlays.h */,
+				04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */,
+				048A7B6F1C84DF44007BCA5D /* GeoPackageMapData.h */,
+				048A7B701C84DF44007BCA5D /* GeoPackageMapData.m */,
+				048A7B721C84E1F8007BCA5D /* GeoPackageTableMapData.h */,
+				048A7B731C84E1F8007BCA5D /* GeoPackageTableMapData.m */,
+			);
+			path = GeoPackage;
+			sourceTree = "<group>";
+		};
 		7D4E1C471A1F9475002762B3 /* DICETests */ = {
 			isa = PBXGroup;
 			children = (
@@ -500,12 +557,15 @@
 		E3F3A4491857CDD600253290 /* Map View */ = {
 			isa = PBXGroup;
 			children = (
+				048A7B851C88D06E007BCA5D /* GeoPackage */,
+				048A7B781C877EBD007BCA5D /* Overlay */,
 				E3A73FBE1855585200035C76 /* MapViewController.h */,
 				E3A73FBF1855585200035C76 /* MapViewController.m */,
 				E3A73FC1185559FC00035C76 /* ReportMapAnnotation.h */,
 				E3A73FC2185559FC00035C76 /* ReportMapAnnotation.m */,
 			);
 			name = "Map View";
+			path = Map;
 			sourceTree = "<group>";
 		};
 		E3F3A44A1857CDE400253290 /* Report View */ = {
@@ -604,6 +664,8 @@
 				7D172A6B1A2E59E1001EF965 /* DICENavigationController.m */,
 				E3EF82501A898A3F006513CA /* DisclaimerViewController.h */,
 				E3EF82511A898A3F006513CA /* DisclaimerViewController.m */,
+				04FF409F1C7CA27E00B71807 /* DICEConstants.h */,
+				04FF40A01C7CA27E00B71807 /* DICEConstants.m */,
 			);
 			path = DICE;
 			sourceTree = "<group>";
@@ -631,6 +693,7 @@
 				7D4E1C431A1F9475002762B3 /* Frameworks */,
 				7D4E1C441A1F9475002762B3 /* Resources */,
 				42558DF08CA9D7B06CA085BC /* Copy Pods Resources */,
+				37DD6495329009EB503DAC92 /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -651,6 +714,7 @@
 				E3FBB2FF17C9527000E133D6 /* Frameworks */,
 				E3FBB30017C9527000E133D6 /* Resources */,
 				7BD0A6ABA149474EAF5B7878 /* Copy Pods Resources */,
+				8C1D02EBE95AAF22F92A476D /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -748,6 +812,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		37DD6495329009EB503DAC92 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		42558DF08CA9D7B06CA085BC /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -808,6 +887,21 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		8C1D02EBE95AAF22F92A476D /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -825,6 +919,7 @@
 			files = (
 				E39D837119DF2B95008357DF /* ReaderThumbCache.m in Sources */,
 				E39D837819DF2B95008357DF /* ReaderViewController.m in Sources */,
+				048A7B771C876F28007BCA5D /* MapOverlayController.m in Sources */,
 				E39D834C19DF2B95008357DF /* ReaderAppDelegate.m in Sources */,
 				E39D837319DF2B95008357DF /* ReaderThumbQueue.m in Sources */,
 				E3FBB31217C9527000E133D6 /* main.m in Sources */,
@@ -832,11 +927,15 @@
 				E39D836C19DF2B95008357DF /* ReaderContentView.m in Sources */,
 				7D2FBD191A1C098E003D9946 /* ReportCollectionViewController.m in Sources */,
 				E3EF82521A898A3F006513CA /* DisclaimerViewController.m in Sources */,
+				048A7B841C87AA31007BCA5D /* MapOverlayCellItem.m in Sources */,
 				E3D7820E18517375001BB04B /* ReportViewCell.m in Sources */,
 				7DA393F01A1EA09000DE9649 /* ResourceTypes.m in Sources */,
 				E39D837419DF2B95008357DF /* ReaderThumbRender.m in Sources */,
 				E39D837719DF2B95008357DF /* ReaderThumbView.m in Sources */,
 				E39D837B19DF2B95008357DF /* UIXToolbarView.m in Sources */,
+				04FF40A11C7CA27E00B71807 /* DICEConstants.m in Sources */,
+				048A7B7E1C878004007BCA5D /* MapOverlayActiveSwitch.m in Sources */,
+				048A7B7B1C877FC2007BCA5D /* MapOverlayTableCell.m in Sources */,
 				7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */,
 				E39D837019DF2B95008357DF /* ReaderMainToolbar.m in Sources */,
 				E39D837A19DF2B95008357DF /* ThumbsViewController.m in Sources */,
@@ -844,16 +943,20 @@
 				E39D836A19DF2B95008357DF /* ReaderContentPage.m in Sources */,
 				E39D836919DF2B95008357DF /* ReaderConstants.m in Sources */,
 				E337BCC21811AD7B00D987F9 /* Report.m in Sources */,
+				048A7B811C87804A007BCA5D /* MapOverlayChildTableCell.m in Sources */,
 				E3A73FC01855585200035C76 /* MapViewController.m in Sources */,
 				E39D837619DF2B95008357DF /* ReaderThumbsView.m in Sources */,
 				E3BC6EE4192E7A8700096EE5 /* HTMLViewController.m in Sources */,
 				7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */,
+				048A7B741C84E1F8007BCA5D /* GeoPackageTableMapData.m in Sources */,
 				E39D837519DF2B95008357DF /* ReaderThumbRequest.m in Sources */,
 				E39D834D19DF2B95008357DF /* ReaderBookDelegate.m in Sources */,
 				E39D836E19DF2B95008357DF /* ReaderDocumentOutline.m in Sources */,
 				E39D837919DF2B95008357DF /* ThumbsMainToolbar.m in Sources */,
 				E3D7820B18516C6A001BB04B /* TileViewController.m in Sources */,
 				E3B67F6A1A716A33000B7397 /* JavaScriptAPI.m in Sources */,
+				048A7B711C84DF44007BCA5D /* GeoPackageMapData.m in Sources */,
+				04FF40A41C7CA76E00B71807 /* GeoPackageMapOverlays.m in Sources */,
 				E3AC40FB198ADA3900DE8F41 /* OfflineMapUtility.m in Sources */,
 				E3F3A44E1857D0DE00253290 /* NoteViewController.m in Sources */,
 				E3BC6EE1192E7A7B00096EE5 /* ListViewController.m in Sources */,
@@ -985,7 +1088,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
@@ -1012,7 +1115,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
@@ -1029,12 +1132,13 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = mil.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
@@ -1051,12 +1155,13 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = mil.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";

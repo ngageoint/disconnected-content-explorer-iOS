@@ -11,7 +11,8 @@
 #import "ZipReadStream.h"
 #import "ZipException.h"
 #import "FileInZipInfo.h"
-
+#import "GPKGIOUtils.h"
+#import "DICEConstants.h"
 
 @implementation ReportNotification
 
@@ -125,7 +126,6 @@
             errorHandler:nil];
         
         for (NSURL *file in files) {
-            NSLog(@"ReportAPI: attempting to add report from file %@", file);
             /*
              While seemingly unnecessary, this bit of code avoids an error that arises because the NSURL objects
              returned by the above enumerator have a /private component prepended to them which ends up resulting
@@ -135,8 +135,11 @@
              prefix.
              */
             NSString *fileName = [file.lastPathComponent stringByRemovingPercentEncoding];
-            NSURL *reportURL = [documentsDir URLByAppendingPathComponent:fileName isDirectory:NO];
-            [self addReportFromFile:reportURL afterComplete:nil];
+            if(![fileName isEqualToString:[GPKGIOUtils geoPackageDirectory]]){
+                NSLog(@"ReportAPI: attempting to add report from file %@", file);
+                NSURL *reportURL = [documentsDir URLByAppendingPathComponent:fileName isDirectory:NO];
+                [self addReportFromFile:reportURL afterComplete:nil];
+            }
         }
         
         if (reports.count == 0) {
@@ -306,6 +309,11 @@
         report.lon = [[json valueForKey:@"lon"] doubleValue];
         report.fileExtension = fileExtension;
         report.isEnabled = YES;
+        
+        // Set the map to zoom to all report locations
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setBool:YES forKey:DICE_ZOOM_TO_REPORTS];
+        [defaults synchronize];
     }
     else if (error == nil) {
         report.title = expectedContentDirName;
