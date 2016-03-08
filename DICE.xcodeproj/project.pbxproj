@@ -14,6 +14,8 @@
 		048A7B7E1C878004007BCA5D /* MapOverlayActiveSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B7D1C878004007BCA5D /* MapOverlayActiveSwitch.m */; };
 		048A7B811C87804A007BCA5D /* MapOverlayChildTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B801C87804A007BCA5D /* MapOverlayChildTableCell.m */; };
 		048A7B841C87AA31007BCA5D /* MapOverlayCellItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B831C87AA31007BCA5D /* MapOverlayCellItem.m */; };
+		048A7B881C8E32BD007BCA5D /* GeoPackageURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B871C8E32BD007BCA5D /* GeoPackageURLProtocol.m */; };
+		048A7B8B1C8F6E95007BCA5D /* URLProtocolUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B8A1C8F6E95007BCA5D /* URLProtocolUtils.m */; };
 		04FF40A11C7CA27E00B71807 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A01C7CA27E00B71807 /* DICEConstants.m */; };
 		04FF40A41C7CA76E00B71807 /* GeoPackageMapOverlays.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */; };
 		780CE859C439FF232AC4B784 /* libPods-DICETests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5EC182CE7857459FD4736E05 /* libPods-DICETests.a */; };
@@ -139,6 +141,10 @@
 		048A7B801C87804A007BCA5D /* MapOverlayChildTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayChildTableCell.m; sourceTree = "<group>"; };
 		048A7B821C87AA31007BCA5D /* MapOverlayCellItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayCellItem.h; sourceTree = "<group>"; };
 		048A7B831C87AA31007BCA5D /* MapOverlayCellItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayCellItem.m; sourceTree = "<group>"; };
+		048A7B861C8E32BD007BCA5D /* GeoPackageURLProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageURLProtocol.h; sourceTree = "<group>"; };
+		048A7B871C8E32BD007BCA5D /* GeoPackageURLProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageURLProtocol.m; sourceTree = "<group>"; };
+		048A7B891C8F6E95007BCA5D /* URLProtocolUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLProtocolUtils.h; sourceTree = "<group>"; };
+		048A7B8A1C8F6E95007BCA5D /* URLProtocolUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLProtocolUtils.m; sourceTree = "<group>"; };
 		04FF409F1C7CA27E00B71807 /* DICEConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEConstants.h; sourceTree = "<group>"; };
 		04FF40A01C7CA27E00B71807 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
 		04FF40A21C7CA76E00B71807 /* GeoPackageMapOverlays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapOverlays.h; sourceTree = "<group>"; };
@@ -579,6 +585,10 @@
 				E39D837D19DF3B8A008357DF /* PDFViewController.m */,
 				7D4E1C531A1FAB44002762B3 /* ReportResourceViewController.h */,
 				7D4E1C541A1FAB44002762B3 /* ReportResourceViewController.m */,
+				048A7B861C8E32BD007BCA5D /* GeoPackageURLProtocol.h */,
+				048A7B871C8E32BD007BCA5D /* GeoPackageURLProtocol.m */,
+				048A7B891C8F6E95007BCA5D /* URLProtocolUtils.h */,
+				048A7B8A1C8F6E95007BCA5D /* URLProtocolUtils.m */,
 			);
 			name = "Report View";
 			sourceTree = "<group>";
@@ -740,7 +750,7 @@
 						TestTargetID = E3FBB30117C9527000E133D6;
 					};
 					E3FBB30117C9527000E133D6 = {
-						DevelopmentTeam = ZL8G5D9G2H;
+						DevelopmentTeam = A8EK924J35;
 					};
 				};
 			};
@@ -946,9 +956,11 @@
 				048A7B811C87804A007BCA5D /* MapOverlayChildTableCell.m in Sources */,
 				E3A73FC01855585200035C76 /* MapViewController.m in Sources */,
 				E39D837619DF2B95008357DF /* ReaderThumbsView.m in Sources */,
+				048A7B8B1C8F6E95007BCA5D /* URLProtocolUtils.m in Sources */,
 				E3BC6EE4192E7A8700096EE5 /* HTMLViewController.m in Sources */,
 				7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */,
 				048A7B741C84E1F8007BCA5D /* GeoPackageTableMapData.m in Sources */,
+				048A7B881C8E32BD007BCA5D /* GeoPackageURLProtocol.m in Sources */,
 				E39D837519DF2B95008357DF /* ReaderThumbRequest.m in Sources */,
 				E39D834D19DF2B95008357DF /* ReaderBookDelegate.m in Sources */,
 				E39D836E19DF2B95008357DF /* ReaderDocumentOutline.m in Sources */,

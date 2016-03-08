@@ -11,6 +11,7 @@
 #import "GPKGGeoPackageValidate.h"
 #import "GPKGGeoPackageFactory.h"
 #import "DICEConstants.h"
+#import "GeoPackageURLProtocol.h"
 
 @interface AppDelegate ()
 
@@ -36,6 +37,8 @@
     NSDictionary *geojson = [OfflineMapUtility dictionaryWithContentsOfJSONString:@"ne_50m-110m_land"];
     NSMutableArray *featuresArray = [geojson objectForKey:@"features"];
     [OfflineMapUtility generateExteriorPolygons:featuresArray];
+    
+    [GeoPackageURLProtocol start];
     
     return YES;
 }
