@@ -11,8 +11,9 @@
 #import "GPKGGeoPackageCache.h"
 #import "GPKGIOUtils.h"
 #import "GPKGGeoPackageValidate.h"
-#import "GPKGOverlayFactory.h"
+#import "GPKGGeoPackageTileRetriever.h"
 #import "URLProtocolUtils.h"
+#import "GPKGFeatureTiles.h"
 
 @interface GeoPackageURLProtocol () <NSURLConnectionDelegate>
 
@@ -87,17 +88,33 @@ static NSString *urlProtocolHandledKey = @"GeoPackageURLProtocolHandledKey";
     if(![manager exists:name]){
         [manager importGeoPackageFromPath:self.path withName:name];
     }
+    
     GPKGGeoPackage * geoPackage = [cache getOrOpen:name];
     
     NSData *tileData = nil;
     
     for(NSString * table in self.tables){
         
-        GPKGTileDao * tileDao = [geoPackage getTileDaoWithTableName:table];
-    
-        GPKGBoundedOverlay * boundedOverlay = [GPKGOverlayFactory getBoundedOverlay:tileDao];
-        if([boundedOverlay hasTileWithX:self.x andY:self.y andZoom:self.zoom]){
-            tileData = [boundedOverlay retrieveTileWithX:self.x andY:self.y andZoom:self.zoom];
+        if([geoPackage isTileTable:table]){
+        
+            GPKGTileDao * tileDao = [geoPackage getTileDaoWithTableName:table];
+        
+            GPKGGeoPackageTileRetriever * retriever = [[GPKGGeoPackageTileRetriever alloc] initWithTileDao:tileDao];
+            if([retriever hasTileWithX:self.x andY:self.y andZoom:self.zoom]){
+                GPKGGeoPackageTile * tile = [retriever getTileWithX:self.x andY:self.y andZoom:self.zoom];
+                if(tile != nil){
+                    tileData = tile.data;
+                }
+            }
+        } else if([geoPackage isFeatureTable:table]){
+            
+            GPKGFeatureDao * featureDao = [geoPackage getFeatureDaoWithTableName:table];
+            GPKGFeatureTiles * featureTiles = [[GPKGFeatureTiles alloc] initWithFeatureDao:featureDao];
+            GPKGFeatureIndexManager * indexer = [[GPKGFeatureIndexManager alloc] initWithGeoPackage:geoPackage andFeatureDao:featureDao];
+            [featureTiles setIndexManager:indexer];
+            if([featureTiles isIndexQuery] && [featureTiles queryIndexedFeaturesCountWithX:self.x andY:self.y andZoom:self.zoom] > 0){
+                tileData = [featureTiles drawTileDataWithX:self.x andY:self.y andZoom:self.zoom];
+            }
         }
      
         if(tileData != nil){
