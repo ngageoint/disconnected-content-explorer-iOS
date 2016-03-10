@@ -29,10 +29,31 @@
 @implementation GeoPackageURLProtocol
 
 static NSString *urlProtocolHandledKey = @"GeoPackageURLProtocolHandledKey";
+static GPKGGeoPackageManager * manager;
+static GPKGGeoPackageCache *cache;
+static NSString *currentId;
 
-+ (void)start
-{
++ (void)start {
+    manager = [GPKGGeoPackageFactory getManager];
+    cache = [[GPKGGeoPackageCache alloc]initWithManager:manager];
     [NSURLProtocol registerClass:self];
+}
+
++ (void) startCache: (NSString *) id{
+    [self closeCache];
+    currentId = id;
+}
+
++ (void) closeCache{
+    [cache closeAll];
+    if(currentId != nil){
+        NSString * like = [NSString stringWithFormat:@"%@%@", [self reportPrefix], @"%"];
+        NSArray * geoPackages = [manager databasesLike:like];
+        for(NSString * geoPackage in geoPackages){
+            [manager delete:geoPackage andFile:NO];
+        }
+        currentId = nil;
+    }
 }
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request {
@@ -80,45 +101,105 @@ static NSString *urlProtocolHandledKey = @"GeoPackageURLProtocolHandledKey";
     
     self.connection = [NSURLConnection connectionWithRequest:newRequest delegate:self];
     
-    GPKGGeoPackageManager * manager = [GPKGGeoPackageFactory getManager];
-    GPKGGeoPackageCache *cache = [[GPKGGeoPackageCache alloc]initWithManager:manager];
+    NSString * nameWithExtension = [self.path lastPathComponent];
+    NSString * name = [nameWithExtension stringByDeletingPathExtension];
     
-    NSString * name = [[self.path lastPathComponent] stringByDeletingPathExtension];
-    
-    if(![manager exists:name]){
-        [manager importGeoPackageFromPath:self.path withName:name];
+    NSString * localPath = [GPKGIOUtils localDocumentsDirectoryPath:self.path];
+    NSString * sharedPrefix = [NSString stringWithFormat:@"%@/%@", currentId, @"shared"];
+    BOOL shared = [localPath hasPrefix:sharedPrefix];
+    if(!shared){
+        NSString * reportIdPrefix = [GeoPackageURLProtocol reportIdPrefix];
+        if(reportIdPrefix != nil){
+            name = [NSString stringWithFormat:@"%@%@", reportIdPrefix, name];
+        }else{
+            name = nil;
+        }
     }
     
-    GPKGGeoPackage * geoPackage = [cache getOrOpen:name];
+    GPKGGeoPackage * geoPackage = nil;
+    
+    if(name != nil){
+    
+        if([manager exists:name]){
+            @try {
+                geoPackage = [cache getOrOpen:name];
+            }
+            @catch (NSException *exception) {
+                [cache close:name];
+                [manager delete:name andFile:NO];
+                geoPackage = nil;
+            }
+        }
+        
+        if(geoPackage == nil){
+            
+            NSString * importPath = self.path;
+            
+            // If a shared file, check if the file exists in this report or another
+            if(shared){
+                NSFileManager * fileManager = [NSFileManager defaultManager];
+                
+                // If the file is not in this report, search other reports
+                if(![fileManager fileExistsAtPath:importPath]){
+                    
+                    NSString * sharedSearchPath = [localPath substringFromIndex:[currentId length]];
+                    
+                    NSArray *documentFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[GPKGIOUtils documentsDirectory] error:nil];
+                    for(NSString * documentFile in documentFiles){
+                        
+                        NSString * sharedLocalPath = [NSString stringWithFormat:@"%@%@", documentFile, sharedSearchPath];
+                        
+                        NSString * sharedLocation = [GPKGIOUtils documentsDirectoryWithSubDirectory:sharedLocalPath];
+                        if([fileManager fileExistsAtPath:sharedLocation]){
+                            importPath = sharedLocation;
+                            break;
+                        }
+                    }
+
+                }
+            }
+            
+            [manager importGeoPackageAsLinkToPath:importPath withName:name];
+            @try {
+                geoPackage = [cache getOrOpen:name];
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Failed to open GeoPackage %@ at path: %@", name, importPath);
+                geoPackage = nil;
+            }
+        }
+    }
     
     NSData *tileData = nil;
     
-    for(NSString * table in self.tables){
-        
-        if([geoPackage isTileTable:table]){
-        
-            GPKGTileDao * tileDao = [geoPackage getTileDaoWithTableName:table];
-        
-            GPKGGeoPackageTileRetriever * retriever = [[GPKGGeoPackageTileRetriever alloc] initWithTileDao:tileDao];
-            if([retriever hasTileWithX:self.x andY:self.y andZoom:self.zoom]){
-                GPKGGeoPackageTile * tile = [retriever getTileWithX:self.x andY:self.y andZoom:self.zoom];
-                if(tile != nil){
-                    tileData = tile.data;
+    if(geoPackage != nil){
+        for(NSString * table in self.tables){
+            
+            if([geoPackage isTileTable:table]){
+            
+                GPKGTileDao * tileDao = [geoPackage getTileDaoWithTableName:table];
+            
+                GPKGGeoPackageTileRetriever * retriever = [[GPKGGeoPackageTileRetriever alloc] initWithTileDao:tileDao];
+                if([retriever hasTileWithX:self.x andY:self.y andZoom:self.zoom]){
+                    GPKGGeoPackageTile * tile = [retriever getTileWithX:self.x andY:self.y andZoom:self.zoom];
+                    if(tile != nil){
+                        tileData = tile.data;
+                    }
+                }
+            } else if([geoPackage isFeatureTable:table]){
+                
+                GPKGFeatureDao * featureDao = [geoPackage getFeatureDaoWithTableName:table];
+                GPKGFeatureTiles * featureTiles = [[GPKGFeatureTiles alloc] initWithFeatureDao:featureDao];
+                GPKGFeatureIndexManager * indexer = [[GPKGFeatureIndexManager alloc] initWithGeoPackage:geoPackage andFeatureDao:featureDao];
+                [featureTiles setIndexManager:indexer];
+                if([featureTiles isIndexQuery] && [featureTiles queryIndexedFeaturesCountWithX:self.x andY:self.y andZoom:self.zoom] > 0){
+                    tileData = [featureTiles drawTileDataWithX:self.x andY:self.y andZoom:self.zoom];
                 }
             }
-        } else if([geoPackage isFeatureTable:table]){
-            
-            GPKGFeatureDao * featureDao = [geoPackage getFeatureDaoWithTableName:table];
-            GPKGFeatureTiles * featureTiles = [[GPKGFeatureTiles alloc] initWithFeatureDao:featureDao];
-            GPKGFeatureIndexManager * indexer = [[GPKGFeatureIndexManager alloc] initWithGeoPackage:geoPackage andFeatureDao:featureDao];
-            [featureTiles setIndexManager:indexer];
-            if([featureTiles isIndexQuery] && [featureTiles queryIndexedFeaturesCountWithX:self.x andY:self.y andZoom:self.zoom] > 0){
-                tileData = [featureTiles drawTileDataWithX:self.x andY:self.y andZoom:self.zoom];
+         
+            if(tileData != nil){
+                break;
             }
-        }
-     
-        if(tileData != nil){
-            break;
         }
     }
     
@@ -152,6 +233,18 @@ static NSString *urlProtocolHandledKey = @"GeoPackageURLProtocolHandledKey";
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     [self.client URLProtocol:self didFailWithError:error];
+}
+
++(NSString *) reportPrefix{
+    return @"rp-";
+}
+
++(NSString *) reportIdPrefix{
+    NSString * id = currentId;
+    if(id != nil){
+        id = [NSString stringWithFormat:@"%@%@-", [self reportPrefix], id];
+    }
+    return id;
 }
 
 @end

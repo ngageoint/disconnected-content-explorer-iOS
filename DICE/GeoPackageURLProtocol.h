@@ -15,4 +15,8 @@
  */
 + (void)start;
 
++ (void) startCache: (NSString *) id;
+
++ (void) closeCache;
+
 @end

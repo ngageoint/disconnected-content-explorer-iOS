@@ -53,7 +53,7 @@ static NSMutableSet<NSString *> *expanded;
     self.tableCells = [[NSMutableArray alloc] init];
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
     
     GPKGGeoPackageManager * manager = [GPKGGeoPackageFactory getManager];
     
@@ -224,7 +224,7 @@ static NSMutableSet<NSString *> *expanded;
     
     // Update the selected tables
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
     if(sender.on){
         [selectedCaches setObject:[[NSMutableArray alloc] init] forKey:sender.overlay.name];
     }else{
@@ -259,7 +259,7 @@ static NSMutableSet<NSString *> *expanded;
     
     // Update the selected tables
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
     NSMutableArray * selectedTables = [[selectedCaches objectForKey:parentOverlay.name] mutableCopy];
     if(sender.on){
         if(selectedTables == nil){
@@ -310,7 +310,7 @@ static NSMutableSet<NSString *> *expanded;
             
             // Update the selected tables
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-            NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+            NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
             [selectedCaches removeObjectForKey:tableCell.name];
             [self updateSelectedCaches:selectedCaches withDefaults:defaults];
             
@@ -319,6 +319,14 @@ static NSMutableSet<NSString *> *expanded;
         }
         
     }
+}
+
+-(NSMutableDictionary *) getSelectedCachesWithDefaults: (NSUserDefaults *) defaults{
+     NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    if(selectedCaches == nil){
+        selectedCaches = [[NSMutableDictionary alloc] init];
+    }
+    return selectedCaches;
 }
 
 -(void) updateSelectedCaches: (NSMutableDictionary *) selectedCaches withDefaults: (NSUserDefaults *) defaults{
