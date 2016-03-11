@@ -13,6 +13,8 @@
 #import "FileInZipInfo.h"
 #import "GPKGIOUtils.h"
 #import "DICEConstants.h"
+#import "GPKGGeoPackageConstants.h"
+#import "GPKGGeoPackageFactory.h"
 
 @implementation ReportNotification
 
@@ -326,6 +328,28 @@
     
     // make sure url's baseURL property is set
     report.url = [NSURL URLWithString:@"index.html" relativeToURL:expectedContentDir];
+    
+    // Check if the report has a shared directory
+    NSString * sharedDirectory = [NSString stringWithFormat:@"%@/%@", expectedContentDir.path, DICE_REPORT_SHARED_DIRECTORY];
+    if([fileManager fileExistsAtPath:sharedDirectory]){
+        
+        // Get the shared files
+        NSArray *sharedFiles = [[NSFileManager defaultManager] subpathsOfDirectoryAtPath:sharedDirectory error:nil];
+        
+        // Search for GeoPackage files and import them
+        NSString * predicate = [NSString stringWithFormat:@"self ENDSWITH '.%@' OR self ENDSWITH '.%@'", GPKG_GEOPACKAGE_EXTENSION, GPKG_GEOPACKAGE_EXTENDED_EXTENSION];
+        NSArray *geoPackageFiles = [sharedFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:predicate]];
+        for(NSString * geoPackageFile in geoPackageFiles){
+            GPKGGeoPackageManager * manager = [GPKGGeoPackageFactory getManager];
+            NSString * nameWithExtension = [geoPackageFile lastPathComponent];
+            NSString * name = [nameWithExtension stringByDeletingPathExtension];
+            if(![manager exists:name]){
+                NSString * importPath = [NSString stringWithFormat:@"%@/%@", sharedDirectory, geoPackageFile];
+                [manager importGeoPackageAsLinkToPath:importPath withName:name];
+            }
+        }
+        
+    }
     
     NSLog(@"finished processing report zip %@; report url: %@", report.sourceFile, report.url.absoluteString);
 }

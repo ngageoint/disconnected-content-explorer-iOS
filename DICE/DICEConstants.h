@@ -8,9 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString * const DICE_REPORT_SHARED_DIRECTORY;
 extern NSString * const DICE_SELECTED_CACHES;
 extern NSString * const DICE_SELECTED_CACHES_UPDATED;
 extern NSString * const DICE_ZOOM_TO_REPORTS;
+extern NSString * const DICE_TEMP_CACHE_PREFIX;
 extern NSInteger const DICE_CACHE_FEATURE_TILES_MAX_POINTS_PER_TILE;
 extern NSInteger const DICE_CACHE_FEATURE_TILES_MAX_FEATURES_PER_TILE;
 extern NSInteger const DICE_CACHE_FEATURES_MAX_POINTS_PER_TABLE;

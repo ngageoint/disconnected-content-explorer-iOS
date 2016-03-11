@@ -14,6 +14,8 @@
 #import "GPKGGeoPackageTileRetriever.h"
 #import "URLProtocolUtils.h"
 #import "GPKGFeatureTiles.h"
+#import "ReportUtils.h"
+#import "DICEConstants.h"
 
 @interface GeoPackageURLProtocol () <NSURLConnectionDelegate>
 
@@ -105,7 +107,7 @@ static NSString *currentId;
     NSString * name = [nameWithExtension stringByDeletingPathExtension];
     
     NSString * localPath = [GPKGIOUtils localDocumentsDirectoryPath:self.path];
-    NSString * sharedPrefix = [NSString stringWithFormat:@"%@/%@", currentId, @"shared"];
+    NSString * sharedPrefix = [NSString stringWithFormat:@"%@/%@", currentId, DICE_REPORT_SHARED_DIRECTORY];
     BOOL shared = [localPath hasPrefix:sharedPrefix];
     if(!shared){
         NSString * reportIdPrefix = [GeoPackageURLProtocol reportIdPrefix];
@@ -144,12 +146,11 @@ static NSString *currentId;
                     
                     NSString * sharedSearchPath = [localPath substringFromIndex:[currentId length]];
                     
-                    NSArray *documentFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[GPKGIOUtils documentsDirectory] error:nil];
-                    for(NSString * documentFile in documentFiles){
+                    NSArray * reportDirectories = [ReportUtils getReportDirectories];
+                    for(NSString * reportDirectory in reportDirectories){
                         
-                        NSString * sharedLocalPath = [NSString stringWithFormat:@"%@%@", documentFile, sharedSearchPath];
+                        NSString * sharedLocation = [NSString stringWithFormat:@"%@%@", reportDirectory, sharedSearchPath];
                         
-                        NSString * sharedLocation = [GPKGIOUtils documentsDirectoryWithSubDirectory:sharedLocalPath];
                         if([fileManager fileExistsAtPath:sharedLocation]){
                             importPath = sharedLocation;
                             break;
@@ -236,7 +237,7 @@ static NSString *currentId;
 }
 
 +(NSString *) reportPrefix{
-    return @"rp-";
+    return DICE_TEMP_CACHE_PREFIX;
 }
 
 +(NSString *) reportIdPrefix{

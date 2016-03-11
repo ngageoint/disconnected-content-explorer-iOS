@@ -14,6 +14,7 @@
 #import "MapOverlayCellItem.h"
 #import "GPKGFeatureTileTableLinker.h"
 #import "GPKGFeatureIndexManager.h"
+#import "GPKGIOUtils.h"
 
 @interface MapOverlayController ()
 
@@ -57,13 +58,20 @@ static NSMutableSet<NSString *> *expanded;
     
     GPKGGeoPackageManager * manager = [GPKGGeoPackageFactory getManager];
     
-    for(NSString * name in [manager databases]){
+    NSString * like = [NSString stringWithFormat:@"%@%@", DICE_TEMP_CACHE_PREFIX, @"%"];
+    NSArray * geoPackages = [manager databasesNotLike:like];
+    for(NSString * name in geoPackages){
         MapOverlayCellItem * cellItem = [[MapOverlayCellItem alloc] initWithName:name];
         NSArray * selectedTables = [selectedCaches objectForKey:name];
         if(selectedTables != nil){
             cellItem.enabled = YES;
         }
         [self.tableCells addObject:cellItem];
+        
+        NSString * filePath = [self.manager pathForDatabase:name];
+        BOOL locked = ![filePath hasPrefix:[NSString stringWithFormat:@"%@/", [GPKGIOUtils geoPackageDirectory]]];
+        cellItem.locked = locked;
+        
         if([expanded containsObject:name]){
             GPKGGeoPackage * geoPackage = [manager open:name];
             
@@ -187,6 +195,7 @@ static NSMutableSet<NSString *> *expanded;
         
         [mapOverlayCell.name setText:tableCell.name];
         mapOverlayCell.active.on = tableCell.enabled;
+        mapOverlayCell.locked.hidden = !tableCell.locked;
         
         if(cellImage != nil){
             [mapOverlayCell.tableType setImage:cellImage];
@@ -292,7 +301,7 @@ static NSMutableSet<NSString *> *expanded;
     UITableViewCellEditingStyle style = UITableViewCellEditingStyleNone;
     
     MapOverlayCellItem * tableCell = [self.tableCells objectAtIndex:[indexPath row]];
-    if(!tableCell.child){
+    if(!tableCell.child && !tableCell.locked){
         style = UITableViewCellEditingStyleDelete;
     }
     
