@@ -58,7 +58,15 @@
            [selectedCaches setObject:[[NSMutableArray alloc] init] forKey:reportCache.name];
             [seletedGeoPackages addObject:reportCache.name];
         }
-        
+    }
+    
+    NSString * like = [NSString stringWithFormat:@"%@%@", DICE_TEMP_CACHE_PREFIX, @"%"];
+    NSArray * geoPackages = [self.manager databasesLike:like];
+    for(NSString * geoPackage in geoPackages){
+        if(![seletedGeoPackages containsObject:geoPackage]){
+            [self.cache close:geoPackage];
+            [self.manager delete:geoPackage andFile:NO];
+        }
     }
     
     NSMutableDictionary<NSString *, GeoPackageMapData *> *newMapData = [[NSMutableDictionary alloc] init];
@@ -110,7 +118,7 @@
                 
             }else{
                 // Delete if the file was deleted
-                [self.manager delete:name];
+                [self.manager delete:name andFile:NO];
             }
         }
         
@@ -342,19 +350,22 @@
 
 -(void) deselectedReport: (Report *) report{
     
-    if([report.cacheFiles count] > 0){
+    BOOL change = NO;
     
-        for(ReportCache * reportCache in report.cacheFiles){
-            if(!reportCache.shared){
-                [self.cache close:reportCache.name];
-                [self.manager delete:reportCache.name andFile:NO];
-            }
-        }
-        
-        self.selectedReport = nil;
-        
+    self.selectedReport = nil;
+    
+    NSString * like = [NSString stringWithFormat:@"%@%@", DICE_TEMP_CACHE_PREFIX, @"%"];
+    NSArray * geoPackages = [self.manager databasesLike:like];
+    for(NSString * geoPackage in geoPackages){
+        [self.cache close:geoPackage];
+        [self.manager delete:geoPackage andFile:NO];
+        change = YES;
+    }
+    
+    if(change){
         [self updateSelectedCaches];
     }
+
 }
 
 -(NSMutableDictionary *) getSelectedCachesWithDefaults: (NSUserDefaults *) defaults{
