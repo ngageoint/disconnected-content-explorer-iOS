@@ -356,9 +356,6 @@
         [report.cacheFiles addObject:reportCache];
     }
     
-    // Check if the report has a shared directory
-    //NSString * sharedDirectory = [NSString stringWithFormat:@"%@/%@", expectedContentDir.path, DICE_REPORT_SHARED_DIRECTORY];
-    
     NSLog(@"finished processing report zip %@; report url: %@", report.sourceFile, report.url.absoluteString);
 }
 
