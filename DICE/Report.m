@@ -20,6 +20,7 @@
         self.error = nil;
         self.totalNumberOfFiles = 0;
         self.progress = 0;
+        self.cacheFiles = [[NSMutableArray alloc] init];
     }
     
     return self;

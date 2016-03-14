@@ -25,6 +25,7 @@
     @property (nonatomic, strong) GPKGGeoPackageManager * manager;
     @property (nonatomic, strong) GPKGGeoPackageCache *cache;
     @property (nonatomic, strong) NSMutableDictionary<NSString *, GeoPackageMapData *> *mapData;
+    @property (nonatomic, strong) Report *selectedReport;
 @end
 
 @implementation GeoPackageMapOverlays
@@ -35,6 +36,7 @@
         self.manager = [GPKGGeoPackageFactory getManager];
         self.cache = [[GPKGGeoPackageCache alloc]initWithManager:self.manager];
         self.mapData = [[NSMutableDictionary alloc] init];
+        self.selectedReport = nil;
     }
     
     return self;
@@ -47,69 +49,77 @@
 -(void) updateMap{
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
+    NSMutableDictionary * updateSelectedCaches = [selectedCaches mutableCopy];
+    
+    NSMutableSet * seletedGeoPackages = [[NSMutableSet alloc] init];
+    if(self.selectedReport != nil){
+        for(ReportCache * reportCache in self.selectedReport.cacheFiles){
+           [selectedCaches setObject:[[NSMutableArray alloc] init] forKey:reportCache.name];
+            [seletedGeoPackages addObject:reportCache.name];
+        }
+        
+    }
     
     NSMutableDictionary<NSString *, GeoPackageMapData *> *newMapData = [[NSMutableDictionary alloc] init];
     
-    if(selectedCaches != nil){
-    
-        // Add the GeoPackage caches
-        for(NSString * name in [selectedCaches allKeys]){
-            
-            BOOL deleteFromSelected = YES;
-            
-            // Make sure the GeoPackage exists
-            if([self.manager exists:name]){
-            
-                // Make sure the GeoPackage file exists
-                NSString * filePath = [self.manager documentsPathForDatabase:name];
-                if(filePath != nil && [[NSFileManager defaultManager] fileExistsAtPath:filePath]){
-                    
-                    deleteFromSelected = NO;
-                    
-                    NSMutableArray * selected = [[selectedCaches objectForKey:name] mutableCopy];
-                    
-                    // Close a previously open GeoPackage connection if a new GeoPackage version
-                    if([selected count] == 0){
-                        [self.cache close:name];
-                    }
-                    
-                    GPKGGeoPackage * geoPackage = [self.cache getOrOpen:name];
-                    
-                    GeoPackageMapData * existingGeoPackageData = [self.mapData objectForKey:name];
-                    
-                    // If the GeoPackage is selected with no tables, select all of them as it is a new version
-                    if([selected count] == 0){
-                        [selected addObjectsFromArray:[geoPackage getTables]];
-                        [selectedCaches setObject:selected forKey:name];
-                        [defaults setObject:selectedCaches forKey:DICE_SELECTED_CACHES];
+    // Add the GeoPackage caches
+    for(NSString * name in [selectedCaches allKeys]){
+        
+        BOOL deleteFromSelected = YES;
+        
+        // Make sure the GeoPackage exists
+        if([self.manager exists:name]){
+        
+            // Make sure the GeoPackage file exists
+            NSString * filePath = [self.manager documentsPathForDatabase:name];
+            if(filePath != nil && [[NSFileManager defaultManager] fileExistsAtPath:filePath]){
+                
+                deleteFromSelected = NO;
+                
+                NSMutableArray * selected = [[selectedCaches objectForKey:name] mutableCopy];
+                
+                // Close a previously open GeoPackage connection if a new GeoPackage version
+                if([selected count] == 0){
+                    [self.cache close:name];
+                }
+                
+                GPKGGeoPackage * geoPackage = [self.cache getOrOpen:name];
+                
+                GeoPackageMapData * existingGeoPackageData = [self.mapData objectForKey:name];
+                
+                // If the GeoPackage is selected with no tables, select all of them as it is a new version
+                if([selected count] == 0){
+                    [selected addObjectsFromArray:[geoPackage getTables]];
+                    if(![seletedGeoPackages containsObject:name]){
+                        [updateSelectedCaches setObject:selected forKey:name];
+                        [defaults setObject:updateSelectedCaches forKey:DICE_SELECTED_CACHES];
                         [defaults synchronize];
-                        
+                    
                         if(existingGeoPackageData != nil){
                             [existingGeoPackageData removeFromMapView:self.mapView];
                             existingGeoPackageData = nil;
                         }
                     }
-                    
-                    GeoPackageMapData * geoPackageData = [[GeoPackageMapData alloc] initWithName:geoPackage.name];
-                    [newMapData setObject:geoPackageData forKey:geoPackage.name];
-                    
-                    [self addGeoPackage:geoPackage andSelected:selected andData:geoPackageData andExistingData:existingGeoPackageData];
-                    
-                }else{
-                    // Delete if the file was deleted
-                    [self.manager delete:name];
                 }
-            }
-            
-            // Remove the GeoPackage from the list of selected
-            if(deleteFromSelected){
-                [selectedCaches removeObjectForKey:name];
-                [defaults setObject:selectedCaches forKey:DICE_SELECTED_CACHES];
-                [defaults synchronize];
+                
+                GeoPackageMapData * geoPackageData = [[GeoPackageMapData alloc] initWithName:name];
+                [newMapData setObject:geoPackageData forKey:[geoPackageData getName]];
+                
+                [self addGeoPackage:geoPackage andSelected:selected andData:geoPackageData andExistingData:existingGeoPackageData];
+                
+            }else{
+                // Delete if the file was deleted
+                [self.manager delete:name];
             }
         }
         
+        // Remove the GeoPackage from the list of selected
+        if(deleteFromSelected){
+            [updateSelectedCaches removeObjectForKey:name];
+            [defaults setObject:updateSelectedCaches forKey:DICE_SELECTED_CACHES];
+            [defaults synchronize];
+        }
     }
 
     // Remove GeoPackage tables from the map that are no longer selected
@@ -312,6 +322,53 @@
         }
     }
     return [clickMessage length] > 0 ? clickMessage : nil;
+}
+
+-(void) selectedReport: (Report *) report{
+    
+    if([report.cacheFiles count] > 0){
+    
+        for(ReportCache * reportCache in report.cacheFiles){
+            if(![self.manager exists:reportCache.name]){
+                [self.manager importGeoPackageAsLinkToPath:reportCache.path withName:reportCache.name];
+            }
+        }
+        
+        self.selectedReport = report;
+        
+        [self updateSelectedCaches];
+    }
+}
+
+-(void) deselectedReport: (Report *) report{
+    
+    if([report.cacheFiles count] > 0){
+    
+        for(ReportCache * reportCache in report.cacheFiles){
+            if(!reportCache.shared){
+                [self.cache close:reportCache.name];
+                [self.manager delete:reportCache.name andFile:NO];
+            }
+        }
+        
+        self.selectedReport = nil;
+        
+        [self updateSelectedCaches];
+    }
+}
+
+-(NSMutableDictionary *) getSelectedCachesWithDefaults: (NSUserDefaults *) defaults{
+    NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    if(selectedCaches == nil){
+        selectedCaches = [[NSMutableDictionary alloc] init];
+    }
+    return selectedCaches;
+}
+
+-(void) updateSelectedCaches{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:nil forKey:DICE_SELECTED_CACHES_UPDATED];
+    [defaults synchronize];
 }
 
 @end

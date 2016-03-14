@@ -19,4 +19,8 @@
 
 + (void) closeCache;
 
++(NSString *) reportIdPrefixWithReport: (NSString *) report;
+
++(NSString *) reportIdPrefixWithName: (NSString *) name andReport: (NSString *) report andShare: (BOOL) share;
+
 @end

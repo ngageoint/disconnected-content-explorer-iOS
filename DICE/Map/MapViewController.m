@@ -334,4 +334,24 @@ static NSString *mapPointPinReuseIdentifier = @"mapPointPinReuseIdentifier";
     return title;
 }
 
+- (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view{
+    
+    if ([view.annotation isKindOfClass:[ReportMapAnnotation class]]) {
+        ReportMapAnnotation * reportAnnotation = (ReportMapAnnotation *) view.annotation;
+        Report * report = reportAnnotation.report;
+        [self.geoPackageOverlays selectedReport:report];
+    }
+    
+}
+
+- (void)mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *)view{
+    
+    if ([view.annotation isKindOfClass:[ReportMapAnnotation class]]) {
+        ReportMapAnnotation * reportAnnotation = (ReportMapAnnotation *) view.annotation;
+        Report * report = reportAnnotation.report;
+        [self.geoPackageOverlays deselectedReport:report];
+    }
+    
+}
+
 @end

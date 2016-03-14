@@ -17,6 +17,7 @@
 		048A7B881C8E32BD007BCA5D /* GeoPackageURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B871C8E32BD007BCA5D /* GeoPackageURLProtocol.m */; };
 		048A7B8B1C8F6E95007BCA5D /* URLProtocolUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B8A1C8F6E95007BCA5D /* URLProtocolUtils.m */; };
 		048A7B9D1C930DDE007BCA5D /* ReportUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B9C1C930DDE007BCA5D /* ReportUtils.m */; };
+		048A7BA01C937537007BCA5D /* ReportCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 048A7B9F1C937537007BCA5D /* ReportCache.m */; };
 		04FF40A11C7CA27E00B71807 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A01C7CA27E00B71807 /* DICEConstants.m */; };
 		04FF40A41C7CA76E00B71807 /* GeoPackageMapOverlays.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FF40A31C7CA76E00B71807 /* GeoPackageMapOverlays.m */; };
 		780CE859C439FF232AC4B784 /* libPods-DICETests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5EC182CE7857459FD4736E05 /* libPods-DICETests.a */; };
@@ -148,6 +149,8 @@
 		048A7B8A1C8F6E95007BCA5D /* URLProtocolUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLProtocolUtils.m; sourceTree = "<group>"; };
 		048A7B9B1C930DDE007BCA5D /* ReportUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportUtils.h; sourceTree = "<group>"; };
 		048A7B9C1C930DDE007BCA5D /* ReportUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportUtils.m; sourceTree = "<group>"; };
+		048A7B9E1C937537007BCA5D /* ReportCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCache.h; sourceTree = "<group>"; };
+		048A7B9F1C937537007BCA5D /* ReportCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCache.m; sourceTree = "<group>"; };
 		04FF409F1C7CA27E00B71807 /* DICEConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEConstants.h; sourceTree = "<group>"; };
 		04FF40A01C7CA27E00B71807 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
 		04FF40A21C7CA76E00B71807 /* GeoPackageMapOverlays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapOverlays.h; sourceTree = "<group>"; };
@@ -425,6 +428,8 @@
 			children = (
 				E337BCC01811AD7B00D987F9 /* Report.h */,
 				E337BCC11811AD7B00D987F9 /* Report.m */,
+				048A7B9E1C937537007BCA5D /* ReportCache.h */,
+				048A7B9F1C937537007BCA5D /* ReportCache.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -967,6 +972,7 @@
 				7D4E1C551A1FAB44002762B3 /* ReportResourceViewController.m in Sources */,
 				048A7B741C84E1F8007BCA5D /* GeoPackageTableMapData.m in Sources */,
 				048A7B881C8E32BD007BCA5D /* GeoPackageURLProtocol.m in Sources */,
+				048A7BA01C937537007BCA5D /* ReportCache.m in Sources */,
 				E39D837519DF2B95008357DF /* ReaderThumbRequest.m in Sources */,
 				E39D834D19DF2B95008357DF /* ReaderBookDelegate.m in Sources */,
 				E39D836E19DF2B95008357DF /* ReaderDocumentOutline.m in Sources */,

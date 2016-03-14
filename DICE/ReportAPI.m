@@ -15,6 +15,7 @@
 #import "DICEConstants.h"
 #import "GPKGGeoPackageConstants.h"
 #import "GPKGGeoPackageFactory.h"
+#import "GeoPackageURLProtocol.h"
 
 @implementation ReportNotification
 
@@ -329,27 +330,34 @@
     // make sure url's baseURL property is set
     report.url = [NSURL URLWithString:@"index.html" relativeToURL:expectedContentDir];
     
-    // Check if the report has a shared directory
-    NSString * sharedDirectory = [NSString stringWithFormat:@"%@/%@", expectedContentDir.path, DICE_REPORT_SHARED_DIRECTORY];
-    if([fileManager fileExistsAtPath:sharedDirectory]){
+    // Find all report GeoPackages
+    NSString * geoPackagePredicate = [NSString stringWithFormat:@"self ENDSWITH '.%@' OR self ENDSWITH '.%@'", GPKG_GEOPACKAGE_EXTENSION, GPKG_GEOPACKAGE_EXTENDED_EXTENSION];
+    NSArray *allFiles = [[NSFileManager defaultManager] subpathsOfDirectoryAtPath:expectedContentDir.path error:nil];
+    NSArray *geoPackageFiles = [allFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:geoPackagePredicate]];
+    for(NSString * geoPackageFile in geoPackageFiles){
         
-        // Get the shared files
-        NSArray *sharedFiles = [[NSFileManager defaultManager] subpathsOfDirectoryAtPath:sharedDirectory error:nil];
+        BOOL shared = [geoPackageFile hasPrefix:[NSString stringWithFormat:@"%@/", DICE_REPORT_SHARED_DIRECTORY]];
+        NSString * filePath = [NSString stringWithFormat:@"%@/%@", expectedContentDir.path, geoPackageFile];
         
-        // Search for GeoPackage files and import them
-        NSString * predicate = [NSString stringWithFormat:@"self ENDSWITH '.%@' OR self ENDSWITH '.%@'", GPKG_GEOPACKAGE_EXTENSION, GPKG_GEOPACKAGE_EXTENDED_EXTENSION];
-        NSArray *geoPackageFiles = [sharedFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:predicate]];
-        for(NSString * geoPackageFile in geoPackageFiles){
+        NSString * nameWithExtension = [geoPackageFile lastPathComponent];
+        NSString * name = [nameWithExtension stringByDeletingPathExtension];
+        
+        NSString * reportName = [report.reportID stringByDeletingPathExtension];
+        name = [GeoPackageURLProtocol reportIdPrefixWithName:name andReport:reportName andShare:shared];
+        if(shared){
             GPKGGeoPackageManager * manager = [GPKGGeoPackageFactory getManager];
-            NSString * nameWithExtension = [geoPackageFile lastPathComponent];
-            NSString * name = [nameWithExtension stringByDeletingPathExtension];
             if(![manager exists:name]){
-                NSString * importPath = [NSString stringWithFormat:@"%@/%@", sharedDirectory, geoPackageFile];
+                NSString * importPath = [NSString stringWithFormat:@"%@/%@", expectedContentDir.path, geoPackageFile];
                 [manager importGeoPackageAsLinkToPath:importPath withName:name];
             }
         }
         
+        ReportCache * reportCache = [[ReportCache alloc] initWithName:name andPath:filePath andShared:shared];
+        [report.cacheFiles addObject:reportCache];
     }
+    
+    // Check if the report has a shared directory
+    //NSString * sharedDirectory = [NSString stringWithFormat:@"%@/%@", expectedContentDir.path, DICE_REPORT_SHARED_DIRECTORY];
     
     NSLog(@"finished processing report zip %@; report url: %@", report.sourceFile, report.url.absoluteString);
 }

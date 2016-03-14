@@ -49,7 +49,7 @@ static NSString *currentId;
 + (void) closeCache{
     [cache closeAll];
     if(currentId != nil){
-        NSString * like = [NSString stringWithFormat:@"%@%@", [self reportPrefix], @"%"];
+        NSString * like = [NSString stringWithFormat:@"%@%@", DICE_TEMP_CACHE_PREFIX, @"%"];
         NSArray * geoPackages = [manager databasesLike:like];
         for(NSString * geoPackage in geoPackages){
             [manager delete:geoPackage andFile:NO];
@@ -109,14 +109,8 @@ static NSString *currentId;
     NSString * localPath = [GPKGIOUtils localDocumentsDirectoryPath:self.path];
     NSString * sharedPrefix = [NSString stringWithFormat:@"%@/%@", currentId, DICE_REPORT_SHARED_DIRECTORY];
     BOOL shared = [localPath hasPrefix:sharedPrefix];
-    if(!shared){
-        NSString * reportIdPrefix = [GeoPackageURLProtocol reportIdPrefix];
-        if(reportIdPrefix != nil){
-            name = [NSString stringWithFormat:@"%@%@", reportIdPrefix, name];
-        }else{
-            name = nil;
-        }
-    }
+    
+    name = [GeoPackageURLProtocol reportIdPrefixWithName:name andReport:currentId andShare:shared];
     
     GPKGGeoPackage * geoPackage = nil;
     
@@ -236,16 +230,25 @@ static NSString *currentId;
     [self.client URLProtocol:self didFailWithError:error];
 }
 
-+(NSString *) reportPrefix{
-    return DICE_TEMP_CACHE_PREFIX;
++(NSString *) reportIdPrefixWithReport: (NSString *) report{
+    NSString * reportIdPrefix = report;
+    if(reportIdPrefix != nil){
+        reportIdPrefix = [NSString stringWithFormat:@"%@%@-", DICE_TEMP_CACHE_PREFIX, reportIdPrefix];
+    }
+    return reportIdPrefix;
 }
 
-+(NSString *) reportIdPrefix{
-    NSString * id = currentId;
-    if(id != nil){
-        id = [NSString stringWithFormat:@"%@%@-", [self reportPrefix], id];
++(NSString *) reportIdPrefixWithName: (NSString *) name andReport: (NSString *) report andShare: (BOOL) share{
+    NSString * reportId = name;
+    if(!share){
+        NSString * reportIdPrefix = [GeoPackageURLProtocol reportIdPrefixWithReport:report];
+        if(reportIdPrefix != nil){
+            reportId = [NSString stringWithFormat:@"%@%@", reportIdPrefix, reportId];
+        }else{
+            reportId = nil;
+        }
     }
-    return id;
+    return reportId;
 }
 
 @end
