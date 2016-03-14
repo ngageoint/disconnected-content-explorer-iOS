@@ -30,6 +30,11 @@
             responseCallback([self geolocate]);
         }];
         
+        [self.bridge registerHandler:@"click" handler:^(id data, WVJBResponseCallback responseCallback) {
+            NSLog(@"Bridge recieved request to query on a map click: %@", data);
+            responseCallback([self click:data]);
+        }];
+        
         [self.bridge send:@"Hello Javascript" responseCallback:^(id responseData) {
             NSLog(@"Objective C got a response!!!");
         }];
@@ -96,6 +101,25 @@
     }
     
     return @{ @"success": @NO, @"message": @"Unable to access location manager, check your device settings."};
+}
+
+
+- (NSDictionary *)click:(id)data
+{
+    if (data) {
+        NSDictionary *dataDict = (NSDictionary*)data;
+        NSString * lat = [dataDict objectForKey:@"lat"];
+        NSString * lon = [dataDict objectForKey:@"lng"];
+        if(lat != nil && lon != nil){
+            // TODO query the GeoPackages in GeoPackageURLProtocol
+            NSString * message = [NSString stringWithFormat:@"%@,%@", lat, lon];
+            NSDictionary * response = @{ @"success": @YES, @"message": message};
+            return response;
+        }else{
+            return @{ @"success": @NO, @"message": @"Data did not contain a lat and lng value"};
+        }
+    }
+    return @{ @"success": @NO, @"message": @"Null data was sent to the Javascript Bridge."};
 }
 
 
