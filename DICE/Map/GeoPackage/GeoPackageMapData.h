@@ -61,17 +61,17 @@
 -(void) removeFromMapView: (MKMapView *) mapView;
 
 /**
- *  Query and build a map click location message from GeoPackage
+ *  Query and build a map click location message from the GeoPackage
  *
  *  @param locationCoordinate click location
  *  @param mapView map view
  *
  *  @return click message
  */
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView;
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView;
 
 /**
- *  Query and build a map click location message from GeoPackage
+ *  Query and build a map click location message from the GeoPackage
  *
  *  @param locationCoordinate click location
  *  @param zoom               zoom level
@@ -79,6 +79,27 @@
  *
  *  @return click message
  */
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds;
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds;
+
+/**
+ *  Query a build a map click location array of table data from the GeoPackage
+ *
+ *  @param locationCoordinate click location
+ *  @param mapView            map view
+ *
+ *  @return click array of table data
+ */
+-(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView;
+
+/**
+ *  Query a build a map click location array of table data from the GeoPackage
+ *
+ *  @param locationCoordinate click location
+ *  @param zoom               zoom level
+ *  @param mapBounds          map bounds
+ *
+ *  @return click array of table data
+ */
+-(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds;
 
 @end

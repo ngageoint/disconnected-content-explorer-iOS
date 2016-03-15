@@ -57,7 +57,7 @@
     }
 }
 
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
     NSMutableString * message = nil;
     
     if(self.featureOverlayQueries != nil){
@@ -77,7 +77,7 @@
     return message;
 }
 
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
     NSMutableString * message = nil;
     
     if(self.featureOverlayQueries != nil){
@@ -95,6 +95,30 @@
     }
     
     return message;
+}
+
+-(GPKGFeatureTableData *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+    GPKGFeatureTableData * tableData = nil;
+    
+    if(self.featureOverlayQueries != nil){
+        for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
+            tableData = [featureOverlayQuery buildMapClickTableDataWithLocationCoordinate:locationCoordinate andMapView:mapView];
+        }
+    }
+    
+    return tableData;
+}
+
+-(GPKGFeatureTableData *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
+    GPKGFeatureTableData * tableData = nil;
+    
+    if(self.featureOverlayQueries != nil){
+        for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
+            tableData = [featureOverlayQuery buildMapClickTableDataWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+        }
+    }
+    
+    return tableData;
 }
 
 @end

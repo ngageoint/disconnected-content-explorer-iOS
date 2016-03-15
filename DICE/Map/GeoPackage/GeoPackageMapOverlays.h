@@ -43,7 +43,7 @@
  *
  *  @return click message
  */
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate;
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate;
 
 /**
  *  Report has been selected on the map

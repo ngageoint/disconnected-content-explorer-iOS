@@ -307,10 +307,10 @@ static NSMutableDictionary<NSString *, GeoPackageMapData *> *mapData;
     return reportId;
 }
 
-+(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds{
++(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds{
     NSMutableString * clickMessage = [[NSMutableString alloc] init];
     for(GeoPackageMapData * geoPackageData in [mapData allValues]){
-        NSString * message = [geoPackageData onMapClickWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+        NSString * message = [geoPackageData mapClickMessageWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
         if(message != nil){
             if([clickMessage length] > 0){
                 [clickMessage appendString:@"\n\n"];
@@ -319,6 +319,17 @@ static NSMutableDictionary<NSString *, GeoPackageMapData *> *mapData;
         }
     }
     return [clickMessage length] > 0 ? clickMessage : nil;
+}
+
++(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds{
+    NSMutableDictionary * clickData = [[NSMutableDictionary alloc] init];
+    for(GeoPackageMapData * geoPackageData in [mapData allValues]){
+        NSDictionary * geoPackageClickData = [geoPackageData mapClickTableDataWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+        if(geoPackageClickData != nil){
+            [clickData setObject:geoPackageClickData forKey:[geoPackageData getName]];
+        }
+    }
+    return clickData.count > 0 ? clickData : nil;
 }
 
 @end

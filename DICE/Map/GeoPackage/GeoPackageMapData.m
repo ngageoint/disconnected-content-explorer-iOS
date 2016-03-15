@@ -46,10 +46,10 @@
     }
 }
 
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
     NSMutableString * clickMessage = [[NSMutableString alloc] init];
     for(GeoPackageTableMapData * tableMapData in [self.tableData allValues]){
-        NSString * message = [tableMapData onMapClickWithLocationCoordinate:locationCoordinate andMap:mapView];
+        NSString * message = [tableMapData mapClickMessageWithLocationCoordinate:locationCoordinate andMap:mapView];
         if(message != nil){
             if([clickMessage length] > 0){
                 [clickMessage appendString:@"\n\n"];
@@ -60,10 +60,10 @@
     return [clickMessage length] > 0 ? clickMessage : nil;
 }
 
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
     NSMutableString * clickMessage = [[NSMutableString alloc] init];
     for(GeoPackageTableMapData * tableMapData in [self.tableData allValues]){
-        NSString * message = [tableMapData onMapClickWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+        NSString * message = [tableMapData mapClickMessageWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
         if(message != nil){
             if([clickMessage length] > 0){
                 [clickMessage appendString:@"\n\n"];
@@ -72,6 +72,30 @@
         }
     }
     return [clickMessage length] > 0 ? clickMessage : nil;
+}
+
+-(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+    NSMutableDictionary * clickData = [[NSMutableDictionary alloc] init];
+    for(GeoPackageTableMapData * tableMapData in [self.tableData allValues]){
+        GPKGFeatureTableData * tableData = [tableMapData mapClickTableDataWithLocationCoordinate:locationCoordinate andMap:mapView];
+        if(tableData != nil){
+            [clickData setObject:[tableData jsonCompatible] forKey:[tableData getName]];
+        }
+    }
+    
+    return clickData.count > 0 ? clickData : nil;
+}
+
+-(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
+    NSMutableDictionary * clickData = [[NSMutableDictionary alloc] init];
+    for(GeoPackageTableMapData * tableMapData in [self.tableData allValues]){
+        GPKGFeatureTableData * tableData = [tableMapData mapClickTableDataWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+        if(tableData != nil){
+            [clickData setObject:[tableData jsonCompatible] forKey:[tableData getName]];
+        }
+    }
+    
+    return clickData.count > 0 ? clickData : nil;
 }
 
 @end

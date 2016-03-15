@@ -130,11 +130,22 @@
             }
             
             if(mapBounds != nil){
-                NSString * message = [GeoPackageURLProtocol onMapClickWithLocationCoordinate:location andZoom:[zoom doubleValue] andMapBounds:mapBounds];
-                message = [message stringByReplacingOccurrencesOfString:@"\n" withString:@" <br/> "];
-                message = [NSString stringWithFormat:@"<div id=\"clickResponse\"><p>%@</p></div>", message];
-                NSDictionary * response = @{ @"success": @YES, @"message": message};
-                return response;
+                NSString * message = [GeoPackageURLProtocol mapClickMessageWithLocationCoordinate:location andZoom:[zoom doubleValue] andMapBounds:mapBounds]; // TODO remove
+                NSDictionary * clickData = [GeoPackageURLProtocol mapClickTableDataWithLocationCoordinate:location andZoom:[zoom doubleValue] andMapBounds:mapBounds];
+                
+                if(clickData == nil){
+                    return @{ @"success": @YES, @"message": @""};
+                }
+                
+                NSError *error;
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:clickData options:0 error:&error];
+                NSString *jsonString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+                if (error != nil) {
+                    NSLog(@"Error creating map click JSON response: %@", [error localizedDescription]);
+                    return @{ @"success": @NO, @"message": @"Unable to parse JSON."};
+                } else {
+                    return @{ @"success": @YES, @"message": jsonString};
+                }
             }else{
                 return @{ @"success": @NO, @"message": @"Data bounds did not contain correct _southWest and _northWest values"};
             }

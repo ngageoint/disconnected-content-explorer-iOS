@@ -282,7 +282,7 @@ static NSString *mapPointPinReuseIdentifier = @"mapPointPinReuseIdentifier";
         CGPoint tapPoint = [tap locationInView:self.mapView];
         CLLocationCoordinate2D tapCoord = [self.mapView convertPoint:tapPoint toCoordinateFromView:self.mapView];
         
-        NSString * clickMessage = [self.geoPackageOverlays onMapClickWithLocationCoordinate:tapCoord];
+        NSString * clickMessage = [self.geoPackageOverlays mapClickMessageWithLocationCoordinate:tapCoord];
         [self displayMessage:clickMessage];
     }
 }

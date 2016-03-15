@@ -318,10 +318,10 @@
     
 }
 
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate{
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate{
     NSMutableString * clickMessage = [[NSMutableString alloc] init];
     for(GeoPackageMapData * mapData in [self.mapData allValues]){
-        NSString * message = [mapData onMapClickWithLocationCoordinate:locationCoordinate andMap:self.mapView];
+        NSString * message = [mapData mapClickMessageWithLocationCoordinate:locationCoordinate andMap:self.mapView];
         if(message != nil){
             if([clickMessage length] > 0){
                 [clickMessage appendString:@"\n\n"];
