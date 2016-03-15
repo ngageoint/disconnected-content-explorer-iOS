@@ -4,6 +4,8 @@
 //
 
 #import "JavaScriptAPI.h"
+#import "GeoPackageURLProtocol.h"
+#import "GPKGBoundingBox.h"
 
 @implementation JavaScriptAPI
 
@@ -110,13 +112,34 @@
         NSDictionary *dataDict = (NSDictionary*)data;
         NSString * lat = [dataDict objectForKey:@"lat"];
         NSString * lon = [dataDict objectForKey:@"lng"];
-        if(lat != nil && lon != nil){
-            // TODO query the GeoPackages in GeoPackageURLProtocol
-            NSString * message = [NSString stringWithFormat:@"%@,%@", lat, lon];
-            NSDictionary * response = @{ @"success": @YES, @"message": message};
-            return response;
+        NSString * zoom = [dataDict objectForKey:@"zoom"];
+        NSDictionary * bounds = [dataDict objectForKey:@"bounds"];
+        if(lat != nil && lon != nil && zoom != nil && bounds != nil){
+            
+            CLLocationCoordinate2D location = CLLocationCoordinate2DMake([lat doubleValue], [lon doubleValue]);
+            
+            GPKGBoundingBox * mapBounds = nil;
+            NSDictionary * southWest = [bounds objectForKey:@"_southWest"];
+            NSDictionary * northEast = [bounds objectForKey:@"_northEast"];
+            if(southWest != nil && northEast != nil){
+                NSString * minLon = [southWest objectForKey:@"lng"];
+                NSString * maxLon = [northEast objectForKey:@"lng"];
+                NSString * minLat = [southWest objectForKey:@"lat"];
+                NSString * maxLat = [northEast objectForKey:@"lat"];
+                mapBounds = [[GPKGBoundingBox alloc] initWithMinLongitudeDouble:[minLon doubleValue] andMaxLongitudeDouble:[maxLon doubleValue] andMinLatitudeDouble:[minLat doubleValue]  andMaxLatitudeDouble:[maxLat doubleValue]];
+            }
+            
+            if(mapBounds != nil){
+                NSString * message = [GeoPackageURLProtocol onMapClickWithLocationCoordinate:location andZoom:[zoom doubleValue] andMapBounds:mapBounds];
+                message = [message stringByReplacingOccurrencesOfString:@"\n" withString:@" <br/> "];
+                message = [NSString stringWithFormat:@"<div id=\"clickResponse\"><p>%@</p></div>", message];
+                NSDictionary * response = @{ @"success": @YES, @"message": message};
+                return response;
+            }else{
+                return @{ @"success": @NO, @"message": @"Data bounds did not contain correct _southWest and _northWest values"};
+            }
         }else{
-            return @{ @"success": @NO, @"message": @"Data did not contain a lat and lng value"};
+            return @{ @"success": @NO, @"message": @"Data did not contain a lat, lng, zoom, and bounds value"};
         }
     }
     return @{ @"success": @NO, @"message": @"Null data was sent to the Javascript Bridge."};

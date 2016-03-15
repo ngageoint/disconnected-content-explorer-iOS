@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "GPKGBoundingBox.h"
 
 @interface GeoPackageURLProtocol : NSURLProtocol
 
@@ -22,5 +23,7 @@
 +(NSString *) reportIdPrefixWithReport: (NSString *) report;
 
 +(NSString *) reportIdPrefixWithName: (NSString *) name andReport: (NSString *) report andShare: (BOOL) share;
+
++(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds;
 
 @end

@@ -16,6 +16,9 @@
 #import "GPKGFeatureTiles.h"
 #import "ReportUtils.h"
 #import "DICEConstants.h"
+#import "GeoPackageMapData.h"
+#import "GPKGFeatureTileTableLinker.h"
+#import "GPKGOverlayFactory.h"
 
 @interface GeoPackageURLProtocol () <NSURLConnectionDelegate>
 
@@ -34,6 +37,7 @@ static NSString *urlProtocolHandledKey = @"GeoPackageURLProtocolHandledKey";
 static GPKGGeoPackageManager * manager;
 static GPKGGeoPackageCache *cache;
 static NSString *currentId;
+static NSMutableDictionary<NSString *, GeoPackageMapData *> *mapData;
 
 + (void)start {
     manager = [GPKGGeoPackageFactory getManager];
@@ -44,6 +48,7 @@ static NSString *currentId;
 + (void) startCache: (NSString *) id{
     [self closeCache];
     currentId = id;
+    mapData = [[NSMutableDictionary alloc] init];
 }
 
 + (void) closeCache{
@@ -92,7 +97,6 @@ static NSString *currentId;
         self.zoom = [[[query valueForKey:@"z"] objectAtIndex:0] intValue];
         self.x = [[[query valueForKey:@"x"] objectAtIndex:0] intValue];
         self.y = [[[query valueForKey:@"y"] objectAtIndex:0] intValue];
-
     }
     return self;
 }
@@ -170,10 +174,26 @@ static NSString *currentId;
     if(geoPackage != nil){
         for(NSString * table in self.tables){
             
+            // Get or create the GeoPackage data
+            GeoPackageMapData * geoPackageData = [mapData objectForKey:name];
+            if(geoPackageData == nil){
+                geoPackageData = [[GeoPackageMapData alloc] initWithName:name];
+                [mapData setObject:geoPackageData forKey:name];
+            }
+            // Get or create the table data
+            GeoPackageTableMapData * tableData = [geoPackageData getTable:table];
+            if(tableData == nil){
+                tableData = [[GeoPackageTableMapData alloc] initWithName:table];
+                [geoPackageData addTable:tableData];
+            }else{
+                // Feature Overlay Queries have already been added for this table
+                tableData = nil;
+            }
+            
             if([geoPackage isTileTable:table]){
             
                 GPKGTileDao * tileDao = [geoPackage getTileDaoWithTableName:table];
-            
+                
                 GPKGGeoPackageTileRetriever * retriever = [[GPKGGeoPackageTileRetriever alloc] initWithTileDao:tileDao];
                 if([retriever hasTileWithX:self.x andY:self.y andZoom:self.zoom]){
                     GPKGGeoPackageTile * tile = [retriever getTileWithX:self.x andY:self.y andZoom:self.zoom];
@@ -181,6 +201,28 @@ static NSString *currentId;
                         tileData = tile.data;
                     }
                 }
+                
+                // If the first time handling this table
+                if(tableData != nil){
+                    // Check for linked feature tables
+                    GPKGBoundedOverlay * geoPackageTileOverlay = [GPKGOverlayFactory getBoundedOverlay:tileDao];
+                    GPKGFeatureTileTableLinker * linker = [[GPKGFeatureTileTableLinker alloc] initWithGeoPackage:geoPackage];
+                    NSArray<GPKGFeatureDao *> * featureDaos = [linker getFeatureDaosForTileTable:tileDao.tableName];
+                    for(GPKGFeatureDao * featureDao in featureDaos){
+                        
+                        // Create the feature tiles
+                        GPKGFeatureTiles * featureTiles = [[GPKGFeatureTiles alloc] initWithFeatureDao:featureDao];
+                        
+                        // Create an index manager
+                        GPKGFeatureIndexManager * indexer = [[GPKGFeatureIndexManager alloc] initWithGeoPackage:geoPackage andFeatureDao:featureDao];
+                        [featureTiles setIndexManager:indexer];
+                        
+                        // Add the feature overlay query
+                        GPKGFeatureOverlayQuery * featureOverlayQuery = [[GPKGFeatureOverlayQuery alloc] initWithBoundedOverlay:geoPackageTileOverlay andFeatureTiles:featureTiles];
+                        [tableData addFeatureOverlayQuery:featureOverlayQuery];
+                    }
+                }
+                
             } else if([geoPackage isFeatureTable:table]){
                 
                 GPKGFeatureDao * featureDao = [geoPackage getFeatureDaoWithTableName:table];
@@ -189,6 +231,20 @@ static NSString *currentId;
                 [featureTiles setIndexManager:indexer];
                 if([featureTiles isIndexQuery] && [featureTiles queryIndexedFeaturesCountWithX:self.x andY:self.y andZoom:self.zoom] > 0){
                     tileData = [featureTiles drawTileDataWithX:self.x andY:self.y andZoom:self.zoom];
+                }
+                
+                if(tableData != nil && [featureTiles isIndexQuery]){
+                    [featureTiles setIndexManager:indexer];
+
+                    GPKGFeatureOverlay * featureOverlay = [[GPKGFeatureOverlay alloc] initWithFeatureTiles:featureTiles];
+                    [featureOverlay setMinZoom:[NSNumber numberWithInt:[featureDao getZoomLevel]]];
+                    
+                    GPKGFeatureTileTableLinker * linker = [[GPKGFeatureTileTableLinker alloc] initWithGeoPackage:geoPackage];
+                    NSArray<GPKGTileDao *> * tileDaos = [linker getTileDaosForFeatureTable:featureDao.tableName];
+                    [featureOverlay ignoreTileDaos:tileDaos];
+                    
+                    GPKGFeatureOverlayQuery * featureOverlayQuery = [[GPKGFeatureOverlayQuery alloc] initWithFeatureOverlay:featureOverlay];
+                    [tableData addFeatureOverlayQuery:featureOverlayQuery];
                 }
             }
          
@@ -249,6 +305,20 @@ static NSString *currentId;
         }
     }
     return reportId;
+}
+
++(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds{
+    NSMutableString * clickMessage = [[NSMutableString alloc] init];
+    for(GeoPackageMapData * geoPackageData in [mapData allValues]){
+        NSString * message = [geoPackageData onMapClickWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+        if(message != nil){
+            if([clickMessage length] > 0){
+                [clickMessage appendString:@"\n\n"];
+            }
+            [clickMessage appendString:message];
+        }
+    }
+    return [clickMessage length] > 0 ? clickMessage : nil;
 }
 
 @end

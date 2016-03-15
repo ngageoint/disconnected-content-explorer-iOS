@@ -60,4 +60,18 @@
     return [clickMessage length] > 0 ? clickMessage : nil;
 }
 
+-(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
+    NSMutableString * clickMessage = [[NSMutableString alloc] init];
+    for(GeoPackageTableMapData * tableMapData in [self.tableData allValues]){
+        NSString * message = [tableMapData onMapClickWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+        if(message != nil){
+            if([clickMessage length] > 0){
+                [clickMessage appendString:@"\n\n"];
+            }
+            [clickMessage appendString:message];
+        }
+    }
+    return [clickMessage length] > 0 ? clickMessage : nil;
+}
+
 @end

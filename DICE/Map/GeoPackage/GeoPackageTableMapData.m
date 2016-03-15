@@ -77,4 +77,24 @@
     return message;
 }
 
+-(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
+    NSMutableString * message = nil;
+    
+    if(self.featureOverlayQueries != nil){
+        for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
+            NSString * overlayMessage = [featureOverlayQuery buildMapClickMessageWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+            if(overlayMessage != nil){
+                if(message == nil){
+                    message = [[NSMutableString alloc] init];
+                }else{
+                    [message appendString:@"\n\n"];
+                }
+                [message appendString:overlayMessage];
+            }
+        }
+    }
+    
+    return message;
+}
+
 @end

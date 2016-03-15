@@ -70,4 +70,15 @@
  */
 -(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView;
 
+/**
+ *  Query and build a map click location message from GeoPackage
+ *
+ *  @param locationCoordinate click location
+ *  @param zoom               zoom level
+ *  @param mapBounds          map bounds
+ *
+ *  @return click message
+ */
+-(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds;
+
 @end
