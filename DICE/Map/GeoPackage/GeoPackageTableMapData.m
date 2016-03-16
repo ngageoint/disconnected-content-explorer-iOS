@@ -7,9 +7,12 @@
 //
 
 #import "GeoPackageTableMapData.h"
+#import "GPKGProjectionFactory.h"
+#import "GPKGProjectionConstants.h"
 
 @interface GeoPackageTableMapData()
-    @property (nonatomic, strong) NSString * name;
+@property (nonatomic, strong) NSString * name;
+@property (nonatomic, strong) GPKGProjection * projection;
 @end
 
 @implementation GeoPackageTableMapData
@@ -17,6 +20,7 @@
 -(id) initWithName: (NSString *) name{
     if (self = [super init]) {
         self.name = name;
+        self.projection = [GPKGProjectionFactory getProjectionWithInt:PROJ_EPSG_WORLD_GEODETIC_SYSTEM];
     }
     
     return self;
@@ -62,7 +66,7 @@
     
     if(self.featureOverlayQueries != nil){
         for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
-            NSString * overlayMessage = [featureOverlayQuery buildMapClickMessageWithLocationCoordinate:locationCoordinate andMapView:mapView];
+            NSString * overlayMessage = [featureOverlayQuery buildMapClickMessageWithLocationCoordinate:locationCoordinate andMapView:mapView andProjection:self.projection];
             if(overlayMessage != nil){
                 if(message == nil){
                     message = [[NSMutableString alloc] init];
@@ -82,7 +86,7 @@
     
     if(self.featureOverlayQueries != nil){
         for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
-            NSString * overlayMessage = [featureOverlayQuery buildMapClickMessageWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+            NSString * overlayMessage = [featureOverlayQuery buildMapClickMessageWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds andProjection:self.projection];
             if(overlayMessage != nil){
                 if(message == nil){
                     message = [[NSMutableString alloc] init];
@@ -102,7 +106,7 @@
     
     if(self.featureOverlayQueries != nil){
         for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
-            tableData = [featureOverlayQuery buildMapClickTableDataWithLocationCoordinate:locationCoordinate andMapView:mapView];
+            tableData = [featureOverlayQuery buildMapClickTableDataWithLocationCoordinate:locationCoordinate andMapView:mapView andProjection:self.projection];
         }
     }
     
@@ -114,7 +118,7 @@
     
     if(self.featureOverlayQueries != nil){
         for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
-            tableData = [featureOverlayQuery buildMapClickTableDataWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+            tableData = [featureOverlayQuery buildMapClickTableDataWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds andProjection:self.projection];
         }
     }
     

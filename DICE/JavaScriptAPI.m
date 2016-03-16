@@ -130,7 +130,6 @@
             }
             
             if(mapBounds != nil){
-                NSString * message = [GeoPackageURLProtocol mapClickMessageWithLocationCoordinate:location andZoom:[zoom doubleValue] andMapBounds:mapBounds]; // TODO remove
                 NSDictionary * clickData = [GeoPackageURLProtocol mapClickTableDataWithLocationCoordinate:location andZoom:[zoom doubleValue] andMapBounds:mapBounds];
                 
                 if(clickData == nil){
