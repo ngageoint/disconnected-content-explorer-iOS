@@ -26,6 +26,7 @@
     @property (nonatomic, strong) GPKGGeoPackageCache *cache;
     @property (nonatomic, strong) NSMutableDictionary<NSString *, GeoPackageMapData *> *mapData;
     @property (nonatomic, strong) Report *selectedReport;
+    @property (nonatomic, strong) NSObject *lock;
 @end
 
 @implementation GeoPackageMapOverlays
@@ -37,6 +38,7 @@
         self.cache = [[GPKGGeoPackageCache alloc]initWithManager:self.manager];
         self.mapData = [[NSMutableDictionary alloc] init];
         self.selectedReport = nil;
+        self.lock = [[NSObject alloc] init];
     }
     
     return self;
@@ -47,7 +49,12 @@
 }
 
 -(void) updateMap{
-    
+    @synchronized(self.lock){
+        [self updateMapSynchronized];
+    }
+}
+
+-(void) updateMapSynchronized{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
     NSMutableDictionary * updateSelectedCaches = [selectedCaches mutableCopy];
@@ -320,13 +327,15 @@
 
 -(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate{
     NSMutableString * clickMessage = [[NSMutableString alloc] init];
-    for(GeoPackageMapData * mapData in [self.mapData allValues]){
-        NSString * message = [mapData mapClickMessageWithLocationCoordinate:locationCoordinate andMap:self.mapView];
-        if(message != nil){
-            if([clickMessage length] > 0){
-                [clickMessage appendString:@"\n\n"];
+    if(self.selectedReport == nil){
+        for(GeoPackageMapData * mapData in [self.mapData allValues]){
+            NSString * message = [mapData mapClickMessageWithLocationCoordinate:locationCoordinate andMap:self.mapView];
+            if(message != nil){
+                if([clickMessage length] > 0){
+                    [clickMessage appendString:@"\n\n"];
+                }
+                [clickMessage appendString:message];
             }
-            [clickMessage appendString:message];
         }
     }
     return [clickMessage length] > 0 ? clickMessage : nil;
@@ -338,7 +347,12 @@
     
         for(ReportCache * reportCache in report.cacheFiles){
             if(![self.manager exists:reportCache.name]){
-                [self.manager importGeoPackageAsLinkToPath:reportCache.path withName:reportCache.name];
+                @try {
+                    [self.manager importGeoPackageAsLinkToPath:reportCache.path withName:reportCache.name];
+                }
+                @catch (NSException *exception) {
+                    NSLog(@"Failed to import GeoPackage %@ at path: %@", reportCache.name, reportCache.path);
+                }
             }
         }
         
