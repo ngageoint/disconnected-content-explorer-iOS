@@ -13,7 +13,7 @@
 #import "ReportResourceViewController.h"
 
 
-@interface ReportCollectionViewController () <ReportCollectionViewDelegate>
+@interface ReportCollectionViewController () <ReportCollectionViewDelegate, UIActionSheetDelegate, NSURLConnectionDataDelegate>
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *viewSegments;
 @property (weak, nonatomic) IBOutlet UIView *collectionSubview;
@@ -65,6 +65,25 @@
     
     [[ReportAPI sharedInstance] loadReports];
 }
+
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    if (pasteboard.string) {
+        NSLog(@"Have a string in the pasteboard! %@", pasteboard.string);
+        
+        NSURL *url = [NSURL URLWithString: pasteboard.string];
+        if (url && url.scheme && url.host) {
+            NSString *title = [NSString stringWithFormat:@"Download report: %@", pasteboard.string];
+            
+            UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Canel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
+            [actionSheet showInView:self.view];
+        }
+    }
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -124,6 +143,22 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+
+#pragma mark - Action Sheet delegate methods
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+    response.
+}
+
+
+#pragma mark - Action Sheet delegate methods
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"The %@ button was tapped.", [actionSheet buttonTitleAtIndex:buttonIndex]);
+    
+    if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Download"]) {
+        NSLog(@"Download tapped");
+    }
 }
 
 @end
