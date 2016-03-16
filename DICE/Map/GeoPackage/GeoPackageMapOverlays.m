@@ -72,7 +72,12 @@
     for(NSString * geoPackage in geoPackages){
         if(![seletedGeoPackages containsObject:geoPackage]){
             [self.cache close:geoPackage];
-            [self.manager delete:geoPackage andFile:NO];
+            @try {
+                [self.manager delete:geoPackage andFile:NO];
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Failed to delete GeoPackage: %@", geoPackage);
+            }
         }
     }
     
@@ -125,7 +130,12 @@
                 
             }else{
                 // Delete if the file was deleted
-                [self.manager delete:name andFile:NO];
+                @try {
+                    [self.manager delete:name andFile:NO];
+                }
+                @catch (NSException *exception) {
+                    NSLog(@"Failed to delete GeoPackage: %@", name);
+                }
             }
         }
         
@@ -372,7 +382,12 @@
     NSArray * geoPackages = [self.manager databasesLike:like];
     for(NSString * geoPackage in geoPackages){
         [self.cache close:geoPackage];
-        [self.manager delete:geoPackage andFile:NO];
+        @try {
+            [self.manager delete:geoPackage andFile:NO];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Failed to delete GeoPackage: %@", geoPackage);
+        }
         change = YES;
     }
     
