@@ -46,13 +46,24 @@
 
 -(BOOL) hasGeoPackages{
     NSString * like = [NSString stringWithFormat:@"%@%@", DICE_TEMP_CACHE_PREFIX, @"%"];
-    NSArray * geoPackages = [self.manager databasesNotLike:like];
-    return geoPackages.count > 0;
+    NSArray * geoPackages = nil;
+    @try {
+        geoPackages = [self.manager databasesNotLike:like];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Failed to find shared GeoPackage count. Reason: %@", exception.reason);
+    }
+    return geoPackages != nil && geoPackages.count > 0;
 }
 
 -(void) updateMap{
     @synchronized(self.lock){
-        [self updateMapSynchronized];
+        @try {
+            [self updateMapSynchronized];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Failed to update map with active GeoPackages. Reason: %@", exception.reason);
+        }
     }
 }
 
@@ -70,15 +81,23 @@
     }
     
     NSString * like = [NSString stringWithFormat:@"%@%@", DICE_TEMP_CACHE_PREFIX, @"%"];
-    NSArray * geoPackages = [self.manager databasesLike:like];
-    for(NSString * geoPackage in geoPackages){
-        if(![seletedGeoPackages containsObject:geoPackage]){
-            [self.cache close:geoPackage];
-            @try {
-                [self.manager delete:geoPackage andFile:NO];
-            }
-            @catch (NSException *exception) {
-                NSLog(@"Failed to delete GeoPackage: %@", geoPackage);
+    NSArray * geoPackages = nil;
+    @try {
+        geoPackages = [self.manager databasesLike:like];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Failed to find temporary GeoPackages. Reason: %@", exception.reason);
+    }
+    if(geoPackages != nil){
+        for(NSString * geoPackage in geoPackages){
+            if(![seletedGeoPackages containsObject:geoPackage]){
+                [self.cache close:geoPackage];
+                @try {
+                    [self.manager delete:geoPackage andFile:NO];
+                }
+                @catch (NSException *exception) {
+                    NSLog(@"Failed to delete GeoPackage: %@. Reason: %@", geoPackage, exception.reason);
+                }
             }
         }
     }
@@ -91,10 +110,25 @@
         BOOL deleteFromSelected = YES;
         
         // Make sure the GeoPackage exists
-        if([self.manager exists:name]){
+        
+        BOOL exists = false;
+        @try {
+            exists = [self.manager exists:name];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"Failed to check if GeoPackage %@ exists. Reason: %@", name, exception.reason);
+        }
+        
+        if(exists){
         
             // Make sure the GeoPackage file exists
-            NSString * filePath = [self.manager documentsPathForDatabase:name];
+            NSString * filePath = nil;
+            @try {
+                filePath = [self.manager documentsPathForDatabase:name];
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Failed to get documents path for GeoPackage %@. Reason: %@", name, exception.reason);
+            }
             if(filePath != nil && [[NSFileManager defaultManager] fileExistsAtPath:filePath]){
                 
                 deleteFromSelected = NO;
@@ -136,7 +170,7 @@
                     [self.manager delete:name andFile:NO];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Failed to delete GeoPackage: %@", name);
+                    NSLog(@"Failed to delete GeoPackage: %@. Reason: %@", name, exception.reason);
                 }
             }
         }
@@ -358,12 +392,21 @@
     if([report.cacheFiles count] > 0){
     
         for(ReportCache * reportCache in report.cacheFiles){
-            if(![self.manager exists:reportCache.name]){
+            
+            BOOL exists = false;
+            @try {
+                exists = [self.manager exists:reportCache.name];
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Failed to check if GeoPackage %@ exists. Reason: %@", reportCache.name, exception.reason);
+            }
+            
+            if(!exists){
                 @try {
                     [self.manager importGeoPackageAsLinkToPath:reportCache.path withName:reportCache.name];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"Failed to import GeoPackage %@ at path: %@", reportCache.name, reportCache.path);
+                    NSLog(@"Failed to import GeoPackage %@ at path: %@. Reason: %@", reportCache.name, reportCache.path, exception.reason);
                 }
             }
         }
@@ -381,16 +424,24 @@
     self.selectedReport = nil;
     
     NSString * like = [NSString stringWithFormat:@"%@%@", DICE_TEMP_CACHE_PREFIX, @"%"];
-    NSArray * geoPackages = [self.manager databasesLike:like];
-    for(NSString * geoPackage in geoPackages){
-        [self.cache close:geoPackage];
-        @try {
-            [self.manager delete:geoPackage andFile:NO];
+    NSArray * geoPackages = nil;
+    @try {
+        geoPackages = [self.manager databasesLike:like];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Failed to find temporary GeoPackages. Reason: %@", exception.reason);
+    }
+    if(geoPackages != nil){
+        for(NSString * geoPackage in geoPackages){
+            [self.cache close:geoPackage];
+            @try {
+                [self.manager delete:geoPackage andFile:NO];
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Failed to delete GeoPackage: %@. Reason: %@", geoPackage, exception.reason);
+            }
+            change = YES;
         }
-        @catch (NSException *exception) {
-            NSLog(@"Failed to delete GeoPackage: %@", geoPackage);
-        }
-        change = YES;
     }
     
     if(change){
