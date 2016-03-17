@@ -86,10 +86,12 @@
  *
  *  @param locationCoordinate click location
  *  @param mapView            map view
+ *  @param includePoints      true to include point geometries
+ *  @param includeGeometries  true to include all geometries
  *
  *  @return click array of table data
  */
--(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView;
+-(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView andPoints: (BOOL) includePoints andGeometries: (BOOL) includeGeometries;
 
 /**
  *  Query a build a map click location array of table data from the GeoPackage
@@ -97,9 +99,11 @@
  *  @param locationCoordinate click location
  *  @param zoom               zoom level
  *  @param mapBounds          map bounds
+ *  @param includePoints      true to include point geometries
+ *  @param includeGeometries  true to include all geometries
  *
  *  @return click array of table data
  */
--(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds;
+-(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds andPoints: (BOOL) includePoints andGeometries: (BOOL) includeGeometries;
 
 @end

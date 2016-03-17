@@ -45,7 +45,9 @@
 }
 
 -(BOOL) hasGeoPackages{
-    return [self.manager count] > 0;
+    NSString * like = [NSString stringWithFormat:@"%@%@", DICE_TEMP_CACHE_PREFIX, @"%"];
+    NSArray * geoPackages = [self.manager databasesNotLike:like];
+    return geoPackages.count > 0;
 }
 
 -(void) updateMap{

@@ -26,6 +26,6 @@
 
 +(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds;
 
-+(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds;
++(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds andPoints: (BOOL) includePoints andGeometries: (BOOL) includeGeometries;
 
 @end

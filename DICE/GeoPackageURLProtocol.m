@@ -321,10 +321,10 @@ static NSMutableDictionary<NSString *, GeoPackageMapData *> *mapData;
     return [clickMessage length] > 0 ? clickMessage : nil;
 }
 
-+(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds{
++(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds:(GPKGBoundingBox *)mapBounds andPoints: (BOOL) includePoints andGeometries: (BOOL) includeGeometries{
     NSMutableDictionary * clickData = [[NSMutableDictionary alloc] init];
     for(GeoPackageMapData * geoPackageData in [mapData allValues]){
-        NSDictionary * geoPackageClickData = [geoPackageData mapClickTableDataWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
+        NSDictionary * geoPackageClickData = [geoPackageData mapClickTableDataWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds andPoints:includePoints andGeometries:includeGeometries];
         if(geoPackageClickData != nil){
             [clickData setObject:geoPackageClickData forKey:[geoPackageData getName]];
         }

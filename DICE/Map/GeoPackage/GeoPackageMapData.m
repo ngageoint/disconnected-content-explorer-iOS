@@ -74,24 +74,24 @@
     return [clickMessage length] > 0 ? clickMessage : nil;
 }
 
--(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+-(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView andPoints: (BOOL) includePoints andGeometries: (BOOL) includeGeometries{
     NSMutableDictionary * clickData = [[NSMutableDictionary alloc] init];
     for(GeoPackageTableMapData * tableMapData in [self.tableData allValues]){
         GPKGFeatureTableData * tableData = [tableMapData mapClickTableDataWithLocationCoordinate:locationCoordinate andMap:mapView];
         if(tableData != nil){
-            [clickData setObject:[tableData jsonCompatible] forKey:[tableData getName]];
+            [clickData setObject:[tableData jsonCompatibleWithPoints:includePoints andGeometries:includeGeometries] forKey:[tableData getName]];
         }
     }
     
     return clickData.count > 0 ? clickData : nil;
 }
 
--(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
+-(NSDictionary *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds andPoints: (BOOL) includePoints andGeometries: (BOOL) includeGeometries{
     NSMutableDictionary * clickData = [[NSMutableDictionary alloc] init];
     for(GeoPackageTableMapData * tableMapData in [self.tableData allValues]){
         GPKGFeatureTableData * tableData = [tableMapData mapClickTableDataWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds];
         if(tableData != nil){
-            [clickData setObject:[tableData jsonCompatible] forKey:[tableData getName]];
+            [clickData setObject:[tableData jsonCompatibleWithPoints:includePoints andGeometries:includeGeometries] forKey:[tableData getName]];
         }
     }
     

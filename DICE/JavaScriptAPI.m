@@ -130,7 +130,16 @@
             }
             
             if(mapBounds != nil){
-                NSDictionary * clickData = [GeoPackageURLProtocol mapClickTableDataWithLocationCoordinate:location andZoom:[zoom doubleValue] andMapBounds:mapBounds];
+                
+                // Include points by default
+                NSString * points = [dataDict objectForKey:@"points"];
+                BOOL includePoints = (points == nil || [points boolValue]);
+                
+                // Do not include geometries by default
+                NSString * geometries = [dataDict objectForKey:@"geometries"];
+                BOOL includeGeometries = (geometries != nil && [geometries boolValue]);
+                
+                NSDictionary * clickData = [GeoPackageURLProtocol mapClickTableDataWithLocationCoordinate:location andZoom:[zoom doubleValue] andMapBounds:mapBounds andPoints:includePoints andGeometries:includeGeometries];
                 
                 if(clickData == nil){
                     return @{ @"success": @YES, @"message": @""};
