@@ -17,5 +17,6 @@
 @property (weak, nonatomic) IBOutlet MapOverlayActiveSwitch *active;
 @property (weak, nonatomic) IBOutlet UIImageView *tableType;
 @property (weak, nonatomic) IBOutlet UILabel *name;
+@property (weak, nonatomic) IBOutlet UIImageView *locked;
 
 @end

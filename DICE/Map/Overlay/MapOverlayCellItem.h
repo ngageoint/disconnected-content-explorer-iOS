@@ -69,6 +69,11 @@
 @property (nonatomic, strong) NSMutableArray<MapOverlayCellItem *> * linked;
 
 /**
+ *  True if a locked overlay that can not be deleted
+ */
+@property (nonatomic) BOOL locked;
+
+/**
  *  Initializer for a top level overlay
  *
  *  @param name cache name

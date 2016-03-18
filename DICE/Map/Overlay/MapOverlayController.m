@@ -14,6 +14,7 @@
 #import "MapOverlayCellItem.h"
 #import "GPKGFeatureTileTableLinker.h"
 #import "GPKGFeatureIndexManager.h"
+#import "GPKGIOUtils.h"
 
 @interface MapOverlayController ()
 
@@ -53,17 +54,24 @@ static NSMutableSet<NSString *> *expanded;
     self.tableCells = [[NSMutableArray alloc] init];
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
     
     GPKGGeoPackageManager * manager = [GPKGGeoPackageFactory getManager];
     
-    for(NSString * name in [manager databases]){
+    NSString * like = [NSString stringWithFormat:@"%@%@", DICE_TEMP_CACHE_PREFIX, @"%"];
+    NSArray * geoPackages = [manager databasesNotLike:like];
+    for(NSString * name in geoPackages){
         MapOverlayCellItem * cellItem = [[MapOverlayCellItem alloc] initWithName:name];
         NSArray * selectedTables = [selectedCaches objectForKey:name];
         if(selectedTables != nil){
             cellItem.enabled = YES;
         }
         [self.tableCells addObject:cellItem];
+        
+        NSString * filePath = [self.manager pathForDatabase:name];
+        BOOL locked = ![filePath hasPrefix:[NSString stringWithFormat:@"%@/", [GPKGIOUtils geoPackageDirectory]]];
+        cellItem.locked = locked;
+        
         if([expanded containsObject:name]){
             GPKGGeoPackage * geoPackage = [manager open:name];
             
@@ -187,6 +195,7 @@ static NSMutableSet<NSString *> *expanded;
         
         [mapOverlayCell.name setText:tableCell.name];
         mapOverlayCell.active.on = tableCell.enabled;
+        mapOverlayCell.locked.hidden = !tableCell.locked;
         
         if(cellImage != nil){
             [mapOverlayCell.tableType setImage:cellImage];
@@ -224,7 +233,7 @@ static NSMutableSet<NSString *> *expanded;
     
     // Update the selected tables
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
     if(sender.on){
         [selectedCaches setObject:[[NSMutableArray alloc] init] forKey:sender.overlay.name];
     }else{
@@ -259,7 +268,7 @@ static NSMutableSet<NSString *> *expanded;
     
     // Update the selected tables
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
     NSMutableArray * selectedTables = [[selectedCaches objectForKey:parentOverlay.name] mutableCopy];
     if(sender.on){
         if(selectedTables == nil){
@@ -292,7 +301,7 @@ static NSMutableSet<NSString *> *expanded;
     UITableViewCellEditingStyle style = UITableViewCellEditingStyleNone;
     
     MapOverlayCellItem * tableCell = [self.tableCells objectAtIndex:[indexPath row]];
-    if(!tableCell.child){
+    if(!tableCell.child && !tableCell.locked){
         style = UITableViewCellEditingStyleDelete;
     }
     
@@ -310,7 +319,7 @@ static NSMutableSet<NSString *> *expanded;
             
             // Update the selected tables
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-            NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+            NSMutableDictionary * selectedCaches = [self getSelectedCachesWithDefaults:defaults];
             [selectedCaches removeObjectForKey:tableCell.name];
             [self updateSelectedCaches:selectedCaches withDefaults:defaults];
             
@@ -319,6 +328,14 @@ static NSMutableSet<NSString *> *expanded;
         }
         
     }
+}
+
+-(NSMutableDictionary *) getSelectedCachesWithDefaults: (NSUserDefaults *) defaults{
+     NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
+    if(selectedCaches == nil){
+        selectedCaches = [[NSMutableDictionary alloc] init];
+    }
+    return selectedCaches;
 }
 
 -(void) updateSelectedCaches: (NSMutableDictionary *) selectedCaches withDefaults: (NSUserDefaults *) defaults{
