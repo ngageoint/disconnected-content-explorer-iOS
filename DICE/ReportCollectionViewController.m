@@ -13,7 +13,7 @@
 #import "ReportResourceViewController.h"
 
 
-@interface ReportCollectionViewController () <ReportCollectionViewDelegate, UIActionSheetDelegate, NSURLConnectionDataDelegate>
+@interface ReportCollectionViewController () <ReportCollectionViewDelegate, UIActionSheetDelegate>
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *viewSegments;
 @property (weak, nonatomic) IBOutlet UIView *collectionSubview;
@@ -29,6 +29,8 @@
     NSInteger currentViewIndex;
     NSArray *reports;
     Report *selectedReport;
+    NSURL *pasteboardURL;
+    NSHTTPURLResponse *pasteboardURLResponse;
 }
 
 - (void)viewDidLoad {
@@ -72,14 +74,29 @@
     
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     if (pasteboard.string) {
-        NSLog(@"Have a string in the pasteboard! %@", pasteboard.string);
+        NSLog(@"Checking pasteboard contents... %@", pasteboard.string);
         
-        NSURL *url = [NSURL URLWithString: pasteboard.string];
-        if (url && url.scheme && url.host) {
-            NSString *title = [NSString stringWithFormat:@"Download report: %@", pasteboard.string];
+        pasteboardURL = [NSURL URLWithString: pasteboard.string];
+        if (pasteboardURL && pasteboardURL.scheme && pasteboardURL.host) {
+            // Before even giving the user the option to download, make sure that the link points to something we can use.
+            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:pasteboardURL];
+            [request setHTTPMethod:@"HEAD"];
+            NSError *error = nil;
+            NSHTTPURLResponse *response = nil;
+            [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
             
-            UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Canel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
-            [actionSheet showInView:self.view];
+            if (error) {
+                NSLog(@"Something bad happened checking the pastwboard URL: %@", [error localizedDescription]);
+            } else {
+                pasteboardURLResponse = response;
+                NSLog(@"MIME type of file: %@", [response MIMEType]);
+                
+                if ([[response MIMEType] isEqualToString:@"application/zip"]) {
+                    NSString *title = [NSString stringWithFormat:@"Download report: %@", pasteboard.string];
+                    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Canel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
+                    [actionSheet showInView:self.view];
+                }
+            }
         }
     }
 }
@@ -147,17 +164,13 @@
 
 
 #pragma mark - Action Sheet delegate methods
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    response.
-}
-
-
-#pragma mark - Action Sheet delegate methods
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     NSLog(@"The %@ button was tapped.", [actionSheet buttonTitleAtIndex:buttonIndex]);
     
     if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Download"]) {
         NSLog(@"Download tapped");
+        // make the call to the ReportAPI
+        [[ReportAPI sharedInstance] downloadReportAtURL:pasteboardURL withResponse:pasteboardURLResponse];
     }
 }
 

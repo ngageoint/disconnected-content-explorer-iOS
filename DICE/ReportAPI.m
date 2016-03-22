@@ -13,6 +13,7 @@
 #import "FileInZipInfo.h"
 #import "GPKGIOUtils.h"
 #import "DICEConstants.h"
+#import "AFNetworking.h"
 
 @implementation ReportNotification
 
@@ -405,6 +406,36 @@
     userGuide.reportID = [ReportAPI userGuideReportID];
     
     return userGuide;
+}
+
+
+- (void)downloadReportAtURL:(NSURL *)URL withResponse:(NSHTTPURLResponse *)response {
+    // make a new report object that can track the download progress
+    Report *report = [[Report alloc] initWithTitle:[URL absoluteString]];
+    report.summary = @"Downloading...";
+    
+    // broadcast a message with that report
+    NSString *filename = [URL lastPathComponent];
+    NSURL *destFile = [documentsDir URLByAppendingPathComponent:filename];
+    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+    AFHTTPRequestOperation *downloadRequest = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    downloadRequest.outputStream = [NSOutputStream outputStreamToFileAtPath:[destFile path] append:NO];
+    
+    [downloadRequest setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"Successfully downloaded: %@", [URL absoluteString]);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Problem downloading %@: %@", [URL path], [error localizedDescription]);
+    }];
+    
+    // update download progress
+    [downloadRequest setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
+        // TODO: Add code
+        // set the description to a status using the size of the file and download progress
+    }];
+    
+    [downloadRequest start];
+    
+    // hand off completed file to be unzipped
 }
 
 
