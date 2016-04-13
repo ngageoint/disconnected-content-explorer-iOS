@@ -14,6 +14,7 @@
 #import "GPKGIOUtils.h"
 #import "DICEConstants.h"
 #import "AFNetworking.h"
+#import <math.h>
 
 @implementation ReportNotification
 
@@ -28,6 +29,9 @@
 }
 + (NSString *)reportImportFinished {
     return @"DICE.ReportImportFinished";
+}
++ (NSString *)reportImportFail {
+    return @"DICE.ReportImportFail";
 }
 + (NSString *)reportsLoaded {
     return @"DICE.ReportsLoaded";
@@ -339,61 +343,77 @@
     
     NSLog(@"ReportAPI: extracting report contents from %@", report.sourceFile);
     
-    ZipFile *unzipFile = [[ZipFile alloc] initWithFileName:report.sourceFile.path mode:ZipFileModeUnzip];
-    int totalNumberOfFiles = (int)[unzipFile numFilesInZip];
-    report.totalNumberOfFiles = totalNumberOfFiles;
-    [unzipFile goToFirstFileInZip];
-    NSUInteger bufferSize = 1 << 20;
-    NSMutableData *entryData = [NSMutableData dataWithLength:(bufferSize)];
-    for (int filesExtracted = 0; filesExtracted < totalNumberOfFiles; filesExtracted++) {
-        FileInZipInfo *info = [unzipFile getCurrentFileInZipInfo];
-        NSString *name = info.name;
-        if (![name hasSuffix:@"/"]) {
-            NSString *filePath = [directory.path stringByAppendingPathComponent:name];
-            NSString *basePath = [filePath stringByDeletingLastPathComponent];
-            if (![fileManager fileExistsAtPath:basePath]) {
-                if (![fileManager createDirectoryAtPath:basePath withIntermediateDirectories:YES attributes:nil error:error]) {
-                    [unzipFile close];
-                    return NO;
+    @try {
+        ZipFile *unzipFile = [[ZipFile alloc] initWithFileName:report.sourceFile.path mode:ZipFileModeUnzip];
+        int totalNumberOfFiles = (int)[unzipFile numFilesInZip];
+        report.totalNumberOfFiles = totalNumberOfFiles;
+        [unzipFile goToFirstFileInZip];
+        NSUInteger bufferSize = 1 << 20;
+        NSMutableData *entryData = [NSMutableData dataWithLength:(bufferSize)];
+        for (int filesExtracted = 0; filesExtracted < totalNumberOfFiles; filesExtracted++) {
+            FileInZipInfo *info = [unzipFile getCurrentFileInZipInfo];
+            NSString *name = info.name;
+            if (![name hasSuffix:@"/"]) {
+                NSString *filePath = [directory.path stringByAppendingPathComponent:name];
+                NSString *basePath = [filePath stringByDeletingLastPathComponent];
+                if (![fileManager fileExistsAtPath:basePath]) {
+                    if (![fileManager createDirectoryAtPath:basePath withIntermediateDirectories:YES attributes:nil error:error]) {
+                        [unzipFile close];
+                        return NO;
+                    }
                 }
+                
+                [[NSData data] writeToFile:filePath options:0 error:nil];
+                NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:filePath];
+                ZipReadStream *read = [unzipFile readCurrentFileInZip];
+                NSUInteger count;
+                while ((count = [read readDataWithBuffer:entryData])) {
+                    entryData.length = count;
+                    [handle writeData:entryData];
+                    entryData.length = bufferSize;
+                }
+                [read finishedReading];
+                [handle closeFile];
             }
             
-            [[NSData data] writeToFile:filePath options:0 error:nil];
-            NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:filePath];
-            ZipReadStream *read = [unzipFile readCurrentFileInZip];
-            NSUInteger count;
-            while ((count = [read readDataWithBuffer:entryData])) {
-                entryData.length = count;
-                [handle writeData:entryData];
-                entryData.length = bufferSize;
-            }
-            [read finishedReading];
-            [handle closeFile];
-        }
-        
-        report.progress = filesExtracted;
-        [unzipFile goToNextFileInZip];
-        
-        if (filesExtracted % 25 == 0) {
             report.progress = filesExtracted;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter]
-                    postNotificationName:[ReportNotification reportImportProgress]
-                    object:self
-                    userInfo:@{
-                        @"report": report,
-                        @"progress": [NSString stringWithFormat:@"%d", filesExtracted],
-                        @"totalNumberOfFiles": [NSString stringWithFormat:@"%d", totalNumberOfFiles]
-                    }];
-            });
+            [unzipFile goToNextFileInZip];
+            
+            if (filesExtracted % 25 == 0) {
+                report.progress = filesExtracted;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[NSNotificationCenter defaultCenter]
+                     postNotificationName:[ReportNotification reportImportProgress]
+                     object:self
+                     userInfo:@{
+                                @"report": report,
+                                @"progress": [NSString stringWithFormat:@"%d", filesExtracted],
+                                @"totalNumberOfFiles": [NSString stringWithFormat:@"%d", totalNumberOfFiles]
+                                }];
+                });
+            }
         }
+        
+        [unzipFile close];
+        
+        NSLog(@"ReportAPI: finished extracting report %@", report.sourceFile);
+        
+        return YES;
+
     }
-    
-    [unzipFile close];
-    
-    NSLog(@"ReportAPI: finished extracting report %@", report.sourceFile);
-    
-    return YES;
+    @catch(ZipException *exctption) {
+        NSLog(@"Problem unzipping %@: %@",report.title, exctption.description);
+        
+        [[NSNotificationCenter defaultCenter]
+         postNotificationName:[ReportNotification reportImportFail] object:self
+         userInfo:@{
+                    @"report": report,
+                    @"index": [NSString stringWithFormat:@"%lu", reports.count - 1],
+                    @"message": exctption.description
+                    }];
+
+        return NO;
+    }
 }
 
 
@@ -409,10 +429,12 @@
 }
 
 
-- (void)downloadReportAtURL:(NSURL *)URL withResponse:(NSHTTPURLResponse *)response {
+- (void)downloadReportAtURL:(NSURL *)URL {
     // make a new report object that can track the download progress
     Report *report = [[Report alloc] initWithTitle:[URL absoluteString]];
+    report.isEnabled = NO;
     report.summary = @"Downloading...";
+    [reports addObject:report];
     
     // broadcast a message with that report
     NSString *filename = [URL lastPathComponent];
@@ -423,6 +445,8 @@
     
     [downloadRequest setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSLog(@"Successfully downloaded: %@", [URL absoluteString]);
+        // Maybe add a dictionary value to NSUserDefaults to a downloaded dictionary with the URL as a key and YES as the value, check that dictionary before displaying the action sheet
+        [self loadReports];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Problem downloading %@: %@", [URL path], [error localizedDescription]);
     }];
@@ -431,6 +455,26 @@
     [downloadRequest setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
         // TODO: Add code
         // set the description to a status using the size of the file and download progress
+        float progress = ((float)totalBytesRead) / totalBytesExpectedToRead;
+        
+        if (fmodf(totalBytesRead, 25) == 0) {
+            report.summary = [NSString stringWithFormat:@"%lld of %lld downloaded", totalBytesRead, totalBytesExpectedToRead];
+            report.downloadSize = totalBytesExpectedToRead;
+            report.downloadProgress = totalBytesRead;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter]
+                 postNotificationName:[ReportNotification reportImportProgress]
+                 object:self
+                 userInfo:@{
+                            @"report": report,
+                            @"progress": [NSString stringWithFormat:@"%g", progress],
+                            @"totalNumberOfFiles": [NSString stringWithFormat:@"%lld downloaded", totalBytesExpectedToRead]
+                            }];
+            });
+
+        }
+        
     }];
     
     [downloadRequest start];

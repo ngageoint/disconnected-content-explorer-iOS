@@ -99,7 +99,10 @@
     else {
         cell.userInteractionEnabled = NO;
         if (report.totalNumberOfFiles > 0 && report.progress > 0) {
-            cell.reportDescription.text = [NSString stringWithFormat:@"%d of %d files unzipped", report.progress, report.totalNumberOfFiles ];
+            cell.reportDescription.text = [NSString stringWithFormat:@"%d of %d files unzipped", report.progress, report.totalNumberOfFiles];
+        } else if (report.downloadSize > 0 && report.downloadProgress > 0) {
+            float progress = ((float)report.downloadProgress) / report.downloadSize;
+            cell.reportDescription.text = [NSString stringWithFormat:@"%d %% downloaded", (int)(progress * 100) ];
         }
     }
     

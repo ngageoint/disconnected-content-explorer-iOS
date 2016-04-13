@@ -13,7 +13,7 @@
 #import "ReportResourceViewController.h"
 
 
-@interface ReportCollectionViewController () <ReportCollectionViewDelegate, UIActionSheetDelegate>
+@interface ReportCollectionViewController () <ReportCollectionViewDelegate, UIActionSheetDelegate, NSURLConnectionDataDelegate>
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *viewSegments;
 @property (weak, nonatomic) IBOutlet UIView *collectionSubview;
@@ -85,18 +85,9 @@
             NSHTTPURLResponse *response = nil;
             [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
             
-            if (error) {
-                NSLog(@"Something bad happened checking the pastwboard URL: %@", [error localizedDescription]);
-            } else {
-                pasteboardURLResponse = response;
-                NSLog(@"MIME type of file: %@", [response MIMEType]);
-                
-                if ([[response MIMEType] isEqualToString:@"application/zip"]) {
-                    NSString *title = [NSString stringWithFormat:@"Download report: %@", pasteboard.string];
-                    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Canel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
-                    [actionSheet showInView:self.view];
-                }
-            }
+            NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+            [connection start];
+            
         }
     }
 }
@@ -170,8 +161,32 @@
     if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Download"]) {
         NSLog(@"Download tapped");
         // make the call to the ReportAPI
-        [[ReportAPI sharedInstance] downloadReportAtURL:pasteboardURL withResponse:pasteboardURLResponse];
+        [[ReportAPI sharedInstance] downloadReportAtURL:pasteboardURL];
     }
+}
+
+
+#pragma mark - NSURLConnectionDelegate
+
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(nonnull NSURLResponse *)response {
+    NSLog(@"MIME type of file: %@", [response MIMEType]);
+    
+    if ([[response MIMEType] isEqualToString:@"application/zip"]) {
+        NSString *title = [NSString stringWithFormat:@"Download report: %@", [response.URL absoluteString]];
+        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Canel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
+        [actionSheet showInView:self.view];
+    }
+
+}
+
+
+-(void)connection:(NSURLConnection *)connection didReceiveData:(nonnull NSData *)data {
+    
+}
+
+
+-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+    
 }
 
 @end

@@ -20,6 +20,8 @@
         self.error = nil;
         self.totalNumberOfFiles = 0;
         self.progress = 0;
+        self.downloadSize = 0;
+        self.downloadProgress = 0;
     }
     
     return self;

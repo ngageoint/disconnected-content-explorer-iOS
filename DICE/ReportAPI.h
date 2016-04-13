@@ -74,6 +74,6 @@
 - (void)loadReports;
 - (void)loadReportsWithCompletionHandler:(void(^) (void))completionHandler;
 - (Report *)reportForID:(NSString *)reportID;
-- (void)downloadReportAtURL:(NSURL *)URL withResponse:(NSHTTPURLResponse *)response;
+- (void)downloadReportAtURL:(NSURL *)URL;
 
 @end

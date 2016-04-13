@@ -20,6 +20,8 @@
 @property (nonatomic) double lon;
 @property (nonatomic) int totalNumberOfFiles;
 @property (nonatomic) int progress;
+@property (nonatomic) long downloadSize;
+@property (nonatomic) long downloadProgress;
 @property (nonatomic) BOOL isEnabled;
 
 - (instancetype) initWithTitle:(NSString *)title;
