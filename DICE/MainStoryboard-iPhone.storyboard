@@ -628,30 +628,39 @@
                                     <rect key="frame" x="0.0" y="0.0" width="768" height="57"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Lgm-xw-CoQ" userLabel="OverlayType">
-                                            <rect key="frame" x="8" y="12" width="32" height="32"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="32" id="god-uN-m46"/>
-                                            </constraints>
-                                        </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YqN-1S-Ll0" userLabel="Name">
-                                            <rect key="frame" x="48" y="17" width="207" height="21"/>
+                                            <rect key="frame" x="48" y="17" width="179" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="lock" translatesAutoresizingMaskIntoConstraints="NO" id="OP1-Im-vHA">
+                                            <rect key="frame" x="235" y="18" width="20" height="20"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="20" id="RS8-A2-6tO"/>
+                                                <constraint firstAttribute="width" constant="20" id="aMY-bP-mxX"/>
+                                            </constraints>
+                                        </imageView>
                                         <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oUw-HN-PBv" userLabel="Active" customClass="MapOverlayActiveSwitch">
                                             <rect key="frame" x="263" y="13" width="51" height="31"/>
                                             <connections>
                                                 <action selector="activeChanged:" destination="zdG-kF-aK4" eventType="valueChanged" id="RkL-ts-e2A"/>
                                             </connections>
                                         </switch>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Lgm-xw-CoQ" userLabel="OverlayType">
+                                            <rect key="frame" x="8" y="12" width="32" height="32"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="32" id="god-uN-m46"/>
+                                            </constraints>
+                                        </imageView>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="oUw-HN-PBv" firstAttribute="leading" secondItem="OP1-Im-vHA" secondAttribute="trailing" constant="8" id="2n7-9d-T3k"/>
                                         <constraint firstItem="YqN-1S-Ll0" firstAttribute="leading" secondItem="Lgm-xw-CoQ" secondAttribute="trailing" constant="8" symbolic="YES" id="9oy-Hl-Lb7"/>
                                         <constraint firstItem="oUw-HN-PBv" firstAttribute="trailing" secondItem="AZn-rK-xmx" secondAttribute="trailingMargin" id="FKv-ys-F2B"/>
                                         <constraint firstItem="oUw-HN-PBv" firstAttribute="leading" secondItem="YqN-1S-Ll0" secondAttribute="trailing" constant="8" symbolic="YES" id="N2i-QJ-M4S"/>
                                         <constraint firstItem="Lgm-xw-CoQ" firstAttribute="leading" secondItem="AZn-rK-xmx" secondAttribute="leadingMargin" id="NgV-Um-8dL"/>
+                                        <constraint firstItem="OP1-Im-vHA" firstAttribute="centerY" secondItem="oUw-HN-PBv" secondAttribute="centerY" id="PEo-St-8C3"/>
                                         <constraint firstItem="Lgm-xw-CoQ" firstAttribute="centerY" secondItem="AZn-rK-xmx" secondAttribute="centerY" id="TZa-hg-A3y"/>
                                         <constraint firstItem="YqN-1S-Ll0" firstAttribute="centerY" secondItem="Lgm-xw-CoQ" secondAttribute="centerY" id="aHc-GS-Bxl"/>
                                         <constraint firstItem="Lgm-xw-CoQ" firstAttribute="centerY" secondItem="oUw-HN-PBv" secondAttribute="centerY" id="okM-RT-vk1"/>
@@ -661,6 +670,7 @@
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <connections>
                                     <outlet property="active" destination="oUw-HN-PBv" id="sU4-Xc-n4t"/>
+                                    <outlet property="locked" destination="OP1-Im-vHA" id="3Fm-Gl-JS3"/>
                                     <outlet property="name" destination="YqN-1S-Ll0" id="r52-UR-8Br"/>
                                     <outlet property="tableType" destination="Lgm-xw-CoQ" id="wyL-TQ-xTS"/>
                                 </connections>
@@ -740,6 +750,7 @@
         <image name="Icon-76.png" width="76" height="76"/>
         <image name="info" width="24" height="24"/>
         <image name="layers" width="22" height="22"/>
+        <image name="lock" width="24" height="24"/>
         <image name="map" width="24" height="24"/>
         <image name="tile" width="24" height="24"/>
     </resources>

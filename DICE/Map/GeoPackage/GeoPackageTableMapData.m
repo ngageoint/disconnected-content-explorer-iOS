@@ -7,9 +7,12 @@
 //
 
 #import "GeoPackageTableMapData.h"
+#import "GPKGProjectionFactory.h"
+#import "GPKGProjectionConstants.h"
 
 @interface GeoPackageTableMapData()
-    @property (nonatomic, strong) NSString * name;
+@property (nonatomic, strong) NSString * name;
+@property (nonatomic, strong) GPKGProjection * projection;
 @end
 
 @implementation GeoPackageTableMapData
@@ -17,6 +20,7 @@
 -(id) initWithName: (NSString *) name{
     if (self = [super init]) {
         self.name = name;
+        self.projection = [GPKGProjectionFactory getProjectionWithInt:PROJ_EPSG_WORLD_GEODETIC_SYSTEM];
     }
     
     return self;
@@ -57,12 +61,12 @@
     }
 }
 
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
     NSMutableString * message = nil;
     
     if(self.featureOverlayQueries != nil){
         for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
-            NSString * overlayMessage = [featureOverlayQuery buildMapClickMessageWithLocationCoordinate:locationCoordinate andMapView:mapView];
+            NSString * overlayMessage = [featureOverlayQuery buildMapClickMessageWithLocationCoordinate:locationCoordinate andMapView:mapView andProjection:self.projection];
             if(overlayMessage != nil){
                 if(message == nil){
                     message = [[NSMutableString alloc] init];
@@ -75,6 +79,50 @@
     }
     
     return message;
+}
+
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
+    NSMutableString * message = nil;
+    
+    if(self.featureOverlayQueries != nil){
+        for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
+            NSString * overlayMessage = [featureOverlayQuery buildMapClickMessageWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds andProjection:self.projection];
+            if(overlayMessage != nil){
+                if(message == nil){
+                    message = [[NSMutableString alloc] init];
+                }else{
+                    [message appendString:@"\n\n"];
+                }
+                [message appendString:overlayMessage];
+            }
+        }
+    }
+    
+    return message;
+}
+
+-(GPKGFeatureTableData *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andMap: (MKMapView *) mapView{
+    GPKGFeatureTableData * tableData = nil;
+    
+    if(self.featureOverlayQueries != nil){
+        for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
+            tableData = [featureOverlayQuery buildMapClickTableDataWithLocationCoordinate:locationCoordinate andMapView:mapView andProjection:self.projection];
+        }
+    }
+    
+    return tableData;
+}
+
+-(GPKGFeatureTableData *) mapClickTableDataWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate andZoom: (double) zoom andMapBounds: (GPKGBoundingBox *) mapBounds{
+    GPKGFeatureTableData * tableData = nil;
+    
+    if(self.featureOverlayQueries != nil){
+        for(GPKGFeatureOverlayQuery * featureOverlayQuery in self.featureOverlayQueries){
+            tableData = [featureOverlayQuery buildMapClickTableDataWithLocationCoordinate:locationCoordinate andZoom:zoom andMapBounds:mapBounds andProjection:self.projection];
+        }
+    }
+    
+    return tableData;
 }
 
 @end

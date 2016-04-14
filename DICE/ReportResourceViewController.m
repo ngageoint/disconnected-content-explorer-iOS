@@ -10,11 +10,13 @@
 
 #import "NoteViewController.h"
 #import "ResourceTypes.h"
+#import "GeoPackageURLProtocol.h"
 
 @interface ReportResourceViewController ()
 
 @property (weak, nonatomic) UIViewController<ResourceHandler> *resourceViewer;
 @property (weak, nonatomic) IBOutlet UIView *resourceView;
+@property (nonatomic) BOOL preserveCache;
 
 @end
 
@@ -33,8 +35,20 @@
     [resourceViewer handleResource:self.resource forReport:self.report];
 }
 
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    if(self.preserveCache){
+        self.preserveCache = NO;
+    }else{
+        [GeoPackageURLProtocol startCache:[self.report.reportID stringByDeletingPathExtension]];
+    }
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    if(!self.preserveCache){
+        [GeoPackageURLProtocol closeCache];
+    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -52,6 +66,7 @@
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    self.preserveCache = YES;
     if ([[segue identifier] isEqualToString:@"showReportNotes"]) {
         NoteViewController *noteViewController = (NoteViewController *)segue.destinationViewController;
         noteViewController.report = self.report;

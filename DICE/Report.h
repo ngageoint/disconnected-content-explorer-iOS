@@ -4,6 +4,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ReportCache.h"
 
 @interface Report : NSObject
 
@@ -23,6 +24,7 @@
 @property (nonatomic) long downloadSize;
 @property (nonatomic) long downloadProgress;
 @property (nonatomic) BOOL isEnabled;
+@property (nonatomic) NSMutableArray<ReportCache *> * cacheFiles;
 
 - (instancetype) initWithTitle:(NSString *)title;
 

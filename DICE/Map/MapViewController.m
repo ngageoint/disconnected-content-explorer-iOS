@@ -282,7 +282,7 @@ static NSString *mapPointPinReuseIdentifier = @"mapPointPinReuseIdentifier";
         CGPoint tapPoint = [tap locationInView:self.mapView];
         CLLocationCoordinate2D tapCoord = [self.mapView convertPoint:tapPoint toCoordinateFromView:self.mapView];
         
-        NSString * clickMessage = [self.geoPackageOverlays onMapClickWithLocationCoordinate:tapCoord];
+        NSString * clickMessage = [self.geoPackageOverlays mapClickMessageWithLocationCoordinate:tapCoord];
         [self displayMessage:clickMessage];
     }
 }
@@ -332,6 +332,26 @@ static NSString *mapPointPinReuseIdentifier = @"mapPointPinReuseIdentifier";
     NSString * title = [NSString stringWithFormat:@"(lat=%@, lon=%@)", lat, lon];
     
     return title;
+}
+
+- (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view{
+    
+    if ([view.annotation isKindOfClass:[ReportMapAnnotation class]]) {
+        ReportMapAnnotation * reportAnnotation = (ReportMapAnnotation *) view.annotation;
+        Report * report = reportAnnotation.report;
+        [self.geoPackageOverlays selectedReport:report];
+    }
+    
+}
+
+- (void)mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *)view{
+    
+    if ([view.annotation isKindOfClass:[ReportMapAnnotation class]]) {
+        ReportMapAnnotation * reportAnnotation = (ReportMapAnnotation *) view.annotation;
+        Report * report = reportAnnotation.report;
+        [self.geoPackageOverlays deselectedReport:report];
+    }
+    
 }
 
 @end

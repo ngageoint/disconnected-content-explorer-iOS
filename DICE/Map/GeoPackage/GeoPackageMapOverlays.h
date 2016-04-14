@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <MapKit/MapKit.h>
+#import "Report.h"
 
 /**
  *  Manages GeoPackage feature and tile overlays, including adding to and removing from the map
@@ -42,6 +43,20 @@
  *
  *  @return click message
  */
--(NSString *) onMapClickWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate;
+-(NSString *) mapClickMessageWithLocationCoordinate: (CLLocationCoordinate2D) locationCoordinate;
+
+/**
+ *  Report has been selected on the map
+ *
+ *  @param report selected report
+ */
+-(void) selectedReport: (Report *) report;
+
+/**
+ *  Report has been deselected on the map
+ *
+ *  @param reportCache deselected report
+ */
+-(void) deselectedReport: (Report *) report;
 
 @end

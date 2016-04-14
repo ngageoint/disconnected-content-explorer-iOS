@@ -637,11 +637,18 @@
                                             </constraints>
                                         </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lhx-tA-xbr" userLabel="Name">
-                                            <rect key="frame" x="48" y="17" width="207" height="21"/>
+                                            <rect key="frame" x="48" y="17" width="179" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="lock" translatesAutoresizingMaskIntoConstraints="NO" id="gsJ-tX-m9G">
+                                            <rect key="frame" x="235" y="18" width="20" height="20"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="20" id="TRX-K2-Xe2"/>
+                                                <constraint firstAttribute="height" constant="20" id="TfM-Bc-eiD"/>
+                                            </constraints>
+                                        </imageView>
                                         <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="p7V-xn-7zA" userLabel="Active" customClass="MapOverlayActiveSwitch">
                                             <rect key="frame" x="263" y="13" width="51" height="31"/>
                                             <connections>
@@ -653,16 +660,19 @@
                                         <constraint firstItem="JZU-w0-KWA" firstAttribute="bottom" secondItem="p7V-xn-7zA" secondAttribute="bottom" id="6J8-FE-5RS"/>
                                         <constraint firstItem="JZU-w0-KWA" firstAttribute="centerY" secondItem="p7V-xn-7zA" secondAttribute="centerY" id="I88-6I-eWN"/>
                                         <constraint firstItem="lhx-tA-xbr" firstAttribute="leading" secondItem="JZU-w0-KWA" secondAttribute="trailing" constant="8" symbolic="YES" id="Kp3-jZ-WC9"/>
+                                        <constraint firstItem="p7V-xn-7zA" firstAttribute="leading" secondItem="gsJ-tX-m9G" secondAttribute="trailing" constant="8" id="Me1-wu-p43"/>
                                         <constraint firstItem="JZU-w0-KWA" firstAttribute="centerY" secondItem="520-Xi-znl" secondAttribute="centerY" id="Oka-4C-Naq"/>
                                         <constraint firstItem="p7V-xn-7zA" firstAttribute="trailing" secondItem="520-Xi-znl" secondAttribute="trailingMargin" id="UET-hf-l8M"/>
                                         <constraint firstItem="p7V-xn-7zA" firstAttribute="leading" secondItem="lhx-tA-xbr" secondAttribute="trailing" constant="8" symbolic="YES" id="l8m-91-f4U"/>
                                         <constraint firstItem="JZU-w0-KWA" firstAttribute="leading" secondItem="520-Xi-znl" secondAttribute="leadingMargin" id="lZg-mE-mB6"/>
                                         <constraint firstItem="lhx-tA-xbr" firstAttribute="centerY" secondItem="JZU-w0-KWA" secondAttribute="centerY" id="lrp-bt-xtL"/>
+                                        <constraint firstItem="gsJ-tX-m9G" firstAttribute="centerY" secondItem="p7V-xn-7zA" secondAttribute="centerY" id="lrq-tz-qsY"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <connections>
                                     <outlet property="active" destination="p7V-xn-7zA" id="Cle-0G-YLx"/>
+                                    <outlet property="locked" destination="gsJ-tX-m9G" id="1tm-8x-vix"/>
                                     <outlet property="name" destination="lhx-tA-xbr" id="TBP-MY-Tdc"/>
                                     <outlet property="tableType" destination="JZU-w0-KWA" id="5XD-EF-Lw5"/>
                                 </connections>
@@ -743,6 +753,7 @@
         <image name="info" width="24" height="24"/>
         <image name="layers" width="22" height="22"/>
         <image name="list" width="24" height="24"/>
+        <image name="lock" width="24" height="24"/>
         <image name="map" width="24" height="24"/>
         <image name="tile" width="24" height="24"/>
     </resources>
