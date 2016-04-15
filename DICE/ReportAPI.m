@@ -423,7 +423,6 @@
             }
         }
         
-        report.progress = filesExtracted;
         [unzipFile close];
         
         NSLog(@"ReportAPI: finished extracting report %@", report.sourceFile);
@@ -510,6 +509,22 @@
     [downloadRequest start];
     
     // hand off completed file to be unzipped
+}
+
+
+- (void)deleteReportAtIndexPath:(NSIndexPath *)indexPath
+{
+    Report *report = reports[indexPath.item];
+    NSError *error;
+    NSLog(@"%@", [report.url absoluteURL]);
+    NSURL *folderURL = [NSURL URLWithString:[[report.url absoluteString] stringByDeletingLastPathComponent]];
+    BOOL folderDeleteSuccess = [fileManager removeItemAtPath:folderURL error:&error];
+    BOOL zipDeleteSuccess = [fileManager removeItemAtPath:[report.sourceFile absoluteURL] error:&error];
+
+    if (zipDeleteSuccess && folderDeleteSuccess) {
+        NSLog(@"Deleted %@", report.sourceFile);
+        [self loadReports];
+    }
 }
 
 

@@ -8,7 +8,7 @@
 #import "ReportCollectionView.h"
 #import "ReportViewCell.h"
 
-@interface TileViewController : UIViewController <ReportCollectionView, UICollectionViewDataSource, UICollectionViewDelegate>
+@interface TileViewController : UIViewController <ReportCollectionView, UICollectionViewDataSource, UICollectionViewDelegate, UIGestureRecognizerDelegate, UIActionSheetDelegate>
 
 @property (strong, nonatomic) NSArray *reports;
 @property (strong, nonatomic) id<ReportCollectionViewDelegate> delegate;
@@ -16,4 +16,6 @@
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @property (strong, nonatomic) IBOutlet UICollectionView *tileView;
 @property (strong, nonatomic) UIRefreshControl *refreshControl;
+@property (strong, nonatomic) NSIndexPath *indexToDelete;
+
 @end

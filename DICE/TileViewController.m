@@ -33,6 +33,11 @@
     [self.refreshControl addTarget:self action:@selector(refreshControlValueChanged) forControlEvents:UIControlEventValueChanged];
     [self.tileView addSubview:self.refreshControl];
     self.tileView.alwaysBounceVertical = YES;
+    
+    UILongPressGestureRecognizer *gestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    gestureRecognizer.delegate = self;
+    gestureRecognizer.delaysTouchesBegan = YES;
+    [self.tileView addGestureRecognizer:gestureRecognizer];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -157,5 +162,40 @@
 {
     [self refreshReportTiles:notification];
 }
+
+
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer.state != UIGestureRecognizerStateEnded) {
+        return;
+    }
+    
+    NSIndexPath *indexPath = [self.tileView indexPathForItemAtPoint:[gestureRecognizer locationInView:self.tileView]];
+    
+    if (indexPath == nil) {
+        NSLog(@"Cant find index path.");
+    } else {
+        self.indexToDelete = indexPath;
+        Report *longPressedReport = self.reports[self.indexToDelete.item];
+        NSLog(@"Long pressed on %@",  longPressedReport.title);
+        
+        NSString *title = [NSString stringWithFormat:@"Delete %@?", longPressedReport.title];
+        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Delete", nil];
+        [actionSheet showInView:self.view];
+    }
+}
+
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"The %@ button was tapped.", [actionSheet buttonTitleAtIndex:buttonIndex]);
+    
+    if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Delete"]) {
+        NSLog(@"Delete tapped");
+        // make the call to the ReportAPI
+
+        [[ReportAPI sharedInstance] deleteReportAtIndexPath:self.indexToDelete];
+    }
+}
+
 
 @end

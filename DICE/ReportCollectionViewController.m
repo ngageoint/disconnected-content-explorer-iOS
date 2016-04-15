@@ -81,12 +81,22 @@
             // Before even giving the user the option to download, make sure that the link points to something we can use.
             NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:pasteboardURL];
             [request setHTTPMethod:@"HEAD"];
-            NSError *error = nil;
-            NSHTTPURLResponse *response = nil;
-            [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+            //NSError *error = nil;
+            //NSHTTPURLResponse *response = nil;
+            //[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+            [NSURLConnection sendAsynchronousRequest:request queue:[[NSOperationQueue alloc] init]
+                                   completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+                                       NSLog(@"MIME type of file: %@", [response MIMEType]);
+                                       
+                                       if ([[response MIMEType] isEqualToString:@"application/zip"]) {
+                                           NSString *title = [NSString stringWithFormat:@"Download report: %@", [response.URL absoluteString]];
+                                           UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Canel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
+                                           [actionSheet showInView:self.view];
+                                       }
+                                   }];
             
-            NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
-            [connection start];
+            //NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+            //[connection start];
             
         }
     }
@@ -173,7 +183,7 @@
     
     if ([[response MIMEType] isEqualToString:@"application/zip"]) {
         NSString *title = [NSString stringWithFormat:@"Download report: %@", [response.URL absoluteString]];
-        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Canel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
+        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
         [actionSheet showInView:self.view];
     }
 
