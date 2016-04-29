@@ -319,6 +319,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E3E133CB19D6096300C2D37E /* MessageUI.framework in Frameworks */,
 				E3AC40FF198ADCC700DE8F41 /* CoreLocation.framework in Frameworks */,
 				7DA706B71A158E3800B558EC /* MobileCoreServices.framework in Frameworks */,
 				7D0B49211A0D49B50044236B /* OpenGLES.framework in Frameworks */,
@@ -328,7 +329,6 @@
 				7D0B49191A0D48CF0044236B /* CFNetwork.framework in Frameworks */,
 				7D0B49171A0D489D0044236B /* CoreData.framework in Frameworks */,
 				E3E133CD19D6708300C2D37E /* QuickLook.framework in Frameworks */,
-				E3E133CB19D6096300C2D37E /* MessageUI.framework in Frameworks */,
 				E3E133C919D6095900C2D37E /* ImageIO.framework in Frameworks */,
 				E3E133C719D6095000C2D37E /* QuartzCore.framework in Frameworks */,
 				E3A73FC518558F7A00035C76 /* MapKit.framework in Frameworks */,
@@ -758,7 +758,7 @@
 						TestTargetID = E3FBB30117C9527000E133D6;
 					};
 					E3FBB30117C9527000E133D6 = {
-						DevelopmentTeam = ZL8G5D9G2H;
+						DevelopmentTeam = A8EK924J35;
 					};
 				};
 			};
@@ -1131,7 +1131,7 @@
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				PRODUCT_BUNDLE_IDENTIFIER = mil.nga.giat.DICE;
+				PRODUCT_BUNDLE_IDENTIFIER = mil.dod.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1154,7 +1154,7 @@
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				PRODUCT_BUNDLE_IDENTIFIER = mil.nga.giat.DICE;
+				PRODUCT_BUNDLE_IDENTIFIER = mil.dod.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";

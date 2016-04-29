@@ -11,6 +11,26 @@
 #import "WebViewJavascriptBridge.h"
 #import "Report.h"
 
+
+/**
+ This class provides static methods that return strings for notification names that
+ JavascriptAPI can produce.
+ */
+@interface JavaScriptNotification
+/**
+ This notification indicates that the geoJSON the user 
+ wanted to export the JavaScript bridge is ready to be
+ sent to an email view to be shipped off of the device.
+ The NSNotification object userInfo dicationary contains
+ {
+    @"report": (Report*) the added report object,
+    @"filePath": (NSString*) the path to the exported geoJSON
+ }
+ */
++ (NSString *)geoJSONExported;
+@end
+
+
 @interface JavaScriptAPI : NSObject <CLLocationManagerDelegate>
 
 @property (strong, nonatomic)UIWebView *webview;

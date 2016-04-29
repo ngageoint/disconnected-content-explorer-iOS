@@ -13,7 +13,7 @@
 #import "ReportResourceViewController.h"
 
 
-@interface ReportCollectionViewController () <ReportCollectionViewDelegate, UIActionSheetDelegate, NSURLConnectionDataDelegate>
+@interface ReportCollectionViewController () <ReportCollectionViewDelegate, NSURLConnectionDataDelegate>
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *viewSegments;
 @property (weak, nonatomic) IBOutlet UIView *collectionSubview;
@@ -31,6 +31,7 @@
     Report *selectedReport;
     NSURL *pasteboardURL;
     NSHTTPURLResponse *pasteboardURLResponse;
+    NSString *recentPasteboardURLKey;
 }
 
 - (void)viewDidLoad {
@@ -64,42 +65,16 @@
     [firstView didMoveToParentViewController: self];
     firstView.view.frame = self.collectionSubview.bounds;
     [self.collectionSubview addSubview: firstView.view];
+    recentPasteboardURLKey = @"RECENT_PASTEBOARD_URL_KEY";
     
     [[ReportAPI sharedInstance] loadReports];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkPasteboardForReport) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
-    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-    if (pasteboard.string) {
-        NSLog(@"Checking pasteboard contents... %@", pasteboard.string);
-        
-        pasteboardURL = [NSURL URLWithString: pasteboard.string];
-        if (pasteboardURL && pasteboardURL.scheme && pasteboardURL.host) {
-            // Before even giving the user the option to download, make sure that the link points to something we can use.
-            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:pasteboardURL];
-            [request setHTTPMethod:@"HEAD"];
-            //NSError *error = nil;
-            //NSHTTPURLResponse *response = nil;
-            //[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-            [NSURLConnection sendAsynchronousRequest:request queue:[[NSOperationQueue alloc] init]
-                                   completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
-                                       NSLog(@"MIME type of file: %@", [response MIMEType]);
-                                       
-                                       if ([[response MIMEType] isEqualToString:@"application/zip"]) {
-                                           NSString *title = [NSString stringWithFormat:@"Download report: %@", [response.URL absoluteString]];
-                                           UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Canel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
-                                           [actionSheet showInView:self.view];
-                                       }
-                                   }];
-            
-            //NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
-            //[connection start];
-            
-        }
-    }
+    [self checkPasteboardForReport];
 }
 
 
@@ -159,44 +134,59 @@
     }
 }
 
+
+-(void)checkPasteboardForReport {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    if (pasteboard.string) {
+        NSLog(@"Checking pasteboard contents... %@", pasteboard.string);
+        
+        pasteboardURL = [NSURL URLWithString: pasteboard.string];
+        NSString *recentURL = [[NSUserDefaults standardUserDefaults] stringForKey:recentPasteboardURLKey];
+        
+        if (![[pasteboardURL absoluteString] isEqualToString:recentURL] && pasteboardURL && pasteboardURL.scheme && pasteboardURL.host) {
+            // Before even giving the user the option to download, make sure that the link points to something we can use.
+            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:pasteboardURL];
+            [request setHTTPMethod:@"HEAD"];
+            
+            [NSURLConnection sendAsynchronousRequest:request queue:[[NSOperationQueue alloc] init]
+                                   completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+                                       
+                                       dispatch_async(dispatch_get_main_queue(),^
+                                                      {
+                                                          NSLog(@"MIME type of file: %@", [response MIMEType]);
+                                                          
+                                                          NSDictionary* headers = [(NSHTTPURLResponse *)response allHeaderFields];
+                                                          // TODO: check content-types that can also be report types in the head request, octet stream, etc.
+                                                          
+                                                          NSLog(@"Suggested filename %@", [response suggestedFilename]);
+                                                          
+                                                          if ([[response MIMEType] isEqualToString:@"application/zip"] || [headers[@"Content-Type"] isEqualToString:@"application/octet-stream"]) {
+                                                              UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Download?" message:[response.URL absoluteString] preferredStyle:UIAlertControllerStyleAlert];
+                                                              UIAlertAction *downloadAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                                                  NSLog(@"Download action choosen");
+                                                                  [[ReportAPI sharedInstance] downloadReportAtURL:pasteboardURL withFilename: [response suggestedFilename]];
+                                                                  [[NSUserDefaults standardUserDefaults] setObject:[pasteboardURL absoluteString] forKey:recentPasteboardURLKey];
+                                                              }];
+                                                              
+                                                              UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                                                  [[NSUserDefaults standardUserDefaults] setObject:[pasteboardURL absoluteString] forKey:recentPasteboardURLKey];
+                                                              }];
+                                                              
+                                                              [alertController addAction:cancelAction];
+                                                              [alertController addAction:downloadAction];
+                                                              [self presentViewController:alertController animated:YES completion:nil];
+                                                              
+                                                          }
+                                                      });
+                                   }];
+            
+        }
+    }
+}
+
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-
-#pragma mark - Action Sheet delegate methods
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    NSLog(@"The %@ button was tapped.", [actionSheet buttonTitleAtIndex:buttonIndex]);
-    
-    if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Download"]) {
-        NSLog(@"Download tapped");
-        // make the call to the ReportAPI
-        [[ReportAPI sharedInstance] downloadReportAtURL:pasteboardURL];
-    }
-}
-
-
-#pragma mark - NSURLConnectionDelegate
-
--(void)connection:(NSURLConnection *)connection didReceiveResponse:(nonnull NSURLResponse *)response {
-    NSLog(@"MIME type of file: %@", [response MIMEType]);
-    
-    if ([[response MIMEType] isEqualToString:@"application/zip"]) {
-        NSString *title = [NSString stringWithFormat:@"Download report: %@", [response.URL absoluteString]];
-        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Download", nil];
-        [actionSheet showInView:self.view];
-    }
-
-}
-
-
--(void)connection:(NSURLConnection *)connection didReceiveData:(nonnull NSData *)data {
-    
-}
-
-
--(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    
 }
 
 @end

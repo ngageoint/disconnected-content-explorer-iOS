@@ -458,7 +458,7 @@
 }
 
 
-- (void)downloadReportAtURL:(NSURL *)URL {
+- (void)downloadReportAtURL:(NSURL *)URL withFilename:(NSString *)filename {
     // make a new report object that can track the download progress
     Report *report = [[Report alloc] initWithTitle:[URL absoluteString]];
     report.isEnabled = NO;
@@ -466,7 +466,6 @@
     [reports addObject:report];
     
     // broadcast a message with that report
-    NSString *filename = [URL lastPathComponent];
     NSURL *destFile = [documentsDir URLByAppendingPathComponent:filename];
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
     AFHTTPRequestOperation *downloadRequest = [[AFHTTPRequestOperation alloc] initWithRequest:request];

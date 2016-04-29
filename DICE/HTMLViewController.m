@@ -41,6 +41,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportImportFinished:) name:[ReportNotification reportImportFinished] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(emailDataExport:) name:[JavaScriptNotification geoJSONExported] object:nil];
     
     _unzipStatusLabel = [[UILabel alloc] init];
     
@@ -128,6 +129,21 @@
 }
 
 
+-(void)emailDataExport:(NSNotification *)notification
+{
+    MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
+    mailController.mailComposeDelegate = self;
+    [mailController setSubject:[NSString stringWithFormat: @"%@ export", self.report.title]];
+    
+    NSString *filePath = notification.userInfo[@"filePath"];
+    NSString *fileName = [NSString stringWithFormat:@"%@_export.json", self.report.title];
+    NSData *fileData = [NSData dataWithContentsOfFile:filePath];
+    
+    [mailController addAttachmentData:fileData mimeType:@"application/json" fileName:fileName];
+    [self presentViewController:mailController animated:YES completion:nil];
+}
+
+
 - (void)updateUnzipProgress:(NSNotification *)notification
 {
     [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:[NSString stringWithFormat:@"%@ of %@ unzipped", notification.userInfo[@"progress"], notification.userInfo[@"totalNumberOfFiles"]] waitUntilDone:NO];
@@ -163,6 +179,31 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
     [super viewWillDisappear:animated];
+}
+
+
+- (void) mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    switch (result)
+    {
+        case MFMailComposeResultCancelled:
+            NSLog(@"Mail cancelled");
+            break;
+        case MFMailComposeResultSaved:
+            NSLog(@"Mail saved");
+            break;
+        case MFMailComposeResultSent:
+            NSLog(@"Mail sent");
+            break;
+        case MFMailComposeResultFailed:
+            NSLog(@"Mail sent failure: %@", [error localizedDescription]);
+            break;
+        default:
+            break;
+    }
+    
+    // Close the Mail Interface
+    [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
 

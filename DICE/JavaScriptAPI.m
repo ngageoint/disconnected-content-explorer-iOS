@@ -7,6 +7,14 @@
 #import "GeoPackageURLProtocol.h"
 #import "GPKGBoundingBox.h"
 
+
+@implementation JavaScriptNotification
++ (NSString *)geoJSONExported {
+    return @"DICE.geoJSONExported";
+}
+@end
+
+
 @implementation JavaScriptAPI
 
 - (id)initWithWebView:(UIWebView *)webView report:(Report *)report andDelegate:(NSObject<UIWebViewDelegate> *)delegate
@@ -82,6 +90,14 @@
         } else {
             [jsonString writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
             if (error == nil) {
+                
+                [[NSNotificationCenter defaultCenter]
+                 postNotificationName:[JavaScriptNotification geoJSONExported] object:self
+                 userInfo:@{
+                            @"filePath": filePath
+                            }];
+
+                
                 return @{ @"success": @YES, @"message": @"Sucessfully wrote file"};
             } else {
                 return @{ @"success": @NO, @"message": [error localizedDescription]};

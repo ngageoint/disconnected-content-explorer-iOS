@@ -129,6 +129,9 @@
         cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = NO;
         if (report.totalNumberOfFiles > 0 && report.progress > 0) {
             cell.detailTextLabel.text = [NSString stringWithFormat:@"%d of %d files unzipped", report.progress, report.totalNumberOfFiles ];
+        } else if (report.downloadSize > 0 && report.downloadProgress > 0) {
+            float progress = ((float)report.downloadProgress) / report.downloadSize;
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%d %% downloaded", (int)(progress *100)];
         }
     }
     
@@ -141,7 +144,7 @@
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the specified item to be editable.
-    return NO;
+    return YES;
 }
 
 
@@ -156,11 +159,16 @@
 // This disables table view row swipe to delete
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (_tableView.editing) {
-        return UITableViewCellEditingStyleDelete;
-    }
-    
-    return UITableViewCellEditingStyleNone;
+    return UITableViewCellEditingStyleDelete;
 }
+
+
+-(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        [[ReportAPI sharedInstance] deleteReportAtIndexPath:indexPath];
+    }
+}
+
 
 @end
