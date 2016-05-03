@@ -11,7 +11,8 @@
 @interface PDFViewController ()
 
 @property BOOL isDismissed;
-@property (nonatomic, strong) Report *report;
+@property (nonatomic) Report *report;
+@property (nonatomic) NSURL *resource;
 
 @end
 
@@ -39,7 +40,7 @@
          * See ReaderDocument -> + (ReaderDocument *)unarchiveFromFileName:(NSString *) password:(NSString *)
          * which produces the invalid PDF path.
          */
-        ReaderDocument *document = [ReaderDocument withDocumentFilePath:self.report.url.absoluteURL.path password:nil];
+        ReaderDocument *document = [ReaderDocument withDocumentFilePath:self.resource.absoluteURL.path password:nil];
         if (document != nil) {
             ReaderViewController *readerViewController = [[ReaderViewController alloc] initWithReaderDocument:document];
             readerViewController.delegate = self;
@@ -54,6 +55,10 @@
 - (void)handleResource:(NSURL *)resource forReport:(Report *)report
 {
     self.report = report;
+    self.resource = resource;
+    if (!self.resource) {
+        self.resource = report.url;
+    }
 }
 
 - (void)didReceiveMemoryWarning
