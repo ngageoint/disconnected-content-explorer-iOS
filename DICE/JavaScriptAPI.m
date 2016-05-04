@@ -67,45 +67,45 @@
 
 - (NSDictionary *)exportJSON:(id)data
 {
-    if (data) {
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentsPath = [paths objectAtIndex:0]; //Get the docs directory
-        
-        NSFileManager *fm = [[NSFileManager alloc] init];
-        NSError *error;
-        
-        BOOL isDir;
-        BOOL exists = [fm fileExistsAtPath:[documentsPath stringByAppendingPathComponent:@"export"] isDirectory:&isDir];
-        if (!exists) {
-            [[NSFileManager defaultManager] createDirectoryAtPath:[documentsPath stringByAppendingPathComponent:@"export"] withIntermediateDirectories:NO attributes:nil error:&error];
-        }
-        
-        NSString *filePath = [documentsPath stringByAppendingPathComponent:[NSString stringWithFormat:@"/export/%@_export.json", self.report.title]]; //Add the file name
-        NSDictionary *dataDict = (NSDictionary*)data;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dataDict options:0 error:&error];
-        NSString *jsonString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
-        if (error != nil) {
-            NSLog(@"Error creating NSDictionary: %@", [error localizedDescription]);
-            return @{ @"success": @NO, @"message": @"Unable to parse JSON."};
-        } else {
-            [jsonString writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
-            if (error == nil) {
-                
-                [[NSNotificationCenter defaultCenter]
-                 postNotificationName:[JavaScriptNotification geoJSONExported] object:self
-                 userInfo:@{
-                            @"filePath": filePath
-                            }];
+    if (!data) {
+        return @{ @"success": @NO, @"message": @"No data to export"};
+    }
 
-                
-                return @{ @"success": @YES, @"message": @"Sucessfully wrote file"};
-            } else {
-                return @{ @"success": @NO, @"message": [error localizedDescription]};
-            }
-        }
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [paths objectAtIndex:0]; //Get the docs directory
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    NSError *error;
+    
+    BOOL isDir;
+    BOOL exists = [fm fileExistsAtPath:[documentsPath stringByAppendingPathComponent:@"export"] isDirectory:&isDir];
+    if (!exists) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:[documentsPath stringByAppendingPathComponent:@"export"] withIntermediateDirectories:NO attributes:nil error:&error];
     }
     
-    return @{ @"success": @NO, @"message": @"Null data was sent to the Javascript Bridge."};
+    NSString *filePath = [documentsPath stringByAppendingPathComponent:[NSString stringWithFormat:@"/export/%@_export.json", self.report.title]]; //Add the file name
+    NSDictionary *dataDict = (NSDictionary*)data;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dataDict options:0 error:&error];
+    
+    if (error != nil) {
+        NSLog(@"Error creating NSDictionary: %@", [error localizedDescription]);
+        return @{ @"success": @NO, @"message": @"Unable to parse JSON."};
+    }
+    
+    NSString *jsonString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+    [jsonString writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+    
+    if (error == nil) {
+        [[NSNotificationCenter defaultCenter]
+             postNotificationName:[JavaScriptNotification geoJSONExported] object:self
+             userInfo:@{
+                        @"filePath": filePath
+            }];
+
+        return @{ @"success": @YES, @"message": @"Export successful"};
+    }
+    
+    return @{ @"success": @NO, @"message": [error localizedDescription]};
 }
 
 
