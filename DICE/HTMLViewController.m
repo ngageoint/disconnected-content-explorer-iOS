@@ -131,6 +131,9 @@
 
 -(void)emailDataExport:(NSNotification *)notification
 {
+    if (![MFMailComposeViewController canSendMail]) {
+        return;
+    }
     MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
     mailController.mailComposeDelegate = self;
     [mailController setSubject:[NSString stringWithFormat: @"%@ export", self.report.title]];
