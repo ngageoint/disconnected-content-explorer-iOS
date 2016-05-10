@@ -468,27 +468,31 @@
     // broadcast a message with that report
     NSURL *destFile = [documentsDir URLByAppendingPathComponent:filename];
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-    AFHTTPRequestOperation *downloadRequest = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    downloadRequest.outputStream = [NSOutputStream outputStreamToFileAtPath:[destFile path] append:NO];
     
-    [downloadRequest setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"Successfully downloaded: %@", [URL absoluteString]);
-        // Maybe add a dictionary value to NSUserDefaults to a downloaded dictionary with the URL as a key and YES as the value, check that dictionary before displaying the action sheet
-        [self loadReports];
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Problem downloading %@: %@", [URL path], [error localizedDescription]);
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+    
+    NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
+        return destFile;
+    } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
+        if(!error){
+            NSLog(@"Successfully downloaded: %@", [URL absoluteString]);
+            // Maybe add a dictionary value to NSUserDefaults to a downloaded dictionary with the URL as a key and YES as the value, check that dictionary before displaying the action sheet
+            [self loadReports];
+        }else{
+            NSLog(@"Problem downloading %@: %@", [URL path], [error localizedDescription]);
+        }
     }];
     
-    // update download progress
-    [downloadRequest setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
+    [manager setDownloadTaskDidWriteDataBlock:^(NSURLSession *session, NSURLSessionDownloadTask *downloadTask, int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite) {
         // TODO: Add code
         // set the description to a status using the size of the file and download progress
-        float progress = ((float)totalBytesRead) / totalBytesExpectedToRead;
+        float progress = ((float)totalBytesWritten) / totalBytesExpectedToWrite;
         
-        if (fmodf(totalBytesRead, 25) == 0) {
-            report.summary = [NSString stringWithFormat:@"%lld of %lld downloaded", totalBytesRead, totalBytesExpectedToRead];
-            report.downloadSize = totalBytesExpectedToRead;
-            report.downloadProgress = totalBytesRead;
+        if (fmodf(totalBytesWritten, 25) == 0) {
+            report.summary = [NSString stringWithFormat:@"%lld of %lld downloaded", totalBytesWritten, totalBytesExpectedToWrite];
+            report.downloadSize = totalBytesExpectedToWrite;
+            report.downloadProgress = totalBytesWritten;
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[NSNotificationCenter defaultCenter]
@@ -497,15 +501,14 @@
                  userInfo:@{
                             @"report": report,
                             @"progress": [NSString stringWithFormat:@"%g", progress],
-                            @"totalNumberOfFiles": [NSString stringWithFormat:@"%lld downloaded", totalBytesExpectedToRead]
+                            @"totalNumberOfFiles": [NSString stringWithFormat:@"%lld downloaded", totalBytesExpectedToWrite]
                             }];
             });
-
+            
         }
-        
     }];
     
-    [downloadRequest start];
+    [downloadTask resume];
     
     // hand off completed file to be unzipped
 }
