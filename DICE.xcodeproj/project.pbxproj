@@ -43,6 +43,7 @@
 		7DEC14261B7E235D00D4CBB8 /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7DEC14231B7E224100D4CBB8 /* resources */; };
 		7DF1E24E1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7DF1E24D1ACEF02D001EA27E /* MainStoryboard-iPhone.storyboard */; };
 		7DF1E2511ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DF1E2501ACF14CE001EA27E /* SettingsViewController+SettingsViewController_iPhone.m */; };
+		94942C009B7CF9751F1BC0DB /* libPods-DICE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC63C8C3A5584AA4A5E44F92 /* libPods-DICE.a */; };
 		AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B73CA51504D8A8B497186523 /* libPods.a */; };
 		E32C6C2D17D7C1AB00D694C5 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E32C6C2C17D7C1AB00D694C5 /* libz.dylib */; };
 		E337BCC21811AD7B00D987F9 /* Report.m in Sources */ = {isa = PBXBuildFile; fileRef = E337BCC11811AD7B00D987F9 /* Report.m */; };
@@ -204,6 +205,7 @@
 		7DFA5DB81B740C9D00732426 /* BaseImportProcessSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseImportProcessSpec.m; sourceTree = "<group>"; };
 		7DFA5DBA1B7A2E8800732426 /* ReportSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportSpec.m; sourceTree = "<group>"; };
 		B73CA51504D8A8B497186523 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9B923CFB0A35B7C2CDDE04F /* Pods-DICE.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICE.release.xcconfig"; path = "Pods/Target Support Files/Pods-DICE/Pods-DICE.release.xcconfig"; sourceTree = "<group>"; };
 		E32C6C2C17D7C1AB00D694C5 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		E337BCC01811AD7B00D987F9 /* Report.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Report.h; sourceTree = "<group>"; };
 		E337BCC11811AD7B00D987F9 /* Report.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Report.m; sourceTree = "<group>"; };
@@ -321,6 +323,7 @@
 		E3FBB31317C9527000E133D6 /* DICE-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DICE-Prefix.pch"; sourceTree = "<group>"; };
 		E3FBB31417C9527000E133D6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E3FBB31517C9527000E133D6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		F1B40E98F83A9C7BA60EFEF2 /* Pods-DICE.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICE.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DICE/Pods-DICE.debug.xcconfig"; sourceTree = "<group>"; };
 		FC63C8C3A5584AA4A5E44F92 /* libPods-DICE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICE.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -355,6 +358,7 @@
 				E3FBB30817C9527000E133D6 /* Foundation.framework in Frameworks */,
 				E3FBB30A17C9527000E133D6 /* CoreGraphics.framework in Frameworks */,
 				AC699E8B14383058C8CF7C9D /* libPods.a in Frameworks */,
+				94942C009B7CF9751F1BC0DB /* libPods-DICE.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -405,6 +409,8 @@
 				0EFD368FB6CD328139F3BE06 /* Pods.release.xcconfig */,
 				50CBA573252A64B7ADEE02F0 /* Pods-DICETests.release.xcconfig */,
 				5AAED81A2E99BC8617B9E1D9 /* Pods-DICETests.debug.xcconfig */,
+				F1B40E98F83A9C7BA60EFEF2 /* Pods-DICE.debug.xcconfig */,
+				B9B923CFB0A35B7C2CDDE04F /* Pods-DICE.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -710,13 +716,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7D4E1C4E1A1F9475002762B3 /* Build configuration list for PBXNativeTarget "DICETests" */;
 			buildPhases = (
-				460ABEA186BBD82541BEC391 /* Check Pods Manifest.lock */,
+				460ABEA186BBD82541BEC391 /* 📦 Check Pods Manifest.lock */,
 				7D4E1C421A1F9475002762B3 /* Sources */,
 				7D4E1C431A1F9475002762B3 /* Frameworks */,
 				7D4E1C441A1F9475002762B3 /* Resources */,
-				42558DF08CA9D7B06CA085BC /* Copy Pods Resources */,
+				42558DF08CA9D7B06CA085BC /* 📦 Copy Pods Resources */,
 				7DEC14251B7E234100D4CBB8 /* CopyFiles */,
-				F648888CDE174B7A264F3704 /* Embed Pods Frameworks */,
+				F648888CDE174B7A264F3704 /* 📦 Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -732,12 +738,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E3FBB32B17C9527000E133D6 /* Build configuration list for PBXNativeTarget "DICE" */;
 			buildPhases = (
-				66865F0E56CA411BA0814D2A /* Check Pods Manifest.lock */,
+				66865F0E56CA411BA0814D2A /* 📦 Check Pods Manifest.lock */,
 				E3FBB2FE17C9527000E133D6 /* Sources */,
 				E3FBB2FF17C9527000E133D6 /* Frameworks */,
 				E3FBB30017C9527000E133D6 /* Resources */,
-				7BD0A6ABA149474EAF5B7878 /* Copy Pods Resources */,
-				D6DF3CE2BED12BE172C95DCD /* Embed Pods Frameworks */,
+				7BD0A6ABA149474EAF5B7878 /* 📦 Copy Pods Resources */,
+				D6DF3CE2BED12BE172C95DCD /* 📦 Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -835,14 +841,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		42558DF08CA9D7B06CA085BC /* Copy Pods Resources */ = {
+		42558DF08CA9D7B06CA085BC /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "📦 Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -850,14 +856,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		460ABEA186BBD82541BEC391 /* Check Pods Manifest.lock */ = {
+		460ABEA186BBD82541BEC391 /* 📦 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "📦 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -865,14 +871,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		66865F0E56CA411BA0814D2A /* Check Pods Manifest.lock */ = {
+		66865F0E56CA411BA0814D2A /* 📦 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "📦 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -880,44 +886,44 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		7BD0A6ABA149474EAF5B7878 /* Copy Pods Resources */ = {
+		7BD0A6ABA149474EAF5B7878 /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "📦 Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D6DF3CE2BED12BE172C95DCD /* Embed Pods Frameworks */ = {
+		D6DF3CE2BED12BE172C95DCD /* 📦 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "📦 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F648888CDE174B7A264F3704 /* Embed Pods Frameworks */ = {
+		F648888CDE174B7A264F3704 /* 📦 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "📦 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1161,7 +1167,7 @@
 		};
 		E3FBB32C17C9527000E133D6 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 36DFBBC94E870600BA2AB2FE /* Pods.debug.xcconfig */;
+			baseConfigurationReference = F1B40E98F83A9C7BA60EFEF2 /* Pods-DICE.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -1184,7 +1190,7 @@
 		};
 		E3FBB32D17C9527000E133D6 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0EFD368FB6CD328139F3BE06 /* Pods.release.xcconfig */;
+			baseConfigurationReference = B9B923CFB0A35B7C2CDDE04F /* Pods-DICE.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
