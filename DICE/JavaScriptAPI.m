@@ -4,6 +4,16 @@
 //
 
 #import "JavaScriptAPI.h"
+#import "GeoPackageURLProtocol.h"
+#import "GPKGBoundingBox.h"
+
+
+@implementation JavaScriptNotification
++ (NSString *)geoJSONExported {
+    return @"DICE.geoJSONExported";
+}
+@end
+
 
 @interface JavaScriptAPI ()
 
@@ -32,7 +42,7 @@
         NSLog(@"Objective C reieved a message from JS: %@", data);
         responseCallback(@"Response for message from Objective C");
     }];
-    
+
     [self.bridge registerHandler:@"saveToFile" handler:^(id data, WVJBResponseCallback responseCallback) {
         NSLog(@"Bridge recieved request to export data: %@", data);
         responseCallback([self exportJSON:data]);
@@ -41,6 +51,11 @@
     [self.bridge registerHandler:@"getLocation" handler:^(id data, WVJBResponseCallback responseCallback) {
         NSLog(@"Bridge recieved request to geolocate: %@", data);
         [self geolocateWithCallback:responseCallback];
+    }];
+
+    [self.bridge registerHandler:@"click" handler:^(id data, WVJBResponseCallback responseCallback) {
+        NSLog(@"Bridge recieved request to query on a map click: %@", data);
+        responseCallback([self click:data]);
     }];
 
     [self.bridge send:@"Hello Javascript" responseCallback:^(id responseData) {
@@ -89,7 +104,14 @@
         return @{ @"success": @NO, @"message": @"Error saving file" };
     }
 
-    return @{ @"success": @YES, @"message": @"Export successful"};
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:[JavaScriptNotification geoJSONExported]
+        object:self
+        userInfo:@{
+            @"filePath": exportFile.path
+        }];
+
+    return @{ @"success": @YES, @"message": @"Export successful - use iTunes to retrieve the exports directory from DICE."};
 }
 
 
@@ -140,6 +162,65 @@
             callback(response);
         }
     });
+}
+
+
+- (NSDictionary *)click:(id)data
+{
+    if (data) {
+        NSDictionary *dataDict = (NSDictionary*)data;
+        NSString * lat = [dataDict objectForKey:@"lat"];
+        NSString * lon = [dataDict objectForKey:@"lng"];
+        NSString * zoom = [dataDict objectForKey:@"zoom"];
+        NSDictionary * bounds = [dataDict objectForKey:@"bounds"];
+        if(lat != nil && lon != nil && zoom != nil && bounds != nil){
+
+            CLLocationCoordinate2D location = CLLocationCoordinate2DMake([lat doubleValue], [lon doubleValue]);
+
+            GPKGBoundingBox * mapBounds = nil;
+            NSDictionary * southWest = [bounds objectForKey:@"_southWest"];
+            NSDictionary * northEast = [bounds objectForKey:@"_northEast"];
+            if(southWest != nil && northEast != nil){
+                NSString * minLon = [southWest objectForKey:@"lng"];
+                NSString * maxLon = [northEast objectForKey:@"lng"];
+                NSString * minLat = [southWest objectForKey:@"lat"];
+                NSString * maxLat = [northEast objectForKey:@"lat"];
+                mapBounds = [[GPKGBoundingBox alloc] initWithMinLongitudeDouble:[minLon doubleValue] andMaxLongitudeDouble:[maxLon doubleValue] andMinLatitudeDouble:[minLat doubleValue]  andMaxLatitudeDouble:[maxLat doubleValue]];
+            }
+
+            if(mapBounds != nil){
+
+                // Include points by default
+                NSString * points = [dataDict objectForKey:@"points"];
+                BOOL includePoints = (points == nil || [points boolValue]);
+
+                // Do not include geometries by default
+                NSString * geometries = [dataDict objectForKey:@"geometries"];
+                BOOL includeGeometries = (geometries != nil && [geometries boolValue]);
+
+                NSDictionary * clickData = [GeoPackageURLProtocol mapClickTableDataWithLocationCoordinate:location andZoom:[zoom doubleValue] andMapBounds:mapBounds andPoints:includePoints andGeometries:includeGeometries];
+
+                if(clickData == nil){
+                    return @{ @"success": @YES, @"message": @""};
+                }
+
+                NSError *error;
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:clickData options:0 error:&error];
+                NSString *jsonString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+                if (error != nil) {
+                    NSLog(@"Error creating map click JSON response: %@", [error localizedDescription]);
+                    return @{ @"success": @NO, @"message": @"Unable to parse JSON."};
+                } else {
+                    return @{ @"success": @YES, @"message": jsonString};
+                }
+            }else{
+                return @{ @"success": @NO, @"message": @"Data bounds did not contain correct _southWest and _northWest values"};
+            }
+        }else{
+            return @{ @"success": @NO, @"message": @"Data did not contain a lat, lng, zoom, and bounds value"};
+        }
+    }
+    return @{ @"success": @NO, @"message": @"Null data was sent to the Javascript Bridge."};
 }
 
 

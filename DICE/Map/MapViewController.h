@@ -14,7 +14,7 @@
 #import "HTMLViewController.h"
 
 
-@interface MapViewController : UIViewController <ReportCollectionView, MKMapViewDelegate>
+@interface MapViewController : UIViewController <ReportCollectionView, MKMapViewDelegate, UIGestureRecognizerDelegate>
 
 @property (strong, nonatomic) NSArray *reports;
 @property (strong, nonatomic) id<ReportCollectionViewDelegate> delegate;
