@@ -518,13 +518,13 @@
 {
     Report *report = reports[indexPath.item];
     NSError *error;
-    NSLog(@"%@", [report.url absoluteURL]);
     NSURL *folderURL = [NSURL URLWithString:[[report.url absoluteString] stringByDeletingLastPathComponent]];
-    BOOL folderDeleteSuccess = [fileManager removeItemAtPath:folderURL error:&error];
-    BOOL zipDeleteSuccess = [fileManager removeItemAtPath:[report.sourceFile absoluteURL] error:&error];
+
+    // TODO: this will change after file handling
+    BOOL folderDeleteSuccess = [fileManager removeItemAtPath:folderURL.path error:&error];
+    BOOL zipDeleteSuccess = [fileManager removeItemAtPath:report.sourceFile.path error:&error];
 
     if (zipDeleteSuccess && folderDeleteSuccess) {
-        NSLog(@"Deleted %@", report.sourceFile);
         [self loadReports];
     }
 }
