@@ -23,12 +23,17 @@
 		9487A2D2D324B045EFB5955C0B4BC53D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B509885B6330B98E360935E6572E0715 /* CoreData.framework */; };
 		5A10C2A656323C47CAD1014E6BBA238A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A2E59E8B8D1D159052EAC3E8D8C68 /* CoreGraphics.framework */; };
 		A96A3B51FEE64B98DB201AA19E59C82F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B19B00891A831A7486BBD22865C6E31 /* CoreLocation.framework */; };
+		92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */; };
 		134E1F756D92A3337ADF441D9EDFEB6F /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7325570DB6549C485CB4A9C18216BDDF /* DICENavigationController.m */; };
 		13C6310C1113F2EB93AFFAFCAACE89F4 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3413AF6F908E2D8F5B48AF0F147B690A /* Default-568h@2x.png */; };
 		17FB669C0414684800F469FB754C6DAD /* DisclaimerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB03EAA46D6AFBAEF7FE406C74638A71 /* DisclaimerViewController.m */; };
 		C1980E6D70196770FF08377930765429 /* FileOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = B52DB2B934C3FDAC88D176B8144E074F /* FileOperations.m */; };
 		94FF34B63D94FD5FF4F7C1939CA50348 /* FileOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */; };
 		27648BC3D1EF1D6D7F4C3EF078653502 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD3667F5C2726FBC8085CA9717C10A87 /* Foundation.framework */; };
+		0A69A4C5B190C6B0CD9322977D9181B2 /* GeoPackageMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */; };
+		991B6DBA88235AC2899C7BF9E0A00BD4 /* GeoPackageMapOverlays.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CF47620BEEC6395C34CC11A6D00D06B /* GeoPackageMapOverlays.m */; };
+		CA26CEB0D7CE078533BC07FD8E886936 /* GeoPackageTableMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0215D024A45538EF9CFC2950CA73A /* GeoPackageTableMapData.m */; };
+		6943E2ABED9AF43AE34A465BA2239118 /* GeoPackageURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC7839FE90C5AC412D28D4093AFBA2C /* GeoPackageURLProtocol.m */; };
 		968A97CD130E52756E09C7D4CC174C4A /* HTMLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DAC3EF017ED43CAB272141E182B74474 /* HTMLViewController.m */; };
 		16C0A21031F940F5AE5AD49D1E01F904 /* HtmlReportType.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CA65D8C712300A48AC48E4D620C274A /* HtmlReportType.m */; };
 		78F25D17D6F1DEBDA8B1E312D25AB76D /* HtmlReportTypeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D1A346D07FF62AB077E3017306809DCB /* HtmlReportTypeSpec.m */; };
@@ -41,6 +46,11 @@
 		E3ACD3E45E5E5A49AB1196A026520BA4 /* MainStoryboard-iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BD723636131FA5D07A079A929250A05B /* MainStoryboard-iPad.storyboard */; };
 		E0E433008DBE2B82318442897FDC3011 /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F83C9245D0CDEDDFEDE3C74101A30567 /* MainStoryboard-iPhone.storyboard */; };
 		1F16055531467CC62B3ED6A37B61A69A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D46AE2C7DAA4990566CA0BC8DD75DF2 /* MapKit.framework */; };
+		EF3E35357D0EC3E3E93D41897814552C /* MapOverlayActiveSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = CB25E4ECD46494ECBCEB24550840ED41 /* MapOverlayActiveSwitch.m */; };
+		E5E36A1026B51BC927A57B4D8DDB710A /* MapOverlayCellItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */; };
+		AAF1E73109248B0F9096F7C3426880C5 /* MapOverlayChildTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FBD36723EBEEC7934F06C6EA35B301CD /* MapOverlayChildTableCell.m */; };
+		1F4462855CD2A1AF131E7519A68E9C75 /* MapOverlayController.m in Sources */ = {isa = PBXBuildFile; fileRef = A43B74D74A16090E3AA5066955E288DD /* MapOverlayController.m */; };
+		3D12A0793D000300A4799BE983F6C410 /* MapOverlayTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8160472C3F803823AEAE56407DAACE88 /* MapOverlayTableCell.m */; };
 		A2A955DC3241517F69018FF2395B7F9A /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C7F636E7C2EC9B9D499E39EADBBDB901 /* MapViewController.m */; };
 		5789CDEA6CC84BF8E4EA77BFD90E7CDA /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E685ED6C17BABD2E6CE203D83A4F54F /* MessageUI.framework */; };
 		CFB1445E7EB1843757DB28BC2F24BB1A /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F26681C4422F0A2DEDB0A8755D002EA8 /* MobileCoreServices.framework */; };
@@ -89,12 +99,14 @@
 		A842D3BF2DEE1B092981727141053F14 /* ReaderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D98990745DA6432B1C99B1A0C0383B28 /* ReaderViewController.m */; };
 		DAB549032D2C6FA0899105B2D5C89AED /* Report.m in Sources */ = {isa = PBXBuildFile; fileRef = 65DC78D879E03A1ABD81EE28AA7657F0 /* Report.m */; };
 		8B87E64315D24837CBFED19EBCA228D6 /* ReportAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */; };
+		A61EF80C22EDE8404C8E90A0B57B8025 /* ReportCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B75006D3B3773816F3FAD57E0A57222 /* ReportCache.m */; };
 		4792F9718A866921F1A5D902AD46CBF0 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A09645E0302151B0530EEC8597069D7 /* ReportCollectionViewController.m */; };
 		D507839B475687808740F8A631EBA5B6 /* ReportMapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = A988B0EB4B1AB1AD0BAC74A739EC0580 /* ReportMapAnnotation.m */; };
 		7CFDE8BEC72FFCF0FC5912A4D93C2F1B /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A958A35B05C73766F95E6E7188B074B /* ReportResourceViewController.m */; };
 		71C7198B92D481F40C453492764425BF /* ReportSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F032AED736634E845E981BB50C38E3 /* ReportSpec.m */; };
 		3A2C552C2DCA387367A7547B08653E90 /* ReportStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F0026AC90A9C746149CE6C45D5BCBE1 /* ReportStore.m */; };
 		609D8685B07AC8BD8EC3E8FFF7EF564C /* ReportStoreSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = E3637EAEA07D8BC7F6668D1B445DAA0D /* ReportStoreSpec.m */; };
+		9760F81FBCD1A4D2235B6F0D6BBDC944 /* ReportUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */; };
 		5A7BA54D9A9A0DD276E8F6C93F03B7A9 /* ReportViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 849E0BBF1F6726B37F8FFBE586B73C1F /* ReportViewCell.m */; };
 		3A250C3D06919AABD80B8ABF2159DFFF /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D3AEF0E9E67F338417CAF00EE25D57D1 /* ResourceTypes.m */; };
 		7850CC9236DA9EF5F2A6C026F107304A /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */; };
@@ -108,6 +120,7 @@
 		171A3C7DABA275D903BE54A7E5BA3EE0 /* UIXToolbarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F80D0EB64034E572F239A4D4AA6C5DE /* UIXToolbarView.m */; };
 		DDED2AAEA08CE7E8962E354975F1EC5B /* UnzipOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F6FFAFBAAC2370CE0A5F7ECAD000F85 /* UnzipOperation.m */; };
 		3D0B2D880F9D5CDEF27766D71AAF10E5 /* UnzipOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = A31A615AB298DCFBC9CF3A36F72C5448 /* UnzipOperationSpec.m */; };
+		517D8096337C9E0790848C5D0858785F /* URLProtocolUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C92DC52C2275901E63D7D521C6FE54 /* URLProtocolUtils.m */; };
 		ACA7999F8D4CFC70DAE69D7693619D4F /* ValidateHtmlLayoutOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 82C7F74932A31C09F40260215E150384 /* ValidateHtmlLayoutOperation.m */; };
 		DE7809A9412F9FCD075BF618E1956647 /* ZippedHtmlImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = E7CCF3194FCDEFB90C1C77BE35BA448B /* ZippedHtmlImportProcess.m */; };
 		8F9DA036F086CF997A65F0233F626610 /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */; };
@@ -169,6 +182,8 @@
 		1231F813DFFCAA88FA0AF6A5400B8E2E /* DICE-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DICE-Info.plist"; sourceTree = "<group>"; };
 		408B5BAE51B0CCB8040EC7645517FE05 /* DICE-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DICE-Prefix.pch"; sourceTree = "<group>"; };
 		8DA05A54024256C0883FA5D7958178FB /* DICE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DICE.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFAEF44650A2B12F30A02E488950C708 /* DICEConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEConstants.h; sourceTree = "<group>"; };
+		3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
 		E76540F5865474CF839BFA5BA0A7D27F /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
 		7325570DB6549C485CB4A9C18216BDDF /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
 		8BF7F349FE1D185FFBF4BCF2A620D26E /* DICETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DICETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -179,6 +194,14 @@
 		B52DB2B934C3FDAC88D176B8144E074F /* FileOperations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileOperations.m; sourceTree = "<group>"; };
 		B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileOperationsSpec.m; sourceTree = "<group>"; };
 		FD3667F5C2726FBC8085CA9717C10A87 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E711D5FF5179CD2ED7CD057E34175B3A /* GeoPackageMapData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapData.h; sourceTree = "<group>"; };
+		979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapData.m; sourceTree = "<group>"; };
+		CA8BF985D3EC3EAD5B50ECD571BAA67C /* GeoPackageMapOverlays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapOverlays.h; sourceTree = "<group>"; };
+		6CF47620BEEC6395C34CC11A6D00D06B /* GeoPackageMapOverlays.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapOverlays.m; sourceTree = "<group>"; };
+		A54D7AC3102E68E96B0843263812193F /* GeoPackageTableMapData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageTableMapData.h; sourceTree = "<group>"; };
+		1AB0215D024A45538EF9CFC2950CA73A /* GeoPackageTableMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageTableMapData.m; sourceTree = "<group>"; };
+		58045F29EBE5FB763E34A831161BBA60 /* GeoPackageURLProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageURLProtocol.h; sourceTree = "<group>"; };
+		EAC7839FE90C5AC412D28D4093AFBA2C /* GeoPackageURLProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageURLProtocol.m; sourceTree = "<group>"; };
 		394B1DEF7E6D84DDFBE2B0E4F2F71B40 /* HTMLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLViewController.h; sourceTree = "<group>"; };
 		DAC3EF017ED43CAB272141E182B74474 /* HTMLViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTMLViewController.m; sourceTree = "<group>"; };
 		CE556F6AEF155A11F46A0B6435CDC4EC /* HtmlReportType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HtmlReportType.h; sourceTree = "<group>"; };
@@ -196,6 +219,16 @@
 		BD723636131FA5D07A079A929250A05B /* MainStoryboard-iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPad.storyboard"; sourceTree = "<group>"; };
 		F83C9245D0CDEDDFEDE3C74101A30567 /* MainStoryboard-iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPhone.storyboard"; sourceTree = "<group>"; };
 		9D46AE2C7DAA4990566CA0BC8DD75DF2 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		1F430D0D90D477B71C4677817A684EAC /* MapOverlayActiveSwitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayActiveSwitch.h; sourceTree = "<group>"; };
+		CB25E4ECD46494ECBCEB24550840ED41 /* MapOverlayActiveSwitch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayActiveSwitch.m; sourceTree = "<group>"; };
+		043B75F7841209451A3F0099594F3433 /* MapOverlayCellItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayCellItem.h; sourceTree = "<group>"; };
+		4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayCellItem.m; sourceTree = "<group>"; };
+		F70AFB6377EC2C450124BCE04897A10A /* MapOverlayChildTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayChildTableCell.h; sourceTree = "<group>"; };
+		FBD36723EBEEC7934F06C6EA35B301CD /* MapOverlayChildTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayChildTableCell.m; sourceTree = "<group>"; };
+		2AC54AC8955255CA506BB33182C35E98 /* MapOverlayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayController.h; sourceTree = "<group>"; };
+		A43B74D74A16090E3AA5066955E288DD /* MapOverlayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayController.m; sourceTree = "<group>"; };
+		A0D2859D658FCEB59546685F54A78E08 /* MapOverlayTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayTableCell.h; sourceTree = "<group>"; };
+		8160472C3F803823AEAE56407DAACE88 /* MapOverlayTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayTableCell.m; sourceTree = "<group>"; };
 		964C827CDF701E097D1EE25DC8811CD4 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		C7F636E7C2EC9B9D499E39EADBBDB901 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		7E685ED6C17BABD2E6CE203D83A4F54F /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -276,6 +309,8 @@
 		65DC78D879E03A1ABD81EE28AA7657F0 /* Report.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Report.m; sourceTree = "<group>"; };
 		7BBC0DCA27BC7EA7962A6C8183F718A7 /* ReportAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportAPI.h; sourceTree = "<group>"; };
 		966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportAPI.m; sourceTree = "<group>"; };
+		26B5A37FF23AED5C0E784E60F92BF27B /* ReportCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCache.h; sourceTree = "<group>"; };
+		7B75006D3B3773816F3FAD57E0A57222 /* ReportCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCache.m; sourceTree = "<group>"; };
 		278455243E22AD8484BAB5A4B5CEA64F /* ReportCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionView.h; sourceTree = "<group>"; };
 		8D90355B5DE466E3792BADAEC6331D56 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
 		9A09645E0302151B0530EEC8597069D7 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
@@ -288,6 +323,8 @@
 		9F0026AC90A9C746149CE6C45D5BCBE1 /* ReportStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportStore.m; sourceTree = "<group>"; };
 		E3637EAEA07D8BC7F6668D1B445DAA0D /* ReportStoreSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportStoreSpec.m; sourceTree = "<group>"; };
 		09E6FE836CCD624799154F5DD1F59271 /* ReportType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportType.h; sourceTree = "<group>"; };
+		28A8C7622937BE393099A9E2377CAA64 /* ReportUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportUtils.h; sourceTree = "<group>"; };
+       	9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportUtils.m; sourceTree = "<group>"; };
 		3C86416628DA967D2FABBF84724E30EF /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
 		849E0BBF1F6726B37F8FFBE586B73C1F /* ReportViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportViewCell.m; sourceTree = "<group>"; };
 		9BA512F99C3C576ED7FE1DDE4B829614 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
@@ -309,6 +346,8 @@
 		7A947E8E1F43159B408897F94628A8E7 /* UnzipOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnzipOperation.h; sourceTree = "<group>"; };
 		2F6FFAFBAAC2370CE0A5F7ECAD000F85 /* UnzipOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnzipOperation.m; sourceTree = "<group>"; };
 		A31A615AB298DCFBC9CF3A36F72C5448 /* UnzipOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnzipOperationSpec.m; sourceTree = "<group>"; };
+		BF3B19DF4FB3FD7E33F6521F279DFB55 /* URLProtocolUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLProtocolUtils.h; sourceTree = "<group>"; };
+        C5C92DC52C2275901E63D7D521C6FE54 /* URLProtocolUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLProtocolUtils.m; sourceTree = "<group>"; };
 		3E219DBDDEAA3C807FFCAB1BD5FDDB9F /* ValidateHtmlLayoutOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValidateHtmlLayoutOperation.h; sourceTree = "<group>"; };
 		82C7F74932A31C09F40260215E150384 /* ValidateHtmlLayoutOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValidateHtmlLayoutOperation.m; sourceTree = "<group>"; };
 		3AC2F1F6790368EB8AFDDA24B79A6D42 /* ZippedHtmlImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZippedHtmlImportProcess.h; sourceTree = "<group>"; };
@@ -365,6 +404,49 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4737CB19E796110E38EECE8EADC4C2CF /* Overlay */ = {
+			isa = PBXGroup;
+			children = (
+				1F430D0D90D477B71C4677817A684EAC /* MapOverlayActiveSwitch.h */,
+				CB25E4ECD46494ECBCEB24550840ED41 /* MapOverlayActiveSwitch.m */,
+				043B75F7841209451A3F0099594F3433 /* MapOverlayCellItem.h */,
+				4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */,
+				F70AFB6377EC2C450124BCE04897A10A /* MapOverlayChildTableCell.h */,
+				FBD36723EBEEC7934F06C6EA35B301CD /* MapOverlayChildTableCell.m */,
+				2AC54AC8955255CA506BB33182C35E98 /* MapOverlayController.h */,
+				A43B74D74A16090E3AA5066955E288DD /* MapOverlayController.m */,
+				A0D2859D658FCEB59546685F54A78E08 /* MapOverlayTableCell.h */,
+				8160472C3F803823AEAE56407DAACE88 /* MapOverlayTableCell.m */,
+			);
+			path = Overlay;
+			sourceTree = "<group>";
+		};
+		AC21135AAEBFA4995A0091A1A5D26CAF /* GeoPackage */ = {
+			isa = PBXGroup;
+			children = (
+				E711D5FF5179CD2ED7CD057E34175B3A /* GeoPackageMapData.h */,
+				979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */,
+				CA8BF985D3EC3EAD5B50ECD571BAA67C /* GeoPackageMapOverlays.h */,
+				6CF47620BEEC6395C34CC11A6D00D06B /* GeoPackageMapOverlays.m */,
+				A54D7AC3102E68E96B0843263812193F /* GeoPackageTableMapData.h */,
+				1AB0215D024A45538EF9CFC2950CA73A /* GeoPackageTableMapData.m */,
+			);
+			path = GeoPackage;
+			sourceTree = "<group>";
+		};
+        79A358CDB47FC6979F0D9A6EB7C1B39F /* Pods */ = {
+            isa = PBXGroup;
+            children = (
+                A0E50D5F83B3ED82BD050A04F84C4AB1 /* Pods-DICE.debug.xcconfig */,
+                FC0762E2469821E72130BC6014BFA10F /* Pods-DICE.release.xcconfig */,
+                9E888754ADD38FF6FA6A7F94B9280ECB /* Pods-DICETests.debug.xcconfig */,
+                F530BFE6974FF442323BB54913D174DB /* Pods-DICETests.release.xcconfig */,
+                069E83198234B657AFAF48F5F3D68C2A /* Pods.debug.xcconfig */,
+                9AAC1D240F0827AD008E96A329597370 /* Pods.release.xcconfig */,
+            );
+            name = Pods;
+            sourceTree = "<group>";
+        };
 		8E549110BECAC4A26F93FF2C9B6C5147 /* DICETests */ = {
 			isa = PBXGroup;
 			children = (
@@ -402,19 +484,6 @@
 			name = resources;
 			sourceTree = "<group>";
 		};
-		79A358CDB47FC6979F0D9A6EB7C1B39F /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				A0E50D5F83B3ED82BD050A04F84C4AB1 /* Pods-DICE.debug.xcconfig */,
-				FC0762E2469821E72130BC6014BFA10F /* Pods-DICE.release.xcconfig */,
-				9E888754ADD38FF6FA6A7F94B9280ECB /* Pods-DICETests.debug.xcconfig */,
-				F530BFE6974FF442323BB54913D174DB /* Pods-DICETests.release.xcconfig */,
-				069E83198234B657AFAF48F5F3D68C2A /* Pods.debug.xcconfig */,
-				9AAC1D240F0827AD008E96A329597370 /* Pods.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		167C4871E1CA0AF05962C259E94371B5 /* API */ = {
 			isa = PBXGroup;
 			children = (
@@ -434,6 +503,8 @@
 				82031602C7DA4825BE0A08635CF45C9C /* ImportProcess.h */,
 				A4B97C6576F0625BEC99E2809AFC1004 /* Report.h */,
 				65DC78D879E03A1ABD81EE28AA7657F0 /* Report.m */,
+                26B5A37FF23AED5C0E784E60F92BF27B /* ReportCache.h */,
+                7B75006D3B3773816F3FAD57E0A57222 /* ReportCache.m */,
 				BFAF15129409439A2C6C6E59611CC4A3 /* ReportStore.h */,
 				9F0026AC90A9C746149CE6C45D5BCBE1 /* ReportStore.m */,
 				09E6FE836CCD624799154F5DD1F59271 /* ReportType.h */,
@@ -568,6 +639,8 @@
 				E7449828F94774A7779D000A98DDA60C /* OfflineMapUtility.m */,
 				9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */,
 				981FA601D2ABEDA855814D3401151C0B /* ParseJsonOperation.m */,
+                28A8C7622937BE393099A9E2377CAA64 /* ReportUtils.h */,
+                9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */,
 				9BA512F99C3C576ED7FE1DDE4B829614 /* ResourceTypes.h */,
 				D3AEF0E9E67F338417CAF00EE25D57D1 /* ResourceTypes.m */,
 				7A947E8E1F43159B408897F94628A8E7 /* UnzipOperation.h */,
@@ -590,17 +663,22 @@
 		823F6667732B7E553B46E5F131E54D66 /* Map View */ = {
 			isa = PBXGroup;
 			children = (
+				AC21135AAEBFA4995A0091A1A5D26CAF /* GeoPackage */,
+				4737CB19E796110E38EECE8EADC4C2CF /* Overlay */,
 				964C827CDF701E097D1EE25DC8811CD4 /* MapViewController.h */,
 				C7F636E7C2EC9B9D499E39EADBBDB901 /* MapViewController.m */,
 				6EEF23B0DF5A15C7DF8AABC75804BA3D /* ReportMapAnnotation.h */,
 				A988B0EB4B1AB1AD0BAC74A739EC0580 /* ReportMapAnnotation.m */,
 			);
 			name = "Map View";
+			path = Map;
 			sourceTree = "<group>";
 		};
 		67F0FDAA63EC85E22B1521E8FD31EFC1 /* Report View */ = {
 			isa = PBXGroup;
 			children = (
+				58045F29EBE5FB763E34A831161BBA60 /* GeoPackageURLProtocol.h */,
+				EAC7839FE90C5AC412D28D4093AFBA2C /* GeoPackageURLProtocol.m */,
 				394B1DEF7E6D84DDFBE2B0E4F2F71B40 /* HTMLViewController.h */,
 				DAC3EF017ED43CAB272141E182B74474 /* HTMLViewController.m */,
 				75CA0FFE00A5F7BF1EBF96A92AC87878 /* NoteViewController.h */,
@@ -609,6 +687,8 @@
 				6AE97A42B3CDB087930FD692472448A3 /* PDFViewController.m */,
 				5EB4B2A5DD495893BD46603CBBB04C10 /* ReportResourceViewController.h */,
 				3A958A35B05C73766F95E6E7188B074B /* ReportResourceViewController.m */,
+				BF3B19DF4FB3FD7E33F6521F279DFB55 /* URLProtocolUtils.h */,
+				C5C92DC52C2275901E63D7D521C6FE54 /* URLProtocolUtils.m */,
 			);
 			name = "Report View";
 			sourceTree = "<group>";
@@ -685,6 +765,8 @@
 				6BBA2B10A125454E01932934FC16B786 /* utilities */,
 				5CCBB74C0C5CCF563469F4F08801C996 /* AppDelegate.h */,
 				827175300533ADBEA03FB1E8434D23C8 /* AppDelegate.m */,
+				CFAEF44650A2B12F30A02E488950C708 /* DICEConstants.h */,
+				3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */,
 				E76540F5865474CF839BFA5BA0A7D27F /* DICENavigationController.h */,
 				7325570DB6549C485CB4A9C18216BDDF /* DICENavigationController.m */,
 				4D164ACC176BC15EB043506E393B0950 /* DisclaimerViewController.h */,
@@ -716,13 +798,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D7616DFD228BF2035F4600114F5BFD12 /* Build configuration list for PBXNativeTarget "DICETests" */;
 			buildPhases = (
-				5AE2DDDE249566F5FE0B680CE8B2EDA9 /* 📦 Check Pods Manifest.lock */,
+				5AE2DDDE249566F5FE0B680CE8B2EDA9 /* Check Pods Manifest.lock */,
 				24C6D00EC77ADB56C64F7B21EA4FCD97 /* Sources */,
 				E6808B28F0705F2A3E03DA878B837CB9 /* Frameworks */,
 				7286E2689E35060931D5838E16F6C8B1 /* Resources */,
-				D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* 📦 Copy Pods Resources */,
+				45EB590DF4295665C5365970DAFC8ED0 /* Embed Pods Frameworks */,
+				D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* Copy Pods Resources */,
 				EF3550294D4392707BB15E9221D0BC36 /* CopyFiles */,
-				45EB590DF4295665C5365970DAFC8ED0 /* 📦 Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -738,12 +820,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F33562D612B06501C035F00033031799 /* Build configuration list for PBXNativeTarget "DICE" */;
 			buildPhases = (
-				BB5792040AC26F994B671822A1E52CA1 /* 📦 Check Pods Manifest.lock */,
+				BB5792040AC26F994B671822A1E52CA1 /* Check Pods Manifest.lock */,
 				1534439D08C7AAA938707E99E7BF0056 /* Sources */,
 				DAEB822D4A9A383A423DEACD737CA0A2 /* Frameworks */,
 				5D5B540FA2BDB950BF2D70387D731A61 /* Resources */,
-				D8EC6440B503DE36C07E40595DB8ED16 /* 📦 Copy Pods Resources */,
-				1F32FFE7E350A0E932A6BB14FF081E66 /* 📦 Embed Pods Frameworks */,
+				1F32FFE7E350A0E932A6BB14FF081E66 /* Embed Pods Frameworks */,
+				D8EC6440B503DE36C07E40595DB8ED16 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -760,8 +842,8 @@
 		D12F51E3886BBF4E0C3F556A8B3CCE5C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0710;
-				ORGANIZATIONNAME = "National Geospatial-Intelligence Agency";
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = mil.nga;
 				TargetAttributes = {
 					F66BB28A094EBEF76D8DDA48F19801D5 = {
 						CreatedOnToolsVersion = 6.1;
@@ -841,14 +923,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* 📦 Copy Pods Resources */ = {
+		D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -856,14 +938,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		5AE2DDDE249566F5FE0B680CE8B2EDA9 /* 📦 Check Pods Manifest.lock */ = {
+		5AE2DDDE249566F5FE0B680CE8B2EDA9 /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -871,14 +953,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		BB5792040AC26F994B671822A1E52CA1 /* 📦 Check Pods Manifest.lock */ = {
+		BB5792040AC26F994B671822A1E52CA1 /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -886,14 +968,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		D8EC6440B503DE36C07E40595DB8ED16 /* 📦 Copy Pods Resources */ = {
+		D8EC6440B503DE36C07E40595DB8ED16 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -901,14 +983,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1F32FFE7E350A0E932A6BB14FF081E66 /* 📦 Embed Pods Frameworks */ = {
+		1F32FFE7E350A0E932A6BB14FF081E66 /* Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -916,14 +998,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		45EB590DF4295665C5365970DAFC8ED0 /* 📦 Embed Pods Frameworks */ = {
+		45EB590DF4295665C5365970DAFC8ED0 /* Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -957,13 +1039,23 @@
 				CF9E3904A5B856BD7AB3949ADF350A2E /* AppDelegate.m in Sources */,
 				C732F60C8414D4349E81D8B2F10D0FB5 /* BaseImportProcess.m in Sources */,
 				E52B5F7F205C75C6F759ABB9BC67F63E /* CGPDFDocument.m in Sources */,
+				92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */,
 				134E1F756D92A3337ADF441D9EDFEB6F /* DICENavigationController.m in Sources */,
 				17FB669C0414684800F469FB754C6DAD /* DisclaimerViewController.m in Sources */,
 				C1980E6D70196770FF08377930765429 /* FileOperations.m in Sources */,
+				0A69A4C5B190C6B0CD9322977D9181B2 /* GeoPackageMapData.m in Sources */,
+                991B6DBA88235AC2899C7BF9E0A00BD4 /* GeoPackageMapOverlays.m in Sources */,
+                CA26CEB0D7CE078533BC07FD8E886936 /* GeoPackageTableMapData.m in Sources */,
+                6943E2ABED9AF43AE34A465BA2239118 /* GeoPackageURLProtocol.m in Sources */,
 				968A97CD130E52756E09C7D4CC174C4A /* HTMLViewController.m in Sources */,
 				16C0A21031F940F5AE5AD49D1E01F904 /* HtmlReportType.m in Sources */,
 				C8CE09E74342E3CD0744A2A2DE8215F2 /* JavaScriptAPI.m in Sources */,
 				5196984729CFA95885F1DD3372AFFBB5 /* ListViewController.m in Sources */,
+				EF3E35357D0EC3E3E93D41897814552C /* MapOverlayActiveSwitch.m in Sources */,
+				E5E36A1026B51BC927A57B4D8DDB710A /* MapOverlayCellItem.m in Sources */,
+				AAF1E73109248B0F9096F7C3426880C5 /* MapOverlayChildTableCell.m in Sources */,
+				1F4462855CD2A1AF131E7519A68E9C75 /* MapOverlayController.m in Sources */,
+				3D12A0793D000300A4799BE983F6C410 /* MapOverlayTableCell.m in Sources */,
 				A2A955DC3241517F69018FF2395B7F9A /* MapViewController.m in Sources */,
 				252EBD190BA1BB850F22D4A606590DC6 /* NoteViewController.m in Sources */,
 				489663D9A34EA5A601A0183AFD7DC291 /* OfflineMapUtility.m in Sources */,
@@ -990,10 +1082,12 @@
 				A842D3BF2DEE1B092981727141053F14 /* ReaderViewController.m in Sources */,
 				DAB549032D2C6FA0899105B2D5C89AED /* Report.m in Sources */,
 				8B87E64315D24837CBFED19EBCA228D6 /* ReportAPI.m in Sources */,
+				A61EF80C22EDE8404C8E90A0B57B8025 /* ReportCache.m in Sources */,
 				4792F9718A866921F1A5D902AD46CBF0 /* ReportCollectionViewController.m in Sources */,
 				D507839B475687808740F8A631EBA5B6 /* ReportMapAnnotation.m in Sources */,
 				7CFDE8BEC72FFCF0FC5912A4D93C2F1B /* ReportResourceViewController.m in Sources */,
 				3A2C552C2DCA387367A7547B08653E90 /* ReportStore.m in Sources */,
+				9760F81FBCD1A4D2235B6F0D6BBDC944 /* ReportUtils.m in Sources */,
 				5A7BA54D9A9A0DD276E8F6C93F03B7A9 /* ReportViewCell.m in Sources */,
 				3A250C3D06919AABD80B8ABF2159DFFF /* ResourceTypes.m in Sources */,
 				0E68EF113ED610CAAAC46546A93960D3 /* SettingsViewController+SettingsViewController_iPhone.m in Sources */,
@@ -1003,6 +1097,7 @@
 				B59E3A5E9857C5CD91AE78AE38435363 /* TileViewController.m in Sources */,
 				171A3C7DABA275D903BE54A7E5BA3EE0 /* UIXToolbarView.m in Sources */,
 				DDED2AAEA08CE7E8962E354975F1EC5B /* UnzipOperation.m in Sources */,
+				517D8096337C9E0790848C5D0858785F /* URLProtocolUtils.m in Sources */,
 				ACA7999F8D4CFC70DAE69D7693619D4F /* ValidateHtmlLayoutOperation.m in Sources */,
 				DE7809A9412F9FCD075BF618E1956647 /* ZippedHtmlImportProcess.m in Sources */,
 				DEF92CAB7F363E401DD06E10DDD34956 /* main.m in Sources */,
@@ -1038,7 +1133,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
@@ -1061,8 +1156,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = "mil.dod.nga.giat.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DICE.app/DICE";
 			};
@@ -1075,7 +1168,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
@@ -1095,8 +1188,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = "mil.dod.nga.giat.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DICE.app/DICE";
 			};
@@ -1129,7 +1220,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
@@ -1156,7 +1247,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
@@ -1173,14 +1264,14 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = "mil.dod.nga.giat.$(PRODUCT_NAME:rfc1034identifier)";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				PRODUCT_BUNDLE_IDENTIFIER = mil.dod.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1196,14 +1287,14 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = "mil.dod.nga.giat.$(PRODUCT_NAME:rfc1034identifier)";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				PRODUCT_BUNDLE_IDENTIFIER = mil.dod.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
