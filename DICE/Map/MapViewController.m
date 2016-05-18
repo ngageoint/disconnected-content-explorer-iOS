@@ -114,7 +114,7 @@ static NSString *mapPointPinReuseIdentifier = @"mapPointPinReuseIdentifier";
         
         for (Report * report in self.reports) {
             // TODO: this check needs to be a null check or hasLocation or something else better
-            if (report.lat != 0.0f && report.lon != 0.0f) {
+            if (report.lat != nil && report.lon != nil) {
                 ReportMapAnnotation *annotation = [[ReportMapAnnotation alloc] initWithReport:report];
                 [self.reportAnnotations addObject:annotation];
                 
