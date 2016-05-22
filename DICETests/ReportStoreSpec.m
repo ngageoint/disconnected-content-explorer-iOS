@@ -8,8 +8,8 @@
 #define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
 
+#import "ImportProcess+Internal.h"
 #import "ReportStore.h"
-#import "ReportType.h"
 #import "ReportAPI.h"
 
 
@@ -33,25 +33,28 @@
 @end
 
 
+@interface ImportProcess ()
+
+@property (readwrite) Report *report;
+
+@end
 
 
-@interface TestImportProcess : NSObject <ImportProcess>
+@interface TestImportProcess : ImportProcess
 
-@property (readonly) Report *report;
-@property (readonly) NSArray *steps;
-@property (weak) id<ImportDelegate> delegate;
 @property (nonatomic) BOOL isBlocked;
 @property (weak, readonly) XCTest *test;
 @property (readonly) NSString *testDescription;
 
 - (instancetype)initWithTest:(XCTest *)test NS_DESIGNATED_INITIALIZER;
-- (void)setReport:(Report *)report;
 - (instancetype)setFinishExpectationForTest:(XCTestCase *)test;
 - (instancetype)setFinishBlock:(void (^)(void))block;
 
 - (NSOperation *)nextStep;
 
 @end
+
+
 
 
 
@@ -128,7 +131,7 @@
         }
     }];
     [op2 addDependency:op1];
-    _steps = @[op1, op2];
+    self.steps = @[op1, op2];
 
     return self;
 }
@@ -143,7 +146,7 @@
     for (NSBlockOperation *step in self.steps) {
         [step cancel];
     }
-    _steps = @[];
+    self.steps = @[];
     return self;
 }
 
@@ -162,11 +165,6 @@
     _isBlocked = isBlocked;
     [_blockedCondition signal];
     [_blockedCondition unlock];
-}
-
-- (void)setReport:(Report *)report
-{
-    _report = report;
 }
 
 - (instancetype)setFinishBlock:(void (^)(void))block
@@ -194,10 +192,10 @@
 
 - (NSOperation *)nextStep
 {
-    if (_stepCursor >= _steps.count) {
+    if (_stepCursor >= self.steps.count) {
         return nil;
     }
-    return [_steps objectAtIndex:_stepCursor++];
+    return (NSOperation *)self.steps[_stepCursor++];
 }
 
 @end
@@ -236,10 +234,10 @@
     return [reportPath.pathExtension isEqualToString:self.extension];
 }
 
-- (id<ImportProcess>)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
+- (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
     TestImportProcess *currentImport = self.nextImportProcess;
-    [currentImport setReport:report];
+    currentImport.report = report;
     _nextImportProcess = [[TestImportProcess alloc] initWithTest:self.test];
     return currentImport;
 }
@@ -375,8 +373,8 @@ describe(@"ReportStore", ^{
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
             expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
-            expect(reports[0].isEnabled).to.equal(NO);
-            expect(reports[1].isEnabled).to.equal(YES);
+            expect([reports[0] isEnabled]).to.equal(NO);
+            expect([reports[1] isEnabled]).to.equal(YES);
 
             [given([fileManager contentsOfDirectoryAtURL:reportsDir
                 includingPropertiesForKeys:nil options:0 error:nil])

@@ -15,12 +15,11 @@
 #define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
 
-#import "BaseImportProcess.h"
+#import "ImportProcess+Internal.h"
 
 
-@interface TestBaseImportProcess : BaseImportProcess
+@interface TestBaseImportProcess : ImportProcess
 
-@property NSArray *steps;
 @property NSInteger stepCursor;
 @property NSMutableArray<NSOperation *> *finishedSteps;
 @property (strong) void (^willFinishBlock)(NSOperation *);
@@ -34,47 +33,23 @@
 - (instancetype)initWithReport:(Report *)report steps:(NSArray *)steps
 {
     self = [super initWithReport:report];
-    _steps = steps;
-    _stepCursor = 0;
-    _finishedSteps = [NSMutableArray array];
+    self.steps = steps;
     return self;
-}
-
-- (NSOperation *)nextStep
-{
-    if (self.stepCursor < 0) {
-        return nil;
-    }
-    if (self.steps) {
-        if (self.stepCursor >= self.steps.count) {
-            return nil;
-        }
-        return self.steps[self.stepCursor++];
-    }
-    NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{}];
-    op.name = [NSString stringWithFormat:@"TestBaseImportProcess-%ld", 1 + self.stepCursor++];
-    return op;
 }
 
 - (void)stepWillFinish:(NSOperation *)step
 {
-    [self.finishedSteps addObject:step];
-    if (self.willFinishBlock) {
+    if (self.willFinishBlock != nil) {
         self.willFinishBlock(step);
     }
-}
-
-- (void)noMoreSteps
-{
-    self.stepCursor = -1;
 }
 
 @end
 
 
-SpecBegin(BaseImportProcess)
+SpecBegin(ImportProcess)
 
-describe(@"BaseImportProcess", ^{
+describe(@"ImportProcess", ^{
 
     __block Report *report;
     
@@ -82,21 +57,13 @@ describe(@"BaseImportProcess", ^{
     });
     
     beforeEach(^{
-        report = [[Report alloc] initWithTitle:@"BaseImportProcess Test"];
+        report = [[Report alloc] initWithTitle:@"ImportProcess Test"];
     });
 
     afterEach(^{
     });
 
     afterAll(^{
-    });
-
-    it(@"delegates step creation to the subclass", ^{
-
-        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report];
-        NSOperation *step = [import nextStep];
-
-        expect(step.name).to.equal(@"TestBaseImportProcess-1");
     });
 
     it(@"calls stepWillFinish before dependent operations are ready", ^{
@@ -106,42 +73,81 @@ describe(@"BaseImportProcess", ^{
 
         [op2 addDependency:op1];
 
-        __block NSOperation *finishedStep;
-        __block BOOL op2WasReady = op2.ready;
+        __block NSOperation *finishedStep = nil;
+        __block NSNumber *op2WasReady = nil;
 
         TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
         import.willFinishBlock = ^(NSOperation *step) {
             finishedStep = step;
-            op2WasReady = op2.ready;
+            op2WasReady = [NSNumber numberWithBool:op2.ready];
         };
 
         [op1 start];
-        
+
+        [self expectationForPredicate:[NSPredicate predicateWithFormat:@"ready == YES" arguments:nil] evaluatedWithObject:op2 handler:nil];
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
         expect(op1.finished).to.equal(YES);
-        expect(op2WasReady).to.equal(NO);
-        expect(op2.ready).to.equal(YES);
+        expect(finishedStep).to.beIdenticalTo(op1);
+        expect(op2WasReady).to.equal(@NO);
     });
 
     it(@"stops observing operations after they finish", ^{
+
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+
+        [op1 start];
+        [op2 start];
+
+        NSPredicate *opsFinished = [NSPredicate predicateWithFormat:@"%@.isFinished == YES AND %@.isFinished == YES", op1, op2];
+        [self expectationForPredicate:opsFinished evaluatedWithObject:self handler:nil];
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+        expect(^{[op1 removeObserver:import forKeyPath:@"isFinished"];}).to.raiseAny();
+        expect(^{[op1 removeObserver:import forKeyPath:@"isExecuting"];}).to.raiseAny();
+        expect(^{[op1 removeObserver:import forKeyPath:@"isCancelled"];}).to.raiseAny();
+        expect(^{[op2 removeObserver:import forKeyPath:@"isFinished"];}).to.raiseAny();
+        expect(^{[op2 removeObserver:import forKeyPath:@"isExecuting"];}).to.raiseAny();
+        expect(^{[op1 removeObserver:import forKeyPath:@"isCancelled"];}).to.raiseAny();
+    });
+
+    it(@"stops observing operations if cancelled", ^{
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+
+        [op1 cancel];
+        [op2 cancel];
+
+        NSPredicate *opsFinished = [NSPredicate predicateWithFormat:@"%@.isCancelled == YES AND %@.isCancelled == YES", op1, op2];
+        [self expectationForPredicate:opsFinished evaluatedWithObject:self handler:nil];
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+        expect(^{[op1 removeObserver:import forKeyPath:@"isFinished"];}).to.raiseAny();
+        expect(^{[op1 removeObserver:import forKeyPath:@"isExecuting"];}).to.raiseAny();
+        expect(^{[op1 removeObserver:import forKeyPath:@"isCancelled"];}).to.raiseAny();
+        expect(^{[op2 removeObserver:import forKeyPath:@"isFinished"];}).to.raiseAny();
+        expect(^{[op2 removeObserver:import forKeyPath:@"isExecuting"];}).to.raiseAny();
+        expect(^{[op1 removeObserver:import forKeyPath:@"isCancelled"];}).to.raiseAny();
+    });
+
+    it(@"begins with the current step at -1", ^{
 
         NSOperation *op1 = mock([NSOperation class]);
         NSOperation *op2 = mock([NSOperation class]);
 
         TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
 
-        [import observeValueForKeyPath:@"isFinished" ofObject:op1 change:@{ NSKeyValueChangeNotificationIsPriorKey: @YES } context:nil];
+        expect(import.currentStep).to.equal(-1);
 
-        [verifyCount(op1, times(0)) removeObserver:import forKeyPath:@"isFinished"];
+    });
 
-        [import observeValueForKeyPath:@"isFinished" ofObject:op1
-            change:@{ NSKeyValueChangeNotificationIsPriorKey: @NO }
-            context:nil];
+    it(@"sets the current step to 0 when the first operation starts", ^{
 
-        [import observeValueForKeyPath:@"isFinished" ofObject:op2
-            change:@{} context:nil];
-
-        [verifyCount(op1, times(1)) removeObserver:import forKeyPath:@"isFinished"];
-        [verifyCount(op2, times(1)) removeObserver:import forKeyPath:@"isFinished"];
     });
 
 });

@@ -6,23 +6,23 @@
 //  Copyright © 2015 National Geospatial-Intelligence Agency. All rights reserved.
 //
 
-#import "BaseImportProcess.h"
+#import "ImportProcess+Internal.h"
 #import "UnzipOperation.h"
 #import "ZipFile.h"
 
 
 
 typedef NS_ENUM(NSUInteger, ZippedHtmlImportStep) {
-    ZippedHtmlImportValidateStep,
-    ZippedHtmlImportMakeBaseDirStep,
-    ZippedHtmlImportUnzipStep,
-    ZippedHtmlImportParseDescriptorStep,
-    ZippedHtmlImportDeleteStep
+    ZippedHtmlImportValidateStep = 0,
+    ZippedHtmlImportMakeBaseDirStep = 1,
+    ZippedHtmlImportUnzipStep = 2,
+    ZippedHtmlImportParseDescriptorStep = 3,
+    ZippedHtmlImportDeleteStep = 4
 };
 
 
 
-@interface ZippedHtmlImportProcess : BaseImportProcess <ImportProcess, UnzipDelegate>
+@interface ZippedHtmlImportProcess : ImportProcess <UnzipDelegate>
 
 @property (readonly) NSURL *destDir;
 

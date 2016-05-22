@@ -19,7 +19,7 @@
     NSFileManager *_fileManager;
     NSURL *_reportsDir;
     NSOperationQueue *_importQueue;
-    NSMutableDictionary<NSURL *, id<ImportProcess>> *_pendingImports;
+    NSMutableDictionary<NSURL *, ImportProcess *> *_pendingImports;
 }
 
 - (instancetype)init
@@ -91,7 +91,7 @@
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
-    id<ImportProcess> import = [_pendingImports objectForKey:reportUrl];
+    ImportProcess *import = [_pendingImports objectForKey:reportUrl];
 
     if (import) {
         return import.report;
@@ -120,24 +120,21 @@
     [_pendingImports setObject:import forKey:reportUrl];
 
     // TODO: track pending imports by report object and/or add self as import delegate
-    NSOperation *step;
-    while ((step = [import nextStep]) != nil) {
-        [_importQueue addOperation:step];
-    }
+    [_importQueue addOperations:import.steps waitUntilFinished:NO];
 
     return report;
 }
 
 #pragma mark - ImportDelegate methods
 
-- (void)reportWasUpdatedByImportProcess:(id<ImportProcess>)import
+- (void)reportWasUpdatedByImportProcess:(ImportProcess *)import
 {
     // TODO: dispatch notifications
 }
 
-- (void)importDidFinishForImportProcess:(id<ImportProcess>)import
+- (void)importDidFinishForImportProcess:(ImportProcess *)import
 {
-    NSSet<NSURL *> *keys = [_pendingImports keysOfEntriesPassingTest:^BOOL(NSURL * _Nonnull key, id<ImportProcess>  _Nonnull obj, BOOL * _Nonnull stop) {
+    NSSet<NSURL *> *keys = [_pendingImports keysOfEntriesPassingTest:^BOOL(NSURL * _Nonnull key, ImportProcess * _Nonnull obj, BOOL * _Nonnull stop) {
         return obj == import;
     }];
     [_pendingImports removeObjectsForKeys:[keys allObjects]];

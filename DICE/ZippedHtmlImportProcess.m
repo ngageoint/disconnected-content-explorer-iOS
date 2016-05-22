@@ -17,7 +17,6 @@
 @implementation ZippedHtmlImportProcess
 {
     NSURL *_reportBaseDir;
-    NSArray *_steps;
 }
 
 - (instancetype)initWithReport:(Report *)report
@@ -26,6 +25,9 @@
                    fileManager:(NSFileManager *)fileManager
 {
     self = [super initWithReport:report];
+    if (!self) {
+        return nil;
+    }
 
     ValidateHtmlLayoutOperation *validation = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
@@ -42,42 +44,38 @@
     DeleteFileOperation *deleteZip = [[DeleteFileOperation alloc] initWithFileUrl:report.url fileManager:fileManager];
     [deleteZip addDependency:unzip];
 
-    _steps = [NSArray arrayWithObjects:validation, makeDestDir, unzip, parseMetaData, deleteZip, nil];
-
-    if (!self) {
-        return nil;
-    }
-
     _destDir = destDir;
+    self.steps = @[validation, makeDestDir, unzip, parseMetaData, deleteZip];
 
     return self;
 }
 
 - (void)stepWillFinish:(NSOperation *)step
 {
-    //    switch (stepIndex) {
-    //        case 0:
-    //            [self validateStepWillFinish];
-    //            break;
-    //        case 1:
-    //            [self makeDestDirStepWillFinish];
-    //            break;
-    //        case 2:
-    //            [self unzipStepWillFinish];
-    //            break;
-    //        case 3:
-    //            [self parseDescriptorStepWillFinish];
-    //            break;
-    //        default:
-    //            break;
-    //    }
+    NSUInteger stepIndex = [self.steps indexOfObject:step];
+    switch (stepIndex) {
+        case ZippedHtmlImportValidateStep:
+            [self validateStepWillFinish];
+            break;
+        case ZippedHtmlImportMakeBaseDirStep:
+            [self makeDestDirStepWillFinish];
+            break;
+        case ZippedHtmlImportUnzipStep:
+            [self unzipStepWillFinish];
+            break;
+        case ZippedHtmlImportParseDescriptorStep:
+            [self parseDescriptorStepWillFinish];
+            break;
+        default:
+            break;
+    }
 }
 
 - (void)validateStepWillFinish
 {
-    ValidateHtmlLayoutOperation *validateStep = _steps.firstObject;
-    MkdirOperation *makeDestDirStep = _steps[1];
-    ParseJsonOperation *parseDescriptorStep = _steps[3];
+    ValidateHtmlLayoutOperation *validateStep = (ValidateHtmlLayoutOperation *)self.steps[ZippedHtmlImportValidateStep];
+    MkdirOperation *makeDestDirStep = (MkdirOperation *)self.steps[ZippedHtmlImportMakeBaseDirStep];
+    ParseJsonOperation *parseDescriptorStep = (ParseJsonOperation *)self.steps[ZippedHtmlImportParseDescriptorStep];
 
     if (!validateStep.isLayoutValid) {
         [self cancelStepsAfterStep:validateStep];
@@ -106,20 +104,20 @@
 
 - (void)makeDestDirStepWillFinish
 {
-    MkdirOperation *makeDestDirStep = _steps[1];
+    MkdirOperation *makeDestDirStep = (MkdirOperation *)self.steps[ZippedHtmlImportMakeBaseDirStep];
 
     if (!(makeDestDirStep.dirWasCreated || makeDestDirStep.dirExisted)) {
         [self cancelStepsAfterStep:makeDestDirStep];
         return;
     }
 
-    UnzipOperation *unzipStep = _steps[2];
+    UnzipOperation *unzipStep = (UnzipOperation *)self.steps[ZippedHtmlImportUnzipStep];
     unzipStep.destDir = makeDestDirStep.dirUrl;
 }
 
 - (void)unzipStepWillFinish
 {
-    UnzipOperation *unzip = _steps[2];
+    UnzipOperation *unzip = self.steps[2];
 
     if (!unzip.wasSuccessful) {
         [self cancelStepsAfterStep:unzip];
@@ -131,15 +129,15 @@
 
 - (void)parseDescriptorStepWillFinish
 {
-    ParseJsonOperation *parseDescriptor = _steps[3];
+    ParseJsonOperation *parseDescriptor = self.steps[3];
     [self.report performSelectorOnMainThread:@selector(setPropertiesFromJsonDescriptor:) withObject:parseDescriptor.parsedJsonDictionary waitUntilDone:NO];
 }
 
 - (void)cancelStepsAfterStep:(NSOperation *)step
 {
-    NSUInteger stepIndex = [_steps indexOfObject:step];
-    while (++stepIndex < _steps.count) {
-        NSOperation *pendingStep = _steps[stepIndex];
+    NSUInteger stepIndex = [self.steps indexOfObject:step];
+    while (++stepIndex < self.steps.count) {
+        NSOperation *pendingStep = self.steps[stepIndex];
         [pendingStep cancel];
     }
 }

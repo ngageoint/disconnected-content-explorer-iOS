@@ -65,7 +65,7 @@
     return NO;
 }
 
-- (id<ImportProcess>)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
+- (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
     ZipFile *zipFile = [[ZipFile alloc] initWithFileName:report.url.path mode:ZipFileModeUnzip];
     ZippedHtmlImportProcess *process = [[ZippedHtmlImportProcess alloc] initWithReport:report

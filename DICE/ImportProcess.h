@@ -15,30 +15,14 @@
 
 
 
-@protocol ImportProcess <NSObject>
+@interface ImportProcess : NSObject
 
-/**
- TODO: document
- */
 @property (readonly) Report *report;
-
-/**
- TODO: document
- */
+@property (readonly, nonatomic) NSArray<NSOperation *> *steps;
+@property (readonly) NSInteger currentStep;
 @property (weak) id<ImportDelegate> delegate;
 
-/**
- *  Return the next step in the import process.  The ImportProcess
- *  should retain references to the NSOperation steps it creates
- *  as necessary, either explicitly or implicitly through key-value
- *  observation, block closure, etc.  Additionally, the caller may
- *  begin executing the NSOperation instances before calling this
- *  method enough to create all the steps.
- *
- *  @return the next NSOperation in the import process or nil when
- *      there are no more steps
- */
-- (NSOperation *)nextStep;
+- (instancetype)initWithReport:(Report *)report NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -48,8 +32,8 @@
 
 @optional
 
-- (void)reportWasUpdatedByImportProcess:(id<ImportProcess>)import;
-- (void)importDidFinishForImportProcess:(id<ImportProcess>)import;
+- (void)reportWasUpdatedByImportProcess:(ImportProcess *)import;
+- (void)importDidFinishForImportProcess:(ImportProcess *)import;
 
 // TODO:
 //- (void)importDidSucceedForImportProcess:(id<ImportProcess>)import;
