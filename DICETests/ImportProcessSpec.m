@@ -22,7 +22,8 @@
 
 @property NSInteger stepCursor;
 @property NSMutableArray<NSOperation *> *finishedSteps;
-@property (strong) void (^willFinishBlock)(NSOperation *);
+@property void (^willFinishBlock)(NSOperation *);
+@property void (^willCancelBlock)(NSOperation *);
 
 - (instancetype)initWithReport:(Report *)report steps:(NSArray *)steps;
 
@@ -41,6 +42,13 @@
 {
     if (self.willFinishBlock != nil) {
         self.willFinishBlock(step);
+    }
+}
+
+- (void)stepWillCancel:(NSOperation *)step
+{
+    if (self.willCancelBlock != nil) {
+        self.willCancelBlock(step);
     }
 }
 
@@ -92,6 +100,39 @@ describe(@"ImportProcess", ^{
         expect(op2WasReady).to.equal(@NO);
     });
 
+    it(@"calls stepWillCancel but not stepWillFinish", ^{
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+
+        NSOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{
+            while (op1.isExecuting);
+        }];
+
+        __block NSNumber *finishBlockCalled = nil;
+        __block NSNumber *cancelBlockCalled = nil;
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1]];
+        import.willFinishBlock = ^(NSOperation *step) {
+            finishBlockCalled = @YES;
+        };
+        import.willCancelBlock = ^(NSOperation *step) {
+            cancelBlockCalled = @YES;
+        };
+
+        [ops addOperation:op1];
+        while (!op1.isExecuting);
+        [op1 cancel];
+
+        NSPredicate *notExecuting = [NSPredicate predicateWithFormat:@"isExecuting == NO AND isCancelled == YES"];
+        [self expectationForPredicate:notExecuting evaluatedWithObject:op1 handler:nil];
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+        expect(cancelBlockCalled).to.equal(@YES);
+        expect(finishBlockCalled).to.beNil;
+
+        [op1 waitUntilFinished];
+    });
+
     it(@"stops observing operations after they finish", ^{
 
         NSOperation *op1 = [[NSOperation alloc] init];
@@ -132,7 +173,7 @@ describe(@"ImportProcess", ^{
         expect(^{[op1 removeObserver:import forKeyPath:@"isCancelled"];}).to.raiseAny();
         expect(^{[op2 removeObserver:import forKeyPath:@"isFinished"];}).to.raiseAny();
         expect(^{[op2 removeObserver:import forKeyPath:@"isExecuting"];}).to.raiseAny();
-        expect(^{[op1 removeObserver:import forKeyPath:@"isCancelled"];}).to.raiseAny();
+        expect(^{[op2 removeObserver:import forKeyPath:@"isCancelled"];}).to.raiseAny();
     });
 
     it(@"begins with the current step at -1", ^{
