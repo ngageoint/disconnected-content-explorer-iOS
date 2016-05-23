@@ -40,7 +40,7 @@
 @end
 
 
-@interface TestImportProcess : ImportProcess
+@interface ReportStoreSpec_ImportProcess : ImportProcess
 
 @property (nonatomic) BOOL isBlocked;
 @property (weak, readonly) XCTest *test;
@@ -58,10 +58,10 @@
 
 
 
-@interface TestReportType : NSObject <ReportType>
+@interface ReportStoreSpec_ReportType : NSObject <ReportType>
 
 @property (readonly) NSString *extension;
-@property TestImportProcess *nextImportProcess;
+@property ReportStoreSpec_ImportProcess *nextImportProcess;
 @property (weak, readonly) XCTest *test;
 @property (readonly) NSString *testDescription;
 
@@ -71,7 +71,7 @@
 
 
 
-@implementation TestImportProcess
+@implementation ReportStoreSpec_ImportProcess
 {
     BOOL _isBlocked;
     NSCondition *_blockedCondition;
@@ -97,7 +97,7 @@
     _test = test;
     _isBlocked = NO;
     _blockedCondition = [[NSCondition alloc] init];
-    __weak TestImportProcess *my = self;
+    __weak ReportStoreSpec_ImportProcess *my = self;
     NSBlockOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{
         [_blockedCondition lock];
         if (_isBlocked) {
@@ -202,7 +202,7 @@
 
 
 
-@implementation TestReportType
+@implementation ReportStoreSpec_ReportType
 
 - (instancetype)init
 {
@@ -219,7 +219,7 @@
     }
     self = [super init];
     _test = test;
-    _nextImportProcess = [[TestImportProcess alloc] initWithTest:test];
+    _nextImportProcess = [[ReportStoreSpec_ImportProcess alloc] initWithTest:test];
     _extension = ext;
     return self;
 }
@@ -236,9 +236,9 @@
 
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
-    TestImportProcess *currentImport = self.nextImportProcess;
+    ReportStoreSpec_ImportProcess *currentImport = self.nextImportProcess;
     currentImport.report = report;
-    _nextImportProcess = [[TestImportProcess alloc] initWithTest:self.test];
+    _nextImportProcess = [[ReportStoreSpec_ImportProcess alloc] initWithTest:self.test];
     return currentImport;
 }
 
@@ -251,8 +251,8 @@ SpecBegin(ReportStore)
 
 describe(@"ReportStore", ^{
 
-    __block TestReportType *redType;
-    __block TestReportType *blueType;
+    __block ReportStoreSpec_ReportType *redType;
+    __block ReportStoreSpec_ReportType *blueType;
     __block NSFileManager *fileManager;
     __block ReportStore *store;
     __block id storeMock;
@@ -268,8 +268,8 @@ describe(@"ReportStore", ^{
         [given([fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil])
             willReturn:reportsDir];
 
-        redType = [[TestReportType alloc] initWithExtension:@"red" test:self];
-        blueType = [[TestReportType alloc] initWithExtension:@"blue" test:self];
+        redType = [[ReportStoreSpec_ReportType alloc] initWithExtension:@"red" test:self];
+        blueType = [[ReportStoreSpec_ReportType alloc] initWithExtension:@"blue" test:self];
 
         // initialize a new ReportStore to ensure all tests are independent
         store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager];
@@ -358,7 +358,7 @@ describe(@"ReportStore", ^{
                 ]];
 
             [blueType.nextImportProcess setFinishExpectationForTest:self];
-            TestImportProcess *redImport = redType.nextImportProcess;
+            ReportStoreSpec_ImportProcess *redImport = redType.nextImportProcess;
             redImport.isBlocked = YES;
 
             NSArray<Report *> *reports = [store loadReports];
@@ -439,7 +439,7 @@ describe(@"ReportStore", ^{
     describe(@"attemptToImportReportFromResource", ^{
 
         it(@"imports a report with the capable ReportType", ^{
-            TestImportProcess *targetImport = [[[TestImportProcess alloc] initWithTest:self] setFinishExpectationForTest:self];
+            ReportStoreSpec_ImportProcess *targetImport = [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self] setFinishExpectationForTest:self];
             id<ReportType> targetType = mockProtocol(@protocol(ReportType));
             [given([targetType couldHandleFile:endsWith(@".red")]) willReturnBool:YES];
             [given([targetType couldHandleFile:isNot(endsWith(@".red"))]) willReturnBool:NO];
@@ -473,7 +473,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"adds the initial report to the report list", ^{
-            TestImportProcess *import = [redType.nextImportProcess setFinishExpectationForTest:self];
+            ReportStoreSpec_ImportProcess *import = [redType.nextImportProcess setFinishExpectationForTest:self];
             import.isBlocked = YES;
 
             NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.red"];
@@ -524,7 +524,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"does not start an import for a report file it is already importing", ^{
-            TestImportProcess *import = [[[TestImportProcess alloc] initWithTest:self] setFinishExpectationForTest:self];
+            ReportStoreSpec_ImportProcess *import = [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self] setFinishExpectationForTest:self];
             import.isBlocked = YES;
 
             id<ReportType> type = mockProtocol(@protocol(ReportType));
