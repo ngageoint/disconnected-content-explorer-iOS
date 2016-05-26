@@ -527,7 +527,31 @@ describe(@"ReportStore", ^{
         });
 
         it(@"sends a notification when the import finishes", ^{
-            failure(@"unimplemented");
+            __block ReportStoreSpec_ImportProcess *import;
+            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                if (import) {
+                    [NSException raise:NSInternalInconsistencyException format:@"more than one import process created"];
+                }
+                return import = [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] addFinishExpectationToTest];
+            };
+
+            XCTestExpectation *notified = [self expectationWithDescription:@"import finish notification"];
+            __block Report *notificationReport;
+            id<NSObject> observer = [[NSNotificationCenter defaultCenter] addObserverForName:[ReportNotification reportImportFinished] object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+                notificationReport = note.userInfo[@"report"];
+                [notified fulfill];
+            }];
+
+            Report *importReport = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"test.red"]];
+
+            [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+                [[NSNotificationCenter defaultCenter] removeObserver:observer];
+                if (error) {
+                    failure(error.description);
+                }
+            }];
+
+            expect(notificationReport).to.beIdenticalTo(importReport);
         });
 
     });

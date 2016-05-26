@@ -138,6 +138,7 @@
         return obj == import;
     }];
     [_pendingImports removeObjectsForKeys:[keys allObjects]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
 }
 
 #pragma mark - private_methods
