@@ -20,8 +20,6 @@
 
 @interface TestBaseImportProcess : ImportProcess
 
-@property NSInteger stepCursor;
-@property NSMutableArray<NSOperation *> *finishedSteps;
 @property void (^willFinishBlock)(NSOperation *);
 @property void (^willCancelBlock)(NSOperation *);
 
@@ -87,7 +85,7 @@ describe(@"ImportProcess", ^{
         TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
         import.willFinishBlock = ^(NSOperation *step) {
             finishedStep = step;
-            op2WasReady = [NSNumber numberWithBool:op2.ready];
+            op2WasReady = @(op2.ready);
         };
 
         [op1 start];

@@ -49,7 +49,7 @@
 {
     [_reports filterUsingPredicate:[NSPredicate predicateWithBlock:
         ^BOOL (Report *report, NSDictionary *bindings) {
-            BOOL importing = [_pendingImports objectForKey:report.url] != nil;
+            BOOL importing = _pendingImports[report.url] != nil;
             return importing;
             // TODO: dispatch report removed notification?
         }]];
@@ -91,7 +91,7 @@
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
-    ImportProcess *import = [_pendingImports objectForKey:reportUrl];
+    ImportProcess *import = _pendingImports[reportUrl];
 
     if (import) {
         return import.report;
@@ -117,7 +117,7 @@
 
     import = [reportType createProcessToImportReport:report toDir:_reportsDir];
     import.delegate = self;
-    [_pendingImports setObject:import forKey:reportUrl];
+    _pendingImports[reportUrl] = import;
 
     // TODO: track pending imports by report object and/or add self as import delegate
     [_importQueue addOperations:import.steps waitUntilFinished:NO];
