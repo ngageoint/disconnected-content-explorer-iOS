@@ -14,6 +14,7 @@
 @implementation ImportProcess
 {
     void *OBSERVATION_CONTEXT;
+    NSArray<NSOperation *> *_steps;
 }
 
 - (instancetype)initWithReport:(Report *)report
@@ -37,20 +38,28 @@
     return [self initWithReport:nil];
 }
 
+- (NSArray<NSOperation *> *)steps
+{
+    @synchronized (self) {
+        return _steps;
+    }
+}
+
 - (void)setSteps:(NSArray<NSOperation *> *)steps
 {
-    if (_steps != nil) {
-        for (NSOperation *step in _steps) {
-            [self stopObserving:step];
+    @synchronized (self) {
+        if (_steps != nil) {
+            for (NSOperation *step in _steps) {
+                [self stopObserving:step];
+            }
+        }
+        _steps = steps;
+        if (_steps != nil) {
+            for (NSOperation *step in _steps) {
+                [self observeStep:step];
+            }
         }
     }
-    _steps = steps;
-    if (_steps != nil) {
-        for (NSOperation *step in _steps) {
-            [self observeStep:step];
-        }
-    }
-
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
