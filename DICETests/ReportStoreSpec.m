@@ -33,35 +33,24 @@
 @end
 
 
-@interface ImportProcess ()
-
-@property (readwrite) Report *report;
-
-@end
-
 
 @interface ReportStoreSpec_ImportProcess : ImportProcess
 
-@property (nonatomic) BOOL isBlocked;
-@property (weak, readonly) XCTest *test;
+@property (weak, readonly) XCTestCase *test;
 @property (readonly) NSString *testDescription;
 
-- (instancetype)initWithTest:(XCTest *)test NS_DESIGNATED_INITIALIZER;
-- (instancetype)setFinishExpectationForTest:(XCTestCase *)test;
-- (instancetype)setFinishBlock:(void (^)(void))block;
-
-- (NSOperation *)nextStep;
+- (instancetype)initWithTest:(XCTestCase *)test report:(Report *)report NS_DESIGNATED_INITIALIZER;
+- (instancetype)setBlocked:(BOOL)blocked;
+- (instancetype)addFinishExpectationToTest;
 
 @end
-
-
 
 
 
 @interface ReportStoreSpec_ReportType : NSObject <ReportType>
 
 @property (readonly) NSString *extension;
-@property ReportStoreSpec_ImportProcess *nextImportProcess;
+@property ReportStoreSpec_ImportProcess * (^nextImportProcess)(Report *);
 @property (weak, readonly) XCTest *test;
 @property (readonly) NSString *testDescription;
 
@@ -75,25 +64,22 @@
 {
     BOOL _isBlocked;
     NSCondition *_blockedCondition;
-    void (^_finishBlock)(void);
     XCTestExpectation *_finishedExpectation;
-    NSUInteger _stepCursor;
 }
 
 - (instancetype)init
 {
-    return [self initWithTest:nil];
+    return nil;
 }
 
-- (instancetype)initWithTest:(XCTest *)test
+- (instancetype)initWithTest:(XCTestCase *)test report:(Report *)report
 {
     if (!test) {
         [NSException raise:NSInvalidArgumentException format:@"test is nil"];
     }
 
-    self = [super init];
+    self = [super initWithReport:report];
 
-    _stepCursor = 0;
     _test = test;
     _isBlocked = NO;
     _blockedCondition = [[NSCondition alloc] init];
@@ -123,9 +109,6 @@
             [my.delegate reportWasUpdatedByImportProcess:my];
             [my.delegate importDidFinishForImportProcess:my];
         }
-        if (_finishBlock) {
-            [[NSRunLoop mainRunLoop] performSelector:@selector(invokeFinishBlock) target:my argument:nil order:0 modes:@[NSDefaultRunLoopMode]];
-        }
         if (_finishedExpectation) {
             [_finishedExpectation fulfill];
         }
@@ -141,7 +124,7 @@
     return self.test.description;
 }
 
-- (instancetype)noop
+- (instancetype)cancelAll
 {
     for (NSBlockOperation *step in self.steps) {
         [step cancel];
@@ -150,52 +133,22 @@
     return self;
 }
 
-- (BOOL)isBlocked
-{
-    BOOL x = NO;
-    [_blockedCondition lock];
-    x = _isBlocked;
-    [_blockedCondition unlock];
-    return x;
-}
-
-- (void)setIsBlocked:(BOOL)isBlocked
+- (instancetype)setBlocked:(BOOL)isBlocked
 {
     [_blockedCondition lock];
     _isBlocked = isBlocked;
     [_blockedCondition signal];
     [_blockedCondition unlock];
-}
-
-- (instancetype)setFinishBlock:(void (^)(void))block
-{
-    _finishBlock = block;
     return self;
 }
 
-- (void)invokeFinishBlock
-{
-    if (_finishBlock) {
-        _finishBlock();
-    }
-    _finishBlock = nil;
-}
-
-- (instancetype)setFinishExpectationForTest:(XCTestCase *)test
+- (instancetype)addFinishExpectationToTest
 {
     if (_finishedExpectation) {
         [NSException raise:NSInternalInconsistencyException format:@"expectation already set"];
     }
-    _finishedExpectation = [test expectationWithDescription:@"import finished"];
+    _finishedExpectation = [self.test expectationWithDescription:@"import finished"];
     return self;
-}
-
-- (NSOperation *)nextStep
-{
-    if (_stepCursor >= self.steps.count) {
-        return nil;
-    }
-    return (NSOperation *)self.steps[_stepCursor++];
 }
 
 @end
@@ -219,8 +172,8 @@
     }
     self = [super init];
     _test = test;
-    _nextImportProcess = [[ReportStoreSpec_ImportProcess alloc] initWithTest:test];
     _extension = ext;
+    _nextImportProcess;
     return self;
 }
 
@@ -236,10 +189,10 @@
 
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
-    ReportStoreSpec_ImportProcess *currentImport = self.nextImportProcess;
-    currentImport.report = report;
-    _nextImportProcess = [[ReportStoreSpec_ImportProcess alloc] initWithTest:self.test];
-    return currentImport;
+    if (self.nextImportProcess) {
+        return self.nextImportProcess(report);
+    }
+    return [[ReportStoreSpec_ImportProcess alloc] initWithTest:self.test report:report];
 }
 
 @end
@@ -320,8 +273,12 @@ describe(@"ReportStore", ^{
                     [reportsDir URLByAppendingPathComponent:@"report2.blue"]
                 ]];
 
-            [redType.nextImportProcess setFinishExpectationForTest:self];
-            [blueType.nextImportProcess setFinishExpectationForTest:self];
+            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                return [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] addFinishExpectationToTest];
+            };
+            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                return [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] addFinishExpectationToTest];
+            };
 
             NSArray *reports = [store loadReports];
 
@@ -357,13 +314,17 @@ describe(@"ReportStore", ^{
                     [reportsDir URLByAppendingPathComponent:@"report2.blue"]
                 ]];
 
-            [blueType.nextImportProcess setFinishExpectationForTest:self];
-            ReportStoreSpec_ImportProcess *redImport = redType.nextImportProcess;
-            redImport.isBlocked = YES;
+            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                return [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] addFinishExpectationToTest];
+            };
+            __block ReportStoreSpec_ImportProcess *redImport;
+            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                return redImport = [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] setBlocked:YES];
+            };
 
             NSArray<Report *> *reports = [store loadReports];
 
-            [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
+            [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
                 if (error) {
                     failure(error.description);
                 }
@@ -383,12 +344,10 @@ describe(@"ReportStore", ^{
             reports = [store loadReports];
 
             expect(reports.count).to.equal(1);
-            expect(reports.firstObject.url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
-            expect(reports.firstObject.isEnabled).to.equal(NO);
+            expect(((Report *)reports.firstObject).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(((Report *)reports.firstObject).isEnabled).to.equal(NO);
 
-            [redImport setFinishExpectationForTest:self];
-
-            redImport.isBlocked = NO;
+            [[redImport addFinishExpectationToTest] setBlocked:NO];
 
             [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
                 if (error) {
@@ -397,8 +356,8 @@ describe(@"ReportStore", ^{
             }];
 
             expect(store.reports.count).to.equal(1);
-            expect(store.reports.firstObject.url.lastPathComponent).to.equal(@"report1.red");
-            expect(store.reports.firstObject.isEnabled).to.equal(YES);
+            expect(((Report *)store.reports.firstObject).url.lastPathComponent).to.equal(@"report1.red");
+            expect(((Report *)store.reports.firstObject).isEnabled).to.equal(YES);
         });
 
         it(@"sends notifications about added reports", ^{
@@ -416,8 +375,12 @@ describe(@"ReportStore", ^{
                    [reportsDir URLByAppendingPathComponent:@"report2.blue"]
                 ]];
 
-            [redType.nextImportProcess noop];
-            [blueType.nextImportProcess noop];
+            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                return [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] cancelAll];
+            };
+            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                return [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] cancelAll];
+            };
 
             NSArray *reports = [store loadReports];
 
@@ -439,22 +402,20 @@ describe(@"ReportStore", ^{
     describe(@"attemptToImportReportFromResource", ^{
 
         it(@"imports a report with the capable ReportType", ^{
-            ReportStoreSpec_ImportProcess *targetImport = [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self] setFinishExpectationForTest:self];
-            id<ReportType> targetType = mockProtocol(@protocol(ReportType));
-            [given([targetType couldHandleFile:endsWith(@".red")]) willReturnBool:YES];
-            [given([targetType couldHandleFile:isNot(endsWith(@".red"))]) willReturnBool:NO];
-            [given([targetType createProcessToImportReport:anything() toDir:reportsDir]) willReturn:targetImport];
-            id<ReportType> otherType = mockProtocol(@protocol(ReportType));
-            [given([otherType createProcessToImportReport:anything() toDir:reportsDir]) willDo:^id(NSInvocation *invocation) {
-                failure(@"wrong report type");
-                return nil;
-            }];
 
-            ReportStore *testStore = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager];
-            testStore.reportTypes = @[otherType, targetType];
+            __block BOOL redTypeUsed = NO;
+            __block BOOL blueTypeUsed = NO;
 
-            NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.red"];
-            Report *report = [testStore attemptToImportReportFromResource:url];
+            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                redTypeUsed = YES;
+                return [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] addFinishExpectationToTest];
+            };
+            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                blueTypeUsed = YES;
+                return [[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report];
+            };
+
+            [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
             [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
                 if (error) {
@@ -462,21 +423,24 @@ describe(@"ReportStore", ^{
                 }
             }];
 
-            [verify(targetType) createProcessToImportReport:report toDir:reportsDir];
+            expect(redTypeUsed).to.equal(YES);
+            expect(blueTypeUsed).to.equal(NO);
         });
 
         it(@"returns nil if the report cannot be imported", ^{
-            NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.green"];
+            NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.green"];
             Report *report = [store attemptToImportReportFromResource:url];
 
             expect(report).to.beNil;
         });
 
         it(@"adds the initial report to the report list", ^{
-            ReportStoreSpec_ImportProcess *import = [redType.nextImportProcess setFinishExpectationForTest:self];
-            import.isBlocked = YES;
+            __block ReportStoreSpec_ImportProcess *import;
+            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                return import = [[[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] addFinishExpectationToTest] setBlocked:YES];
+            };
 
-            NSURL *url = [NSURL fileURLWithPath:@"/test/reports/report.red"];
+            NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.red"];
             Report *report = [store attemptToImportReportFromResource:url];
 
             expect(store.reports).to.contain(report);
@@ -486,9 +450,9 @@ describe(@"ReportStore", ^{
             expect(report.error).to.beNil;
             expect(report.isEnabled).to.equal(NO);
 
-            import.isBlocked = NO;
+            [import setBlocked:NO];
 
-            [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
+            [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
                 if (error) {
                     failure(error.description);
                 }
@@ -506,7 +470,9 @@ describe(@"ReportStore", ^{
                 received = note;
             }];
 
-            [redType.nextImportProcess setFinishExpectationForTest:self];
+            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                return [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] addFinishExpectationToTest];
+            };
 
             Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
 
@@ -524,41 +490,29 @@ describe(@"ReportStore", ^{
         });
 
         it(@"does not start an import for a report file it is already importing", ^{
-            ReportStoreSpec_ImportProcess *import = [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self] setFinishExpectationForTest:self];
-            import.isBlocked = YES;
-
-            id<ReportType> type = mockProtocol(@protocol(ReportType));
-            [[given([type couldHandleFile:endsWith(@"report1.red")]) willReturnBool:YES] willReturnBool:YES];
-            [given([type createProcessToImportReport:anything() toDir:reportsDir]) willDo:^id(NSInvocation *invocation) {
-                Report *report;
-                [invocation getArgument:&report atIndex:2];
-                import.report = report;
-                return import;
-            }];
+            __block ReportStoreSpec_ImportProcess *import;
+            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                if (import) {
+                    [NSException raise:NSInternalInconsistencyException format:@"more than one import process created"];
+                }
+                return import = [[[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] addFinishExpectationToTest] setBlocked:YES];
+            };
 
             __block Report *notificationReport;
             id<NSObject> observer = [[NSNotificationCenter defaultCenter] addObserverForName:[ReportNotification reportAdded] object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
                 notificationReport = note.userInfo[@"report"];
             }];
 
-            ReportStore *testStore = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager];
-            testStore.reportTypes = @[type];
-
             NSURL *reportUrl = [reportsDir URLByAppendingPathComponent:@"report1.red"];
-            Report *report = [testStore attemptToImportReportFromResource:reportUrl];
+            Report *report = [store attemptToImportReportFromResource:reportUrl];
 
-            expect(testStore.reports.count).to.equal(1);
+            expect(store.reports.count).to.equal(1);
             expect(notificationReport).to.beIdenticalTo(report);
 
             notificationReport = nil;
-            Report *sameReport = [testStore attemptToImportReportFromResource:reportUrl];
+            Report *sameReport = [store attemptToImportReportFromResource:reportUrl];
 
-            expect(sameReport).to.beIdenticalTo(report);
-            expect(testStore.reports.count).to.equal(1);
-            expect(notificationReport).to.beNil;
-            [verifyCount(type, times(1)) createProcessToImportReport:anything() toDir:reportsDir];
-
-            import.isBlocked = NO;
+            [import setBlocked:NO];
 
             [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
                 [[NSNotificationCenter defaultCenter] removeObserver:observer];
@@ -566,6 +520,10 @@ describe(@"ReportStore", ^{
                     failure(error.description);
                 }
             }];
+
+            expect(sameReport).to.beIdenticalTo(report);
+            expect(store.reports.count).to.equal(1);
+            expect(notificationReport).to.beNil;
         });
 
         it(@"sends a notification when the import finishes", ^{
