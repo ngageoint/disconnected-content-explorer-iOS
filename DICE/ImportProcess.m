@@ -106,16 +106,31 @@
 
 - (void)observeStep:(NSOperation *)step
 {
-    [step addObserver:self forKeyPath:@"isExecuting" options:NSKeyValueObservingOptionPrior context:OBSERVATION_CONTEXT];
-    [step addObserver:self forKeyPath:@"isFinished" options:NSKeyValueObservingOptionPrior context:OBSERVATION_CONTEXT];
-    [step addObserver:self forKeyPath:@"isCancelled" options:NSKeyValueObservingOptionPrior context:OBSERVATION_CONTEXT];
+    [step addObserver:self forKeyPath:NSStringFromSelector(@selector(isExecuting)) options:NSKeyValueObservingOptionPrior context:OBSERVATION_CONTEXT];
+    [step addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:NSKeyValueObservingOptionPrior context:OBSERVATION_CONTEXT];
+    [step addObserver:self forKeyPath:NSStringFromSelector(@selector(isCancelled)) options:NSKeyValueObservingOptionPrior context:OBSERVATION_CONTEXT];
 }
 
 - (void)stopObserving:(NSOperation *)step
 {
-    [step removeObserver:self forKeyPath:@"isExecuting" context:OBSERVATION_CONTEXT];
-    [step removeObserver:self forKeyPath:@"isFinished" context:OBSERVATION_CONTEXT];
-    [step removeObserver:self forKeyPath:@"isCancelled" context:OBSERVATION_CONTEXT];
+    @try {
+        [step removeObserver:self forKeyPath:NSStringFromSelector(@selector(isExecuting)) context:OBSERVATION_CONTEXT];
+    }
+    @catch (NSException *e) {
+        NSLog(@"error removing observer for key path isExecuting: %@: %@\n%@", e.name, e.reason, [e callStackSymbols]);
+    }
+    @try {
+        [step removeObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) context:OBSERVATION_CONTEXT];
+    }
+    @catch (NSException *e) {
+        NSLog(@"error removing observer for key path isFinished: %@: %@\n%@", e.name, e.reason, [e callStackSymbols]);
+    }
+    @try {
+        [step removeObserver:self forKeyPath:NSStringFromSelector(@selector(isCancelled)) context:OBSERVATION_CONTEXT];
+    }
+    @catch (NSException *e) {
+        NSLog(@"error removing observer for key path isCancelled: %@: %@\n%@", e.name, e.reason, [e callStackSymbols]);
+    }
 }
 
 @end
