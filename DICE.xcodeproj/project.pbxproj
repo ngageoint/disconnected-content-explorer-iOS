@@ -77,6 +77,7 @@
 		877C66B0A847E541D0D97730504C8A43 /* ReaderThumbQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DDB58360EE665749F0FA4578B145BCF /* ReaderThumbQueue.m */; };
 		8B87E64315D24837CBFED19EBCA228D6 /* ReportAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */; };
 		8DE82581CDFD6A3B4F70D2EED01679CE /* libPods-DICE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */; };
+		8F688E34C1B9AA47C180D06C /* ParseJsonOperationSpec.json in Resources */ = {isa = PBXBuildFile; fileRef = 8F6883A2A594E36D473677D8 /* ParseJsonOperationSpec.json */; };
 		8F9DA036F086CF997A65F0233F626610 /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */; };
 		92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */; };
 		9487A2D2D324B045EFB5955C0B4BC53D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B509885B6330B98E360935E6572E0715 /* CoreData.framework */; };
@@ -267,6 +268,7 @@
 		8D90355B5DE466E3792BADAEC6331D56 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
 		8DA05A54024256C0883FA5D7958178FB /* DICE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DICE.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DE86EA7B5897BD2BBD21607419E3383 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8F6883A2A594E36D473677D8 /* ParseJsonOperationSpec.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = ParseJsonOperationSpec.json; path = resources/ParseJsonOperationSpec.json; sourceTree = "<group>"; };
 		9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportUtils.m; sourceTree = "<group>"; };
 		91DE9AADF066A41E4737F8A176CC9B3F /* CGPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPDFDocument.h; sourceTree = "<group>"; };
 		9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseJsonOperation.h; path = ../ParseJsonOperation.h; sourceTree = "<group>"; };
@@ -606,6 +608,7 @@
 				3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */,
 				A31A615AB298DCFBC9CF3A36F72C5448 /* UnzipOperationSpec.m */,
 				102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */,
+				8F6883A2A594E36D473677D8 /* ParseJsonOperationSpec.json */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -796,15 +799,18 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F33562D612B06501C035F00033031799 /* Build configuration list for PBXNativeTarget "DICE" */;
 			buildPhases = (
-				98A72C80539D8983840FB7B4 /* 📦 Check Pods Manifest.lock */,
+				9977EDC636584665AEE2417A /* 📦 Check Pods Manifest.lock */,
+				98A72C80539D8983840FB7B4 /* uD83DuDCE6 Check Pods Manifest.lock */,
 				BB5792040AC26F994B671822A1E52CA1 /* uD83DuDCE6 Check Pods Manifest.lock */,
 				1534439D08C7AAA938707E99E7BF0056 /* Sources */,
 				DAEB822D4A9A383A423DEACD737CA0A2 /* Frameworks */,
 				5D5B540FA2BDB950BF2D70387D731A61 /* Resources */,
 				1F32FFE7E350A0E932A6BB14FF081E66 /* uD83DuDCE6 Embed Pods Frameworks */,
 				D8EC6440B503DE36C07E40595DB8ED16 /* uD83DuDCE6 Copy Pods Resources */,
-				1F5FE04628F3E52A9282AEB7 /* 📦 Embed Pods Frameworks */,
-				851855D1ACCC2B7839E52633 /* 📦 Copy Pods Resources */,
+				1F5FE04628F3E52A9282AEB7 /* uD83DuDCE6 Embed Pods Frameworks */,
+				851855D1ACCC2B7839E52633 /* uD83DuDCE6 Copy Pods Resources */,
+				0F5B247C330D087C6C0871F5 /* 📦 Embed Pods Frameworks */,
+				086E4D60D75FECE9E0B5B8EB /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -819,7 +825,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D7616DFD228BF2035F4600114F5BFD12 /* Build configuration list for PBXNativeTarget "DICETests" */;
 			buildPhases = (
-				FE422847ACB2A97324F82C60 /* 📦 Check Pods Manifest.lock */,
+				3C85239F1D3E59BA285BCAAE /* 📦 Check Pods Manifest.lock */,
+				FE422847ACB2A97324F82C60 /* uD83DuDCE6 Check Pods Manifest.lock */,
 				5AE2DDDE249566F5FE0B680CE8B2EDA9 /* uD83DuDCE6 Check Pods Manifest.lock */,
 				24C6D00EC77ADB56C64F7B21EA4FCD97 /* Sources */,
 				E6808B28F0705F2A3E03DA878B837CB9 /* Frameworks */,
@@ -827,8 +834,10 @@
 				45EB590DF4295665C5365970DAFC8ED0 /* uD83DuDCE6 Embed Pods Frameworks */,
 				D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* uD83DuDCE6 Copy Pods Resources */,
 				EF3550294D4392707BB15E9221D0BC36 /* CopyFiles */,
-				757553F18B73D1AF69024423 /* 📦 Embed Pods Frameworks */,
-				088FC2C011472B0AEEC1D993 /* 📦 Copy Pods Resources */,
+				757553F18B73D1AF69024423 /* uD83DuDCE6 Embed Pods Frameworks */,
+				088FC2C011472B0AEEC1D993 /* uD83DuDCE6 Copy Pods Resources */,
+				D004F7631BF8AF843D877089 /* 📦 Embed Pods Frameworks */,
+				9643A1E34F2F71F30AC57FFD /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -914,6 +923,7 @@
 				BD010E315BB1D0A2501DB113E044C176 /* Reader-Thumbs@2x.png in Resources */,
 				5C7C5728A1CAFD246CB491D5AD90BE69 /* attributions in Resources */,
 				0697BB828B9EB48268DC1244BE6C8749 /* ne_50m-110m_land.geojson in Resources */,
+				8F688E34C1B9AA47C180D06C /* ParseJsonOperationSpec.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -927,7 +937,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		088FC2C011472B0AEEC1D993 /* 📦 Copy Pods Resources */ = {
+		086E4D60D75FECE9E0B5B8EB /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -939,7 +949,37 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		088FC2C011472B0AEEC1D993 /* uD83DuDCE6 Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "uD83DuDCE6 Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		0F5B247C330D087C6C0871F5 /* 📦 Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		1F32FFE7E350A0E932A6BB14FF081E66 /* uD83DuDCE6 Embed Pods Frameworks */ = {
@@ -957,19 +997,34 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1F5FE04628F3E52A9282AEB7 /* 📦 Embed Pods Frameworks */ = {
+		1F5FE04628F3E52A9282AEB7 /* uD83DuDCE6 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "uD83DuDCE6 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3C85239F1D3E59BA285BCAAE /* 📦 Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		45EB590DF4295665C5365970DAFC8ED0 /* uD83DuDCE6 Embed Pods Frameworks */ = {
@@ -1002,14 +1057,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		757553F18B73D1AF69024423 /* 📦 Embed Pods Frameworks */ = {
+		757553F18B73D1AF69024423 /* uD83DuDCE6 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "uD83DuDCE6 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1017,7 +1072,22 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		851855D1ACCC2B7839E52633 /* 📦 Copy Pods Resources */ = {
+		851855D1ACCC2B7839E52633 /* uD83DuDCE6 Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "uD83DuDCE6 Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9643A1E34F2F71F30AC57FFD /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1029,10 +1099,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		98A72C80539D8983840FB7B4 /* 📦 Check Pods Manifest.lock */ = {
+		98A72C80539D8983840FB7B4 /* uD83DuDCE6 Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "uD83DuDCE6 Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		9977EDC636584665AEE2417A /* 📦 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1060,6 +1145,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		D004F7631BF8AF843D877089 /* 📦 Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* uD83DuDCE6 Copy Pods Resources */ = {
@@ -1092,14 +1192,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		FE422847ACB2A97324F82C60 /* 📦 Check Pods Manifest.lock */ = {
+		FE422847ACB2A97324F82C60 /* uD83DuDCE6 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "uD83DuDCE6 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
