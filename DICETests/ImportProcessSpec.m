@@ -102,14 +102,21 @@ describe(@"ImportProcess", ^{
 
         NSOperationQueue *ops = [[NSOperationQueue alloc] init];
 
-        NSOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{
-            while (op1.isExecuting);
+        __block BOOL blocked = YES;
+        NSCondition *blockedCondition = [[NSCondition alloc] init];
+
+        NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{
+            [blockedCondition lock];
+            while (blocked) {
+                [blockedCondition wait];
+            }
+            [blockedCondition unlock];
         }];
 
-        __block NSNumber *finishBlockCalled = nil;
-        __block NSNumber *cancelBlockCalled = nil;
+        __block __strong NSNumber *finishBlockCalled = nil;
+        __block __strong NSNumber *cancelBlockCalled = nil;
 
-        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1]];
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op]];
         import.willFinishBlock = ^(NSOperation *step) {
             finishBlockCalled = @YES;
         };
@@ -117,18 +124,18 @@ describe(@"ImportProcess", ^{
             cancelBlockCalled = @YES;
         };
 
-        [ops addOperation:op1];
-        while (!op1.isExecuting);
-        [op1 cancel];
+        [ops addOperation:op];
+        [op cancel];
 
-        NSPredicate *notExecuting = [NSPredicate predicateWithFormat:@"isExecuting == NO AND isCancelled == YES"];
-        [self expectationForPredicate:notExecuting evaluatedWithObject:op1 handler:nil];
-        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+        [blockedCondition lock];
+        blocked = NO;
+        [blockedCondition signal];
+        [blockedCondition unlock];
+
+        [ops waitUntilAllOperationsAreFinished];
 
         expect(cancelBlockCalled).to.equal(@YES);
         expect(finishBlockCalled).to.beNil;
-
-        [op1 waitUntilFinished];
     });
 
     it(@"stops observing operations after they finish", ^{
@@ -185,8 +192,8 @@ describe(@"ImportProcess", ^{
 
     });
 
-    it(@"sets the current step to 0 when the first operation starts", ^{
-
+    xit(@"sets the current step to 0 when the first operation starts", ^{
+        failure(@"unimplemented");
     });
 
 });
