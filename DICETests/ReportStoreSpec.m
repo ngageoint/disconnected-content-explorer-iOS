@@ -51,7 +51,7 @@
 
 @property (readonly) NSString *extension;
 @property ReportStoreSpec_ImportProcess * (^nextImportProcess)(Report *);
-@property (weak, readonly) XCTest *test;
+@property (weak, readonly) XCTestCase *test;
 @property (readonly) NSString *testDescription;
 
 - (instancetype)initWithExtension:(NSString *)ext test:(XCTest *)test NS_DESIGNATED_INITIALIZER;
@@ -69,6 +69,13 @@
 
 - (instancetype)init
 {
+    self = [self initWithTest:nil report:nil];
+    return nil;
+}
+
+- (instancetype)initWithReport:(Report *)report
+{
+    self = [self initWithTest:nil report:nil];
     return nil;
 }
 
@@ -126,9 +133,6 @@
 
 - (instancetype)cancelAll
 {
-    for (NSBlockOperation *step in self.steps) {
-        [step cancel];
-    }
     self.steps = @[];
     return self;
 }
@@ -162,7 +166,7 @@
     return [self initWithExtension:nil test:nil];
 }
 
-- (instancetype)initWithExtension:(NSString *)ext test:(XCTest *)test
+- (instancetype)initWithExtension:(NSString *)ext test:(XCTestCase *)test
 {
     if (!ext) {
         [NSException raise:NSInvalidArgumentException format:@"ext is nil"];
@@ -173,7 +177,7 @@
     self = [super init];
     _test = test;
     _extension = ext;
-    _nextImportProcess;
+
     return self;
 }
 
@@ -208,7 +212,6 @@ describe(@"ReportStore", ^{
     __block ReportStoreSpec_ReportType *blueType;
     __block NSFileManager *fileManager;
     __block ReportStore *store;
-    __block id storeMock;
 
     NSURL *reportsDir = [NSURL fileURLWithPath:@"/dice/reports"];
 
@@ -230,7 +233,6 @@ describe(@"ReportStore", ^{
             redType,
             blueType
         ];
-        storeMock = (store);
     });
 
     afterEach(^{
