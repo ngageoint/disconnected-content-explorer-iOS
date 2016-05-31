@@ -12,27 +12,12 @@
 #define HC_SHORTHAND
 #import <OCHamcrest/OCHamcrest.h>
 
+#define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
-
-#import <OCMock/OCMock.h>
 
 #import "UnzipOperation.h"
 #import "ZipException.h"
-#import "ZipReadStream.h"
 
-
-@interface BadZipFile : ZipFile
-
-@end
-
-@implementation BadZipFile
-
-- (void)goToFirstFileInZip
-{
-    @throw [[ZipException alloc] initWithError:99 reason:@"Bad zip file"];
-}
-
-@end
 
 
 @interface SpecificException : NSException
@@ -145,6 +130,48 @@
 @end
 
 
+
+@interface BlockedUnzipOperation : UnzipOperation
+@end
+
+@implementation BlockedUnzipOperation
+{
+    BOOL _blocked;
+    NSCondition *_blockLock;
+}
+
+- (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager {
+    self = [super initWithZipFile:zipFile destDir:destDir fileManager:fileManager];
+
+    _blocked = NO;
+    _blockLock = [[NSCondition alloc] init];
+
+    return self;
+}
+
+- (void)block {
+    [_blockLock lock];
+    _blocked = YES;
+    [_blockLock unlock];
+}
+
+- (void)unblock {
+    [_blockLock lock];
+    _blocked = NO;
+    [_blockLock signal];
+    [_blockLock unlock];
+}
+
+- (void)main {
+    [_blockLock lock];
+    while (_blocked) {
+        [_blockLock wait];
+    }
+    [_blockLock unlock];
+}
+
+@end
+
 SpecBegin(UnzipOperation)
 
 describe(@"UnzipOperation", ^{
@@ -168,15 +195,9 @@ describe(@"UnzipOperation", ^{
     });
 
     it(@"is not ready until dest dir is set", ^{
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:OCMClassMock([ZipFile class]) destDir:nil fileManager:[NSFileManager defaultManager]];
+        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([ZipFile class]) destDir:nil fileManager:[NSFileManager defaultManager]];
 
-        id observer = observer = OCMStrictClassMock([NSObject class]);
-        [observer setExpectationOrderMatters:YES];
-
-        OCMExpect([observer observeValueForKeyPath:@"isReady" ofObject:op change:hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES) context:NULL]);
-        OCMExpect([observer observeValueForKeyPath:@"destDir" ofObject:op change:hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES) context:NULL]);
-        OCMExpect([observer observeValueForKeyPath:@"destDir" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
-        OCMExpect([observer observeValueForKeyPath:@"isReady" ofObject:op change:instanceOf([NSDictionary class]) context:NULL]);
+        id observer = mock([NSObject class]);
 
         [op addObserver:observer forKeyPath:@"isReady" options:NSKeyValueObservingOptionPrior context:NULL];
         [op addObserver:observer forKeyPath:@"destDir" options:NSKeyValueObservingOptionPrior context:NULL];
@@ -187,13 +208,17 @@ describe(@"UnzipOperation", ^{
         op.destDir = [NSURL URLWithString:@"/reports_dir"];
 
         expect(op.ready).to.equal(YES);
-        OCMVerifyAll(observer);
 
-        [observer stopMocking];
+        [verify(observer) observeValueForKeyPath:@"isReady" ofObject:op change:hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES) context:NULL];
+        [verify(observer) observeValueForKeyPath:@"destDir" ofObject:op change:hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES) context:NULL];
+        [verify(observer) observeValueForKeyPath:@"destDir" ofObject:op change:isNot(hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES)) context:NULL];
+        [verify(observer) observeValueForKeyPath:@"isReady" ofObject:op change:isNot(hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES)) context:NULL];
+
+        stopMocking(observer);
     });
 
     it(@"is not ready until dependencies are finished", ^{
-        ZipFile *zipFile = OCMClassMock([ZipFile class]);
+        ZipFile *zipFile = mock([ZipFile class]);
         UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:[NSURL URLWithString:@"/some/dir"] fileManager:[NSFileManager defaultManager]];
         NSOperation *holdup = [[NSOperation alloc] init];
         [op addDependency:holdup];
@@ -202,27 +227,26 @@ describe(@"UnzipOperation", ^{
 
         [holdup start];
 
-        NSPredicate *isFinished = [NSPredicate predicateWithFormat:@"finished = YES"];
-        [self expectationForPredicate:isFinished evaluatedWithObject:holdup handler:nil];
-        [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
-            expect(op.ready).to.equal(YES);
-        }];
+        assertWithTimeout(1.0, thatEventually(@(holdup.isFinished && op.isReady)), isTrue());
 
-        [(id)zipFile stopMocking];
+        stopMocking(zipFile);
     });
 
     it(@"throws an exception when dest dir change is attempted while executing", ^{
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:OCMClassMock([ZipFile class]) destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
-        UnzipOperation *mockOp = OCMPartialMock(op);
-        OCMStub([mockOp isExecuting]).andReturn(YES);
+        BlockedUnzipOperation *op = [[BlockedUnzipOperation alloc] initWithZipFile:mock([ZipFile class]) destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
+        [op block];
+        [op performSelectorInBackground:@selector(start) withObject:nil];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
 
         expect(^{
             op.destDir = [NSURL URLWithString:[NSString stringWithFormat:@"/var/%@", op.destDir.path]];
         }).to.raiseWithReason(@"IllegalStateException", @"cannot change destDir after UnzipOperation has started");
 
-        expect(op.destDir).to.equal([NSURL URLWithString:@"/tmp/"]);
+        [op unblock];
+        [op waitUntilFinished];
 
-        [(id)mockOp stopMocking];
+        expect(op.destDir).to.equal([NSURL URLWithString:@"/tmp/"]);
     });
 
     it(@"unzips with base dir", ^{
@@ -415,44 +439,41 @@ describe(@"UnzipOperation", ^{
 
         [fm createDirectoryAtURL:destDir withIntermediateDirectories:YES attributes:nil error:nil];
 
-        id<UnzipDelegate> unzipDelegate = OCMProtocolMock(@protocol(UnzipDelegate));
+        id<UnzipDelegate> unzipDelegate = mockProtocol(@protocol(UnzipDelegate));
         UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
         op.bufferSize = 64;
         op.delegate = unzipDelegate;
 
         __block BOOL wasMainThread = YES;
         NSMutableArray *percentUpdates = [NSMutableArray array];
-        [[OCMStub([unzipDelegate unzipOperation:op didUpdatePercentComplete:0]) ignoringNonObjectArgs] andDo:^(NSInvocation *invocation) {
+        [[givenVoid([unzipDelegate unzipOperation:op didUpdatePercentComplete:0]) withMatcher:anything() forArgument:1] willDo:^id(NSInvocation *invocation) {
             wasMainThread = wasMainThread && [NSThread currentThread] == [NSThread mainThread];
             NSUInteger percent = 0;
             [invocation getArgument:&percent atIndex:3];
-            [percentUpdates addObject:[NSNumber numberWithUnsignedInteger:percent]];
+            [percentUpdates addObject:@(percent)];
+            return nil;
         }];
 
         dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [op start];
         });
 
-        NSPredicate *isFinished = [NSPredicate predicateWithFormat:@"SELF[SIZE] = 20"];
-        [self expectationForPredicate:isFinished evaluatedWithObject:percentUpdates handler:nil];
-        [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
-            expect(wasMainThread).to.equal(YES);
-            expect(percentUpdates.count).to.equal(20);
-            [percentUpdates enumerateObjectsUsingBlock:^(NSNumber *percent, NSUInteger idx, BOOL *stop) {
-                expect(percent.unsignedIntegerValue).to.equal((idx + 1) * 5);
-            }];
-        }];
+        assertWithTimeout(1.0, thatEventually(@(percentUpdates.count)), is(@20));
 
+        expect(wasMainThread).to.equal(YES);
+        expect(percentUpdates.count).to.equal(20);
+        [percentUpdates enumerateObjectsUsingBlock:^(NSNumber *percent, NSUInteger idx, BOOL *stop) {
+            expect(percent.unsignedIntegerValue).to.equal((idx + 1) * 5);
+        }];
     });
 
     it(@"is unsuccessful when unzipping raises an exception", ^{
-        ZipFile *zipFile = OCMClassMock([ZipFile class]);
+        ZipFile *zipFile = mock([ZipFile class]);
         ZipException *zipError = [[ZipException alloc] initWithError:99 reason:@"test error"];
 
-        [OCMStub([zipFile goToFirstFileInZip]) andThrow:zipError];
+        [givenVoid([zipFile goToFirstFileInZip]) willThrow:zipError];
 
         expect(zipError).to.beInstanceOf([ZipException class]);
-        OCMStub([zipFile close]);
 
         NSURL *destDir = [NSURL fileURLWithPath:@"/tmp/test"];
         UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
@@ -461,9 +482,9 @@ describe(@"UnzipOperation", ^{
 
         expect(op.wasSuccessful).to.equal(NO);
         expect(op.errorMessage).to.equal(@"Error reading zip file: test error");
-        OCMVerify([zipFile close]);
+        [verify(zipFile) close];
 
-        [(id)zipFile stopMocking];
+        stopMocking(zipFile);
     });
 
     /*
@@ -474,9 +495,9 @@ describe(@"UnzipOperation", ^{
      */
 
     it(@"catches ZipException", ^{
-        ZipFile *zipFile = OCMClassMock([ZipFile class]);
+        ZipFile *zipFile = mock([ZipFile class]);
         ZipException *ze = [[ZipException alloc] initWithError:99 reason:@"test error"];
-        [OCMStub([zipFile goToFirstFileInZip]) andThrow:ze];
+        [givenVoid([zipFile goToFirstFileInZip]) willThrow:ze];
 
         @try {
             [zipFile goToFirstFileInZip];
@@ -490,18 +511,18 @@ describe(@"UnzipOperation", ^{
     });
 
     it(@"can mock throw exceptions", ^{
-        ThrowException *thrower = OCMClassMock([ThrowException class]);
+        ThrowException *thrower = mock([ThrowException class]);
         ExceptionTest *test = [[ExceptionTest alloc] initWithThrower:thrower];
 
         ZipException *zipError = [[ZipException alloc] initWithError:99 reason:@"test error"];
         NSException *err = [[SpecificException alloc] initWithName:@"Test" reason:@"Testing" userInfo:nil];
-        [OCMStub([thrower throwException]) andThrow:zipError];
+        [givenVoid([thrower throwException]) willThrow:zipError];
 
         [test start];
 
         expect([test.exception class]).to.equal([ZipException class]);
 
-        [(id)thrower stopMocking];
+        stopMocking(thrower);
     });
 
     afterEach(^{
