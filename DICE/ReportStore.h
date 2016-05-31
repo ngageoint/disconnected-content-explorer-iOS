@@ -36,7 +36,7 @@
 
  @return the initialized ReportStore
  */
-- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager importQueue:(NSOperationQueue *)importQueue NS_DESIGNATED_INITIALIZER;
 
 /**
  Load/refresh the list of reports based on the contents of the app's file system.

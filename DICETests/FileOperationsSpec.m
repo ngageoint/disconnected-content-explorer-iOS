@@ -64,11 +64,7 @@ describe(@"MkdirOperation", ^{
 
         [holdup start];
 
-        NSPredicate *isFinished = [NSPredicate predicateWithFormat:@"finished = YES"];
-        [self expectationForPredicate:isFinished evaluatedWithObject:holdup handler:nil];
-        [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
-            expect(op.ready).to.equal(YES);
-        }];
+        assertWithTimeout(1.0, thatEventually(@(op.isReady)), isTrue());
     });
 
     it(@"throws an exception when dest dir change is attempted while executing", ^{

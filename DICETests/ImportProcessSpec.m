@@ -90,8 +90,7 @@ describe(@"ImportProcess", ^{
 
         [op1 start];
 
-        [self expectationForPredicate:[NSPredicate predicateWithFormat:@"ready == YES" arguments:nil] evaluatedWithObject:op2 handler:nil];
-        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+        assertWithTimeout(1.0, thatEventually(@(op2.isReady)), isTrue());
 
         expect(op1.finished).to.equal(YES);
         expect(finishedStep).to.beIdenticalTo(op1);
@@ -148,9 +147,7 @@ describe(@"ImportProcess", ^{
         [op1 start];
         [op2 start];
 
-        NSPredicate *opsFinished = [NSPredicate predicateWithFormat:@"%@.isFinished == YES AND %@.isFinished == YES", op1, op2];
-        [self expectationForPredicate:opsFinished evaluatedWithObject:self handler:nil];
-        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+        assertWithTimeout(1.0, thatEventually(@(op1.isFinished && op2.isFinished)), isTrue());
 
         expect(^{[op1 removeObserver:import forKeyPath:@"isFinished"];}).to.raiseAny();
         expect(^{[op1 removeObserver:import forKeyPath:@"isExecuting"];}).to.raiseAny();
@@ -169,9 +166,7 @@ describe(@"ImportProcess", ^{
         [op1 cancel];
         [op2 cancel];
 
-        NSPredicate *opsFinished = [NSPredicate predicateWithFormat:@"%@.isCancelled == YES AND %@.isCancelled == YES", op1, op2];
-        [self expectationForPredicate:opsFinished evaluatedWithObject:self handler:nil];
-        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+        assertWithTimeout(1.0, thatEventually(@(op1.isCancelled && op2.isCancelled)), isTrue());
 
         expect(^{[op1 removeObserver:import forKeyPath:@"isFinished"];}).to.raiseAny();
         expect(^{[op1 removeObserver:import forKeyPath:@"isExecuting"];}).to.raiseAny();

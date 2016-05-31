@@ -25,20 +25,24 @@
 - (instancetype)init
 {
     NSURL *docsDir = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
-    return [self initWithReportsDir:docsDir fileManager:[NSFileManager defaultManager]];
+    return [self initWithReportsDir:docsDir fileManager:[NSFileManager defaultManager] importQueue:[[NSOperationQueue alloc] init]];
 }
 
-- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager
+- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager importQueue:(NSOperationQueue *)importQueue
 {
     self = [super init];
     if (!self) {
         return nil;
     }
 
+    if (!importQueue) {
+        importQueue = [[NSOperationQueue alloc] init];
+    }
+
     _reports = [NSMutableArray array];
     _reportsDir = reportsDir;
     _fileManager = fileManager;
-    _importQueue = [[NSOperationQueue alloc] init];
+    _importQueue = importQueue;
     _pendingImports = [NSMutableDictionary dictionary];
 
     return self;

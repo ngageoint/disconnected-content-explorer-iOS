@@ -107,11 +107,7 @@ describe(@"ParseJsonOperation", ^{
 
         [holdup start];
 
-        NSPredicate *isFinished = [NSPredicate predicateWithFormat:@"finished = YES"];
-        [self expectationForPredicate:isFinished evaluatedWithObject:holdup handler:nil];
-        [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
-            expect(op.ready).to.equal(YES);
-        }];
+        assertWithTimeout(1.0, thatEventually(@(op.isReady)), isTrue());
     });
 
     it(@"throws an exception when json url change is attempted while executing", ^{
@@ -123,8 +119,7 @@ describe(@"ParseJsonOperation", ^{
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         [queue addOperation:op];
 
-        [self expectationForPredicate:[NSPredicate predicateWithFormat:@"isExecuting == YES"] evaluatedWithObject:op handler:nil];
-        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
 
         expect(^{
             op.jsonUrl = [NSURL URLWithString:[NSString stringWithFormat:@"/var/%@", op.jsonUrl.path]];
@@ -132,8 +127,7 @@ describe(@"ParseJsonOperation", ^{
 
         [op unblock];
 
-        [self expectationForPredicate:[NSPredicate predicateWithFormat:@"isFinished == YES"] evaluatedWithObject:op handler:nil];
-        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+        assertWithTimeout(1.0, thatEventually(@(op.isFinished)), isTrue());
 
         expect(op.jsonUrl).to.equal([NSURL URLWithString:@"/metadata.json"]);
     });
