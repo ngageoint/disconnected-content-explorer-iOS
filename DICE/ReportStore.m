@@ -95,7 +95,10 @@
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
-    ImportProcess *import = _pendingImports[reportUrl];
+    ImportProcess *import;
+    @synchronized (_pendingImports) {
+        import = _pendingImports[reportUrl];
+    }
 
     if (import) {
         return import.report;
@@ -121,9 +124,11 @@
 
     import = [reportType createProcessToImportReport:report toDir:_reportsDir];
     import.delegate = self;
-    _pendingImports[reportUrl] = import;
 
-    // TODO: track pending imports by report object and/or add self as import delegate
+    @synchronized (_pendingImports) {
+        _pendingImports[reportUrl] = import;
+    }
+
     [_importQueue addOperations:import.steps waitUntilFinished:NO];
 
     return report;
@@ -138,10 +143,12 @@
 
 - (void)importDidFinishForImportProcess:(ImportProcess *)import
 {
-    NSSet<NSURL *> *keys = [_pendingImports keysOfEntriesPassingTest:^BOOL(NSURL * _Nonnull key, ImportProcess * _Nonnull obj, BOOL * _Nonnull stop) {
-        return obj == import;
-    }];
-    [_pendingImports removeObjectsForKeys:[keys allObjects]];
+    @synchronized (_pendingImports) {
+        NSSet<NSURL *> *keys = [_pendingImports keysOfEntriesPassingTest:^BOOL(NSURL * _Nonnull key, ImportProcess * _Nonnull obj, BOOL * _Nonnull stop) {
+            return obj == import;
+        }];
+        [_pendingImports removeObjectsForKeys:keys.allObjects];
+    }
     [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
 }
 
