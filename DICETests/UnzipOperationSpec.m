@@ -17,7 +17,7 @@
 
 #import "UnzipOperation.h"
 #import "ZipException.h"
-
+#import "NSOperation+Blockable.h"
 
 
 @interface SpecificException : NSException
@@ -131,46 +131,46 @@
 
 
 
-@interface BlockedUnzipOperation : UnzipOperation
-@end
-
-@implementation BlockedUnzipOperation
-{
-    BOOL _blocked;
-    NSCondition *_blockLock;
-}
-
-- (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager {
-    self = [super initWithZipFile:zipFile destDir:destDir fileManager:fileManager];
-
-    _blocked = NO;
-    _blockLock = [[NSCondition alloc] init];
-
-    return self;
-}
-
-- (void)block {
-    [_blockLock lock];
-    _blocked = YES;
-    [_blockLock unlock];
-}
-
-- (void)unblock {
-    [_blockLock lock];
-    _blocked = NO;
-    [_blockLock signal];
-    [_blockLock unlock];
-}
-
-- (void)main {
-    [_blockLock lock];
-    while (_blocked) {
-        [_blockLock wait];
-    }
-    [_blockLock unlock];
-}
-
-@end
+//@interface BlockedUnzipOperation : UnzipOperation
+//@end
+//
+//@implementation BlockedUnzipOperation
+//{
+//    BOOL _blocked;
+//    NSCondition *_blockLock;
+//}
+//
+//- (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager {
+//    self = [super initWithZipFile:zipFile destDir:destDir fileManager:fileManager];
+//
+//    _blocked = NO;
+//    _blockLock = [[NSCondition alloc] init];
+//
+//    return self;
+//}
+//
+//- (void)block {
+//    [_blockLock lock];
+//    _blocked = YES;
+//    [_blockLock unlock];
+//}
+//
+//- (void)unblock {
+//    [_blockLock lock];
+//    _blocked = NO;
+//    [_blockLock signal];
+//    [_blockLock unlock];
+//}
+//
+//- (void)main {
+//    [_blockLock lock];
+//    while (_blocked) {
+//        [_blockLock wait];
+//    }
+//    [_blockLock unlock];
+//}
+//
+//@end
 
 SpecBegin(UnzipOperation)
 
@@ -233,7 +233,7 @@ describe(@"UnzipOperation", ^{
     });
 
     it(@"throws an exception when dest dir change is attempted while executing", ^{
-        BlockedUnzipOperation *op = [[BlockedUnzipOperation alloc] initWithZipFile:mock([ZipFile class]) destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
+        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([ZipFile class]) destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
         [op block];
         [op performSelectorInBackground:@selector(start) withObject:nil];
 

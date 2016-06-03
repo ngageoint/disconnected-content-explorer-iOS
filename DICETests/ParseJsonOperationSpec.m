@@ -16,53 +16,56 @@
 #import <OCMockito/OCMockito.h>
 
 #import "ParseJsonOperation.h"
+#import "NSOperation+Blockable.h"
 
-
-@interface BlockedParseJsonOperation : ParseJsonOperation
-@end
-
-@implementation BlockedParseJsonOperation
-{
-    BOOL _blocked;
-    NSCondition *_blockLock;
-}
-
-- (instancetype)init {
-    self = [super init];
-
-    _blocked = NO;
-    _blockLock = [[NSCondition alloc] init];
-
-    return self;
-}
-
-- (void)block {
-    [_blockLock lock];
-    _blocked = YES;
-    [_blockLock unlock];
-}
-
-- (void)unblock {
-    [_blockLock lock];
-    _blocked = NO;
-    [_blockLock signal];
-    [_blockLock unlock];
-}
-
-- (void)main {
-    [_blockLock lock];
-    while (_blocked) {
-        [_blockLock wait];
-    }
-    [_blockLock unlock];
-}
-
-@end
+//@interface BlockedParseJsonOperation : ParseJsonOperation
+//@end
+//
+//@implementation BlockedParseJsonOperation
+//{
+//    BOOL _blocked;
+//    NSCondition *_blockLock;
+//}
+//
+//- (instancetype)init {
+//    self = [super init];
+//
+//    _blocked = NO;
+//    _blockLock = [[NSCondition alloc] init];
+//
+//    return self;
+//}
+//
+//- (void)block {
+//    [_blockLock lock];
+//    _blocked = YES;
+//    [_blockLock unlock];
+//}
+//
+//- (void)unblock {
+//    [_blockLock lock];
+//    _blocked = NO;
+//    [_blockLock signal];
+//    [_blockLock unlock];
+//}
+//
+//- (void)main {
+//    [_blockLock lock];
+//    while (_blocked) {
+//        [_blockLock wait];
+//    }
+//    [_blockLock unlock];
+//}
+//
+//@end
 
 
 SpecBegin(ParseJsonOperation)
 
 describe(@"ParseJsonOperation", ^{
+
+    NSBundle *bundle = [NSBundle bundleForClass:[ParseJsonOperationSpec class]];
+    NSURL *jsonUrl = [NSURL fileURLWithPath:[bundle pathForResource:@"ParseJsonOperationSpec" ofType:@"json"]];
     
     beforeAll(^{
 
@@ -111,8 +114,8 @@ describe(@"ParseJsonOperation", ^{
     });
 
     it(@"throws an exception when json url change is attempted while executing", ^{
-        BlockedParseJsonOperation *op = [[BlockedParseJsonOperation alloc] init];
-        op.jsonUrl = [NSURL URLWithString:@"/metadata.json"];
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
+        op.jsonUrl = jsonUrl;
 
         [op block];
 
@@ -129,14 +132,12 @@ describe(@"ParseJsonOperation", ^{
 
         assertWithTimeout(1.0, thatEventually(@(op.isFinished)), isTrue());
 
-        expect(op.jsonUrl).to.equal([NSURL URLWithString:@"/metadata.json"]);
+        expect(op.jsonUrl).to.equal(jsonUrl);
     });
 
     it(@"parses the json", ^{
         ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
 
-        NSBundle *bundle = [NSBundle bundleForClass:[ParseJsonOperationSpec class]];
-        NSURL *jsonUrl = [NSURL fileURLWithPath:[bundle pathForResource:@"ParseJsonOperationSpec" ofType:@"json"]];
         op.jsonUrl = jsonUrl;
 
         [op start];

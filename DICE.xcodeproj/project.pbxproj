@@ -77,6 +77,7 @@
 		877C66B0A847E541D0D97730504C8A43 /* ReaderThumbQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DDB58360EE665749F0FA4578B145BCF /* ReaderThumbQueue.m */; };
 		8B87E64315D24837CBFED19EBCA228D6 /* ReportAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */; };
 		8DE82581CDFD6A3B4F70D2EED01679CE /* libPods-DICE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */; };
+		8F6887A896EA730D7F7C9B3A /* NSOperation+Blockable.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F688BAF3CC3393D6960FD77 /* NSOperation+Blockable.m */; };
 		8F688E34C1B9AA47C180D06C /* ParseJsonOperationSpec.json in Resources */ = {isa = PBXBuildFile; fileRef = 8F6883A2A594E36D473677D8 /* ParseJsonOperationSpec.json */; };
 		8F9DA036F086CF997A65F0233F626610 /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */; };
 		92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */; };
@@ -269,6 +270,8 @@
 		8DA05A54024256C0883FA5D7958178FB /* DICE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DICE.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DE86EA7B5897BD2BBD21607419E3383 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F6883A2A594E36D473677D8 /* ParseJsonOperationSpec.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = ParseJsonOperationSpec.json; path = resources/ParseJsonOperationSpec.json; sourceTree = "<group>"; };
+		8F6884CFC41F66955E86EA34 /* NSOperation+Blockable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSOperation+Blockable.h"; sourceTree = "<group>"; };
+		8F688BAF3CC3393D6960FD77 /* NSOperation+Blockable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSOperation+Blockable.m"; sourceTree = "<group>"; };
 		9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportUtils.m; sourceTree = "<group>"; };
 		91DE9AADF066A41E4737F8A176CC9B3F /* CGPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPDFDocument.h; sourceTree = "<group>"; };
 		9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseJsonOperation.h; path = ../ParseJsonOperation.h; sourceTree = "<group>"; };
@@ -609,6 +612,8 @@
 				A31A615AB298DCFBC9CF3A36F72C5448 /* UnzipOperationSpec.m */,
 				102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */,
 				8F6883A2A594E36D473677D8 /* ParseJsonOperationSpec.json */,
+				8F688BAF3CC3393D6960FD77 /* NSOperation+Blockable.m */,
+				8F6884CFC41F66955E86EA34 /* NSOperation+Blockable.h */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -944,7 +949,7 @@
 			);
 			inputPaths = (
 			);
-			name = "\uD83D\uDCE6 Copy Pods Resources";
+			name = "📦 Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -974,7 +979,7 @@
 			);
 			inputPaths = (
 			);
-			name = "\uD83D\uDCE6 Embed Pods Frameworks";
+			name = "📦 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1019,7 +1024,7 @@
 			);
 			inputPaths = (
 			);
-			name = "\uD83D\uDCE6 Check Pods Manifest.lock";
+			name = "📦 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1094,7 +1099,7 @@
 			);
 			inputPaths = (
 			);
-			name = "\uD83D\uDCE6 Copy Pods Resources";
+			name = "📦 Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1124,7 +1129,7 @@
 			);
 			inputPaths = (
 			);
-			name = "\uD83D\uDCE6 Check Pods Manifest.lock";
+			name = "📦 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1154,7 +1159,7 @@
 			);
 			inputPaths = (
 			);
-			name = "\uD83D\uDCE6 Embed Pods Frameworks";
+			name = "📦 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1295,6 +1300,7 @@
 				7850CC9236DA9EF5F2A6C026F107304A /* ResourceTypesTests.m in Sources */,
 				3D0B2D880F9D5CDEF27766D71AAF10E5 /* UnzipOperationSpec.m in Sources */,
 				8F9DA036F086CF997A65F0233F626610 /* ZippedHtmlImportProcessSpec.m in Sources */,
+				8F6887A896EA730D7F7C9B3A /* NSOperation+Blockable.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

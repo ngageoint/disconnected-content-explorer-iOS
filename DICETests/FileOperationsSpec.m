@@ -15,84 +15,8 @@
 #define HC_SHORTHAND
 #import <OCHamcrest/OCHamcrest.h>
 
-#import <objc/runtime.h>
-
 #import "FileOperations.h"
-
-
-@interface NSOperation (Blockable)
-
-- (void)block;
-- (void)unblock;
-
-@end
-
-
-
-
-@implementation NSOperation (Blockable)
-
-static char kBlocked;
-static char kBlockLock;
-static IMP _blockable_operation_orig_main;
-static void _blockable_operation_main(id self, SEL _cmd)
-{
-    [self waitUntilUnblocked];
-    ((void(*)(id, SEL))_blockable_operation_orig_main)(self, _cmd);
-};
-
-+ (void)load
-{
-
-}
-
-- (BOOL)blocked
-{
-    return [objc_getAssociatedObject(self, &kBlocked) boolValue];
-}
-
-- (void)setBlocked:(BOOL)blocked
-{
-    objc_setAssociatedObject(self, &kBlocked, @(blocked), OBJC_ASSOCIATION_COPY);
-}
-
-- (NSCondition *)blockLock
-{
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-       objc_setAssociatedObject(self, &kBlockLock, [[NSCondition alloc] init], OBJC_ASSOCIATION_RETAIN);
-    });
-    return objc_getAssociatedObject(self, &kBlockLock);
-}
-
-- (void)block {
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        Method origMethod = class_getInstanceMethod([self class], @selector(main));
-        _blockable_operation_orig_main = method_setImplementation(origMethod, (IMP)_blockable_operation_main);
-    });
-    [self.blockLock lock];
-    self.blocked = YES;
-    [self.blockLock unlock];
-}
-
-- (void)unblock {
-    [self.blockLock lock];
-    self.blocked = NO;
-    [self.blockLock signal];
-    [self.blockLock unlock];
-}
-
-- (void)waitUntilUnblocked {
-    [self.blockLock lock];
-    while (self.blocked) {
-        [self.blockLock wait];
-    }
-    [self.blockLock unlock];
-}
-
-@end
-
+#import "NSOperation+Blockable.h"
 
 
 SpecBegin(FileOperations)
@@ -103,7 +27,6 @@ describe(@"MkdirOperation", ^{
     __block NSFileManager *fileManager;
     
     beforeAll(^{
-//        [FileOperation makeBlockable];
     });
 
     beforeEach(^{
