@@ -46,7 +46,7 @@ static IMP blockableMainImp;
 - (instancetype)init_Blockable
 {
     self = [self init_Blockable];
-    NSLog(@"init_Blockable %@", self);
+    NSLog(@"init_Blockable %@:%@", self, [self class]);
     objc_setAssociatedObject(self, &kBlockLock, [[NSCondition alloc] init], OBJC_ASSOCIATION_RETAIN);
     [self swizzleMain_Blockable];
     return self;
@@ -94,17 +94,19 @@ static IMP blockableMainImp;
     return objc_getAssociatedObject(self, &kBlockLock);
 }
 
-- (void)block {
+- (instancetype)block {
     [self.blockLock lock];
     self.blocked = YES;
     [self.blockLock unlock];
+    return self;
 }
 
-- (void)unblock {
+- (instancetype)unblock {
     [self.blockLock lock];
     self.blocked = NO;
     [self.blockLock signal];
     [self.blockLock unlock];
+    return self;
 }
 
 - (void)waitUntilUnblocked {
@@ -114,11 +116,5 @@ static IMP blockableMainImp;
     }
     [self.blockLock unlock];
 }
-
-//- (void)main_Blockable
-//{
-//    [self waitUntilUnblocked];
-//    [self main_Blockable];
-//}
 
 @end

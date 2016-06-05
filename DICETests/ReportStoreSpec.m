@@ -10,6 +10,7 @@
 
 #import "ImportProcess+Internal.h"
 #import "ReportStore.h"
+#import "NSOperation+Blockable.h"
 #import "ReportAPI.h"
 
 
@@ -36,11 +37,9 @@
 
 @interface ReportStoreSpec_ImportProcess : ImportProcess
 
-@property (weak, readonly) XCTestCase *test;
-@property (readonly) NSString *testDescription;
-
-- (instancetype)initWithTest:(XCTestCase *)test report:(Report *)report NS_DESIGNATED_INITIALIZER;
-- (instancetype)setBlocked:(BOOL)blocked;
+- (instancetype)initWithReport:(Report *)report NS_DESIGNATED_INITIALIZER;
+- (instancetype)block;
+- (instancetype)unblock;
 
 @end
 
@@ -50,58 +49,27 @@
 
 @property (readonly) NSString *extension;
 @property ReportStoreSpec_ImportProcess * (^nextImportProcess)(Report *);
-@property (weak, readonly) XCTestCase *test;
-@property (readonly) NSString *testDescription;
 
-- (instancetype)initWithExtension:(NSString *)ext test:(XCTest *)test NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithExtension:(NSString *)ext NS_DESIGNATED_INITIALIZER;
 
 @end
 
 
 
 @implementation ReportStoreSpec_ImportProcess
-{
-    BOOL _isBlocked;
-    NSCondition *_blockedCondition;
-    XCTestExpectation *_finishedExpectation;
-}
 
 - (instancetype)init
 {
-    self = [self initWithTest:nil report:nil];
+    self = [self initWithReport:nil];
     return nil;
 }
 
 - (instancetype)initWithReport:(Report *)report
 {
-    self = [self initWithTest:nil report:nil];
-    return nil;
-}
-
-- (instancetype)initWithTest:(XCTestCase *)test report:(Report *)report
-{
-    if (!test) {
-        [NSException raise:NSInvalidArgumentException format:@"test is nil"];
-    }
-
     self = [super initWithReport:report];
 
-    _test = test;
-    _isBlocked = NO;
-    _blockedCondition = [[NSCondition alloc] init];
-    __weak ReportStoreSpec_ImportProcess *my = self;
+    ReportStoreSpec_ImportProcess *my = self;
     NSBlockOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{
-        [_blockedCondition lock];
-        if (_isBlocked) {
-            if (my.delegate) {
-                [my.delegate reportWasUpdatedByImportProcess:my];
-            }
-        }
-        while (_isBlocked) {
-            [_blockedCondition wait];
-        };
-        [_blockedCondition unlock];
-
         my.report.summary = @"op1:finished";
         if (my.delegate) {
             [my.delegate reportWasUpdatedByImportProcess:my];
@@ -115,19 +83,11 @@
             [my.delegate reportWasUpdatedByImportProcess:my];
             [my.delegate importDidFinishForImportProcess:my];
         }
-        if (_finishedExpectation) {
-            [_finishedExpectation fulfill];
-        }
     }];
     [op2 addDependency:op1];
     self.steps = @[op1, op2];
 
     return self;
-}
-
-- (NSString *)testDescription
-{
-    return self.test.description;
 }
 
 - (instancetype)cancelAll
@@ -136,12 +96,15 @@
     return self;
 }
 
-- (instancetype)setBlocked:(BOOL)isBlocked
+- (instancetype)block
 {
-    [_blockedCondition lock];
-    _isBlocked = isBlocked;
-    [_blockedCondition signal];
-    [_blockedCondition unlock];
+    [self.steps.firstObject block];
+    return self;
+}
+
+- (instancetype)unblock
+{
+    [self.steps.firstObject unblock];
     return self;
 }
 
@@ -153,27 +116,20 @@
 
 - (instancetype)init
 {
-    return [self initWithExtension:nil test:nil];
+    return [self initWithExtension:nil];
 }
 
-- (instancetype)initWithExtension:(NSString *)ext test:(XCTestCase *)test
+- (instancetype)initWithExtension:(NSString *)ext
 {
     if (!ext) {
         [NSException raise:NSInvalidArgumentException format:@"ext is nil"];
     }
-    if (!test) {
-        [NSException raise:NSInvalidArgumentException format:@"test is nil"];
-    }
+
     self = [super init];
-    _test = test;
+
     _extension = ext;
 
     return self;
-}
-
-- (NSString *)testDescription
-{
-    return self.test.description;
 }
 
 - (BOOL)couldHandleFile:(NSURL *)reportPath
@@ -186,7 +142,7 @@
     if (self.nextImportProcess) {
         return self.nextImportProcess(report);
     }
-    return [[ReportStoreSpec_ImportProcess alloc] initWithTest:self.test report:report];
+    return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
 }
 
 @end
@@ -217,8 +173,8 @@ describe(@"ReportStore", ^{
 
         importQueue = [[NSOperationQueue alloc] init];
 
-        redType = [[ReportStoreSpec_ReportType alloc] initWithExtension:@"red" test:self];
-        blueType = [[ReportStoreSpec_ReportType alloc] initWithExtension:@"blue" test:self];
+        redType = [[ReportStoreSpec_ReportType alloc] initWithExtension:@"red"];
+        blueType = [[ReportStoreSpec_ReportType alloc] initWithExtension:@"blue"];
 
         // initialize a new ReportStore to ensure all tests are independent
         store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager importQueue:importQueue];
@@ -229,6 +185,7 @@ describe(@"ReportStore", ^{
     });
 
     afterEach(^{
+        [importQueue waitUntilAllOperationsAreFinished];
         stopMocking(fileManager);
         fileManager = nil;
     });
@@ -269,10 +226,10 @@ describe(@"ReportStore", ^{
                 ]];
 
             redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report];
+                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
             };
             blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report];
+                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
             };
 
             NSArray *reports = [store loadReports];
@@ -307,11 +264,11 @@ describe(@"ReportStore", ^{
 
             __block ReportStoreSpec_ImportProcess *blueImport;
             blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return blueImport = [[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report];
+                return blueImport = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
             };
             __block ReportStoreSpec_ImportProcess *redImport;
             redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return redImport = [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] setBlocked:YES];
+                return redImport = [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] block];
             };
 
             NSArray<Report *> *reports = [store loadReports];
@@ -335,7 +292,7 @@ describe(@"ReportStore", ^{
             expect(((Report *)reports.firstObject).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
             expect(((Report *)reports.firstObject).isEnabled).to.equal(NO);
 
-            [redImport setBlocked:NO];
+            [redImport unblock];
 
             assertWithTimeout(1.0, thatEventually(redImport.steps), everyItem(hasProperty(@"isFinished", isTrue())));
 
@@ -360,10 +317,10 @@ describe(@"ReportStore", ^{
                 ]];
 
             redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] cancelAll];
+                return [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] cancelAll];
             };
             blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] cancelAll];
+                return [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] cancelAll];
             };
 
             NSArray *reports = [store loadReports];
@@ -375,7 +332,7 @@ describe(@"ReportStore", ^{
             [received enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                 NSNotification *note = obj;
                 Report *report = note.userInfo[@"report"];
-                
+
                 expect(note.name).to.equal([ReportNotification reportAdded]);
                 expect(report).to.beIdenticalTo(reports[idx]);
             }];
@@ -391,10 +348,10 @@ describe(@"ReportStore", ^{
             __block ReportStoreSpec_ImportProcess *blueImport;
 
             redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return redImport = [[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report];
+                return redImport = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
             };
             blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return blueImport = [[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report];
+                return blueImport = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
             };
 
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
@@ -419,7 +376,7 @@ describe(@"ReportStore", ^{
         it(@"adds the initial report to the report list", ^{
             __block ReportStoreSpec_ImportProcess *import;
             redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return import = [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] setBlocked:YES];
+                return import = [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] block];
             };
 
             NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.red"];
@@ -432,7 +389,7 @@ describe(@"ReportStore", ^{
             expect(report.error).to.beNil;
             expect(report.isEnabled).to.equal(NO);
 
-            [import setBlocked:NO];
+            [import unblock];
 
             [importQueue waitUntilAllOperationsAreFinished];
         });
@@ -446,7 +403,7 @@ describe(@"ReportStore", ^{
             }];
 
             redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report];
+                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
             };
 
             Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
@@ -466,7 +423,7 @@ describe(@"ReportStore", ^{
                 if (import) {
                     [NSException raise:NSInternalInconsistencyException format:@"more than one import process created"];
                 }
-                return import = [[[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report] setBlocked:YES];
+                return import = [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] block];
             };
 
             __block Report *notificationReport;
@@ -483,7 +440,7 @@ describe(@"ReportStore", ^{
             notificationReport = nil;
             Report *sameReport = [store attemptToImportReportFromResource:reportUrl];
 
-            [import setBlocked:NO];
+            [import unblock];
 
             [importQueue waitUntilAllOperationsAreFinished];
 
@@ -500,7 +457,7 @@ describe(@"ReportStore", ^{
                 if (import) {
                     [NSException raise:NSInternalInconsistencyException format:@"more than one import process created"];
                 }
-                return import = [[ReportStoreSpec_ImportProcess alloc] initWithTest:self report:report];
+                return import = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
             };
 
             __block Report *notificationReport;

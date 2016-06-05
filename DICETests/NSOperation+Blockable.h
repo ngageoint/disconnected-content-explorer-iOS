@@ -7,7 +7,7 @@
 
 @interface NSOperation (Blockable)
 
-- (void)block;
-- (void)unblock;
+- (instancetype)block;
+- (instancetype)unblock;
 
 @end
