@@ -46,7 +46,6 @@ static IMP blockableMainImp;
 - (instancetype)init_Blockable
 {
     self = [self init_Blockable];
-    NSLog(@"init_Blockable %@:%@", self, [self class]);
     objc_setAssociatedObject(self, &kBlockLock, [[NSCondition alloc] init], OBJC_ASSOCIATION_RETAIN);
     [self swizzleMain_Blockable];
     return self;
@@ -62,7 +61,6 @@ static IMP blockableMainImp;
         Method m = *(methods + i);
         SEL sel = method_getName(m);
         if (sel_isEqual(sel, blockableMainSel)) {
-            NSLog(@"%@ already has %s", [self class], sel_getName(blockableMainSel));
             return;
         }
     }
