@@ -53,6 +53,7 @@ static IMP blockableMainImp;
 
 - (void)swizzleMain_Blockable
 {
+    // TODO: probably need some thread synchronization here, but so far no problems, and it's just for test code ...
     SEL origSel = @selector(main);
 
     unsigned int methodCount = 0;
