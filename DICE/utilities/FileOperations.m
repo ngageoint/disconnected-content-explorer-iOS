@@ -125,10 +125,7 @@
 - (void)main
 {
     @autoreleasepool {
-        BOOL removed = [self.fileManager removeItemAtURL:self.fileUrl error:nil];
-        if (!removed) {
-            // TODO: something
-        }
+        _fileWasDeleted = [self.fileManager removeItemAtURL:self.fileUrl error:nil];
     }
 }
 

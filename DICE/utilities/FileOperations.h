@@ -44,6 +44,7 @@
 @interface DeleteFileOperation : FileOperation
 
 @property (readonly) NSURL *fileUrl;
+@property (readonly) BOOL fileWasDeleted;
 
 - (instancetype)initWithFileUrl:(NSURL *)fileUrl fileManager:(NSFileManager *)fileManager;
 

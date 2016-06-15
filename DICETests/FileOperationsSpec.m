@@ -144,7 +144,46 @@ describe(@"MkdirOperation", ^{
 
 describe(@"DeleteFileOperation", ^{
 
-    // TODO: something
+    __block NSFileManager *fileManager;
+
+    beforeAll(^{
+    });
+
+    beforeEach(^{
+        fileManager = mock([NSFileManager class]);
+    });
+
+    afterEach(^{
+        stopMocking(fileManager);
+    });
+
+    it(@"deletes the file", ^{
+        NSURL *doomed = [NSURL URLWithString:@"file:///var/dice/foo.txt"];
+        DeleteFileOperation *op = [[DeleteFileOperation alloc] initWithFileUrl:doomed fileManager:fileManager];
+
+        [[given([fileManager removeItemAtURL:doomed error:NULL]) withMatcher:anything() forArgument:1] willReturnBool:YES];
+
+        [op start];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isFinished)), isTrue());
+
+        [verify(fileManager) removeItemAtURL:doomed error:NULL];
+        expect(op.fileWasDeleted).to.equal(YES);
+    });
+
+    it(@"inidicates the file was not deleted", ^{
+        NSURL *doomed = [NSURL URLWithString:@"file:///var/dice/foo.txt"];
+        DeleteFileOperation *op = [[DeleteFileOperation alloc] initWithFileUrl:doomed fileManager:fileManager];
+
+        [[given([fileManager removeItemAtURL:doomed error:NULL]) withMatcher:anything() forArgument:1] willReturnBool:NO];
+
+        [op start];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isFinished)), isTrue());
+
+        [verify(fileManager) removeItemAtURL:doomed error:NULL];
+        expect(op.fileWasDeleted).to.equal(NO);
+    });
 
 });
 
