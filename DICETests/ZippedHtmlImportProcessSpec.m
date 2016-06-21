@@ -389,42 +389,43 @@ describe(@"ZippedHtmlImportProcess", ^{
         stopMocking(zipFile);
     });
 
-//    it(@"parses the report descriptor if available in base dir", ^{
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
-//        UnzipOperation *unzip = import.steps[2];
-//        ParseJsonOperation *parseMetaData = import.steps[3];
-//
-//        expect(parseMetaData.dependencies).to.contain(unzip);
-//
-//        [validation start];
-//
-//        expect(parseMetaData.jsonUrl).to.equal([reportsDir URLByAppendingPathComponent:@"test/metadata.json"]);
-//
-//        [(id)zipFile stopMocking];
-//    });
-//
-//    it(@"cancels parsing report descriptor if not available", ^{
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html"]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
-//        UnzipOperation *unzip = import.steps[2];
-//        ParseJsonOperation *parseMetaData = import.steps[3];
-//
-//        expect(parseMetaData.dependencies).to.contain(unzip);
-//
-//        [validation start];
-//
-//        expect(parseMetaData.cancelled).to.equal(YES);
-//
-//        [(id)zipFile stopMocking];
-//    });
-//
+    it(@"parses the report descriptor if available in base dir", ^{
+        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        ValidateHtmlLayoutOperation *validation = (ValidateHtmlLayoutOperation *) import.steps[ZippedHtmlImportValidateStep];
+        UnzipOperation *unzip = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
+        ParseJsonOperation *parseMetaData = (ParseJsonOperation *) import.steps[ZippedHtmlImportParseDescriptorStep];
+
+        expect(parseMetaData.dependencies).to.contain(unzip);
+
+        [validation start];
+
+        NSURL *expectedDescriptorUrl = [reportsDir URLByAppendingPathComponent:@"test/metadata.json"];
+        assertWithTimeout(1.0, thatEventually(parseMetaData.jsonUrl), equalTo(expectedDescriptorUrl));
+
+        stopMocking(zipFile);
+    });
+
+    it(@"cancels parsing report descriptor if not available", ^{
+        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        ValidateHtmlLayoutOperation *validation = (ValidateHtmlLayoutOperation *) import.steps[ZippedHtmlImportValidateStep];
+        UnzipOperation *unzip = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
+        ParseJsonOperation *parseMetaData = (ParseJsonOperation *) import.steps[ZippedHtmlImportParseDescriptorStep];
+
+        expect(parseMetaData.dependencies).to.contain(unzip);
+
+        [validation start];
+
+        assertWithTimeout(1.0, thatEventually(@(parseMetaData.isCancelled)), isTrue());
+
+        stopMocking(zipFile);
+    });
+
 //    it(@"updates the report on the main thread after parsing the descriptor", ^{
 //        Report *report = OCMPartialMock(initialReport);
 //        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
