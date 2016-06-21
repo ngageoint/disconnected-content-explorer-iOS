@@ -14,7 +14,6 @@
 @protocol ImportDelegate;
 
 
-
 @interface ImportProcess : NSObject
 
 @property (readonly) Report *report;

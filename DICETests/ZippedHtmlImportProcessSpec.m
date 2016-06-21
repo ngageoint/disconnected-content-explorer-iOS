@@ -15,16 +15,14 @@
 #define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
 
-#import "ZippedHtmlImportProcess.h"
-#import "ValidateHtmlLayoutOperation.h"
-#import "HtmlReportType.h"
 #import "UnzipOperation.h"
+#import "ValidateHtmlLayoutOperation.h"
+#import "ZippedHtmlImportProcess.h"
 #import "FileOperations.h"
 #import "ParseJsonOperation.h"
-#import "ZipFile.h"
 #import "FileInZipInfo.h"
 #import "ImportProcess+Internal.h"
-
+#import "OCMockObject.h"
 
 
 @interface ZippedHtmlImportProcessSpec_MkdirOperation : MkdirOperation
@@ -328,61 +326,69 @@ describe(@"ZippedHtmlImportProcess", ^{
         stopMocking(zipFile);
     });
 
-//    it(@"updates the report url on the main thread after unzipping without base dir", ^{
-//        Report *report = OCMPartialMock(initialReport);
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:report entryNames:@[@"index.html", @"images/", @"images/icon.png"]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
-//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
-//
-//        [validation start];
-//
-//        XCTestExpectation *urlWasSetOnMainThread = [self expectationWithDescription:@"report url was set on main thread"];
-//        NSURL *expectedPath = [reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES];
-//        UnzipOperation *unzip = import.steps[2];
-//        UnzipOperation *mockUnzip = OCMPartialMock(unzip);
-//        OCMStub([mockUnzip wasSuccessful]).andReturn(YES);
-//        OCMExpect([report setUrl:expectedPath]).andDo(^(NSInvocation *invocation) {
-//            if ([NSThread currentThread] == [NSThread mainThread]) {
-//                [urlWasSetOnMainThread fulfill];
-//            }
-//        });
-//
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//            [import stepWillFinish:unzip stepIndex:2];
-//        });
-//
-//        [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
-//            if (error) {
-//                failure(error.description);
-//            }
-//            OCMVerifyAll((id)report);
-//        }];
-//
-//        [(id)report stopMocking];
-//        [(id)mockUnzip stopMocking];
-//        [(id)zipFile stopMocking];
-//    });
-//
-//    it(@"parses the report descriptor if available at root", ^{
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"index.html", @"metadata.json"]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        ValidateHtmlLayoutOperation *validation = import.steps.firstObject;
-//        UnzipOperation *unzip = import.steps[2];
-//        ParseJsonOperation *parseMetaData = import.steps[3];
-//
-//        expect(parseMetaData.dependencies).to.contain(unzip);
-//
-//        [validation start];
-//
-//        expect(parseMetaData.jsonUrl).to.equal([reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec/metadata.json"]);
-//
-//        [(id)zipFile stopMocking];
-//    });
-//
+    it(@"updates the report url on the main thread after unzipping without base dir", ^{
+        Report *report = mock([Report class]);
+        [given([report title]) willReturn:initialReport.title];
+        [given([report url]) willReturn:initialReport.url];
+        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:report entryNames:@[@"index.html", @"images/", @"images/icon.png"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+
+        ZippedHtmlImportProcessSpec_MkdirOperation *testMkdir = [[ZippedHtmlImportProcessSpec_MkdirOperation alloc] initWithFileMananger:fileManager];
+        testMkdir.testDirWasCreated = YES;
+        ZippedHtmlImportProcessSpec_UnzipOperation *testUnzip = [[ZippedHtmlImportProcessSpec_UnzipOperation alloc]
+            initWithZipFile:zipFile destDir:reportsDir fileManager:fileManager];
+        ValidateHtmlLayoutOperation *validate = (ValidateHtmlLayoutOperation *) import.steps[ZippedHtmlImportValidateStep];
+        MkdirOperation *mkdir = (MkdirOperation *) import.steps[ZippedHtmlImportMakeBaseDirStep];
+        UnzipOperation *unzip = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
+        ParseJsonOperation *parse = (ParseJsonOperation *) import.steps[ZippedHtmlImportParseDescriptorStep];
+        [mkdir removeDependency:validate];
+        [unzip removeDependency:mkdir];
+        [parse removeDependency:unzip];
+        NSMutableArray<NSOperation *> *stepsMod = [import.steps mutableCopy];
+        stepsMod[ZippedHtmlImportMakeBaseDirStep] = testMkdir;
+        stepsMod[ZippedHtmlImportUnzipStep] = testUnzip;
+        import.steps = stepsMod;
+
+        [ops addOperations:@[validate, testMkdir] waitUntilFinished:YES];
+
+        __block BOOL urlWasSetOnMainThread = NO;
+        NSURL *expectedPath = [reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec" isDirectory:YES];
+        [givenVoid([report setUrl:anything()]) willDo:^id(NSInvocation *invocation) {
+            urlWasSetOnMainThread = [NSThread currentThread] == [NSThread mainThread];
+            return nil;
+        }];
+
+        [ops addOperations:@[testUnzip] waitUntilFinished:YES];
+
+        assertWithTimeout(1.0, thatEventually(@(urlWasSetOnMainThread)), isTrue());
+
+        [verify(report) setUrl:equalTo(expectedPath)];
+
+        stopMocking(report);
+        stopMocking(zipFile);
+    });
+
+    it(@"parses the report descriptor if available at root", ^{
+        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"index.html", @"metadata.json"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        ValidateHtmlLayoutOperation *validation = (ValidateHtmlLayoutOperation *) import.steps[ZippedHtmlImportValidateStep];
+        UnzipOperation *unzip = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
+        ParseJsonOperation *parseMetaData = (ParseJsonOperation *) import.steps[ZippedHtmlImportParseDescriptorStep];
+
+        expect(parseMetaData.dependencies).to.contain(unzip);
+
+        [validation start];
+
+        NSURL *expectedDescriptorUrl = [reportsDir URLByAppendingPathComponent:@"ZippedHtmlImportProcessSpec/metadata.json"];
+        assertWithTimeout(1.0, thatEventually(parseMetaData.jsonUrl), equalTo(expectedDescriptorUrl));
+
+        stopMocking(zipFile);
+    });
+
 //    it(@"parses the report descriptor if available in base dir", ^{
 //        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
 //        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport

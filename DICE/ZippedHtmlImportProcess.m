@@ -6,12 +6,13 @@
 //  Copyright © 2015 National Geospatial-Intelligence Agency. All rights reserved.
 //
 
-#import "ZippedHtmlImportProcess.h"
 
 #import "ImportProcess+Internal.h"
 #import "FileOperations.h"
 #import "ParseJsonOperation.h"
 #import "ValidateHtmlLayoutOperation.h"
+#import "UnzipOperation.h"
+#import "ZippedHtmlImportProcess.h"
 
 
 

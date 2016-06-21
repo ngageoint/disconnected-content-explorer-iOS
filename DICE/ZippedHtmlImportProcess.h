@@ -7,7 +7,6 @@
 //
 
 #import "ImportProcess.h"
-#import "UnzipOperation.h"
 #import "ZipFile.h"
 
 
@@ -20,6 +19,8 @@ typedef NS_ENUM(NSUInteger, ZippedHtmlImportStep) {
     ZippedHtmlImportDeleteStep = 4
 };
 
+
+@protocol UnzipDelegate;
 
 
 @interface ZippedHtmlImportProcess : ImportProcess <UnzipDelegate>
