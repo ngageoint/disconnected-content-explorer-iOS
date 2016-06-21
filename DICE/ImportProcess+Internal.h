@@ -15,7 +15,7 @@
 
 @interface ImportProcess ()
 
-@property (readwrite) NSArray<NSOperation *> *steps;
+@property (readwrite, nonatomic) NSArray<NSOperation *> *steps;
 
 - (void)stepWillFinish:(NSOperation *)step;
 - (void)stepWillCancel:(NSOperation *)step;

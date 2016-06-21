@@ -8,11 +8,33 @@
 
 #import "ReportStore.h"
 
-#import "Report.h"
-#import "ReportType.h"
-#import "ReportAPI.h"
 
 
+@implementation ReportNotification
+
++ (NSString *)reportAdded {
+    return @"DICE.ReportAdded";
+}
++ (NSString *)reportImportBegan {
+    return @"DICE.ReportImportBegan";
+}
++ (NSString *)reportImportProgress {
+    return @"DICE.ReportImportProgress";
+}
++ (NSString *)reportImportFinished {
+    return @"DICE.ReportImportFinished";
+}
++ (NSString *)reportImportFail {
+    return @"DICE.ReportImportFail";
+}
++ (NSString *)reportsLoaded {
+    return @"DICE.ReportsLoaded";
+}
+
+@end
+
+
+// TODO: thread safety for reports array
 @implementation ReportStore
 {
     NSMutableArray<Report *> *_reports;
@@ -20,6 +42,17 @@
     NSURL *_reportsDir;
     NSOperationQueue *_importQueue;
     NSMutableDictionary<NSURL *, ImportProcess *> *_pendingImports;
+}
+
++ (instancetype)sharedInstance
+{
+    // TODO: initialize singleton with actual dependency injection; then how to get the instance into view controllers?
+    static ReportStore *_sharedInstance = nil;
+    static dispatch_once_t oncePredicate;
+    dispatch_once(&oncePredicate, ^{
+        _sharedInstance = [[ReportStore alloc] init];
+    });
+    return _sharedInstance;
 }
 
 - (instancetype)init
@@ -61,7 +94,7 @@
     NSArray *files = [_fileManager contentsOfDirectoryAtURL:_reportsDir includingPropertiesForKeys:nil options:0 error:nil];
 
     for (NSURL *file in files) {
-        NSLog(@"ReportAPI: attempting to add report from file %@", file);
+        NSLog(@"attempting to add report from file %@", file);
         /*
          * While seemingly unnecessary, this bit of code avoids an error that arises
          * because the NSURL objects returned by the above enumerator have a /private
@@ -77,6 +110,7 @@
         [self attemptToImportReportFromResource:reportUrl];
     }
 
+    // TODO: restore
     // TODO: tests for user guide report
 //    if (_reports.count == 0)
 //    {
@@ -120,7 +154,9 @@
 
     [_reports addObject:report];
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
+    });
 
     import = [reportType createProcessToImportReport:report toDir:_reportsDir];
     import.delegate = self;
@@ -132,6 +168,11 @@
     [_importQueue addOperations:import.steps waitUntilFinished:NO];
 
     return report;
+}
+
+- (Report *)reportForID:(NSString *)reportID
+{
+    return [self.reports filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"reportID == %@", reportID]].firstObject;
 }
 
 #pragma mark - ImportDelegate methods
@@ -149,7 +190,9 @@
         }];
         [_pendingImports removeObjectsForKeys:keys.allObjects];
     }
-    [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
+    });
 }
 
 #pragma mark - private_methods

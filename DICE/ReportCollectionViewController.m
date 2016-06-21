@@ -8,7 +8,7 @@
 
 #import "ReportCollectionViewController.h"
 
-#import "ReportAPI.h"
+#import "ReportStore.h"
 #import "ReportCollectionView.h"
 #import "ReportResourceViewController.h"
 
@@ -56,7 +56,7 @@
     
     [views enumerateObjectsUsingBlock:^(UIViewController<ReportCollectionView> *view, NSUInteger idx, BOOL *stop) {
         view.delegate = self;
-        view.reports = [[ReportAPI sharedInstance] getReports];
+        view.reports = [[ReportStore sharedInstance] reports];
         view.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     }];
     
@@ -67,7 +67,7 @@
     [self.collectionSubview addSubview: firstView.view];
     recentPasteboardURLKey = @"RECENT_PASTEBOARD_URL_KEY";
     
-    [[ReportAPI sharedInstance] loadReports];
+    [[ReportStore sharedInstance] loadReports];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkPasteboardForReport) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
@@ -126,12 +126,12 @@
 
 - (void)reportSelectedToView:(Report *)report {
     selectedReport = report;
-    if ([selectedReport.reportID isEqualToString:[ReportAPI userGuideReportID]]) {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/DICEUserGuide.zip"]];
-    }
-    else {
+//    if ([selectedReport.reportID isEqualToString:[ReportStore userGuideReportID]]) {
+//        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/DICEUserGuide.zip"]];
+//    }
+//    else {
         [self performSegueWithIdentifier:@"showReport" sender:self];
-    }
+//    }
 }
 
 
@@ -164,7 +164,8 @@
                                                               UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Download?" message:[response.URL absoluteString] preferredStyle:UIAlertControllerStyleAlert];
                                                               UIAlertAction *downloadAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                                                                   NSLog(@"Download action choosen");
-                                                                  [[ReportAPI sharedInstance] downloadReportAtURL:pasteboardURL withFilename: [response suggestedFilename]];
+                                                                  // TODO: restore
+//                                                                  [[ReportStore sharedInstance] downloadReportAtURL:pasteboardURL withFilename: [response suggestedFilename]];
                                                                   [[NSUserDefaults standardUserDefaults] setObject:[pasteboardURL absoluteString] forKey:recentPasteboardURLKey];
                                                               }];
                                                               

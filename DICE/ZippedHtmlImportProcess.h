@@ -6,7 +6,7 @@
 //  Copyright © 2015 National Geospatial-Intelligence Agency. All rights reserved.
 //
 
-#import "ImportProcess+Internal.h"
+#import "ImportProcess.h"
 #import "UnzipOperation.h"
 #import "ZipFile.h"
 

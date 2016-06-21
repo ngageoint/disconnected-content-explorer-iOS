@@ -9,9 +9,9 @@
 
 #import "DICENavigationController.h"
 
-#import "ReportAPI.h"
 #import "ReportResourceViewController.h"
 #import "ResourceTypes.h"
+#import "ReportStore.h"
 
 @interface DICENavigationController ()
 
@@ -64,7 +64,7 @@
         return;
     }
     
-    Report *report = [[ReportAPI sharedInstance] reportForID:reportID];
+    Report *report = [[ReportStore sharedInstance] reportForID:reportID];
     
     if (!report) {
         return;

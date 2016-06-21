@@ -4,7 +4,7 @@
 //
 
 #import "TileViewController.h"
-#import "ReportAPI.h"
+#import "ReportStore.h"
 
 @interface TileViewController ()
 
@@ -57,7 +57,7 @@
 
 - (void)refreshControlValueChanged
 {
-    [[ReportAPI sharedInstance] loadReports];
+    [[ReportStore sharedInstance] loadReports];
 }
 
 
@@ -187,13 +187,9 @@
 
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    NSLog(@"The %@ button was tapped.", [actionSheet buttonTitleAtIndex:buttonIndex]);
-    
     if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Delete"]) {
-        NSLog(@"Delete tapped");
-        // make the call to the ReportAPI
-
-        [[ReportAPI sharedInstance] deleteReportAtIndexPath:self.indexToDelete];
+        // TODO: restore
+//        [[ReportStore sharedInstance] deleteReportAtIndexPath:self.indexToDelete];
     }
 }
 

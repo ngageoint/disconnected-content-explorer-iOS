@@ -11,7 +11,7 @@
 #import "ImportProcess+Internal.h"
 #import "ReportStore.h"
 #import "NSOperation+Blockable.h"
-#import "ReportAPI.h"
+#import "NotificationRecordingObserver.h"
 
 
 /**
@@ -254,6 +254,48 @@ describe(@"ReportStore", ^{
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
         });
 
+        // TODO: don't care for now
+        xit(@"leaves imported and importing reports in the same order", ^{
+            [given([fileManager contentsOfDirectoryAtURL:reportsDir
+                includingPropertiesForKeys:nil options:0 error:nil])
+                willReturn:@[
+                    [reportsDir URLByAppendingPathComponent:@"report1.red"],
+                    [reportsDir URLByAppendingPathComponent:@"report2.blue"],
+                    [reportsDir URLByAppendingPathComponent:@"report3.red"]
+                ]];
+
+            __block Report *blueReport;
+            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                blueReport = report;
+                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
+            };
+
+            __block Report *redReport;
+            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
+                redReport = report;
+                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
+            };
+
+            NSArray<Report *> *reports = [NSArray arrayWithArray:[store loadReports]];
+
+            NSUInteger bluePos = [reports indexOfObject:blueReport];
+
+            expect(reports.count).to.equal(3);
+
+            [given([fileManager contentsOfDirectoryAtURL:reportsDir
+                includingPropertiesForKeys:nil options:0 error:nil])
+                willReturn:@[
+                    [reportsDir URLByAppendingPathComponent:@"report11.red"],
+                    [reportsDir URLByAppendingPathComponent:@"report2.blue"],
+                    [reportsDir URLByAppendingPathComponent:@"report3.red"]
+                ]];
+
+            reports = [NSArray arrayWithArray:[store loadReports]];
+            [importQueue waitUntilAllOperationsAreFinished];
+
+            failure(@"unimplemented");
+        });
+
         it(@"leaves reports whose path may not exist but are still importing", ^{
             [given([fileManager contentsOfDirectoryAtURL:reportsDir
                 includingPropertiesForKeys:nil options:0 error:nil])
@@ -304,10 +346,7 @@ describe(@"ReportStore", ^{
         it(@"sends notifications about added reports", ^{
             NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
 
-            NSMutableArray *received = [NSMutableArray array];
-            id observer = [notifications addObserverForName:[ReportNotification reportAdded] object:store queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-                [received addObject:note];
-            }];
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
             [given([fileManager contentsOfDirectoryAtURL:reportsDir
                 includingPropertiesForKeys:nil options:0 error:nil])
@@ -325,17 +364,17 @@ describe(@"ReportStore", ^{
 
             NSArray *reports = [store loadReports];
 
-            [notifications removeObserver:observer];
+            assertWithTimeout(1.0, thatEventually(@(observer.received.count)), equalToInteger(2));
 
-            expect(received.count).to.equal(2);
-
-            [received enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                NSNotification *note = obj;
+            [observer.received enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSNotification *note = [obj notification];
                 Report *report = note.userInfo[@"report"];
 
                 expect(note.name).to.equal([ReportNotification reportAdded]);
                 expect(report).to.beIdenticalTo(reports[idx]);
             }];
+
+            [notifications removeObserver:observer];
         });
 
     });
@@ -396,11 +435,7 @@ describe(@"ReportStore", ^{
 
         it(@"sends a notification about adding the report", ^{
             NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
-
-            __block NSNotification *received = nil;
-            id observer = [notifications addObserverForName:[ReportNotification reportAdded] object:store queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-                received = note;
-            }];
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
             redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
                 return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
@@ -409,12 +444,16 @@ describe(@"ReportStore", ^{
             Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
 
             [importQueue waitUntilAllOperationsAreFinished];
-            [notifications removeObserver:observer];
 
-            Report *receivedReport = received.userInfo[@"report"];
+            assertWithTimeout(1.0, thatEventually(@(observer.received.count)), equalToInteger(1));
 
-            expect(received.name).to.equal([ReportNotification reportAdded]);
+            ReceivedNotification *received = observer.received.firstObject;
+            Report *receivedReport = received.notification.userInfo[@"report"];
+
+            expect(received.notification.name).to.equal([ReportNotification reportAdded]);
             expect(receivedReport).to.beIdenticalTo(report);
+
+            [notifications removeObserver:observer];
         });
 
         it(@"does not start an import for a report file it is already importing", ^{
@@ -426,29 +465,33 @@ describe(@"ReportStore", ^{
                 return import = [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] block];
             };
 
-            __block Report *notificationReport;
-            id<NSObject> observer = [[NSNotificationCenter defaultCenter] addObserverForName:[ReportNotification reportAdded] object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-                notificationReport = note.userInfo[@"report"];
-            }];
+            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
             NSURL *reportUrl = [reportsDir URLByAppendingPathComponent:@"report1.red"];
             Report *report = [store attemptToImportReportFromResource:reportUrl];
 
-            expect(store.reports.count).to.equal(1);
+            assertWithTimeout(1.0, thatEventually(@(observer.received.count)), equalToInteger(1));
+
+            Report *notificationReport = observer.received.firstObject.notification.userInfo[@"report"];
             expect(notificationReport).to.beIdenticalTo(report);
+            expect(store.reports.firstObject).to.beIdenticalTo(notificationReport);
+            expect(store.reports.count).to.equal(1);
 
             notificationReport = nil;
+            [observer.received removeAllObjects];
+
             Report *sameReport = [store attemptToImportReportFromResource:reportUrl];
 
             [import unblock];
 
             [importQueue waitUntilAllOperationsAreFinished];
 
-            [[NSNotificationCenter defaultCenter] removeObserver:observer];
+            [notifications removeObserver:observer];
 
             expect(sameReport).to.beIdenticalTo(report);
             expect(store.reports.count).to.equal(1);
-            expect(notificationReport).to.beNil;
+            expect(observer.received.count).to.equal(0);
         });
 
         it(@"sends a notification when the import finishes", ^{
@@ -460,17 +503,18 @@ describe(@"ReportStore", ^{
                 return import = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
             };
 
-            __block Report *notificationReport;
-            id<NSObject> observer = [[NSNotificationCenter defaultCenter] addObserverForName:[ReportNotification reportImportFinished] object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-                notificationReport = note.userInfo[@"report"];
-            }];
+            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportImportFinished] on:notifications from:store withBlock:nil];
 
             Report *importReport = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"test.red"]];
 
             [importQueue waitUntilAllOperationsAreFinished];
 
-            [[NSNotificationCenter defaultCenter] removeObserver:observer];
+            assertWithTimeout(1.0, thatEventually(@(observer.received.count)), equalToInteger(1));
 
+            [notifications removeObserver:observer];
+
+            Report *notificationReport = observer.received.firstObject.notification.userInfo[@"report"];
             expect(notificationReport).to.beIdenticalTo(importReport);
         });
 

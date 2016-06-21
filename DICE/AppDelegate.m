@@ -7,11 +7,12 @@
 #import "AppDelegate.h"
 #import "DICENavigationController.h"
 #import "OfflineMapUtility.h"
-#import "ReportAPI.h"
+#import "ReportStore.h"
 #import "GPKGGeoPackageValidate.h"
 #import "GPKGGeoPackageFactory.h"
 #import "DICEConstants.h"
 #import "GeoPackageURLProtocol.h"
+#import "HtmlReportType.h"
 
 @interface AppDelegate ()
 
@@ -31,6 +32,11 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     NSLog(@"DICE finished launching with options:\n%@", launchOptions);
+
+    [ReportStore sharedInstance].reportTypes = @[
+        // TODO: expose fileManager from ReportStore and use that with HtmlReportType
+        [[HtmlReportType alloc] initWithFileManager:[NSFileManager defaultManager]]
+    ];
     
     // initialize offline map polygons
     // TODO: potentially thread this
@@ -83,12 +89,14 @@
                 [defaults synchronize];
             }
         }else{
+            // TODO: figure if/how to restore this functionality
             // another app's UIDocumentInteractionController wants to use DICE to open a file
-            [[ReportAPI sharedInstance] importReportFromUrl:url afterImport:^(Report *report) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.navigation navigateToReport:report childResource:nil animated:NO];
-                });
-            }];
+//            [[ReportStore sharedInstance] attemptToImportReportFromResource:url afterImport:^(Report *report) {
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    [self.navigation navigateToReport:report childResource:nil animated:NO];
+//                });
+//            }];
+            [[ReportStore sharedInstance] attemptToImportReportFromResource:url];
         }
     }
     else {

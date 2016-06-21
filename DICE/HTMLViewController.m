@@ -5,7 +5,7 @@
 
 #import "HTMLViewController.h"
 
-#import "ReportAPI.h"
+#import "ReportStore.h"
 #import "NoteViewController.h"
 #import "ReportResourceViewController.h"
 #import "ResourceTypes.h"

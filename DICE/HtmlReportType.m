@@ -8,8 +8,8 @@
 
 #import "HtmlReportType.h"
 
-#import "ZippedHtmlImportProcess.h"
 #import "ZipFile.h"
+#import "ZippedHtmlImportProcess.h"
 
 
 
@@ -48,15 +48,13 @@
     NSDictionary *attrs = [self.fileManager attributesOfItemAtPath:filePath.path error:nil];
     NSString *fileType = attrs.fileType;
 
-    if ([NSFileTypeRegular isEqualToString:fileType])
-    {
+    if ([NSFileTypeRegular isEqualToString:fileType]) {
         NSString *ext = [filePath.pathExtension lowercaseString];
         return
             [@"zip" isEqualToString:ext] ||
             [@"html" isEqualToString:ext];
     }
-    else if ([NSFileTypeDirectory isEqualToString:fileType])
-    {
+    else if ([NSFileTypeDirectory isEqualToString:fileType]) {
         NSURL *indexPath = [filePath URLByAppendingPathComponent:@"index.html"];
         attrs = [self.fileManager attributesOfItemAtPath:indexPath.path error:nil];
         return attrs && [NSFileTypeRegular isEqualToString:attrs.fileType];
@@ -67,6 +65,7 @@
 
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
+    // TODO: support directories that have already been extracted
     ZipFile *zipFile = [[ZipFile alloc] initWithFileName:report.url.path mode:ZipFileModeUnzip];
     ZippedHtmlImportProcess *process = [[ZippedHtmlImportProcess alloc] initWithReport:report
         destDir:destDir zipFile:zipFile fileManager:self.fileManager];

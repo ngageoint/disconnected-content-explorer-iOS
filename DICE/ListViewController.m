@@ -3,7 +3,7 @@
 //  InteractiveReports
 //
 
-#import "ReportAPI.h"
+#import "ReportStore.h"
 #import "ListViewController.h"
 
 @interface ListViewController ()
@@ -43,7 +43,7 @@
 
 - (void)refreshControlValueChanged
 {
-    [[ReportAPI sharedInstance] loadReports];
+    [[ReportStore sharedInstance] loadReports];
 }
 
 
@@ -166,7 +166,8 @@
 -(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [[ReportAPI sharedInstance] deleteReportAtIndexPath:indexPath];
+        // TODO: delete reports
+//        [[ReportStore sharedInstance] deleteReportAtIndexPath:indexPath];
     }
 }
 

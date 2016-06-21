@@ -8,6 +8,7 @@
 
 #import "ZippedHtmlImportProcess.h"
 
+#import "ImportProcess+Internal.h"
 #import "FileOperations.h"
 #import "ParseJsonOperation.h"
 #import "ValidateHtmlLayoutOperation.h"
@@ -31,7 +32,7 @@
 
     ValidateHtmlLayoutOperation *validation = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
-    MkdirOperation *makeDestDir = [[MkdirOperation alloc] init];
+    MkdirOperation *makeDestDir = [[MkdirOperation alloc] initWithFileMananger:fileManager];
     [makeDestDir addDependency:validation];
 
     UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:nil fileManager:fileManager];
@@ -65,6 +66,9 @@
             break;
         case ZippedHtmlImportParseDescriptorStep:
             [self parseDescriptorStepWillFinish];
+            break;
+        case ZippedHtmlImportDeleteStep:
+            [self deleteStepWillFinish];
             break;
         default:
             break;
@@ -117,29 +121,24 @@
 
 - (void)unzipStepWillFinish
 {
-    UnzipOperation *unzip = self.steps[2];
+    UnzipOperation *unzip = (UnzipOperation *) self.steps[ZippedHtmlImportUnzipStep];
 
     if (!unzip.wasSuccessful) {
         [self cancelStepsAfterStep:unzip];
         return;
     }
 
-    [self.report performSelectorOnMainThread:@selector(setUrl:) withObject:_reportBaseDir waitUntilDone:NO];
+    dispatch_async(dispatch_get_main_queue(), ^{
+       self.report.url = _reportBaseDir;
+    });
 }
 
 - (void)parseDescriptorStepWillFinish
 {
-    ParseJsonOperation *parseDescriptor = self.steps[3];
-    [self.report performSelectorOnMainThread:@selector(setPropertiesFromJsonDescriptor:) withObject:parseDescriptor.parsedJsonDictionary waitUntilDone:NO];
-}
-
-- (void)cancelStepsAfterStep:(NSOperation *)step
-{
-    NSUInteger stepIndex = [self.steps indexOfObject:step];
-    while (++stepIndex < self.steps.count) {
-        NSOperation *pendingStep = self.steps[stepIndex];
-        [pendingStep cancel];
-    }
+    ParseJsonOperation *parseDescriptor = (ParseJsonOperation *) self.steps[ZippedHtmlImportParseDescriptorStep];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.report setPropertiesFromJsonDescriptor:parseDescriptor.parsedJsonDictionary];
+    });
 }
 
 - (NSString *)description
@@ -151,6 +150,11 @@
 {
     self.report.summary = [NSString stringWithFormat:@"Unzipping... %lu%% complete", (unsigned long)percent];
     [self.delegate reportWasUpdatedByImportProcess:self];
+}
+
+- (void)deleteStepWillFinish
+{
+    // TODO: anything?
 }
 
 @end
