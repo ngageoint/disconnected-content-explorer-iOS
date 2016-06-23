@@ -61,6 +61,12 @@
 
 - (BOOL)isReady
 {
+    /*
+     * include isCancelled in readiness criteria because if the operation is cancelled before
+     * ever moving to the ready state, an NSOperationQueue will never remove the operation.
+     * this ensures the operation gets to the ready state when calling cancel before execution
+     * begins and trigger an NSOperationQueue to remove the cancelled operation.
+     */
     return (self.dirUrl != nil || self.isCancelled) && super.isReady;
 }
 
