@@ -61,7 +61,7 @@
 
 - (BOOL)isReady
 {
-    return self.dirUrl != nil && super.ready;
+    return (self.dirUrl != nil || self.isCancelled) && super.isReady;
 }
 
 - (void)setDirUrl:(NSURL *)dirUrl

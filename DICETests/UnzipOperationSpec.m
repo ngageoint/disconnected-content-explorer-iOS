@@ -190,6 +190,19 @@ describe(@"UnzipOperation", ^{
         stopMocking(zipFile);
     });
 
+    it(@"is ready if cancelled before executing", ^{
+        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([ZipFile class]) destDir:nil fileManager:[NSFileManager defaultManager]];
+        id observer = mock([NSObject class]);
+        [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
+
+        expect(op.isReady).to.equal(NO);
+
+        [op cancel];
+
+        expect(op.isReady).to.equal(YES);
+        [verify(observer) observeValueForKeyPath:@"isReady" ofObject:op change:anything() context:NULL];
+    });
+
     it(@"throws an exception when dest dir change is attempted while executing", ^{
         UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([ZipFile class]) destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
         [op block];

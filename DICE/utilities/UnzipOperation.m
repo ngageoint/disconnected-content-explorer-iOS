@@ -98,7 +98,7 @@
 
 - (BOOL)isReady
 {
-    return self.destDir != nil && super.ready;
+    return (self.destDir != nil || self.isCancelled) && super.isReady;
 }
 
 - (void)setDestDir:(NSURL *)destDir

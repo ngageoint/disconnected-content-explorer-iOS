@@ -66,6 +66,19 @@ describe(@"MkdirOperation", ^{
         assertWithTimeout(1.0, thatEventually(@(op.isReady)), isTrue());
     });
 
+    it(@"is ready if cancelled before executing", ^{
+        MkdirOperation *op = [[MkdirOperation alloc] init];
+        id observer = mock([NSObject class]);
+        [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
+
+        expect(op.isReady).to.equal(NO);
+
+        [op cancel];
+
+        expect(op.isReady).to.equal(YES);
+        [verify(observer) observeValueForKeyPath:@"isReady" ofObject:op change:anything() context:NULL];
+    });
+
     it(@"throws an exception when dest dir change is attempted while executing", ^{
         MkdirOperation *op = [[MkdirOperation alloc] initWithDirUrl:[NSURL URLWithString:@"/tmp/test"] fileManager:fileManager];
         [op block];
