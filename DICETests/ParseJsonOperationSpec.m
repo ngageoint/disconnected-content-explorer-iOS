@@ -17,47 +17,7 @@
 
 #import "ParseJsonOperation.h"
 #import "NSOperation+Blockable.h"
-
-//@interface BlockedParseJsonOperation : ParseJsonOperation
-//@end
-//
-//@implementation BlockedParseJsonOperation
-//{
-//    BOOL _blocked;
-//    NSCondition *_blockLock;
-//}
-//
-//- (instancetype)init {
-//    self = [super init];
-//
-//    _blocked = NO;
-//    _blockLock = [[NSCondition alloc] init];
-//
-//    return self;
-//}
-//
-//- (void)block {
-//    [_blockLock lock];
-//    _blocked = YES;
-//    [_blockLock unlock];
-//}
-//
-//- (void)unblock {
-//    [_blockLock lock];
-//    _blocked = NO;
-//    [_blockLock signal];
-//    [_blockLock unlock];
-//}
-//
-//- (void)main {
-//    [_blockLock lock];
-//    while (_blocked) {
-//        [_blockLock wait];
-//    }
-//    [_blockLock unlock];
-//}
-//
-//@end
+#import "KVOBlockObserver.h"
 
 
 SpecBegin(ParseJsonOperation)
@@ -133,6 +93,19 @@ describe(@"ParseJsonOperation", ^{
         assertWithTimeout(1.0, thatEventually(@(op.isFinished)), isTrue());
 
         expect(op.jsonUrl).to.equal(jsonUrl);
+    });
+
+    it(@"is ready if cancelled before executing", ^{
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
+        id observer = mock([NSObject class]);
+        [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
+
+        expect(op.isReady).to.equal(NO);
+
+        [op cancel];
+
+        expect(op.isReady).to.equal(YES);
+        [verify(observer) observeValueForKeyPath:@"isReady" ofObject:op change:anything() context:NULL];
     });
 
     it(@"parses the json", ^{

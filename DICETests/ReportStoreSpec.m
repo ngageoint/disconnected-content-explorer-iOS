@@ -48,7 +48,7 @@
 @interface ReportStoreSpec_ReportType : NSObject <ReportType>
 
 @property (readonly) NSString *extension;
-@property ReportStoreSpec_ImportProcess * (^nextImportProcess)(Report *);
+@property (copy) ReportStoreSpec_ImportProcess * (^nextImportProcess)(Report *);
 
 - (instancetype)initWithExtension:(NSString *)ext NS_DESIGNATED_INITIALIZER;
 

@@ -22,7 +22,6 @@
 #import "ParseJsonOperation.h"
 #import "FileInZipInfo.h"
 #import "ImportProcess+Internal.h"
-#import "OCMockObject.h"
 
 
 @interface ZippedHtmlImportProcessSpec_MkdirOperation : MkdirOperation
@@ -54,6 +53,9 @@
 
 
 @interface ZippedHtmlImportProcessSpec_UnzipOperation : UnzipOperation
+
+@property BOOL testWasSuccessful;
+
 @end
 
 
@@ -61,11 +63,33 @@
 
 - (void)main
 {
+    NSLog(@"ZippedHtmlImportProcessSpec_UnzipOperation: %@", self.destDir);
 }
 
 - (BOOL)wasSuccessful
 {
-    return YES;
+    return self.testWasSuccessful;
+}
+
+@end
+
+
+@interface ZippedHtmlImportProcessSpec_ParseJsonOperation : ParseJsonOperation
+
+@property NSDictionary *testParsedJsonDictionary;
+
+@end
+
+@implementation ZippedHtmlImportProcessSpec_ParseJsonOperation
+
+- (NSDictionary *)parsedJsonDictionary
+{
+    return self.testParsedJsonDictionary;
+}
+
+- (void)main
+{
+    NSLog(@"ZippedHtmlImportProcessSpec_ParseJsonOperation: %@", self.jsonUrl);
 }
 
 @end
@@ -316,6 +340,7 @@ describe(@"ZippedHtmlImportProcess", ^{
             return nil;
         }];
 
+        testUnzip.testWasSuccessful = YES;
         [ops addOperations:@[testUnzip] waitUntilFinished:YES];
 
         assertWithTimeout(1.0, thatEventually(@(urlWasSetOnMainThread)), isTrue());
@@ -339,6 +364,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         testMkdir.testDirWasCreated = YES;
         ZippedHtmlImportProcessSpec_UnzipOperation *testUnzip = [[ZippedHtmlImportProcessSpec_UnzipOperation alloc]
             initWithZipFile:zipFile destDir:reportsDir fileManager:fileManager];
+        testUnzip.testWasSuccessful = YES;
         ValidateHtmlLayoutOperation *validate = (ValidateHtmlLayoutOperation *) import.steps[ZippedHtmlImportValidateStep];
         MkdirOperation *mkdir = (MkdirOperation *) import.steps[ZippedHtmlImportMakeBaseDirStep];
         UnzipOperation *unzip = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
@@ -419,149 +445,161 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         expect(parseMetaData.dependencies).to.contain(unzip);
 
-        [validation start];
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperation:validation];
 
-        assertWithTimeout(1.0, thatEventually(@(parseMetaData.isCancelled)), isTrue());
+        assertWithTimeout(1.0, thatEventually(@(parseMetaData.isCancelled && ops.operationCount == 0)), isTrue());
 
         stopMocking(zipFile);
     });
 
-//    it(@"updates the report on the main thread after parsing the descriptor", ^{
-//        Report *report = OCMPartialMock(initialReport);
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
-//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        XCTestExpectation *updatedOnMainThread = [self expectationWithDescription:@"report meta-data updated on main thread"];
-//        NSDictionary *descriptor = @{ @"title": @"On Main Thread" };
-//        ParseJsonOperation *parseDescriptor = import.steps[3];
-//        id mockParseDescriptor = OCMPartialMock(parseDescriptor);
-//        OCMStub([mockParseDescriptor parsedJsonDictionary]).andReturn(descriptor);
-//        [OCMExpect([report setPropertiesFromJsonDescriptor:[OCMArg any]]) andDo:^(NSInvocation *invocation) {
-//            if ([NSThread mainThread] == [NSThread currentThread]) {
-//                [updatedOnMainThread fulfill];
-//            }
-//        }];
-//
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//            [import stepWillFinish:parseDescriptor stepIndex:3];
-//        });
-//
-//        [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
-//            if (error) {
-//                failure(error.description);
-//            }
-//            OCMVerifyAll((id)report);
-//        }];
-//
-//        [(id)report stopMocking];
-//        [(id)mockParseDescriptor stopMocking];
-//        [(id)zipFile stopMocking];
-//    });
-//
-//    it(@"deletes the zip file after unzipping successfully", ^{
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        UnzipOperation *unzipStep = import.steps[2];
-//        DeleteFileOperation *deleteStep = import.steps.lastObject;
-//
-//        expect(deleteStep.dependencies).to.contain(unzipStep);
-//        expect(deleteStep.fileUrl).to.equal(initialReport.url);
-//
-//        [(id)zipFile stopMocking];
-//    });
-//
-//    it(@"leaves the zip file if an error occurs", ^{
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-//             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        UnzipOperation *unzipStep = import.steps[2];
-//        DeleteFileOperation *deleteStep = import.steps.lastObject;
-//
-//        UnzipOperation *mockUnzipStep = OCMPartialMock(unzipStep);
-//        OCMStub([mockUnzipStep main]);
-//        OCMStub([mockUnzipStep wasSuccessful]).andReturn(NO);
-//
-//        [import stepWillFinish:unzipStep stepIndex:2];
-//
-//        expect(deleteStep.cancelled).to.equal(YES);
-//
-//        [(id)mockUnzipStep stopMocking];
-//    });
-//    
-//    it(@"reports unzip progress updates", ^{
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-//             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        id<ImportDelegate> importListener = OCMProtocolMock(@protocol(ImportDelegate));
-//        import.delegate = importListener;
-//        OCMExpect([importListener reportWasUpdatedByImportProcess:import]);
-//        OCMExpect([importListener reportWasUpdatedByImportProcess:import]);
-//        OCMExpect([importListener reportWasUpdatedByImportProcess:import]);
-//
-//        UnzipOperation *unzipStep = import.steps[2];
-//
-//        [import unzipOperation:unzipStep didUpdatePercentComplete:13];
-//        expect(initialReport.summary).to.contain(@"13%");
-//
-//        [import unzipOperation:unzipStep didUpdatePercentComplete:29];
-//        expect(initialReport.summary).to.contain(@"29%");
-//
-//        [import unzipOperation:unzipStep didUpdatePercentComplete:100];
-//        expect(initialReport.summary).to.contain(@"100%");
-//
-//        OCMVerifyAll((id)importListener);
-//    });
-//
-//    it(@"notifies the delegate when finished", ^{
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
-//        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//
-//        id<ImportDelegate> importListener = OCMProtocolMock(@protocol(ImportDelegate));
-//        import.delegate = importListener;
-//        OCMExpect([importListener importDidFinishForImportProcess:import]);
-//
-//        id validateStep = OCMPartialMock(import.steps[0]);
-//        id mkdirStep = OCMPartialMock(import.steps[1]);
-//        id unzipStep = OCMPartialMock(import.steps[2]);
-//        id parseStep = OCMPartialMock(import.steps[3]);
-//        id deleteStep = OCMPartialMock(import.steps[4]);
-//        for (id mockStep in @[validateStep, mkdirStep, unzipStep, parseStep, deleteStep]) {
-//            [OCMStub([mockStep main]) andDo:^(NSInvocation *invocation) {
-//                NSLog(@"running operation %@", NSStringFromClass([invocation.target class]));
-//            }];
-//        }
-//
-//        [OCMStub([validateStep isLayoutValid]) andReturnValue:@YES];
-//        [OCMStub([validateStep indexDirPath]) andReturn:@"base"];
-//        [OCMStub([validateStep hasDescriptor]) andReturnValue:@NO];
-//        [OCMStub([mkdirStep dirExisted]) andReturnValue:@NO];
-//        [OCMStub([mkdirStep dirWasCreated]) andReturnValue:@NO];
-//        [OCMStub([unzipStep wasSuccessful]) andReturnValue:@YES];
-//
-//        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
-//        [ops addOperations:import.steps waitUntilFinished:NO];
-//
-//        NSPredicate *isImportFinished = [NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-//            BOOL finished = [deleteStep isFinished] && [parseStep isCancelled];
-//            return finished;
-//        }];
-//        [self expectationForPredicate:isImportFinished evaluatedWithObject:import handler:nil];
-//
-//        [self waitForExpectationsWithTimeout:3.0 handler:^(NSError * _Nullable error) {
-//
-//            OCMVerifyAll((id)importListener);
-//
-//            for (id mockStep in @[validateStep, mkdirStep, unzipStep, parseStep, deleteStep]) {
-//                OCMStub([mockStep stopMocking]);
-//            }
-//        }];
-//    });
+    it(@"updates the report on the main thread after parsing the descriptor", ^{
+        Report *report = mock([Report class]);
+        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil
+            mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        NSMutableArray<NSOperation *> *modSteps = [import.steps mutableCopy];
+        import.steps = modSteps;
+        ZippedHtmlImportProcessSpec_ParseJsonOperation *modParseDescriptor = [[ZippedHtmlImportProcessSpec_ParseJsonOperation alloc] init];
+        NSDictionary *descriptor = @{ @"title": @"On Main Thread" };
+        modParseDescriptor.testParsedJsonDictionary = descriptor;
+        ParseJsonOperation *parseDescriptor = (ParseJsonOperation *) import.steps[ZippedHtmlImportParseDescriptorStep];
+        UnzipOperation *unzip = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
+        [parseDescriptor removeDependency:unzip];
+        modSteps[ZippedHtmlImportParseDescriptorStep] = modParseDescriptor;
+
+        __block BOOL updatedOnMainThread = NO;
+        [given([report setPropertiesFromJsonDescriptor:descriptor]) willDo:(id)^(NSInvocation *invocation) {
+            updatedOnMainThread = ([NSThread mainThread] == [NSThread currentThread]);
+            return nil;
+        }];
+
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [import stepWillFinish:modParseDescriptor];
+        });
+
+        assertWithTimeout(1.0, thatEventually(@(updatedOnMainThread)), isTrue());
+
+        stopMocking(report);
+        stopMocking(zipFile);
+    });
+
+    it(@"deletes the zip file after unzipping successfully", ^{
+        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        UnzipOperation *unzipStep = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
+        DeleteFileOperation *deleteStep = (DeleteFileOperation *) import.steps[ZippedHtmlImportDeleteStep];
+
+        expect(deleteStep.dependencies).to.contain(unzipStep);
+        expect(deleteStep.fileUrl).to.equal(initialReport.url);
+
+        stopMocking(zipFile);
+    });
+
+    it(@"leaves the zip file if an error occurs", ^{
+        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc]
+            initWithReport:initialReport destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        MkdirOperation *mkdirStep = (MkdirOperation *) import.steps[ZippedHtmlImportMakeBaseDirStep];
+        UnzipOperation *unzipStep = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
+        DeleteFileOperation *deleteStep = (DeleteFileOperation *) import.steps[ZippedHtmlImportDeleteStep];
+        [unzipStep removeDependency:mkdirStep];
+
+        NSMutableArray<NSOperation *> *modSteps = [import.steps mutableCopy];
+        import.steps = modSteps;
+        ZippedHtmlImportProcessSpec_UnzipOperation *modUnzipStep = [[ZippedHtmlImportProcessSpec_UnzipOperation alloc]
+            initWithZipFile:zipFile destDir:reportsDir fileManager:fileManager];
+
+        modUnzipStep.testWasSuccessful = NO;
+        modSteps[ZippedHtmlImportUnzipStep] = modUnzipStep;
+
+        [import stepWillFinish:modUnzipStep];
+
+        expect(deleteStep.isCancelled).to.equal(YES);
+
+        stopMocking(zipFile);
+    });
+
+    it(@"reports unzip progress updates", ^{
+        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        id<ImportDelegate> importListener = mockProtocol(@protocol(ImportDelegate));
+        import.delegate = importListener;
+
+        UnzipOperation *unzipStep = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
+
+        [import unzipOperation:unzipStep didUpdatePercentComplete:13];
+        expect(initialReport.summary).to.contain(@"13%");
+
+        [import unzipOperation:unzipStep didUpdatePercentComplete:29];
+        expect(initialReport.summary).to.contain(@"29%");
+
+        [import unzipOperation:unzipStep didUpdatePercentComplete:100];
+        expect(initialReport.summary).to.contain(@"100%");
+
+        [verifyCount(importListener, times(3)) reportWasUpdatedByImportProcess:import];
+    });
+
+    it(@"notifies the delegate on main thread when finished", ^{
+        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
+            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
+
+        __block BOOL delegateNotified = NO;
+        id<ImportDelegate> importListener = mockProtocol(@protocol(ImportDelegate));
+        [givenVoid([importListener importDidFinishForImportProcess:import]) willDo:^id(NSInvocation *invocation) {
+            delegateNotified = [NSThread currentThread] == [NSThread mainThread];
+            return nil;
+        }];
+        import.delegate = importListener;
+
+        ValidateHtmlLayoutOperation *validate = (ValidateHtmlLayoutOperation *) import.steps[ZippedHtmlImportValidateStep];
+        MkdirOperation *mkdir = (MkdirOperation *) import.steps[ZippedHtmlImportMakeBaseDirStep];
+        UnzipOperation *unzip = (UnzipOperation *) import.steps[ZippedHtmlImportUnzipStep];
+        ParseJsonOperation *parseDescriptor = (ParseJsonOperation *) import.steps[ZippedHtmlImportParseDescriptorStep];
+        DeleteFileOperation *deleteZip = (DeleteFileOperation *) import.steps[ZippedHtmlImportDeleteStep];
+
+        [mkdir removeDependency:validate];
+        [unzip removeDependency:mkdir];
+        [parseDescriptor removeDependency:unzip];
+        [deleteZip removeDependency:unzip];
+
+        ZippedHtmlImportProcessSpec_MkdirOperation *testMkdir = [[ZippedHtmlImportProcessSpec_MkdirOperation alloc] initWithFileMananger:fileManager];
+        ZippedHtmlImportProcessSpec_UnzipOperation *testUnzip = [[ZippedHtmlImportProcessSpec_UnzipOperation alloc] initWithZipFile:zipFile destDir:reportsDir fileManager:fileManager];
+
+        [testMkdir addDependency:validate];
+        [testUnzip addDependency:testMkdir];
+        [parseDescriptor addDependency:testUnzip];
+        [deleteZip addDependency:testUnzip];
+
+        testMkdir.testDirExisted = YES;
+        testUnzip.testWasSuccessful = YES;
+
+        NSMutableArray<NSOperation *> *testSteps = [import.steps mutableCopy];
+        testSteps[ZippedHtmlImportMakeBaseDirStep] = testMkdir;
+        testSteps[ZippedHtmlImportUnzipStep] = testUnzip;
+        import.steps = testSteps;
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperations:import.steps waitUntilFinished:NO];
+
+        assertWithTimeout(1.0, thatEventually(ops.operations), isEmpty());
+
+        expect(deleteZip.isFinished).to.equal(YES);
+        expect(parseDescriptor.isCancelled).to.equal(YES);
+
+        assertWithTimeout(1.0, thatEventually(@(delegateNotified)), isTrue());
+
+        stopMocking(zipFile);
+        stopMocking(importListener);
+    });
 
     xit(@"unzips the file to a temporary directory", ^{
 //        NSString *uuid = [[NSUUID UUID] UUIDString];

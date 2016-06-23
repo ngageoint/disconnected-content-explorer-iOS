@@ -17,7 +17,7 @@
 
     NSString *readyKey = NSStringFromSelector(@selector(isReady));
     if ([readyKey isEqualToString:key]) {
-        keys = [keys setByAddingObject:NSStringFromSelector(@selector(jsonUrl))];
+        keys = [keys setByAddingObjectsFromArray:@[NSStringFromSelector(@selector(jsonUrl))]];
     }
 
     return keys;
@@ -40,7 +40,7 @@
 
 - (BOOL)isReady
 {
-    return self.jsonUrl != nil && super.ready;
+    return (self.jsonUrl != nil || self.isCancelled) && super.isReady;
 }
 
 - (void)setJsonUrl:(NSURL *)jsonUrl

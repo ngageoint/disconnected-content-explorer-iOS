@@ -19,6 +19,8 @@
 @implementation ZippedHtmlImportProcess
 {
     NSURL *_reportBaseDir;
+    BOOL _descriptorParsed;
+    BOOL _zipDeleted;
 }
 
 - (instancetype)initWithReport:(Report *)report
@@ -104,6 +106,7 @@
     }
     else {
         [parseDescriptorStep cancel];
+        _descriptorParsed = YES;
     }
 }
 
@@ -140,6 +143,14 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.report setPropertiesFromJsonDescriptor:parseDescriptor.parsedJsonDictionary];
     });
+    _descriptorParsed = YES;
+    [self notifyDelegateIfFinished];
+}
+
+- (void)deleteStepWillFinish
+{
+    _zipDeleted = YES;
+    [self notifyDelegateIfFinished];
 }
 
 - (NSString *)description
@@ -153,9 +164,13 @@
     [self.delegate reportWasUpdatedByImportProcess:self];
 }
 
-- (void)deleteStepWillFinish
+- (void)notifyDelegateIfFinished
 {
-    // TODO: anything?
+    if (_zipDeleted && _descriptorParsed) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate importDidFinishForImportProcess:self];
+        });
+    }
 }
 
 @end
