@@ -165,7 +165,6 @@
 /* Begin PBXFileReference section */
 		0324100DE9AAFAEC564EA470EE6B01E7 /* AppIcon-076.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-076.png"; sourceTree = "<group>"; };
 		043B75F7841209451A3F0099594F3433 /* MapOverlayCellItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayCellItem.h; sourceTree = "<group>"; };
-		069E83198234B657AFAF48F5F3D68C2A /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICE.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		080F57BCEBAADB3EA412455DB8C3B9E2 /* ParseJsonOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParseJsonOperationSpec.m; sourceTree = "<group>"; };
 		082F3AF7E6E32F0F96AA471A45ABD900 /* ReaderAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderAppDelegate.m; sourceTree = "<group>"; };
@@ -288,7 +287,6 @@
 		979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapData.m; sourceTree = "<group>"; };
 		981FA601D2ABEDA855814D3401151C0B /* ParseJsonOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ParseJsonOperation.m; path = ../ParseJsonOperation.m; sourceTree = "<group>"; };
 		9A09645E0302151B0530EEC8597069D7 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
-		9AAC1D240F0827AD008E96A329597370 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		9BA512F99C3C576ED7FE1DDE4B829614 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		9D46AE2C7DAA4990566CA0BC8DD75DF2 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		9E888754ADD38FF6FA6A7F94B9280ECB /* Pods-DICETests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICETests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DICETests/Pods-DICETests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -583,8 +581,6 @@
 				FC0762E2469821E72130BC6014BFA10F /* Pods-DICE.release.xcconfig */,
 				9E888754ADD38FF6FA6A7F94B9280ECB /* Pods-DICETests.debug.xcconfig */,
 				F530BFE6974FF442323BB54913D174DB /* Pods-DICETests.release.xcconfig */,
-				069E83198234B657AFAF48F5F3D68C2A /* Pods.debug.xcconfig */,
-				9AAC1D240F0827AD008E96A329597370 /* Pods.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
