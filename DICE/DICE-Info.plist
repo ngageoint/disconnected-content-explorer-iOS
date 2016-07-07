@@ -52,6 +52,18 @@
 				<string>mil.nga.giat.DICE.geoPackageUTIHandler.csm</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
+			<array/>
+			<key>CFBundleTypeName</key>
+			<string>WhirlyGlobe Point Cloud Database</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.mousebird.WhirlyGlobe.pointCloudDB</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
@@ -148,6 +160,8 @@
 			<array>
 				<string>public.database</string>
 			</array>
+			<key>UTTypeDescription</key>
+			<string>GeoPackage</string>
 			<key>UTTypeIdentifier</key>
 			<string>mil.nga.giat.DICE.geoPackageUTIHandler.csm</string>
 			<key>UTTypeTagSpecification</key>
@@ -156,6 +170,23 @@
 				<array>
 					<string>gpkg</string>
 					<string>gpkx</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.database</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>WhirlyGlobe Point Cloud Database</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.mousebird.WhirlyGlobe.pointCloudDB</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>whirlycloud</string>
 				</array>
 			</dict>
 		</dict>

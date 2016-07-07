@@ -31,14 +31,16 @@ UIStoryboard *activeStoryboard;
         @"ppt",
         @"pptx",
         @"xls",
-        @"xlsx"
+        @"xlsx",
+        @"whirlycloud"
     ];
     
     resourceViewers = @{
         @"default": @"storyboard:htmlViewController",
         @"public.html": @"storyboard:htmlViewController",
         @"public.zip-archive": @"storyboard:htmlViewController",
-        @"com.adobe.pdf": @"class:PDFViewController"
+        @"com.adobe.pdf": @"class:PDFViewController",
+        @"com.mousebird.whirlycloud": @"class:LidarViewController"
         // TODO: add office types
     };
     
