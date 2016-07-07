@@ -1,3 +1,4 @@
 [submodule "wgm-point_cloud"]
 	path = wgm-point_cloud
 	url = git@github.com:restjohn/point_cloud.git
+	branch = dice
