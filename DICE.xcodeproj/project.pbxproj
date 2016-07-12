@@ -18,6 +18,7 @@
 		171A3C7DABA275D903BE54A7E5BA3EE0 /* UIXToolbarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F80D0EB64034E572F239A4D4AA6C5DE /* UIXToolbarView.m */; };
 		17D6D8C33043440FF54CF38E39815E78 /* Reader-Button-N@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8736A6614C3FB1D3830738D4A832B9DC /* Reader-Button-N@2x.png */; };
 		17FB669C0414684800F469FB754C6DAD /* DisclaimerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB03EAA46D6AFBAEF7FE406C74638A71 /* DisclaimerViewController.m */; };
+		18895D91A3F3290912DC2AFD8AC8753C /* laswritepoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 943450651AFB71146E0777BC0982B84D /* laswritepoint.cpp */; };
 		198D111BBBDC4E2EE8BDAB059EA80DB0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39D46E4251184064FF69409D758E04CE /* Images.xcassets */; };
 		19BD26BC17140140C803042DEEB0418D /* ReaderDemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE636D09070B4E049CEBDC10D013A59F /* ReaderDemoController.m */; };
 		1F16055531467CC62B3ED6A37B61A69A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D46AE2C7DAA4990566CA0BC8DD75DF2 /* MapKit.framework */; };
@@ -25,6 +26,7 @@
 		20E79152C620B933E54CFC24351E8549 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3A78AF3F3B493A33AAAFD751F7AA5E2 /* OpenGLES.framework */; };
 		21F9E490BC3F8CB7D22904DDCDEB2145 /* ReaderThumbRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = C4AA91C552F83B1CC8C5DDDF10788FD9 /* ReaderThumbRequest.m */; };
 		252EBD190BA1BB850F22D4A606590DC6 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 46940E01625BD7F3E945302A0F301589 /* NoteViewController.m */; };
+		2657D7370365253BFC82D596 /* libPods-DICE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46133120479FF0525FD9D2F8 /* libPods-DICE.a */; };
 		27648773A51FC0E27DE75CD843BD7132 /* Reader-Email.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CF4C914C808A66FE4A7B38A18FA7DB9 /* Reader-Email.png */; };
 		27648BC3D1EF1D6D7F4C3EF078653502 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD3667F5C2726FBC8085CA9717C10A87 /* Foundation.framework */; };
 		2E56585A5E0C47434D1346E51E2D2E6F /* AppIcon-076.png in Resources */ = {isa = PBXBuildFile; fileRef = 0324100DE9AAFAEC564EA470EE6B01E7 /* AppIcon-076.png */; };
@@ -37,47 +39,50 @@
 		3D246C317202B25F1D64AE5D2508EBAF /* ReaderMainPagebar.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F08FA6D829C10D714634130D174FBBD /* ReaderMainPagebar.m */; };
 		4103EE6883FBAC0B2745937BA0B54172 /* ReaderMainToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = B82E56AF6DA2F8F3E59CE6516AADBC4C /* ReaderMainToolbar.m */; };
 		439FB79AF23F4548BA73802F87684C50 /* AppIcon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = DF20C6768FA0AE0F8ADEEC711E0DD75C /* AppIcon-144.png */; };
+		46F9C327B7DCEBEB995505ABEBA5006E /* MeshBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8A93D717FF462866DF78A965D61C7A7D /* MeshBuilder.mm */; };
 		4792F9718A866921F1A5D902AD46CBF0 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A09645E0302151B0530EEC8597069D7 /* ReportCollectionViewController.m */; };
 		489663D9A34EA5A601A0183AFD7DC291 /* OfflineMapUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = E7449828F94774A7779D000A98DDA60C /* OfflineMapUtility.m */; };
 		4AA3D66D0420ABA632E1422BEF3EFD06 /* ReaderConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E23BD9603647226F154F0838A00A8DE /* ReaderConstants.m */; };
 		4ACE59D92F8265473719366DD0F95EAC /* Reader-Export.png in Resources */ = {isa = PBXBuildFile; fileRef = ED2F3273BFEB9C070C83E33191883259 /* Reader-Export.png */; };
-		4BFE2B5BA90685975678B0F92EE072FD /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE4D08CA3C45E96AF71552E740CEB9 /* libicucore.dylib */; };
 		4D333B493CF8440156D199C0BD73550F /* Reader-Export@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 42DC8D0E9D67A6011F44FA39BA1D229F /* Reader-Export@2x.png */; };
 		517D8096337C9E0790848C5D0858785F /* URLProtocolUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C92DC52C2275901E63D7D521C6FE54 /* URLProtocolUtils.m */; };
 		5196984729CFA95885F1DD3372AFFBB5 /* ListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C14C2D0B701F40DC426CCF81F62F986B /* ListViewController.m */; };
 		5367E35C80A8F7C480CF0FFE3132FB38 /* ReaderThumbRender.m in Sources */ = {isa = PBXBuildFile; fileRef = 28A74FDCE77550A5BB11AACA65027226 /* ReaderThumbRender.m */; };
+		576BFC4031E42DB44BA2707C5DE10808 /* LAZQuadReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 492F12E03A2435A3C52A1B279479F27F /* LAZQuadReader.mm */; };
 		5789CDEA6CC84BF8E4EA77BFD90E7CDA /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E685ED6C17BABD2E6CE203D83A4F54F /* MessageUI.framework */; };
 		5A10C2A656323C47CAD1014E6BBA238A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A2E59E8B8D1D159052EAC3E8D8C68 /* CoreGraphics.framework */; };
 		5A7BA54D9A9A0DD276E8F6C93F03B7A9 /* ReportViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 849E0BBF1F6726B37F8FFBE586B73C1F /* ReportViewCell.m */; };
 		5C7C5728A1CAFD246CB491D5AD90BE69 /* attributions in Resources */ = {isa = PBXBuildFile; fileRef = F9E4DD32E0AF153096B398713F46C688 /* attributions */; };
-		608476143B2077DE8B270F34811E077C /* libPods-DICETests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1072CDB13E3DBEE9ADA1DE8BEDF4A2F /* libPods-DICETests.a */; };
 		60DDD53859DBF6DCE518EC6268C2E9E2 /* ReaderThumbCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 2574220607BC22FE54717F0A6D04A9B8 /* ReaderThumbCache.m */; };
 		63657D72407E763C73DB3F6F15392C42 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21428E9DD5543664B47E4A17EF41CE7A /* CFNetwork.framework */; };
 		64598B875A22AEC7D813271682F4C9B4 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E16068937A4E1E39E05A5AC644740A /* QuickLook.framework */; };
 		6943E2ABED9AF43AE34A465BA2239118 /* GeoPackageURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC7839FE90C5AC412D28D4093AFBA2C /* GeoPackageURLProtocol.m */; };
 		6AAD6486F121676E62E7AA53E89D7F7B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDC084DF4089D0B972C4ABEE131947F2 /* QuartzCore.framework */; };
 		6F9781B4C9646CE04E2C5275AB7E586C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C565C16CCF4E72BEFF614EECFDC7B86A /* Security.framework */; };
+		7191A911EB9122C5C3194DA03D0210C4 /* lasindex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D68E88352E55586B2201E845A9E9CC3 /* lasindex.cpp */; };
 		73354B58FB8AD128CCB6ED5D62306B37 /* ReaderDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = D430A6BD3C673811D7AB89AA3251CBDD /* ReaderDocument.m */; };
+		75A3FA4F8617E7E9B28F3D423B915771 /* laswriteitemcompressed_v2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 411A10C85068406C6DA3587478F4D8E5 /* laswriteitemcompressed_v2.cpp */; };
 		7850CC9236DA9EF5F2A6C026F107304A /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */; };
 		7B775B53327949BC640C588F23C033FF /* Reader-Mark-N@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 82700369A95E41424285EB966DE4C6C4 /* Reader-Mark-N@2x.png */; };
 		7CA903F152A4E7AA5DFF30BCBFC52440 /* PDFViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE97A42B3CDB087930FD692472448A3 /* PDFViewController.m */; };
 		7CFDE8BEC72FFCF0FC5912A4D93C2F1B /* ReportResourceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A958A35B05C73766F95E6E7188B074B /* ReportResourceViewController.m */; };
-		7D9A33601D30123F0060AFB9 /* LidarViewerLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D9A335F1D30123F0060AFB9 /* LidarViewerLib.framework */; };
 		7F46F9EB31C4F825879401EA8004376D /* Reader-Button-H.png in Resources */ = {isa = PBXBuildFile; fileRef = A69FBAE225299433468456CE24F19130 /* Reader-Button-H.png */; };
+		7FE7E1CD65924740909D45496CC5CCC3 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 45C1A4D59E678DBB6D972490E1B92708 /* arithmeticencoder.cpp */; };
 		81596A520A42DAF4D1E7EA47151AF56F /* ReaderContentTile.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D28406D032A36E6D265EF023667580 /* ReaderContentTile.m */; };
 		8499BFDA450AC97AA0B016EB13B2B5F4 /* ReaderThumbFetch.m in Sources */ = {isa = PBXBuildFile; fileRef = 926F8CF6FAD526952A067E62D3AFEAFF /* ReaderThumbFetch.m */; };
 		868CF1730E6FF8280463B8D02A0425C7 /* ReaderDocumentOutline.m in Sources */ = {isa = PBXBuildFile; fileRef = 786C697BAA8E5788DB1EEEC59517A3F4 /* ReaderDocumentOutline.m */; };
 		877C66B0A847E541D0D97730504C8A43 /* ReaderThumbQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DDB58360EE665749F0FA4578B145BCF /* ReaderThumbQueue.m */; };
 		8B87E64315D24837CBFED19EBCA228D6 /* ReportAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */; };
-		8DE82581CDFD6A3B4F70D2EED01679CE /* libPods-DICE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */; };
+		9082F74CC6023EEA090C2E90FF3B6218 /* lasreadpoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 795D5EBCD139E2A21D1BEEF7AB1DBA9A /* lasreadpoint.cpp */; };
 		92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */; };
 		9487A2D2D324B045EFB5955C0B4BC53D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B509885B6330B98E360935E6572E0715 /* CoreData.framework */; };
 		968A97CD130E52756E09C7D4CC174C4A /* HTMLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DAC3EF017ED43CAB272141E182B74474 /* HTMLViewController.m */; };
+		974207769E5CDCDABF88E7AB /* libPods-DICETests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED68111615F937B62ACDA85E /* libPods-DICETests.a */; };
 		9760F81FBCD1A4D2235B6F0D6BBDC944 /* ReportUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */; };
 		991B6DBA88235AC2899C7BF9E0A00BD4 /* GeoPackageMapOverlays.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CF47620BEEC6395C34CC11A6D00D06B /* GeoPackageMapOverlays.m */; };
 		99210B40728A6C651DB54B2E66E46E25 /* ThumbsMainToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = D86FEC2166A4AFF708A1E0C66A8455F4 /* ThumbsMainToolbar.m */; };
-		9A5F98B13578CFBE7F24C03408730F9A /* WhirlyCloudViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D24E4242E23E10BFAB85FECA229F576 /* WhirlyCloudViewController.m */; };
 		9C64C0EC97E81727D0BA3A6C5EED2A4F /* AppIcon-057.png in Resources */ = {isa = PBXBuildFile; fileRef = BF35EAF75F0FD255B0D7DFB25B4ECEC7 /* AppIcon-057.png */; };
+		A17F77C45E497478E34033E3068CA8A0 /* laszip_dll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B92D085FB1F9DE20A125A0E827EA2162 /* laszip_dll.cpp */; };
 		A28BC76A4BF8EB1322C3FC55F5FB0B42 /* Reader-Print@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 71823824ECE6B247628DED6883846040 /* Reader-Print@2x.png */; };
 		A2A955DC3241517F69018FF2395B7F9A /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C7F636E7C2EC9B9D499E39EADBBDB901 /* MapViewController.m */; };
 		A5D979A9430D975AA65AC5489E01B003 /* ThumbsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B03B9852B01E54A438D95248063F7669 /* ThumbsViewController.m */; };
@@ -88,10 +93,13 @@
 		AAF1E73109248B0F9096F7C3426880C5 /* MapOverlayChildTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FBD36723EBEEC7934F06C6EA35B301CD /* MapOverlayChildTableCell.m */; };
 		ADA1790D0166B639D32097ACAD3A7788 /* Icon-76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6511801B374B9E7EB4E92B8048A968DB /* Icon-76@2x.png */; };
 		AF437098539BBC524F7C86E9EF0CA5F0 /* Reader-Button-H@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5A1CE758A1D34CFEC65DC9550D016F /* Reader-Button-H@2x.png */; };
+		AF747D8D0A67966FEB650CC63FE89E76 /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA5DDB8A8443E3E749E3BC46AC37DB18 /* WhirlyGlobeMaplyComponent.framework */; };
 		B2812748E5A40043402C2AF937A1612C /* AppIcon-114.png in Resources */ = {isa = PBXBuildFile; fileRef = 89208D0BE88208C40BE5CB135689E5FE /* AppIcon-114.png */; };
-		B3F24EF102F367903E5BF80FD735415E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B46385A2D42FB7F614D504A2765461C8 /* libz.dylib */; };
 		B59E3A5E9857C5CD91AE78AE38435363 /* TileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5FDAD67AFAB65E1AB6DBB57ECA30DE4 /* TileViewController.m */; };
+		B59F9466513126F2490C0565C6CBA16F /* lasinterval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3527457610BF927C82CA905338C54953 /* lasinterval.cpp */; };
+		BC0656B409672233FDC4D316B3BBA0E7 /* integercompressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E07C0C4D2FE56002FD0EDCBF8B310973 /* integercompressor.cpp */; };
 		BD010E315BB1D0A2501DB113E044C176 /* Reader-Thumbs@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 76296D1D02A987FDB352581A81BD358D /* Reader-Thumbs@2x.png */; };
+		BD61E4E4669E372C695CC3CF10FC0648 /* laszip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAAE4F3F9437D760A4255A56F557137F /* laszip.cpp */; };
 		C8CE09E74342E3CD0744A2A2DE8215F2 /* JavaScriptAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0C73BC62F96725E56B4F7D4CF2DD5 /* JavaScriptAPI.m */; };
 		CA26CEB0D7CE078533BC07FD8E886936 /* GeoPackageTableMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0215D024A45538EF9CFC2950CA73A /* GeoPackageTableMapData.m */; };
 		CA3B31A09256ED4DCE1229A67ECEC3B6 /* Reader-Mark-Y@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6BF14F118D72B56EF987C2114C9FD1CD /* Reader-Mark-Y@2x.png */; };
@@ -99,25 +107,35 @@
 		CD027DF1228E4D8AEE0E0B1DD754875D /* Reader-Mark-N.png in Resources */ = {isa = PBXBuildFile; fileRef = DAFB4B2B1891634942C1B60F768902DC /* Reader-Mark-N.png */; };
 		CF9E3904A5B856BD7AB3949ADF350A2E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 827175300533ADBEA03FB1E8434D23C8 /* AppDelegate.m */; };
 		CFB1445E7EB1843757DB28BC2F24BB1A /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F26681C4422F0A2DEDB0A8755D002EA8 /* MobileCoreServices.framework */; };
-		D323BF9DC60A748FD6C361ED7EC23E70 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C02FAF9A74B4B8672E74CBB9CB64F9F1 /* libsqlite3.dylib */; };
 		D507839B475687808740F8A631EBA5B6 /* ReportMapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = A988B0EB4B1AB1AD0BAC74A739EC0580 /* ReportMapAnnotation.m */; };
 		D7AA7690B65595D77ACED53132F5BE19 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AD397A407B5A60A02D3DAFE659B8E191 /* SettingsViewController.m */; };
 		DA4C6EC60F421AD71FAB20FCBC4AAB27 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 589C5DBD98FFACA45AFE14F68ECA0EB8 /* InfoPlist.strings */; };
 		DA5F8301231C0E3710F5B875908E3FA1 /* AppIcon-072.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A9C25D39666109CB4144F843B809BAB /* AppIcon-072.png */; };
 		DAB549032D2C6FA0899105B2D5C89AED /* Report.m in Sources */ = {isa = PBXBuildFile; fileRef = 65DC78D879E03A1ABD81EE28AA7657F0 /* Report.m */; };
+		DBB80D33D5E5D4BD91D5261E212FAA9F /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A2C204491DC65426ABF8BE77116BC57A /* libxml2.tbd */; };
 		DEF92CAB7F363E401DD06E10DDD34956 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F34ADDB6D6329AE638CB9DB15F2E3E0 /* main.m */; };
 		DF83E9696475444F758EE2D733D8FC21 /* Reader-Mark-Y.png in Resources */ = {isa = PBXBuildFile; fileRef = 4DB43A9F47D07C4F78266505BCF6D971 /* Reader-Mark-Y.png */; };
 		E0E433008DBE2B82318442897FDC3011 /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F83C9245D0CDEDDFEDE3C74101A30567 /* MainStoryboard-iPhone.storyboard */; };
 		E3ACD3E45E5E5A49AB1196A026520BA4 /* MainStoryboard-iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BD723636131FA5D07A079A929250A05B /* MainStoryboard-iPad.storyboard */; };
+		E4F29F8CB7C458960DCCB5342E6DEB00 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57AC1C0E4FAC4CAD8EE1AEDD68372223 /* arithmeticdecoder.cpp */; };
 		E52B5F7F205C75C6F759ABB9BC67F63E /* CGPDFDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 4499ED5CC81FA279C1A21B2E2D9303EF /* CGPDFDocument.m */; };
 		E5E36A1026B51BC927A57B4D8DDB710A /* MapOverlayCellItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */; };
 		EAD14095635E7CD022DE7F949EDBF464 /* Reader-Print.png in Resources */ = {isa = PBXBuildFile; fileRef = 799083837BE434E792107B5329AA2A52 /* Reader-Print.png */; };
+		EC3C9F7686A8AF74B5D8E5FA6EFAF416 /* lasreaditemcompressed_v2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9948B702E1F740F2D272C6704EBC37DD /* lasreaditemcompressed_v2.cpp */; };
 		EDC811DF2395C9B5E0BE59C70AF06F5A /* AppIcon-180.png in Resources */ = {isa = PBXBuildFile; fileRef = 2E816633A0F9664041FA4F640E048518 /* AppIcon-180.png */; };
+		EF33A4CECDBD3764F95ADCE7ED61A7C9 /* laszipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 299A250C0AF09F64410C4836AB23959F /* laszipper.cpp */; };
 		EF3E35357D0EC3E3E93D41897814552C /* MapOverlayActiveSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = CB25E4ECD46494ECBCEB24550840ED41 /* MapOverlayActiveSwitch.m */; };
+		F0C779C3144648A02304218163A94F18 /* lasreaditemcompressed_v1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C50446C3CA174CADADACC110D128128D /* lasreaditemcompressed_v1.cpp */; };
 		F14AA5A359E19CBD321B29698681E701 /* ReaderContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = D59F27657D7CECA9CDC6B5FFA71D07A7 /* ReaderContentView.m */; };
+		F2A16DD36B90FCF361E4F676CA052F25 /* lasquadtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2552E96EDF53EEB2C000CD8F4B6D8523 /* lasquadtree.cpp */; };
 		F68280B7651D94C7D9B4D69851B2E27D /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A89200515E985EB893EAD6BE26DBC8 /* ImageIO.framework */; };
+		F6BCD7D974044CB069320FF2691059B5 /* arithmeticmodel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56BC08B44A5966FD486BBFAD22ABAF6 /* arithmeticmodel.cpp */; };
+		F7B618FE9191B7AE8D543C2CDAC40693 /* laswriteitemcompressed_v1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D429BDEDBD33B979663C28B0E0A1CB4 /* laswriteitemcompressed_v1.cpp */; };
+		FAAD97A147B267C3F26697A585637199 /* lasunzipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 10569E675B21E458AF1C32793B1CB535 /* lasunzipper.cpp */; };
 		FADA448804A3748C17929AA6CEE984C8 /* ReaderThumbsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D96811406AAC834C785E138B886954C /* ReaderThumbsView.m */; };
+		FB43D0DD3FF5C93AAA6327F70AC9B6B1 /* WhirlyCloudViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = A422033DAEDA87351D8CF6A99CBB27D6 /* WhirlyCloudViewController.mm */; };
 		FD512C231F0C58B3DB3D6C636F130FF0 /* Reader-Email@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 34758BE951714F91CC3722A7EBD544A6 /* Reader-Email@2x.png */; };
+		FF7E0096C6AB702BED7F5FFDF45581D1 /* LAZShader.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4596C96773A52346267F3A3731E4160 /* LAZShader.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -128,19 +146,19 @@
 			remoteGlobalIDString = 36D7AE87DEBE92A7A50C5CB7E32382D2;
 			remoteInfo = LidarViewer;
 		};
-		7D9A335E1D30123F0060AFB9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EE1EDB91910EF9DA0E9D10AD26E37AF2 /* LidarViewer.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 7DDE8F191D2C13C300A18809;
-			remoteInfo = LidarViewerLib;
-		};
 		9AEAA3C7BECCD3DDC123FD8C999FB3AB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D12F51E3886BBF4E0C3F556A8B3CCE5C /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = C30AAB62D1044B085EF8ED77996FBF85;
 			remoteInfo = DICE;
+		};
+		C47E1019C35F84ED647242B9E0DCAF3D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EE1EDB91910EF9DA0E9D10AD26E37AF2 /* LidarViewer.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6B5545E62200BF3368C8859D25220B95;
+			remoteInfo = LidarViewerLib;
 		};
 		CC1E172C45EB7A76F7F04AF3A8326656 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -159,28 +177,40 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		00CDD59380F651CA15CB404478ABD9AB /* bytestreamin_file.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamin_file.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreamin_file.hpp"; sourceTree = "<group>"; };
 		0324100DE9AAFAEC564EA470EE6B01E7 /* AppIcon-076.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-076.png"; sourceTree = "<group>"; };
 		043B75F7841209451A3F0099594F3433 /* MapOverlayCellItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayCellItem.h; sourceTree = "<group>"; };
-		06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICE.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		05E106073F07F5EE33D056B79CE210E1 /* endian.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = endian.hpp; path = "wgm-point_cloud/libs/LASzip/src/endian.hpp"; sourceTree = "<group>"; };
 		082F3AF7E6E32F0F96AA471A45ABD900 /* ReaderAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderAppDelegate.m; sourceTree = "<group>"; };
+		0CF37900119BEC21A10B08BBE6B23AFC /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabaseAdditions.h; path = "wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/fmdb/src/fmdb/FMDatabaseAdditions.h"; sourceTree = "<group>"; };
+		0D8110209BD99E2AB47FFB56905AE748 /* lasinterval.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasinterval.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasinterval.hpp"; sourceTree = "<group>"; };
 		0E23BD9603647226F154F0838A00A8DE /* ReaderConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderConstants.m; sourceTree = "<group>"; };
+		10569E675B21E458AF1C32793B1CB535 /* lasunzipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasunzipper.cpp; path = "wgm-point_cloud/libs/LASzip/src/lasunzipper.cpp"; sourceTree = "<group>"; };
+		11D2C8ECEF3E911EC20F37A86324EFBD /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		1231F813DFFCAA88FA0AF6A5400B8E2E /* DICE-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DICE-Info.plist"; sourceTree = "<group>"; };
 		1A9C25D39666109CB4144F843B809BAB /* AppIcon-072.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-072.png"; sourceTree = "<group>"; };
 		1AB0215D024A45538EF9CFC2950CA73A /* GeoPackageTableMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageTableMapData.m; sourceTree = "<group>"; };
 		1B9B0F1CC29D010DBF559E079D8B032A /* ReaderDocumentOutline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderDocumentOutline.h; sourceTree = "<group>"; };
+		1CA61E564F29B2A4CCCAB34AFF058F4E /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1EA0C73BC62F96725E56B4F7D4CF2DD5 /* JavaScriptAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JavaScriptAPI.m; sourceTree = "<group>"; };
+		1EF7F257F48534BFB48AA280B6E1D96B /* bytestreamin_array.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamin_array.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreamin_array.hpp"; sourceTree = "<group>"; };
 		1F430D0D90D477B71C4677817A684EAC /* MapOverlayActiveSwitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayActiveSwitch.h; sourceTree = "<group>"; };
+		1FA64EE19AA889098A7644B0D5E20BA4 /* laspoint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laspoint.hpp; path = "wgm-point_cloud/libs/LASzip/src/laspoint.hpp"; sourceTree = "<group>"; };
 		21428E9DD5543664B47E4A17EF41CE7A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		21A89200515E985EB893EAD6BE26DBC8 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		22E16068937A4E1E39E05A5AC644740A /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
+		2552E96EDF53EEB2C000CD8F4B6D8523 /* lasquadtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasquadtree.cpp; path = "wgm-point_cloud/libs/LASzip/src/lasquadtree.cpp"; sourceTree = "<group>"; };
 		2574220607BC22FE54717F0A6D04A9B8 /* ReaderThumbCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbCache.m; sourceTree = "<group>"; };
 		26B5A37FF23AED5C0E784E60F92BF27B /* ReportCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCache.h; sourceTree = "<group>"; };
+		26C6C3B54A2EF581B82E3271FA986AA6 /* FMDatabaseQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabaseQueue.h; path = "wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/fmdb/src/fmdb/FMDatabaseQueue.h"; sourceTree = "<group>"; };
 		278455243E22AD8484BAB5A4B5CEA64F /* ReportCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionView.h; sourceTree = "<group>"; };
 		28A74FDCE77550A5BB11AACA65027226 /* ReaderThumbRender.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbRender.m; sourceTree = "<group>"; };
 		28A8C7622937BE393099A9E2377CAA64 /* ReportUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportUtils.h; sourceTree = "<group>"; };
+		299A250C0AF09F64410C4836AB23959F /* laszipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laszipper.cpp; path = "wgm-point_cloud/libs/LASzip/src/laszipper.cpp"; sourceTree = "<group>"; };
 		2AC54AC8955255CA506BB33182C35E98 /* MapOverlayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayController.h; sourceTree = "<group>"; };
 		2B19B00891A831A7486BBD22865C6E31 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		2CF4C914C808A66FE4A7B38A18FA7DB9 /* Reader-Email.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Email.png"; sourceTree = "<group>"; };
+		2D429BDEDBD33B979663C28B0E0A1CB4 /* laswriteitemcompressed_v1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laswriteitemcompressed_v1.cpp; path = "wgm-point_cloud/libs/LASzip/src/laswriteitemcompressed_v1.cpp"; sourceTree = "<group>"; };
 		2D5698DB6D396DFB324BF4CB01FD33C7 /* ReaderThumbFetch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbFetch.h; sourceTree = "<group>"; };
 		2DCCC7C5321AB5263EFF459A6F18DE1C /* ListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListViewController.h; sourceTree = "<group>"; };
 		2E816633A0F9664041FA4F640E048518 /* AppIcon-180.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-180.png"; sourceTree = "<group>"; };
@@ -188,33 +218,50 @@
 		30FF242598BC0A2CC88697DFA9A7C8EF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3413AF6F908E2D8F5B48AF0F147B690A /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		34758BE951714F91CC3722A7EBD544A6 /* Reader-Email@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Email@2x.png"; sourceTree = "<group>"; };
+		3527457610BF927C82CA905338C54953 /* lasinterval.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasinterval.cpp; path = "wgm-point_cloud/libs/LASzip/src/lasinterval.cpp"; sourceTree = "<group>"; };
 		354233DD845B9B0674BDA0F04D324721 /* Reader-Button-N.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Button-N.png"; sourceTree = "<group>"; };
+		3740FF518C63F1A8B75A2A2690B3567E /* laszipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszipper.hpp; path = "wgm-point_cloud/libs/LASzip/src/laszipper.hpp"; sourceTree = "<group>"; };
 		3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
 		394B1DEF7E6D84DDFBE2B0E4F2F71B40 /* HTMLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLViewController.h; sourceTree = "<group>"; };
 		39D46E4251184064FF69409D758E04CE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = "<group>"; };
 		3A958A35B05C73766F95E6E7188B074B /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
 		3C86416628DA967D2FABBF84724E30EF /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
 		3D27834265B35825A573282348A3AF46 /* ReaderThumbRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbRender.h; sourceTree = "<group>"; };
+		3D4114030E49017199DC2F4802BB75EC /* lasunzipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasunzipper.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasunzipper.hpp"; sourceTree = "<group>"; };
+		3FAB7D693ABE2CF1BBE04B58722371CC /* bytestreamout_nil.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout_nil.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreamout_nil.hpp"; sourceTree = "<group>"; };
 		3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
 		408B5BAE51B0CCB8040EC7645517FE05 /* DICE-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DICE-Prefix.pch"; sourceTree = "<group>"; };
+		411A10C85068406C6DA3587478F4D8E5 /* laswriteitemcompressed_v2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laswriteitemcompressed_v2.cpp; path = "wgm-point_cloud/libs/LASzip/src/laswriteitemcompressed_v2.cpp"; sourceTree = "<group>"; };
 		42DC8D0E9D67A6011F44FA39BA1D229F /* Reader-Export@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Export@2x.png"; sourceTree = "<group>"; };
 		4499ED5CC81FA279C1A21B2E2D9303EF /* CGPDFDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGPDFDocument.m; sourceTree = "<group>"; };
+		45C1A4D59E678DBB6D972490E1B92708 /* arithmeticencoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticencoder.cpp; path = "wgm-point_cloud/libs/LASzip/src/arithmeticencoder.cpp"; sourceTree = "<group>"; };
+		46133120479FF0525FD9D2F8 /* libPods-DICE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICE.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		46940E01625BD7F3E945302A0F301589 /* NoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteViewController.m; sourceTree = "<group>"; };
+		48C95A70E4D19832383039625B9D67F2 /* lasquantizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasquantizer.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasquantizer.hpp"; sourceTree = "<group>"; };
+		492F12E03A2435A3C52A1B279479F27F /* LAZQuadReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = LAZQuadReader.mm; path = "wgm-point_cloud/LidarViewer/LidarViewer/LAZQuadReader.mm"; sourceTree = "<group>"; };
+		493A23BB8409DCC0BD4F5F6A2BA425A8 /* bytestreamin_istream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamin_istream.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreamin_istream.hpp"; sourceTree = "<group>"; };
 		4D164ACC176BC15EB043506E393B0950 /* DisclaimerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DisclaimerViewController.h; sourceTree = "<group>"; };
 		4D96811406AAC834C785E138B886954C /* ReaderThumbsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbsView.m; sourceTree = "<group>"; };
 		4DB43A9F47D07C4F78266505BCF6D971 /* Reader-Mark-Y.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Mark-Y.png"; sourceTree = "<group>"; };
 		4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayCellItem.m; sourceTree = "<group>"; };
+		50D6CAEFF15645B13C2EE3AE4A0A1916 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		5511B0E8EC6C180EF6F813FECC8F0D19 /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
 		5524AC7208550B2A19BD012B83BE1DC7 /* ReaderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderViewController.h; sourceTree = "<group>"; };
+		57AC1C0E4FAC4CAD8EE1AEDD68372223 /* arithmeticdecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticdecoder.cpp; path = "wgm-point_cloud/libs/LASzip/src/arithmeticdecoder.cpp"; sourceTree = "<group>"; };
 		58045F29EBE5FB763E34A831161BBA60 /* GeoPackageURLProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageURLProtocol.h; sourceTree = "<group>"; };
 		5B7025562094188329E060AC80535BBB /* ReaderBookDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderBookDelegate.h; sourceTree = "<group>"; };
 		5CCBB74C0C5CCF563469F4F08801C996 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		5D24E4242E23E10BFAB85FECA229F576 /* WhirlyCloudViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WhirlyCloudViewController.m; sourceTree = "<group>"; };
 		5DDB58360EE665749F0FA4578B145BCF /* ReaderThumbQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbQueue.m; sourceTree = "<group>"; };
 		5E4342FFD2C2132B3989BF7BCD77F626 /* SettingsViewController+SettingsViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SettingsViewController+SettingsViewController_iPhone.m"; sourceTree = "<group>"; };
 		5EB4B2A5DD495893BD46603CBBB04C10 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
+		5F79D6F91A15B5BCE2968454C811CFA2 /* LAZShader.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = LAZShader.h; path = "wgm-point_cloud/LidarViewer/LidarViewer/LAZShader.h"; sourceTree = "<group>"; };
 		618144571C8AE42A939B5B8113661AE3 /* ReaderThumbRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbRequest.h; sourceTree = "<group>"; };
+		6207E6B0549D7B94578C1734B96D277D /* laszip_common_v2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszip_common_v2.hpp; path = "wgm-point_cloud/libs/LASzip/src/laszip_common_v2.hpp"; sourceTree = "<group>"; };
 		640FB4D22585D93DF036AD89C05CB93D /* AppIcon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-120.png"; sourceTree = "<group>"; };
+		645709451534FADE25D48D839C04EAFB /* bytestreamout_ostream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout_ostream.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreamout_ostream.hpp"; sourceTree = "<group>"; };
+		64E6AD645599977448B02089F1D66A73 /* bytestreaminout_file.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreaminout_file.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreaminout_file.hpp"; sourceTree = "<group>"; };
 		6511801B374B9E7EB4E92B8048A968DB /* Icon-76@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-76@2x.png"; path = "resources/Icon-76@2x.png"; sourceTree = "<group>"; };
+		6556EC9E3CFC281105435D741D5EF9E7 /* MeshBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshBuilder.h; path = "wgm-point_cloud/LidarViewer/LidarViewer/MeshBuilder.h"; sourceTree = "<group>"; };
 		658A2E59E8B8D1D159052EAC3E8D8C68 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		65DC78D879E03A1ABD81EE28AA7657F0 /* Report.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Report.m; sourceTree = "<group>"; };
 		66D0DE563CDE7B9626CA80C9FF192651 /* UIXToolbarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIXToolbarView.h; sourceTree = "<group>"; };
@@ -231,47 +278,69 @@
 		75CA0FFE00A5F7BF1EBF96A92AC87878 /* NoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteViewController.h; sourceTree = "<group>"; };
 		76296D1D02A987FDB352581A81BD358D /* Reader-Thumbs@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Thumbs@2x.png"; sourceTree = "<group>"; };
 		786C697BAA8E5788DB1EEEC59517A3F4 /* ReaderDocumentOutline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderDocumentOutline.m; sourceTree = "<group>"; };
+		795D5EBCD139E2A21D1BEEF7AB1DBA9A /* lasreadpoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasreadpoint.cpp; path = "wgm-point_cloud/libs/LASzip/src/lasreadpoint.cpp"; sourceTree = "<group>"; };
+		796EE397FC6FDF01425AD9D9CFF5A098 /* lasreaditemcompressed_v1.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreaditemcompressed_v1.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasreaditemcompressed_v1.hpp"; sourceTree = "<group>"; };
+		79777391DF0ACCBF92189DB2848A0968 /* arithmeticmodel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = arithmeticmodel.hpp; path = "wgm-point_cloud/libs/LASzip/src/arithmeticmodel.hpp"; sourceTree = "<group>"; };
 		799083837BE434E792107B5329AA2A52 /* Reader-Print.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Print.png"; sourceTree = "<group>"; };
 		7B138AAC3B91D624A57D33CA66EF8823 /* OfflineMapUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OfflineMapUtility.h; sourceTree = "<group>"; };
 		7B75006D3B3773816F3FAD57E0A57222 /* ReportCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCache.m; sourceTree = "<group>"; };
 		7BBC0DCA27BC7EA7962A6C8183F718A7 /* ReportAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportAPI.h; sourceTree = "<group>"; };
+		7D68E88352E55586B2201E845A9E9CC3 /* lasindex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasindex.cpp; path = "wgm-point_cloud/libs/LASzip/src/lasindex.cpp"; sourceTree = "<group>"; };
 		7E685ED6C17BABD2E6CE203D83A4F54F /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		7F08FA6D829C10D714634130D174FBBD /* ReaderMainPagebar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderMainPagebar.m; sourceTree = "<group>"; };
 		7F9BB26938972B5CE474E51AA09F307C /* ReaderContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderContentView.h; sourceTree = "<group>"; };
+		80350759D61357D0BE30BFBE1AA5C297 /* FMDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabasePool.h; path = "wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/fmdb/src/fmdb/FMDatabasePool.h"; sourceTree = "<group>"; };
 		8160472C3F803823AEAE56407DAACE88 /* MapOverlayTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayTableCell.m; sourceTree = "<group>"; };
 		82700369A95E41424285EB966DE4C6C4 /* Reader-Mark-N@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Mark-N@2x.png"; sourceTree = "<group>"; };
 		827175300533ADBEA03FB1E8434D23C8 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		82A1A46E07D06362815975EF26E309B5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		82CB38757E1DFC9C82E980937E0FB6AC /* ReaderMainToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderMainToolbar.h; sourceTree = "<group>"; };
+		837B6108870A4DFB2CB312F70D2F7A01 /* laswriteitemraw.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswriteitemraw.hpp; path = "wgm-point_cloud/libs/LASzip/src/laswriteitemraw.hpp"; sourceTree = "<group>"; };
 		8421CFBD24D0F3BD7C11B46CF0AF8944 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		849E0BBF1F6726B37F8FFBE586B73C1F /* ReportViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportViewCell.m; sourceTree = "<group>"; };
+		85981A0F73834BCAE00B49E4EA1E97C3 /* bytestreamout_file.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout_file.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreamout_file.hpp"; sourceTree = "<group>"; };
 		86C350F1296B349D3B47B94F433208EF /* ReaderThumbQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbQueue.h; sourceTree = "<group>"; };
 		8736A6614C3FB1D3830738D4A832B9DC /* Reader-Button-N@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Button-N@2x.png"; sourceTree = "<group>"; };
+		873CF6CD9C236C3048433E8EC93651F8 /* laszip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszip.hpp; path = "wgm-point_cloud/libs/LASzip/src/laszip.hpp"; sourceTree = "<group>"; };
 		874DAF4B7A16ABDC00BFB66E05974543 /* ReaderDemoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderDemoController.h; sourceTree = "<group>"; };
 		89208D0BE88208C40BE5CB135689E5FE /* AppIcon-114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-114.png"; sourceTree = "<group>"; };
+		895CED1D27B91660F24DB69613DC64EF /* laswriteitem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswriteitem.hpp; path = "wgm-point_cloud/libs/LASzip/src/laswriteitem.hpp"; sourceTree = "<group>"; };
+		8A93D717FF462866DF78A965D61C7A7D /* MeshBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MeshBuilder.mm; path = "wgm-point_cloud/LidarViewer/LidarViewer/MeshBuilder.mm"; sourceTree = "<group>"; };
 		8AE35FD54F4D22927C099C3869D2F96F /* ReaderThumbView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbView.m; sourceTree = "<group>"; };
+		8BBE926E1B054AD34131CA0BF50BA6FE /* bytestreaminout.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreaminout.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreaminout.hpp"; sourceTree = "<group>"; };
 		8BF7F349FE1D185FFBF4BCF2A620D26E /* DICETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DICETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D2B230FD31A401EF64FC2A1CFB62F7F /* lasreaditemcompressed_v2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreaditemcompressed_v2.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasreaditemcompressed_v2.hpp"; sourceTree = "<group>"; };
 		8D90355B5DE466E3792BADAEC6331D56 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
 		8DA05A54024256C0883FA5D7958178FB /* DICE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DICE.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8FAC7646B3B0A658BDD986D2F68B6EA0 /* lasreaditem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreaditem.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasreaditem.hpp"; sourceTree = "<group>"; };
 		9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportUtils.m; sourceTree = "<group>"; };
 		91DE9AADF066A41E4737F8A176CC9B3F /* CGPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPDFDocument.h; sourceTree = "<group>"; };
 		926F8CF6FAD526952A067E62D3AFEAFF /* ReaderThumbFetch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbFetch.m; sourceTree = "<group>"; };
+		943450651AFB71146E0777BC0982B84D /* laswritepoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laswritepoint.cpp; path = "wgm-point_cloud/libs/LASzip/src/laswritepoint.cpp"; sourceTree = "<group>"; };
 		964C827CDF701E097D1EE25DC8811CD4 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportAPI.m; sourceTree = "<group>"; };
 		979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapData.m; sourceTree = "<group>"; };
+		9948B702E1F740F2D272C6704EBC37DD /* lasreaditemcompressed_v2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasreaditemcompressed_v2.cpp; path = "wgm-point_cloud/libs/LASzip/src/lasreaditemcompressed_v2.cpp"; sourceTree = "<group>"; };
 		9A09645E0302151B0530EEC8597069D7 /* ReportCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportCollectionViewController.m; sourceTree = "<group>"; };
+		9B7B2D3069EEABB918CB1AB1EB79C862 /* bytestreamout.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreamout.hpp"; sourceTree = "<group>"; };
 		9BA512F99C3C576ED7FE1DDE4B829614 /* ResourceTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceTypes.h; sourceTree = "<group>"; };
 		9D46AE2C7DAA4990566CA0BC8DD75DF2 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		9E888754ADD38FF6FA6A7F94B9280ECB /* Pods-DICETests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICETests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DICETests/Pods-DICETests.debug.xcconfig"; sourceTree = "<group>"; };
 		A0256502721063ED5E727BD67544446E /* ReaderConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderConstants.h; sourceTree = "<group>"; };
 		A0D2859D658FCEB59546685F54A78E08 /* MapOverlayTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayTableCell.h; sourceTree = "<group>"; };
 		A0E50D5F83B3ED82BD050A04F84C4AB1 /* Pods-DICE.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICE.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DICE/Pods-DICE.debug.xcconfig"; sourceTree = "<group>"; };
+		A0FD6DFE1B53F804CA1DF1CEBD4AFF49 /* laszip_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = laszip_api.h; path = "wgm-point_cloud/libs/LASzip/include/laszip/laszip_api.h"; sourceTree = "<group>"; };
+		A1B27E562C3835ED6BC9DFD0132CA382 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		A2C204491DC65426ABF8BE77116BC57A /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		A2E0F23A41CA926FDF98F6A9260DB383 /* ReaderThumbView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbView.h; sourceTree = "<group>"; };
 		A3A78AF3F3B493A33AAAFD751F7AA5E2 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		A422033DAEDA87351D8CF6A99CBB27D6 /* WhirlyCloudViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyCloudViewController.mm; sourceTree = "<group>"; };
 		A43B74D74A16090E3AA5066955E288DD /* MapOverlayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayController.m; sourceTree = "<group>"; };
 		A4B97C6576F0625BEC99E2809AFC1004 /* Report.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Report.h; sourceTree = "<group>"; };
+		A54456F3050C912FFD673CE10EDD5DA1 /* bytestreamout_array.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout_array.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreamout_array.hpp"; sourceTree = "<group>"; };
 		A54D7AC3102E68E96B0843263812193F /* GeoPackageTableMapData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageTableMapData.h; sourceTree = "<group>"; };
 		A69FBAE225299433468456CE24F19130 /* Reader-Button-H.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Button-H.png"; sourceTree = "<group>"; };
+		A8D31CA0197702AC7628811EC8E8021B /* laswriteitemcompressed_v2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswriteitemcompressed_v2.hpp; path = "wgm-point_cloud/libs/LASzip/src/laswriteitemcompressed_v2.hpp"; sourceTree = "<group>"; };
 		A92CB380D2DA9CAE7A7D693B6B739F28 /* ne_50m-110m_land.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "ne_50m-110m_land.geojson"; path = "resources/ne_50m-110m_land.geojson"; sourceTree = "<group>"; };
 		A988B0EB4B1AB1AD0BAC74A739EC0580 /* ReportMapAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportMapAnnotation.m; sourceTree = "<group>"; };
 		AB74977C88550E3A8C96196EC40E128D /* ReaderContentTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderContentTile.h; sourceTree = "<group>"; };
@@ -279,16 +348,25 @@
 		AD397A407B5A60A02D3DAFE659B8E191 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		B03B9852B01E54A438D95248063F7669 /* ThumbsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThumbsViewController.m; sourceTree = "<group>"; };
 		B0FF6F7546B380246C57E30BCB0F314D /* ReaderDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderDocument.h; sourceTree = "<group>"; };
-		B46385A2D42FB7F614D504A2765461C8 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		B1AE3C50C1DA9AA329DA7DE31D22811A /* lasreaditemraw.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreaditemraw.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasreaditemraw.hpp"; sourceTree = "<group>"; };
+		B3C53B0C2315E6C73854F908EFC59C4A /* lasattributer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasattributer.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasattributer.hpp"; sourceTree = "<group>"; };
+		B4596C96773A52346267F3A3731E4160 /* LAZShader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = LAZShader.mm; path = "wgm-point_cloud/LidarViewer/LidarViewer/LAZShader.mm"; sourceTree = "<group>"; };
+		B4ECBF59B77D5746E553C348B8C5D001 /* integercompressor.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = integercompressor.hpp; path = "wgm-point_cloud/libs/LASzip/src/integercompressor.hpp"; sourceTree = "<group>"; };
 		B509885B6330B98E360935E6572E0715 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		B56BC08B44A5966FD486BBFAD22ABAF6 /* arithmeticmodel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticmodel.cpp; path = "wgm-point_cloud/libs/LASzip/src/arithmeticmodel.cpp"; sourceTree = "<group>"; };
+		B6007BB5B90C9CDCA458766D6FEC3B19 /* arithmeticencoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = arithmeticencoder.hpp; path = "wgm-point_cloud/libs/LASzip/src/arithmeticencoder.hpp"; sourceTree = "<group>"; };
 		B7DA662AB518461840B91E0C433EDC62 /* ReaderBookDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderBookDelegate.m; sourceTree = "<group>"; };
 		B82E56AF6DA2F8F3E59CE6516AADBC4C /* ReaderMainToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderMainToolbar.m; sourceTree = "<group>"; };
+		B92D085FB1F9DE20A125A0E827EA2162 /* laszip_dll.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laszip_dll.cpp; path = "wgm-point_cloud/libs/LASzip/src/laszip_dll.cpp"; sourceTree = "<group>"; };
+		BA8B3EC55F01985C1D9CFCF75ADB87BB /* laswritepoint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswritepoint.hpp; path = "wgm-point_cloud/libs/LASzip/src/laswritepoint.hpp"; sourceTree = "<group>"; };
+		BAAE4F3F9437D760A4255A56F557137F /* laszip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laszip.cpp; path = "wgm-point_cloud/libs/LASzip/src/laszip.cpp"; sourceTree = "<group>"; };
 		BD723636131FA5D07A079A929250A05B /* MainStoryboard-iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPad.storyboard"; sourceTree = "<group>"; };
+		BDCA310E4E38CF456E73CDFDF1FF5B07 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabase.h; path = "wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/fmdb/src/fmdb/FMDatabase.h"; sourceTree = "<group>"; };
 		BF35EAF75F0FD255B0D7DFB25B4ECEC7 /* AppIcon-057.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-057.png"; sourceTree = "<group>"; };
 		BF3B19DF4FB3FD7E33F6521F279DFB55 /* URLProtocolUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLProtocolUtils.h; sourceTree = "<group>"; };
-		C02FAF9A74B4B8672E74CBB9CB64F9F1 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		C14C2D0B701F40DC426CCF81F62F986B /* ListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListViewController.m; sourceTree = "<group>"; };
 		C4AA91C552F83B1CC8C5DDDF10788FD9 /* ReaderThumbRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbRequest.m; sourceTree = "<group>"; };
+		C50446C3CA174CADADACC110D128128D /* lasreaditemcompressed_v1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasreaditemcompressed_v1.cpp; path = "wgm-point_cloud/libs/LASzip/src/lasreaditemcompressed_v1.cpp"; sourceTree = "<group>"; };
 		C565C16CCF4E72BEFF614EECFDC7B86A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		C5C92DC52C2275901E63D7D521C6FE54 /* URLProtocolUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLProtocolUtils.m; sourceTree = "<group>"; };
 		C7F636E7C2EC9B9D499E39EADBBDB901 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
@@ -299,17 +377,19 @@
 		CE636D09070B4E049CEBDC10D013A59F /* ReaderDemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderDemoController.m; sourceTree = "<group>"; };
 		CF9B13DD7EF9090D1C0A06D1C822B22B /* ReaderMainPagebar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderMainPagebar.h; sourceTree = "<group>"; };
 		CFAEF44650A2B12F30A02E488950C708 /* DICEConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEConstants.h; sourceTree = "<group>"; };
-		D1072CDB13E3DBEE9ADA1DE8BEDF4A2F /* libPods-DICETests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICETests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3AEF0E9E67F338417CAF00EE25D57D1 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
 		D430A6BD3C673811D7AB89AA3251CBDD /* ReaderDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderDocument.m; sourceTree = "<group>"; };
 		D59F27657D7CECA9CDC6B5FFA71D07A7 /* ReaderContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderContentView.m; sourceTree = "<group>"; };
 		D86FEC2166A4AFF708A1E0C66A8455F4 /* ThumbsMainToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThumbsMainToolbar.m; sourceTree = "<group>"; };
+		D9396F776FC8FF7E92E1F86200831A20 /* arithmeticdecoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = arithmeticdecoder.hpp; path = "wgm-point_cloud/libs/LASzip/src/arithmeticdecoder.hpp"; sourceTree = "<group>"; };
 		D98990745DA6432B1C99B1A0C0383B28 /* ReaderViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderViewController.m; sourceTree = "<group>"; };
+		D98A6798396E6D9B971FAFE02B79365F /* lasquadtree.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasquadtree.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasquadtree.hpp"; sourceTree = "<group>"; };
 		DAC3EF017ED43CAB272141E182B74474 /* HTMLViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTMLViewController.m; sourceTree = "<group>"; };
 		DAFB4B2B1891634942C1B60F768902DC /* Reader-Mark-N.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Mark-N.png"; sourceTree = "<group>"; };
 		DB1ED221E8C584B883688790327A0290 /* AppIcon-152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-152.png"; sourceTree = "<group>"; };
 		DD5A1CE758A1D34CFEC65DC9550D016F /* Reader-Button-H@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Button-H@2x.png"; sourceTree = "<group>"; };
 		DF20C6768FA0AE0F8ADEEC711E0DD75C /* AppIcon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-144.png"; sourceTree = "<group>"; };
+		E07C0C4D2FE56002FD0EDCBF8B310973 /* integercompressor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = integercompressor.cpp; path = "wgm-point_cloud/libs/LASzip/src/integercompressor.cpp"; sourceTree = "<group>"; };
 		E19A852D6712D1CCCAA990CEA2B1EE1F /* TileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileViewController.h; sourceTree = "<group>"; };
 		E3D28406D032A36E6D265EF023667580 /* ReaderContentTile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderContentTile.m; sourceTree = "<group>"; };
 		E5FDAD67AFAB65E1AB6DBB57ECA30DE4 /* TileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileViewController.m; sourceTree = "<group>"; };
@@ -317,26 +397,34 @@
 		E7449828F94774A7779D000A98DDA60C /* OfflineMapUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OfflineMapUtility.m; sourceTree = "<group>"; };
 		E76540F5865474CF839BFA5BA0A7D27F /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
 		E8877B8A88E1BEC0F7C607D754C2A185 /* ReaderThumbCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbCache.h; sourceTree = "<group>"; };
-		EA5DDB8A8443E3E749E3BC46AC37DB18 /* WhirlyGlobeMaplyComponent.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WhirlyGlobeMaplyComponent.framework; path = "wgm-point_cloud/libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/build/Debug-iphoneos/WhirlyGlobeMaplyComponent.framework"; sourceTree = "<group>"; };
+		E9DBC4D61A4146EB21B71CE160D99EE8 /* lasreadpoint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreadpoint.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasreadpoint.hpp"; sourceTree = "<group>"; };
+		EA5DDB8A8443E3E749E3BC46AC37DB18 /* WhirlyGlobeMaplyComponent.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WhirlyGlobeMaplyComponent.framework; path = "../../Library/Developer/Xcode/DerivedData/DICE-bsxbmnmnwjtxorfcorgdgsywpavi/Build/Products/Debug-iphonesimulator/WhirlyGlobeMaplyComponent.framework"; sourceTree = "<group>"; };
 		EAC7839FE90C5AC412D28D4093AFBA2C /* GeoPackageURLProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageURLProtocol.m; sourceTree = "<group>"; };
 		EB03EAA46D6AFBAEF7FE406C74638A71 /* DisclaimerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DisclaimerViewController.m; sourceTree = "<group>"; };
 		EB61E6ED18B70D9B62A81A36250EC8E6 /* JavaScriptAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptAPI.h; sourceTree = "<group>"; };
 		ED2F3273BFEB9C070C83E33191883259 /* Reader-Export.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Export.png"; sourceTree = "<group>"; };
+		ED68111615F937B62ACDA85E /* libPods-DICETests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICETests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDC084DF4089D0B972C4ABEE131947F2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		EE1EDB91910EF9DA0E9D10AD26E37AF2 /* LidarViewer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = LidarViewer.xcodeproj; path = "wgm-point_cloud/LidarViewer/LidarViewer.xcodeproj"; sourceTree = "<group>"; };
 		EEB4E28AC03C2CA43C6B4FEBA09029BB /* Reader-Thumbs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Thumbs.png"; sourceTree = "<group>"; };
 		F26681C4422F0A2DEDB0A8755D002EA8 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
-		F4BE4D08CA3C45E96AF71552E740CEB9 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
+		F3997065DD671431D6B156B186B692ED /* lasindex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasindex.hpp; path = "wgm-point_cloud/libs/LASzip/src/lasindex.hpp"; sourceTree = "<group>"; };
+		F3F09E2EE94B25F6D85F2BF54EFF0A57 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMResultSet.h; path = "wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/fmdb/src/fmdb/FMResultSet.h"; sourceTree = "<group>"; };
 		F530BFE6974FF442323BB54913D174DB /* Pods-DICETests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICETests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DICETests/Pods-DICETests.release.xcconfig"; sourceTree = "<group>"; };
 		F59406197DBC66DBF559B299DE776F17 /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
+		F6136191E4A38655E230468D3B128AD3 /* laszip_common_v1.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszip_common_v1.hpp; path = "wgm-point_cloud/libs/LASzip/src/laszip_common_v1.hpp"; sourceTree = "<group>"; };
 		F6143BB585606C5DDAA3501A9D714679 /* ReaderThumbsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbsView.h; sourceTree = "<group>"; };
 		F70AFB6377EC2C450124BCE04897A10A /* MapOverlayChildTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayChildTableCell.h; sourceTree = "<group>"; };
 		F83C9245D0CDEDDFEDE3C74101A30567 /* MainStoryboard-iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPhone.storyboard"; sourceTree = "<group>"; };
 		F8CB661E93B0D59737A39E5B03780246 /* ThumbsMainToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThumbsMainToolbar.h; sourceTree = "<group>"; };
 		F9E4DD32E0AF153096B398713F46C688 /* attributions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = attributions; path = resources/attributions; sourceTree = "<group>"; };
+		FBB64DB2A7E13281AA6A6386B9219898 /* FMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDB.h; path = "wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/fmdb/src/fmdb/FMDB.h"; sourceTree = "<group>"; };
 		FBD36723EBEEC7934F06C6EA35B301CD /* MapOverlayChildTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayChildTableCell.m; sourceTree = "<group>"; };
 		FC0762E2469821E72130BC6014BFA10F /* Pods-DICE.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICE.release.xcconfig"; path = "Pods/Target Support Files/Pods-DICE/Pods-DICE.release.xcconfig"; sourceTree = "<group>"; };
 		FD3667F5C2726FBC8085CA9717C10A87 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		FF6F98FEE759EFBF89612E64C444C832 /* LAZQuadReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LAZQuadReader.h; path = "wgm-point_cloud/LidarViewer/LidarViewer/LAZQuadReader.h"; sourceTree = "<group>"; };
+		FF8396F4C8B9CC25A1E0714CBD0B512A /* laswriteitemcompressed_v1.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswriteitemcompressed_v1.hpp; path = "wgm-point_cloud/libs/LASzip/src/laswriteitemcompressed_v1.hpp"; sourceTree = "<group>"; };
+		FFAA0789AD8C6549101795A2CB679487 /* bytestreamin.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamin.hpp; path = "wgm-point_cloud/libs/LASzip/src/bytestreamin.hpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -344,7 +432,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D9A33601D30123F0060AFB9 /* LidarViewerLib.framework in Frameworks */,
 				63657D72407E763C73DB3F6F15392C42 /* CFNetwork.framework in Frameworks */,
 				9487A2D2D324B045EFB5955C0B4BC53D /* CoreData.framework in Frameworks */,
 				5A10C2A656323C47CAD1014E6BBA238A /* CoreGraphics.framework in Frameworks */,
@@ -359,10 +446,9 @@
 				64598B875A22AEC7D813271682F4C9B4 /* QuickLook.framework in Frameworks */,
 				6F9781B4C9646CE04E2C5275AB7E586C /* Security.framework in Frameworks */,
 				139D42501E83FACE0B458302F93D9A98 /* UIKit.framework in Frameworks */,
-				8DE82581CDFD6A3B4F70D2EED01679CE /* libPods-DICE.a in Frameworks */,
-				4BFE2B5BA90685975678B0F92EE072FD /* libicucore.dylib in Frameworks */,
-				D323BF9DC60A748FD6C361ED7EC23E70 /* libsqlite3.dylib in Frameworks */,
-				B3F24EF102F367903E5BF80FD735415E /* libz.dylib in Frameworks */,
+				AF747D8D0A67966FEB650CC63FE89E76 /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
+				DBB80D33D5E5D4BD91D5261E212FAA9F /* libxml2.tbd in Frameworks */,
+				2657D7370365253BFC82D596 /* libPods-DICE.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,7 +456,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				608476143B2077DE8B270F34811E077C /* libPods-DICETests.a in Frameworks */,
+				974207769E5CDCDABF88E7AB /* libPods-DICETests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,6 +477,7 @@
 				D6B8B0575FA0AEFD2EBF3E3C0FA1AD93 /* DICE */,
 				8E549110BECAC4A26F93FF2C9B6C5147 /* DICETests */,
 				A82C08186B00843BEA0FD78EB5DC61F6 /* Frameworks */,
+				A20A8C15894F15EED6000BBBDBC23A01 /* LidarViewer */,
 				79A358CDB47FC6979F0D9A6EB7C1B39F /* Pods */,
 				F1E8C9B62F723973BD094F391B2EF6F9 /* Products */,
 				6D096027FB5E5FB97FAD49F67D0DF056 /* vfrReader */,
@@ -439,7 +526,7 @@
 				AD8FDCD1939366242F30DBFFF73A3499 /* LidarViewer.app */,
 				EBDCBDDC8B3D9B1FBC0A9B1DF2087924 /* LidarViewerTests.xctest */,
 				E112CF9A3F72A2ED4B17665729E0B312 /* LidarViewerUITests.xctest */,
-				7D9A335F1D30123F0060AFB9 /* LidarViewerLib.framework */,
+				4BB357362A18334613F397BF1B083B02 /* LidarViewerLib.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -493,6 +580,68 @@
 			path = Graphics;
 			sourceTree = "<group>";
 		};
+		63F26EC72D9BF607DEC14923A4347236 /* LASzip */ = {
+			isa = PBXGroup;
+			children = (
+				57AC1C0E4FAC4CAD8EE1AEDD68372223 /* arithmeticdecoder.cpp */,
+				D9396F776FC8FF7E92E1F86200831A20 /* arithmeticdecoder.hpp */,
+				45C1A4D59E678DBB6D972490E1B92708 /* arithmeticencoder.cpp */,
+				B6007BB5B90C9CDCA458766D6FEC3B19 /* arithmeticencoder.hpp */,
+				B56BC08B44A5966FD486BBFAD22ABAF6 /* arithmeticmodel.cpp */,
+				79777391DF0ACCBF92189DB2848A0968 /* arithmeticmodel.hpp */,
+				FFAA0789AD8C6549101795A2CB679487 /* bytestreamin.hpp */,
+				1EF7F257F48534BFB48AA280B6E1D96B /* bytestreamin_array.hpp */,
+				00CDD59380F651CA15CB404478ABD9AB /* bytestreamin_file.hpp */,
+				493A23BB8409DCC0BD4F5F6A2BA425A8 /* bytestreamin_istream.hpp */,
+				8BBE926E1B054AD34131CA0BF50BA6FE /* bytestreaminout.hpp */,
+				64E6AD645599977448B02089F1D66A73 /* bytestreaminout_file.hpp */,
+				9B7B2D3069EEABB918CB1AB1EB79C862 /* bytestreamout.hpp */,
+				A54456F3050C912FFD673CE10EDD5DA1 /* bytestreamout_array.hpp */,
+				85981A0F73834BCAE00B49E4EA1E97C3 /* bytestreamout_file.hpp */,
+				3FAB7D693ABE2CF1BBE04B58722371CC /* bytestreamout_nil.hpp */,
+				645709451534FADE25D48D839C04EAFB /* bytestreamout_ostream.hpp */,
+				05E106073F07F5EE33D056B79CE210E1 /* endian.hpp */,
+				E07C0C4D2FE56002FD0EDCBF8B310973 /* integercompressor.cpp */,
+				B4ECBF59B77D5746E553C348B8C5D001 /* integercompressor.hpp */,
+				B3C53B0C2315E6C73854F908EFC59C4A /* lasattributer.hpp */,
+				7D68E88352E55586B2201E845A9E9CC3 /* lasindex.cpp */,
+				F3997065DD671431D6B156B186B692ED /* lasindex.hpp */,
+				3527457610BF927C82CA905338C54953 /* lasinterval.cpp */,
+				0D8110209BD99E2AB47FFB56905AE748 /* lasinterval.hpp */,
+				1FA64EE19AA889098A7644B0D5E20BA4 /* laspoint.hpp */,
+				2552E96EDF53EEB2C000CD8F4B6D8523 /* lasquadtree.cpp */,
+				D98A6798396E6D9B971FAFE02B79365F /* lasquadtree.hpp */,
+				48C95A70E4D19832383039625B9D67F2 /* lasquantizer.hpp */,
+				8FAC7646B3B0A658BDD986D2F68B6EA0 /* lasreaditem.hpp */,
+				C50446C3CA174CADADACC110D128128D /* lasreaditemcompressed_v1.cpp */,
+				796EE397FC6FDF01425AD9D9CFF5A098 /* lasreaditemcompressed_v1.hpp */,
+				9948B702E1F740F2D272C6704EBC37DD /* lasreaditemcompressed_v2.cpp */,
+				8D2B230FD31A401EF64FC2A1CFB62F7F /* lasreaditemcompressed_v2.hpp */,
+				B1AE3C50C1DA9AA329DA7DE31D22811A /* lasreaditemraw.hpp */,
+				795D5EBCD139E2A21D1BEEF7AB1DBA9A /* lasreadpoint.cpp */,
+				E9DBC4D61A4146EB21B71CE160D99EE8 /* lasreadpoint.hpp */,
+				10569E675B21E458AF1C32793B1CB535 /* lasunzipper.cpp */,
+				3D4114030E49017199DC2F4802BB75EC /* lasunzipper.hpp */,
+				895CED1D27B91660F24DB69613DC64EF /* laswriteitem.hpp */,
+				2D429BDEDBD33B979663C28B0E0A1CB4 /* laswriteitemcompressed_v1.cpp */,
+				FF8396F4C8B9CC25A1E0714CBD0B512A /* laswriteitemcompressed_v1.hpp */,
+				411A10C85068406C6DA3587478F4D8E5 /* laswriteitemcompressed_v2.cpp */,
+				A8D31CA0197702AC7628811EC8E8021B /* laswriteitemcompressed_v2.hpp */,
+				837B6108870A4DFB2CB312F70D2F7A01 /* laswriteitemraw.hpp */,
+				943450651AFB71146E0777BC0982B84D /* laswritepoint.cpp */,
+				BA8B3EC55F01985C1D9CFCF75ADB87BB /* laswritepoint.hpp */,
+				BAAE4F3F9437D760A4255A56F557137F /* laszip.cpp */,
+				873CF6CD9C236C3048433E8EC93651F8 /* laszip.hpp */,
+				A0FD6DFE1B53F804CA1DF1CEBD4AFF49 /* laszip_api.h */,
+				F6136191E4A38655E230468D3B128AD3 /* laszip_common_v1.hpp */,
+				6207E6B0549D7B94578C1734B96D277D /* laszip_common_v2.hpp */,
+				B92D085FB1F9DE20A125A0E827EA2162 /* laszip_dll.cpp */,
+				299A250C0AF09F64410C4836AB23959F /* laszipper.cpp */,
+				3740FF518C63F1A8B75A2A2690B3567E /* laszipper.hpp */,
+			);
+			name = LASzip;
+			sourceTree = "<group>";
+		};
 		67F0FDAA63EC85E22B1521E8FD31EFC1 /* Report View */ = {
 			isa = PBXGroup;
 			children = (
@@ -509,7 +658,7 @@
 				BF3B19DF4FB3FD7E33F6521F279DFB55 /* URLProtocolUtils.h */,
 				C5C92DC52C2275901E63D7D521C6FE54 /* URLProtocolUtils.m */,
 				CAF3C63B1B81608AE5F83BA90FF5E94E /* WhirlyCloudViewController.h */,
-				5D24E4242E23E10BFAB85FECA229F576 /* WhirlyCloudViewController.m */,
+				A422033DAEDA87351D8CF6A99CBB27D6 /* WhirlyCloudViewController.mm */,
 			);
 			name = "Report View";
 			sourceTree = "<group>";
@@ -638,6 +787,21 @@
 			name = "List View";
 			sourceTree = "<group>";
 		};
+		A20A8C15894F15EED6000BBBDBC23A01 /* LidarViewer */ = {
+			isa = PBXGroup;
+			children = (
+				FE8FD53782E88467C8F3556BB81EE882 /* FMDatabase */,
+				63F26EC72D9BF607DEC14923A4347236 /* LASzip */,
+				FF6F98FEE759EFBF89612E64C444C832 /* LAZQuadReader.h */,
+				492F12E03A2435A3C52A1B279479F27F /* LAZQuadReader.mm */,
+				5F79D6F91A15B5BCE2968454C811CFA2 /* LAZShader.h */,
+				B4596C96773A52346267F3A3731E4160 /* LAZShader.mm */,
+				6556EC9E3CFC281105435D741D5EF9E7 /* MeshBuilder.h */,
+				8A93D717FF462866DF78A965D61C7A7D /* MeshBuilder.mm */,
+			);
+			name = LidarViewer;
+			sourceTree = "<group>";
+		};
 		A82C08186B00843BEA0FD78EB5DC61F6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -656,11 +820,14 @@
 				C565C16CCF4E72BEFF614EECFDC7B86A /* Security.framework */,
 				30FF242598BC0A2CC88697DFA9A7C8EF /* UIKit.framework */,
 				EA5DDB8A8443E3E749E3BC46AC37DB18 /* WhirlyGlobeMaplyComponent.framework */,
-				06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */,
-				D1072CDB13E3DBEE9ADA1DE8BEDF4A2F /* libPods-DICETests.a */,
-				F4BE4D08CA3C45E96AF71552E740CEB9 /* libicucore.dylib */,
-				C02FAF9A74B4B8672E74CBB9CB64F9F1 /* libsqlite3.dylib */,
-				B46385A2D42FB7F614D504A2765461C8 /* libz.dylib */,
+				11D2C8ECEF3E911EC20F37A86324EFBD /* libc++.tbd */,
+				A1B27E562C3835ED6BC9DFD0132CA382 /* libiconv.tbd */,
+				50D6CAEFF15645B13C2EE3AE4A0A1916 /* libsqlite3.tbd */,
+				5511B0E8EC6C180EF6F813FECC8F0D19 /* libstdc++.tbd */,
+				A2C204491DC65426ABF8BE77116BC57A /* libxml2.tbd */,
+				1CA61E564F29B2A4CCCAB34AFF058F4E /* libz.tbd */,
+				46133120479FF0525FD9D2F8 /* libPods-DICE.a */,
+				ED68111615F937B62ACDA85E /* libPods-DICETests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -749,6 +916,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		FE8FD53782E88467C8F3556BB81EE882 /* FMDatabase */ = {
+			isa = PBXGroup;
+			children = (
+				FBB64DB2A7E13281AA6A6386B9219898 /* FMDB.h */,
+				BDCA310E4E38CF456E73CDFDF1FF5B07 /* FMDatabase.h */,
+				0CF37900119BEC21A10B08BBE6B23AFC /* FMDatabaseAdditions.h */,
+				80350759D61357D0BE30BFBE1AA5C297 /* FMDatabasePool.h */,
+				26C6C3B54A2EF581B82E3271FA986AA6 /* FMDatabaseQueue.h */,
+				F3F09E2EE94B25F6D85F2BF54EFF0A57 /* FMResultSet.h */,
+			);
+			name = FMDatabase;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -756,12 +936,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F33562D612B06501C035F00033031799 /* Build configuration list for PBXNativeTarget "DICE" */;
 			buildPhases = (
-				BB5792040AC26F994B671822A1E52CA1 /* 📦 Check Pods Manifest.lock */,
+				BB5792040AC26F994B671822A1E52CA1 /* [CP] Check Pods Manifest.lock */,
 				1534439D08C7AAA938707E99E7BF0056 /* Sources */,
 				DAEB822D4A9A383A423DEACD737CA0A2 /* Frameworks */,
 				5D5B540FA2BDB950BF2D70387D731A61 /* Resources */,
-				1F32FFE7E350A0E932A6BB14FF081E66 /* 📦 Embed Pods Frameworks */,
-				D8EC6440B503DE36C07E40595DB8ED16 /* 📦 Copy Pods Resources */,
+				1F32FFE7E350A0E932A6BB14FF081E66 /* [CP] Embed Pods Frameworks */,
+				D8EC6440B503DE36C07E40595DB8ED16 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -776,12 +956,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D7616DFD228BF2035F4600114F5BFD12 /* Build configuration list for PBXNativeTarget "DICETests" */;
 			buildPhases = (
-				5AE2DDDE249566F5FE0B680CE8B2EDA9 /* 📦 Check Pods Manifest.lock */,
+				5AE2DDDE249566F5FE0B680CE8B2EDA9 /* [CP] Check Pods Manifest.lock */,
 				24C6D00EC77ADB56C64F7B21EA4FCD97 /* Sources */,
 				E6808B28F0705F2A3E03DA878B837CB9 /* Frameworks */,
 				7286E2689E35060931D5838E16F6C8B1 /* Resources */,
-				45EB590DF4295665C5365970DAFC8ED0 /* 📦 Embed Pods Frameworks */,
-				D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* 📦 Copy Pods Resources */,
+				45EB590DF4295665C5365970DAFC8ED0 /* [CP] Embed Pods Frameworks */,
+				D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -799,7 +979,7 @@
 		D12F51E3886BBF4E0C3F556A8B3CCE5C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = mil.nga;
 				TargetAttributes = {
 					C30AAB62D1044B085EF8ED77996FBF85 = {
@@ -837,11 +1017,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		7D9A335F1D30123F0060AFB9 /* LidarViewerLib.framework */ = {
+		4BB357362A18334613F397BF1B083B02 /* LidarViewerLib.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = LidarViewerLib.framework;
-			remoteRef = 7D9A335E1D30123F0060AFB9 /* PBXContainerItemProxy */;
+			remoteRef = C47E1019C35F84ED647242B9E0DCAF3D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		AD8FDCD1939366242F30DBFFF73A3499 /* LidarViewer.app */ = {
@@ -917,14 +1097,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1F32FFE7E350A0E932A6BB14FF081E66 /* 📦 Embed Pods Frameworks */ = {
+		1F32FFE7E350A0E932A6BB14FF081E66 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -932,14 +1112,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		45EB590DF4295665C5365970DAFC8ED0 /* 📦 Embed Pods Frameworks */ = {
+		45EB590DF4295665C5365970DAFC8ED0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -947,14 +1127,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		5AE2DDDE249566F5FE0B680CE8B2EDA9 /* 📦 Check Pods Manifest.lock */ = {
+		5AE2DDDE249566F5FE0B680CE8B2EDA9 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -962,14 +1142,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		BB5792040AC26F994B671822A1E52CA1 /* 📦 Check Pods Manifest.lock */ = {
+		BB5792040AC26F994B671822A1E52CA1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -977,14 +1157,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* 📦 Copy Pods Resources */ = {
+		D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -992,14 +1172,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D8EC6440B503DE36C07E40595DB8ED16 /* 📦 Copy Pods Resources */ = {
+		D8EC6440B503DE36C07E40595DB8ED16 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1025,6 +1205,8 @@
 				6943E2ABED9AF43AE34A465BA2239118 /* GeoPackageURLProtocol.m in Sources */,
 				968A97CD130E52756E09C7D4CC174C4A /* HTMLViewController.m in Sources */,
 				C8CE09E74342E3CD0744A2A2DE8215F2 /* JavaScriptAPI.m in Sources */,
+				576BFC4031E42DB44BA2707C5DE10808 /* LAZQuadReader.mm in Sources */,
+				FF7E0096C6AB702BED7F5FFDF45581D1 /* LAZShader.mm in Sources */,
 				5196984729CFA95885F1DD3372AFFBB5 /* ListViewController.m in Sources */,
 				EF3E35357D0EC3E3E93D41897814552C /* MapOverlayActiveSwitch.m in Sources */,
 				E5E36A1026B51BC927A57B4D8DDB710A /* MapOverlayCellItem.m in Sources */,
@@ -1032,6 +1214,7 @@
 				1F4462855CD2A1AF131E7519A68E9C75 /* MapOverlayController.m in Sources */,
 				3D12A0793D000300A4799BE983F6C410 /* MapOverlayTableCell.m in Sources */,
 				A2A955DC3241517F69018FF2395B7F9A /* MapViewController.m in Sources */,
+				46F9C327B7DCEBEB995505ABEBA5006E /* MeshBuilder.mm in Sources */,
 				252EBD190BA1BB850F22D4A606590DC6 /* NoteViewController.m in Sources */,
 				489663D9A34EA5A601A0183AFD7DC291 /* OfflineMapUtility.m in Sources */,
 				7CA903F152A4E7AA5DFF30BCBFC52440 /* PDFViewController.m in Sources */,
@@ -1070,7 +1253,24 @@
 				B59E3A5E9857C5CD91AE78AE38435363 /* TileViewController.m in Sources */,
 				171A3C7DABA275D903BE54A7E5BA3EE0 /* UIXToolbarView.m in Sources */,
 				517D8096337C9E0790848C5D0858785F /* URLProtocolUtils.m in Sources */,
-				9A5F98B13578CFBE7F24C03408730F9A /* WhirlyCloudViewController.m in Sources */,
+				FB43D0DD3FF5C93AAA6327F70AC9B6B1 /* WhirlyCloudViewController.mm in Sources */,
+				E4F29F8CB7C458960DCCB5342E6DEB00 /* arithmeticdecoder.cpp in Sources */,
+				7FE7E1CD65924740909D45496CC5CCC3 /* arithmeticencoder.cpp in Sources */,
+				F6BCD7D974044CB069320FF2691059B5 /* arithmeticmodel.cpp in Sources */,
+				BC0656B409672233FDC4D316B3BBA0E7 /* integercompressor.cpp in Sources */,
+				7191A911EB9122C5C3194DA03D0210C4 /* lasindex.cpp in Sources */,
+				B59F9466513126F2490C0565C6CBA16F /* lasinterval.cpp in Sources */,
+				F2A16DD36B90FCF361E4F676CA052F25 /* lasquadtree.cpp in Sources */,
+				F0C779C3144648A02304218163A94F18 /* lasreaditemcompressed_v1.cpp in Sources */,
+				EC3C9F7686A8AF74B5D8E5FA6EFAF416 /* lasreaditemcompressed_v2.cpp in Sources */,
+				9082F74CC6023EEA090C2E90FF3B6218 /* lasreadpoint.cpp in Sources */,
+				FAAD97A147B267C3F26697A585637199 /* lasunzipper.cpp in Sources */,
+				F7B618FE9191B7AE8D543C2CDAC40693 /* laswriteitemcompressed_v1.cpp in Sources */,
+				75A3FA4F8617E7E9B28F3D423B915771 /* laswriteitemcompressed_v2.cpp in Sources */,
+				18895D91A3F3290912DC2AFD8AC8753C /* laswritepoint.cpp in Sources */,
+				BD61E4E4669E372C695CC3CF10FC0648 /* laszip.cpp in Sources */,
+				A17F77C45E497478E34033E3068CA8A0 /* laszip_dll.cpp in Sources */,
+				EF33A4CECDBD3764F95ADCE7ED61A7C9 /* laszipper.cpp in Sources */,
 				DEF92CAB7F363E401DD06E10DDD34956 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1109,8 +1309,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -1119,22 +1320,31 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					C_CODE,
 					"DEBUG=1",
+					"LASZIPDLL_EXPORTS=1",
+					"UNORDERED=1",
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/",
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/WhirlyGlobeLib/include/",
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/eigen/",
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/boost/",
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/SMCalloutView/",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1146,20 +1356,44 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/wgm-point_cloud/libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/build/Debug-iphoneos",
-				);
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				KEEP_PRIVATE_EXTERNS = NO;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-l\"AFNetworking\"",
+					"-l\"WebViewJavascriptBridge\"",
+					"-l\"geopackage-ios\"",
+					"-l\"objective-zip\"",
+					"-l\"proj4\"",
+					"-l\"sqlite3\"",
+					"-l\"wkb-ios\"",
+					"-l\"z\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"MobileCoreServices\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+					"-framework",
+					"\"UIKit\"",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = mil.dod.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
@@ -1204,8 +1438,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -1219,10 +1454,16 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/",
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/WhirlyGlobeLib/include/",
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/eigen/",
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/boost/",
+					"wgm-point_cloud/libs/WhirlyGlobe-Maply/third-party/SMCalloutView/",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -1270,20 +1511,44 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/wgm-point_cloud/libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/build/Debug-iphoneos",
-				);
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_BITCODE = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				KEEP_PRIVATE_EXTERNS = NO;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-l\"AFNetworking\"",
+					"-l\"WebViewJavascriptBridge\"",
+					"-l\"geopackage-ios\"",
+					"-l\"objective-zip\"",
+					"-l\"proj4\"",
+					"-l\"sqlite3\"",
+					"-l\"wkb-ios\"",
+					"-l\"z\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"Foundation\"",
+					"-framework",
+					"\"MobileCoreServices\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+					"-framework",
+					"\"UIKit\"",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = mil.dod.nga.giat.DICE;
 				PRODUCT_NAME = DICE;
 				PROVISIONING_PROFILE = "";
