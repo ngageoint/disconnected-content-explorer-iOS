@@ -53,6 +53,8 @@
 			</array>
 		</dict>
 		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<array/>
 			<key>CFBundleTypeIconFiles</key>
 			<array/>
 			<key>CFBundleTypeName</key>
@@ -61,7 +63,7 @@
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.mousebird.WhirlyGlobe.pointCloudDB</string>
+				<string>com.mousebird.whirlycloud</string>
 			</array>
 		</dict>
 	</array>
@@ -177,11 +179,12 @@
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.database</string>
+				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>WhirlyGlobe Point Cloud Database</string>
 			<key>UTTypeIdentifier</key>
-			<string>com.mousebird.WhirlyGlobe.pointCloudDB</string>
+			<string>com.mousebird.whirlycloud</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
