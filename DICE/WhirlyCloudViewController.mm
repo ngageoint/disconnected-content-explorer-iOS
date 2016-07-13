@@ -15,6 +15,10 @@
 
 
 @interface WhirlyCloudViewController () <WhirlyGlobeViewControllerDelegate, ResourceHandler>
+
+@property Report *report;
+@property NSURL *resource;
+
 @end
 
 
@@ -26,22 +30,12 @@
 
 - (void)handleResource:(NSURL *)resource forReport:(Report *)report
 {
-
-}
-
-// Look for a specific file in the bundle or in the doc dir
-- (NSString *)findFile:(NSString *)base ext:(NSString *)ext
-{
-    NSString *docDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-    NSString *dbPath = [[docDir stringByAppendingPathComponent:base] stringByAppendingPathExtension:ext];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:dbPath])
-    {
-        dbPath = [[NSBundle mainBundle] pathForResource:base ofType:ext];
-        if (![[NSFileManager defaultManager] fileExistsAtPath:dbPath])
-            dbPath = nil;
+    self.report = report;
+    self.resource = resource;
+    if (!self.resource) {
+        self.resource = self.report.url;
     }
-
-    return dbPath;
+    [self addLaz:self.resource.path rampShader:pointShaderRamp regularShader:pointShaderColor desc:@{}];
 }
 
 // Generate a standard color ramp
@@ -62,15 +56,6 @@
     return [rampGen makeImage:CGSizeMake(256.0,1.0)];
 }
 
-- (UIImage *)generateGrayRamp
-{
-    MaplyColorRampGenerator *rampGen = [[MaplyColorRampGenerator alloc] init];
-    [rampGen addHexColor:0x000000];
-    [rampGen addHexColor:0xffffff];
-
-    return [rampGen makeImage:CGSizeMake(256.0,1.0)];
-}
-
 // Maximum number of points we'd like to display
 static int MaxDisplayedPoints = 3000000;
 
@@ -79,16 +64,15 @@ static int MaxDisplayedPoints = 3000000;
     [super viewDidLoad];
 
     // Overrides for various databases
-    NSDictionary *dbDesc = @{
-                             @"ot_35121F2416_1-B-quad-data": @{
-                                     kLAZReaderCoordSys:@"+proj=utm +zone=10 +datum=NAD83 +no_defs",
-                                     kLAZShaderPointSize: @(4.0),
-                                     kLAZReaderZOffset: @(2.0)
-                                     },
-                             @"st-helens-quad-data": @{kLAZReaderColorScale: @(255.0)},
-                             @"stadium-utm-quad-data": @{kLAZReaderColorScale: @(255.0)}
-                             };
-
+//    NSDictionary *dbDesc = @{
+//        @"ot_35121F2416_1-B-quad-data": @{
+//            kLAZReaderCoordSys:@"+proj=utm +zone=10 +datum=NAD83 +no_defs",
+//            kLAZShaderPointSize: @(4.0),
+//            kLAZReaderZOffset: @(2.0)
+//        },
+//        @"st-helens-quad-data": @{kLAZReaderColorScale: @(255.0)},
+//        @"stadium-utm-quad-data": @{kLAZReaderColorScale: @(255.0)}
+//    };
 
     // Set up the globe
     globeViewC = [[WhirlyGlobeViewController alloc] init];
@@ -96,7 +80,7 @@ static int MaxDisplayedPoints = 3000000;
     globeViewC.view.frame = self.view.bounds;
     [self addChildViewController:globeViewC];
     globeViewC.frameInterval = 2;
-    //    globeViewC.performanceOutput = true;
+    // globeViewC.performanceOutput = true;
     globeViewC.delegate = self;
     globeViewC.tiltGesture = true;
     globeViewC.autoMoveToTap = false;
@@ -109,7 +93,7 @@ static int MaxDisplayedPoints = 3000000;
     NSString * baseCacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSString * cacheDir = [NSString stringWithFormat:@"%@/maqquesttiles/", baseCacheDir];
     int maxZoom = 18;
-    MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/sat/" ext:@"png" minZoom:0 maxZoom:maxZoom];
+    MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://mapbox.geointservices.io/v4/mapbox.osm-bright/" ext:@"png" minZoom:0 maxZoom:maxZoom];
     tileSource.cacheDir = cacheDir;
     MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
     layer.handleEdges = true;
@@ -121,23 +105,6 @@ static int MaxDisplayedPoints = 3000000;
     // Shader Shaders for color and ramp versions
     pointShaderColor = BuildPointShader(globeViewC);
     pointShaderRamp = BuildRampPointShader(globeViewC,[self generateColorRamp]);
-
-    // Look for databases in the documents directory
-    NSString *docDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-    for (NSString *path in [[NSFileManager defaultManager] subpathsAtPath:docDir])
-    {
-        NSString *ext = [path pathExtension];
-        if ([ext isEqualToString:@"sqlite"])
-        {
-            NSString *base = [[path lastPathComponent] stringByDeletingPathExtension];
-
-            // Look for overrides
-            NSDictionary *desc = dbDesc[base];
-
-            // Add the database
-            [self addLaz:[docDir stringByAppendingPathComponent:path] rampShader:pointShaderRamp regularShader:pointShaderColor desc:desc];
-        }
-    }
 }
 
 - (void)addLaz:(NSString *)dbPath rampShader:(MaplyShader *)rampShader regularShader:(MaplyShader *)regShader desc:(NSDictionary *)desc
@@ -162,7 +129,7 @@ static int MaxDisplayedPoints = 3000000;
     WhirlyGlobeViewControllerAnimationState *viewState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
     viewState.heading = -3.118891;
     viewState.height = 0.003194;
-    viewState.tilt   = 0.988057;
+    viewState.tilt = 0.988057;
     MaplyCoordinate center = [[quadDelegate coordSys] localToGeo:[quadDelegate getCenter]];
     viewState.pos = MaplyCoordinateDMake(center.x,center.y);
     [globeViewC setViewState:viewState];
@@ -182,9 +149,12 @@ static int MaxDisplayedPoints = 3000000;
     MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
     label.text = [[dbPath lastPathComponent] stringByDeletingPathExtension];
     label.loc = center;
-    [globeViewC addScreenLabels:@[label] desc:@{kMaplyMaxVis: @(10.0),
-                                                kMaplyMinVis: @(0.1),
-                                                kMaplyFont: [UIFont boldSystemFontOfSize:24.0]}];
+    [globeViewC addScreenLabels:@[label]
+        desc:@{
+            kMaplyMaxVis:@(10.0),
+            kMaplyMinVis:@(0.1),
+            kMaplyFont:[UIFont boldSystemFontOfSize:24.0]
+        }];
 }
 
 @end

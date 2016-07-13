@@ -40,7 +40,7 @@ UIStoryboard *activeStoryboard;
         @"public.html": @"storyboard:htmlViewController",
         @"public.zip-archive": @"storyboard:htmlViewController",
         @"com.adobe.pdf": @"class:PDFViewController",
-        @"com.mousebird.whirlycloud": @"class:LidarViewController"
+        @"com.mousebird.whirlycloud": @"class:WhirlyCloudViewController"
         // TODO: add office types
     };
     
@@ -102,7 +102,7 @@ UIStoryboard *activeStoryboard;
     
     if ([viewerType isEqualToString:@"class"]) {
         Class viewerClass = NSClassFromString(viewerID);
-        viewController = [[viewerClass alloc] init];
+        viewController = (UIViewController<ResourceHandler> *) [[viewerClass alloc] init];
     }
     else if ([viewerType isEqualToString:@"storyboard"]) {
         viewController = [activeStoryboard instantiateViewControllerWithIdentifier:viewerID];
