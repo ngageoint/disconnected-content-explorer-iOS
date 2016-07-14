@@ -53,6 +53,11 @@ UIStoryboard *activeStoryboard;
 
 + (NSString *)typeUtiOf:(NSURL *)resource
 {
+    /*
+     * TODO: handle dyn.<random_string> dynamic type identifiers - apparently UTTypeEqual() should handle that.
+     * also, make sure custom exported UTIs in app plist conform to public.data in addition to other types.  that
+     * seems to avoid the dynamic type identifiers all together.
+     */
     NSString *uti = nil;
     [resource getResourceValue:&uti forKey:NSURLTypeIdentifierKey error:nil];
     if (!uti) {
@@ -67,6 +72,7 @@ UIStoryboard *activeStoryboard;
 
 + (BOOL)canOpenResource:(NSURL *)resource
 {
+    // TODO: need to use UTTypeEqual() instead of dictionary key string comparison
     NSString *uti = [ResourceTypes typeUtiOf:resource];
     if ([resourceViewers valueForKey:uti]) {
         return YES;
