@@ -810,14 +810,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F33562D612B06501C035F00033031799 /* Build configuration list for PBXNativeTarget "DICE" */;
 			buildPhases = (
-				9977EDC636584665AEE2417A /* 📦 Check Pods Manifest.lock */,
+				9977EDC636584665AEE2417A /* [CP] Check Pods Manifest.lock */,
 				98A72C80539D8983840FB7B4 /* uD83DuDCE6 Check Pods Manifest.lock */,
 				BB5792040AC26F994B671822A1E52CA1 /* uD83DuDCE6 Check Pods Manifest.lock */,
 				1534439D08C7AAA938707E99E7BF0056 /* Sources */,
 				DAEB822D4A9A383A423DEACD737CA0A2 /* Frameworks */,
 				5D5B540FA2BDB950BF2D70387D731A61 /* Resources */,
-				1F32FFE7E350A0E932A6BB14FF081E66 /* uD83DuDCE6 Embed Pods Frameworks */,
-				D8EC6440B503DE36C07E40595DB8ED16 /* uD83DuDCE6 Copy Pods Resources */,
+				1F32FFE7E350A0E932A6BB14FF081E66 /* [CP] Embed Pods Frameworks */,
+				D8EC6440B503DE36C07E40595DB8ED16 /* [CP] Copy Pods Resources */,
 				1F5FE04628F3E52A9282AEB7 /* uD83DuDCE6 Embed Pods Frameworks */,
 				851855D1ACCC2B7839E52633 /* uD83DuDCE6 Copy Pods Resources */,
 				0F5B247C330D087C6C0871F5 /* 📦 Embed Pods Frameworks */,
@@ -836,14 +836,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D7616DFD228BF2035F4600114F5BFD12 /* Build configuration list for PBXNativeTarget "DICETests" */;
 			buildPhases = (
-				3C85239F1D3E59BA285BCAAE /* 📦 Check Pods Manifest.lock */,
+				3C85239F1D3E59BA285BCAAE /* [CP] Check Pods Manifest.lock */,
 				FE422847ACB2A97324F82C60 /* uD83DuDCE6 Check Pods Manifest.lock */,
 				5AE2DDDE249566F5FE0B680CE8B2EDA9 /* uD83DuDCE6 Check Pods Manifest.lock */,
 				24C6D00EC77ADB56C64F7B21EA4FCD97 /* Sources */,
 				E6808B28F0705F2A3E03DA878B837CB9 /* Frameworks */,
 				7286E2689E35060931D5838E16F6C8B1 /* Resources */,
-				45EB590DF4295665C5365970DAFC8ED0 /* uD83DuDCE6 Embed Pods Frameworks */,
-				D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* uD83DuDCE6 Copy Pods Resources */,
+				45EB590DF4295665C5365970DAFC8ED0 /* [CP] Embed Pods Frameworks */,
+				D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* [CP] Copy Pods Resources */,
 				EF3550294D4392707BB15E9221D0BC36 /* CopyFiles */,
 				757553F18B73D1AF69024423 /* uD83DuDCE6 Embed Pods Frameworks */,
 				088FC2C011472B0AEEC1D993 /* uD83DuDCE6 Copy Pods Resources */,
@@ -993,14 +993,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1F32FFE7E350A0E932A6BB14FF081E66 /* uD83DuDCE6 Embed Pods Frameworks */ = {
+		1F32FFE7E350A0E932A6BB14FF081E66 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "uD83DuDCE6 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1023,14 +1023,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		3C85239F1D3E59BA285BCAAE /* 📦 Check Pods Manifest.lock */ = {
+		3C85239F1D3E59BA285BCAAE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1038,14 +1038,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		45EB590DF4295665C5365970DAFC8ED0 /* uD83DuDCE6 Embed Pods Frameworks */ = {
+		45EB590DF4295665C5365970DAFC8ED0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "uD83DuDCE6 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1128,14 +1128,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		9977EDC636584665AEE2417A /* 📦 Check Pods Manifest.lock */ = {
+		9977EDC636584665AEE2417A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1173,14 +1173,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* uD83DuDCE6 Copy Pods Resources */ = {
+		D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "uD83DuDCE6 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1188,14 +1188,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D8EC6440B503DE36C07E40595DB8ED16 /* uD83DuDCE6 Copy Pods Resources */ = {
+		D8EC6440B503DE36C07E40595DB8ED16 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "uD83DuDCE6 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
