@@ -14,6 +14,7 @@
 #import <OCMockito/OCMockito.h>
 
 #import "ImportProcess+Internal.h"
+#import "NSOperation+Blockable.h"
 
 
 @interface TestBaseImportProcess : ImportProcess
@@ -172,21 +173,6 @@ describe(@"ImportProcess", ^{
         expect(^{[op2 removeObserver:import forKeyPath:@"isFinished"];}).to.raiseAny();
         expect(^{[op2 removeObserver:import forKeyPath:@"isExecuting"];}).to.raiseAny();
         expect(^{[op2 removeObserver:import forKeyPath:@"isCancelled"];}).to.raiseAny();
-    });
-
-    it(@"begins with the current step at -1", ^{
-
-        NSOperation *op1 = mock([NSOperation class]);
-        NSOperation *op2 = mock([NSOperation class]);
-
-        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
-
-        expect(import.currentStep).to.equal(-1);
-
-    });
-
-    xit(@"sets the current step to 0 when the first operation starts", ^{
-        failure(@"unimplemented");
     });
 
 });

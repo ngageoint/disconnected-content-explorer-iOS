@@ -18,7 +18,6 @@
 
 @property (readonly) Report *report;
 @property (readonly, nonatomic) NSArray<NSOperation *> *steps;
-@property (readonly) NSInteger currentStep;
 @property (weak) id<ImportDelegate> delegate;
 
 - (instancetype)initWithReport:(Report *)report NS_DESIGNATED_INITIALIZER;

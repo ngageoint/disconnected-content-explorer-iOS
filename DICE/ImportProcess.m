@@ -28,7 +28,6 @@
     OBSERVATION_CONTEXT = &OBSERVATION_CONTEXT;
 
     _report = report;
-    _currentStep = -1;
 
     return self;
 }
@@ -70,10 +69,7 @@
 
     BOOL isPrior = ((NSNumber *)change[NSKeyValueChangeNotificationIsPriorKey]).boolValue;
     if (isPrior) {
-        if ([keyPath isEqualToString:NSStringFromSelector(@selector(isExecuting))]) {
-            _currentStep += 1;
-        }
-        else if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
+        if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
             [self stepWillFinish:object];
         }
         else if ([keyPath isEqualToString:NSStringFromSelector(@selector(isCancelled))]) {
