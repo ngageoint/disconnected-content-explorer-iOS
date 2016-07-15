@@ -8,8 +8,8 @@
 
 @interface KVOBlockObserver : NSObject
 
-@property (copy, readonly) void (^observingBlock)(NSString *, id, NSDictionary *, void *);
+@property (copy, readonly) void (^observingBlock)(NSString *, id, NSDictionary<NSString *, id> *, void *);
 
-- (instancetype)initWithBlock:(void (^)(NSString *, id, NSDictionary *, void *))block;
+- (instancetype)initWithBlock:(void (^)(NSString *, id, NSDictionary<NSString *, id> *, void *))block;
 
 @end
