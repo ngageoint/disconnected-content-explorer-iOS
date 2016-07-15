@@ -10,10 +10,7 @@
 #import <Specta/Specta.h>
 #import <Expecta/Expecta.h>
 
-#define HC_SHORTHAND
 #import <OCHamcrest/OCHamcrest.h>
-
-#define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
 
 #import "ResourceTypes.h"

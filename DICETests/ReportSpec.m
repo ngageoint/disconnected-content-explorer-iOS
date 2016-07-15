@@ -9,9 +9,7 @@
 #import "Specta.h"
 #import <Expecta/Expecta.h>
 
-#define HC_SHORTHAND
 #import <OCHamcrest/OCHamcrest.h>
-
 
 #import "Report.h"
 
