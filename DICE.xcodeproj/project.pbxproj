@@ -78,6 +78,7 @@
 		8DE82581CDFD6A3B4F70D2EED01679CE /* libPods-DICE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */; };
 		8F6887A896EA730D7F7C9B3A /* NSOperation+Blockable.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F688BAF3CC3393D6960FD77 /* NSOperation+Blockable.m */; };
 		8F688B81CBB59F6D50E49528 /* NotificationRecordingObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F688F4A54776137121FFED4 /* NotificationRecordingObserver.m */; };
+		8F688BFD1F0EB16F7A4FEE08 /* ValidateHtmlLayoutOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F688842B6D0DD3DBE2D0031 /* ValidateHtmlLayoutOperationSpec.m */; };
 		8F688E34C1B9AA47C180D06C /* ParseJsonOperationSpec.json in Resources */ = {isa = PBXBuildFile; fileRef = 8F6883A2A594E36D473677D8 /* ParseJsonOperationSpec.json */; };
 		8F688EE59190CE063147EDB7 /* KVOBlockObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F68874C7022F5AD99CB5907 /* KVOBlockObserver.m */; };
 		8F9DA036F086CF997A65F0233F626610 /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */; };
@@ -271,6 +272,7 @@
 		8F6884CFC41F66955E86EA34 /* NSOperation+Blockable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSOperation+Blockable.h"; sourceTree = "<group>"; };
 		8F68874C7022F5AD99CB5907 /* KVOBlockObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KVOBlockObserver.m; sourceTree = "<group>"; };
 		8F68883E9195FC9432767D47 /* NotificationRecordingObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationRecordingObserver.h; sourceTree = "<group>"; };
+		8F688842B6D0DD3DBE2D0031 /* ValidateHtmlLayoutOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValidateHtmlLayoutOperationSpec.m; sourceTree = "<group>"; };
 		8F688BAF3CC3393D6960FD77 /* NSOperation+Blockable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSOperation+Blockable.m"; sourceTree = "<group>"; };
 		8F688F4A54776137121FFED4 /* NotificationRecordingObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationRecordingObserver.m; sourceTree = "<group>"; };
 		9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportUtils.m; sourceTree = "<group>"; };
@@ -610,6 +612,7 @@
 				8F68883E9195FC9432767D47 /* NotificationRecordingObserver.h */,
 				8F68874C7022F5AD99CB5907 /* KVOBlockObserver.m */,
 				8F6882353136F7340C92E8CC /* KVOBlockObserver.h */,
+				8F688842B6D0DD3DBE2D0031 /* ValidateHtmlLayoutOperationSpec.m */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -1135,6 +1138,7 @@
 				8F6887A896EA730D7F7C9B3A /* NSOperation+Blockable.m in Sources */,
 				8F688B81CBB59F6D50E49528 /* NotificationRecordingObserver.m in Sources */,
 				8F688EE59190CE063147EDB7 /* KVOBlockObserver.m in Sources */,
+				8F688BFD1F0EB16F7A4FEE08 /* ValidateHtmlLayoutOperationSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
