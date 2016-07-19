@@ -598,27 +598,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         stopMocking(importListener);
     });
 
-    xit(@"unzips the file to a temporary directory", ^{
-//        NSString *uuid = [[NSUUID UUID] UUIDString];
-//        NSString *tempDirName = [@"temp-" stringByAppendingString:uuid];
-//        NSURL *tempDir = [reportsDir URLByAppendingPathComponent:tempDirName];
-//
-//        [given([fileManager createTempDir]) willReturn:tempDir];
-//
-//        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
-//        id<ImportProcess> import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
-//            destDir:reportsDir zipFile:zipFile fileManager:fileManager];
-//        UnzipOperation *unzipStep = import.steps[2];
-//
-//        expect(unzipStep.zipFile).to.equal(initialReport.url);
-//        expect(unzipStep.destDir).to.equal(tempDir);
 
-        failure(@"unimplemented - unnecessary?  could make concurrency issues simpler");
-    });
-
-    xit(@"moves the extracted content to the reports directory", ^{
-        failure(@"unimplemented - only if unzipping to temp dirs");
-    });
 
 });
 
