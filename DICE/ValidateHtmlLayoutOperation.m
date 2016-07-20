@@ -9,7 +9,7 @@
 #import "ValidateHtmlLayoutOperation.h"
 
 #import "FileInZipInfo.h"
-
+#import "FileTree.h"
 
 
 @implementation ValidateHtmlLayoutOperation
@@ -20,13 +20,17 @@
 
 - (instancetype)initWithZipFile:(ZipFile *)zipFile
 {
-    self = [super init];
+    return nil;
+}
 
+- (instancetype)initWithFileListing:(NSEnumerator<id <FileListingEntry>> *)files
+{
+    self = [super init];
     if (!self) {
         return nil;
     }
 
-    _zipFile = zipFile;
+    _fileListing = files;
 
     return self;
 }
@@ -39,38 +43,36 @@
 - (void)main
 {
     @autoreleasepool {
-        NSArray *entries = [self.zipFile listFileInZipInfos];
-
-        __block NSString *mostShallowIndexEntry = nil;
+        NSString *mostShallowIndexEntry = nil;
         // index.html must be at most one directory deep
-        __block NSUInteger indexDepth = 2;
-        __block BOOL hasNonIndexRootEntries = NO;
+        NSUInteger indexDepth = 2;
+        BOOL hasNonIndexRootEntries = NO;
         NSMutableSet *baseDirs = [NSMutableSet set];
 
-        [entries enumerateObjectsUsingBlock:^(FileInZipInfo *entry, NSUInteger index, BOOL *stop) {
-            NSArray *steps = entry.name.pathComponents;
+        for (id<FileListingEntry> entry in self.fileListing) {
+            NSArray *steps = [entry fileListing_path].pathComponents;
             if (steps.count > 1) {
                 [baseDirs addObject:steps.firstObject];
             }
             if ([@"index.html" isEqualToString:steps.lastObject]) {
                 if (steps.count == 1) {
-                    mostShallowIndexEntry = entry.name;
+                    mostShallowIndexEntry = [entry fileListing_path];
                     indexDepth = 0;
                 }
                 else if (steps.count - 1 < indexDepth) {
-                    mostShallowIndexEntry = entry.name;
+                    mostShallowIndexEntry = [entry fileListing_path];
                     indexDepth = steps.count - 1;
                 }
             }
             else {
                 if ([@"metadata.json" isEqualToString:steps.lastObject]) {
-                    _descriptorPath = entry.name;
+                    _descriptorPath = [entry fileListing_path];
                 }
                 if (steps.count == 1) {
                     hasNonIndexRootEntries = YES;
                 }
             }
-        }];
+        }
 
         if (indexDepth > 0 && (hasNonIndexRootEntries || baseDirs.count > 1)) {
             mostShallowIndexEntry = nil;
