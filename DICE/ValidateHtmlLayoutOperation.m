@@ -8,20 +8,12 @@
 
 #import "ValidateHtmlLayoutOperation.h"
 
-#import "FileInZipInfo.h"
-#import "FileTree.h"
-
 
 @implementation ValidateHtmlLayoutOperation
 
 /*
  TODO: combine this with the logic of couldHandleFile: to DRY
  */
-
-- (instancetype)initWithZipFile:(ZipFile *)zipFile
-{
-    return nil;
-}
 
 - (instancetype)initWithFileListing:(NSEnumerator<id <FileListingEntry>> *)files
 {

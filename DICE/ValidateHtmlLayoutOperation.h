@@ -8,13 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ZipFile.h"
 #import "FileTree.h"
 
 
 @interface ValidateHtmlLayoutOperation : NSOperation
 
-@property (readonly) ZipFile *zipFile;
 @property (readonly) NSEnumerator<id<FileListingEntry>> *fileListing;
 
 /**
@@ -38,7 +36,6 @@
  */
 @property (readonly) NSString *descriptorPath;
 
-- (instancetype)initWithZipFile:(ZipFile *)zipFile;
 - (instancetype)initWithFileListing:(NSEnumerator<id<FileListingEntry>> *)files;
 
 @end

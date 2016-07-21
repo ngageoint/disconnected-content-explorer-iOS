@@ -111,6 +111,7 @@
     ZipFile *mockZipFile = mock([ZipFile class]);
     [given([mockZipFile fileName]) willReturn:report.url.path];
     [given([mockZipFile listFileInZipInfos]) willReturn:entries];
+    [given([mockZipFile fileTree_enumerateFiles]) willReturn:<#(id)object#>]
 
     return mockZipFile;
 }
@@ -157,9 +158,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
-        ValidateHtmlLayoutOperation *validateStep = (ValidateHtmlLayoutOperation *) import.steps.firstObject;
-
-        expect(validateStep.zipFile).to.beIdenticalTo(zipFile);
+        expect(import.steps.firstObject).to.beInstanceOf([ValidateHtmlLayoutOperation class]);
 
         stopMocking(zipFile);
     });

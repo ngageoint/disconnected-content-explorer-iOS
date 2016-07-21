@@ -13,7 +13,7 @@
 #import "ValidateHtmlLayoutOperation.h"
 #import "UnzipOperation.h"
 #import "ZippedHtmlImportProcess.h"
-
+#import "ZipFile+FileTree.h"
 
 
 @implementation ZippedHtmlImportProcess
@@ -33,7 +33,7 @@
         return nil;
     }
 
-    ValidateHtmlLayoutOperation *validation = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
+    ValidateHtmlLayoutOperation *validation = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:[zipFile fileTree_enumerateFiles]];
 
     MkdirOperation *makeDestDir = [[MkdirOperation alloc] initWithFileMananger:fileManager];
     [makeDestDir addDependency:validation];

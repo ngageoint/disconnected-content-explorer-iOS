@@ -4,7 +4,6 @@
 //
 
 #import "ZipFile+FileTree.h"
-#import "FileInZipInfo.h"
 
 
 @implementation FileInZipInfo (FileListingEntry)
@@ -40,7 +39,20 @@
     return self;
 }
 
+- (id<FileListingEntry>)nextObject
+{
 
+}
+
+- (NSArray<id<FileListingEntry>> *)allObjects
+{
+
+}
+
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained[])buffer count:(NSUInteger)len
+{
+    return 0;
+}
 
 @end
 
@@ -50,11 +62,6 @@
 - (NSEnumerator<id<FileListingEntry>> *)fileTree_enumerateFiles
 {
     return nil;
-}
-
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained[])buffer count:(NSUInteger)len
-{
-    return 0;
 }
 
 @end
