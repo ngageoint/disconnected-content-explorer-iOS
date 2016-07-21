@@ -18,7 +18,7 @@
 #import "ValidateHtmlLayoutOperation.h"
 #import "FileOperations.h"
 #import "UnzipOperation.h"
-#import "FileInZipInfo.h"
+#import "OZFileInZipInfo.h"
 
 
 @interface TestQueue : NSOperationQueue

@@ -25,7 +25,7 @@
 
 - (instancetype)initWithReport:(Report *)report
                        destDir:(NSURL *)destDir
-                       zipFile:(ZipFile *)zipFile
+                       zipFile:(OZZipFile *)zipFile
                    fileManager:(NSFileManager *)fileManager
 {
     self = [super initWithReport:report];

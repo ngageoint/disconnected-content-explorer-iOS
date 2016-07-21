@@ -13,8 +13,8 @@
 
 #import "ValidateHtmlLayoutOperation.h"
 #import "FileTree.h"
-#import "ZipFile.h"
-#import "FileInZipInfo.h"
+#import "OZZipFile.h"
+#import "OZFileInZipInfo.h"
 
 
 @interface VHLOSFileListingEntry : NSObject <FileListingEntry>

@@ -7,7 +7,7 @@
 //
 
 #import "ImportProcess.h"
-#import "ZipFile.h"
+#import "OZZipFile.h"
 
 
 
@@ -29,7 +29,7 @@ typedef NS_ENUM(NSUInteger, ZippedHtmlImportStep) {
 
 - (instancetype)initWithReport:(Report *)report
                        destDir:(NSURL *)destDir
-                       zipFile:(ZipFile *)zipFile
+                       zipFile:(OZZipFile *)zipFile
                    fileManager:(NSFileManager *)fileManager;
 
 @end

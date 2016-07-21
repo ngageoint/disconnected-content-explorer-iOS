@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ZipFile.h"
+#import "OZZipFile.h"
 
 
 @class UnzipOperation;
@@ -31,7 +31,7 @@
 
 @interface UnzipOperation : NSOperation
 
-@property (nonatomic, readonly) ZipFile *zipFile;
+@property (nonatomic, readonly) OZZipFile *zipFile;
 @property (nonatomic) NSURL *destDir;
 @property (nonatomic, readonly) NSFileManager *fileManager;
 /**
@@ -45,6 +45,6 @@
 @property (readonly) BOOL wasSuccessful;
 @property (readonly) NSString *errorMessage;
 
-- (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager;
+- (instancetype)initWithZipFile:(OZZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager;
 
 @end

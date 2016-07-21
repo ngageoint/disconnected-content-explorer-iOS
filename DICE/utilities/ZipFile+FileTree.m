@@ -6,7 +6,7 @@
 #import "ZipFile+FileTree.h"
 
 
-@implementation FileInZipInfo (FileListingEntry)
+@implementation OZFileInZipInfo (FileListingEntry)
 
 - (NSString *)fileListing_path
 {
@@ -15,7 +15,7 @@
 
 - (NSUInteger)fileListing_size
 {
-    return self.length;
+    return (NSUInteger)self.length;
 }
 
 @end
@@ -25,10 +25,10 @@
 @end
 
 @implementation ZipFileEnumerator {
-    ZipFile *_zipFile;
+    OZZipFile *_zipFile;
 }
 
-- (instancetype)initWithZipFile:(ZipFile *)zipFile
+- (instancetype)initWithZipFile:(OZZipFile *)zipFile
 {
     if (!(self = [super init])) {
         return nil;
@@ -41,12 +41,12 @@
 
 - (id<FileListingEntry>)nextObject
 {
-
+    return nil;
 }
 
 - (NSArray<id<FileListingEntry>> *)allObjects
 {
-
+    return @[];
 }
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id __unsafe_unretained[])buffer count:(NSUInteger)len
@@ -57,7 +57,7 @@
 @end
 
 
-@implementation ZipFile (FileTree)
+@implementation OZZipFile (FileTree)
 
 - (NSEnumerator<id<FileListingEntry>> *)fileTree_enumerateFiles
 {

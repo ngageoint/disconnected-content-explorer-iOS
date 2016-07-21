@@ -3,7 +3,7 @@ platform :ios, '8.0'
 
 
 target :DICE do
-  pod 'objective-zip', '0.8.3'
+  pod 'objective-zip', '~>1.0.0'
   pod 'WebViewJavascriptBridge', '4.1.4'
   pod 'geopackage-ios', '~> 1.1.11'
 end

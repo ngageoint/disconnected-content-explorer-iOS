@@ -17,8 +17,10 @@
 #import "ZippedHtmlImportProcess.h"
 #import "FileOperations.h"
 #import "ParseJsonOperation.h"
-#import "FileInZipInfo.h"
+#import "OZFileInZipInfo+Internals.h"
 #import "ImportProcess+Internal.h"
+#import "ZipFile+FileTree.h"
+#import "OZZipFile+Standard.h"
 
 
 @interface ZippedHtmlImportProcessSpec_MkdirOperation : MkdirOperation
@@ -94,26 +96,26 @@
 
 @interface ZippedHtmlImportProcessSpecUtil : NSObject
 
-+ (ZipFile *)mockZipForReport:(Report *)report entryNames:(NSArray *)entryNames;
++ (OZZipFile *)mockZipForReport:(Report *)report entryNames:(NSArray *)entryNames;
 
 @end
 
 @implementation ZippedHtmlImportProcessSpecUtil
 
-+ (ZipFile *)mockZipForReport:(Report *)report entryNames:(NSArray *)entryNames
++ (OZZipFile *)mockZipForReport:(Report *)report entryNames:(NSArray *)entryNames
 {
     NSMutableArray *entries = [NSMutableArray array];
 
     for (NSString *entryName in entryNames) {
-        [entries addObject:[[FileInZipInfo alloc] initWithName:entryName length:0 level:ZipCompressionLevelDefault crypted:NO size:0 date:nil crc32:0]];
+        [entries addObject:[[OZFileInZipInfo alloc] initWithName:entryName length:0 level:OZZipCompressionLevelDefault crypted:NO size:0 date:nil crc32:0]];
     }
 
-    ZipFile *mockZipFile = mock([ZipFile class]);
-    [given([mockZipFile fileName]) willReturn:report.url.path];
-    [given([mockZipFile listFileInZipInfos]) willReturn:entries];
-    [given([mockZipFile fileTree_enumerateFiles]) willReturn:<#(id)object#>]
+    OZZipFile *mockZip = mock([OZZipFile class]);
+    [given([mockZip fileName]) willReturn:report.url.path];
+    [given([mockZip listFileInZipInfos]) willReturn:entries];
+    [given([mockZip fileTree_enumerateFiles]) willReturn:nil];
 
-    return mockZipFile;
+    return mockZip;
 }
 
 @end
@@ -132,7 +134,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     beforeAll(^{
 
     });
-    
+
     beforeEach(^{
         initialReport = [[Report alloc] init];
         initialReport.url = [reportsDir URLByAppendingPathComponent:reportFileName];
@@ -147,11 +149,11 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     afterAll(^{
-        
+
     });
 
     it(@"validates the zip file contents first", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[
             @"base/",
             @"base/index.html"
         ]];
@@ -164,7 +166,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"makes the base dir when the validation finishes successfully", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"icon.gif", @"index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"icon.gif", @"index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -187,7 +189,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"cancels the import if the validation fails", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/readme.txt"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/readme.txt"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -208,7 +210,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"is ready to unzip when the dest dir is created", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -221,7 +223,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"cancels the import when the dest dir cannot be created and did not exist", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"index.html", @"icon.png"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"index.html", @"icon.png"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -246,7 +248,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"unzips to the reports dir when zip has base dir", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -271,7 +273,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"creates and unzips to dir named after zip file when zip has no base dir", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -306,7 +308,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         Report *report = mock([Report class]);
         [given([report title]) willReturn:initialReport.title];
         [given([report url]) willReturn:initialReport.url];
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
         NSOperationQueue *ops = [[NSOperationQueue alloc] init];
@@ -351,7 +353,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         Report *report = mock([Report class]);
         [given([report title]) willReturn:initialReport.title];
         [given([report url]) willReturn:initialReport.url];
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:report entryNames:@[@"index.html", @"images/", @"images/icon.png"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:report entryNames:@[@"index.html", @"images/", @"images/icon.png"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
         NSOperationQueue *ops = [[NSOperationQueue alloc] init];
@@ -393,7 +395,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"parses the report descriptor if available at root", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"index.html", @"metadata.json"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"index.html", @"metadata.json"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -412,7 +414,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"parses the report descriptor if available in base dir", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -431,7 +433,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"cancels parsing report descriptor if not available", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -451,7 +453,7 @@ describe(@"ZippedHtmlImportProcess", ^{
 
     it(@"updates the report on the main thread after parsing the descriptor", ^{
         Report *report = mock([Report class]);
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil
             mockZipForReport:initialReport entryNames:@[@"test/", @"test/index.html", @"test/metadata.json"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:report
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
@@ -483,7 +485,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"deletes the zip file after unzipping successfully", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -497,7 +499,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"leaves the zip file if an error occurs", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc]
             initWithReport:initialReport destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -522,7 +524,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"reports unzip progress updates", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
              destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 
@@ -544,7 +546,7 @@ describe(@"ZippedHtmlImportProcess", ^{
     });
 
     it(@"notifies the delegate on main thread when finished", ^{
-        ZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
+        OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[@"base/", @"base/index.html"]];
         ZippedHtmlImportProcess *import = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport
             destDir:reportsDir zipFile:zipFile fileManager:fileManager];
 

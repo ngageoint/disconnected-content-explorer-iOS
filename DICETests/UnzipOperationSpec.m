@@ -12,8 +12,9 @@
 #import <OCHamcrest/OCHamcrest.h>
 #import <OCMockito/OCMockito.h>
 
+#import "OZZipFile+Standard.h"
+#import "OZZipException+Internals.h"
 #import "UnzipOperation.h"
-#import "ZipException.h"
 #import "NSOperation+Blockable.h"
 
 
@@ -61,7 +62,7 @@
         @catch (SpecificException *exception) {
             self.exception = exception;
         }
-        @catch (ZipException *exception) {
+        @catch (OZZipException *exception) {
             self.exception = exception;
         }
         @catch (NSException *exception) {
@@ -82,7 +83,7 @@
         @catch (SpecificException *exception) {
             self.exception = exception;
         }
-        @catch (ZipException *exception) {
+        @catch (OZZipException *exception) {
             self.exception = exception;
         }
         @catch (NSException *exception) {
@@ -150,7 +151,7 @@ describe(@"UnzipOperation", ^{
     });
 
     it(@"is not ready until dest dir is set", ^{
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([ZipFile class]) destDir:nil fileManager:[NSFileManager defaultManager]];
+        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([OZZipFile class]) destDir:nil fileManager:[NSFileManager defaultManager]];
 
         id observer = mock([NSObject class]);
 
@@ -173,7 +174,7 @@ describe(@"UnzipOperation", ^{
     });
 
     it(@"is not ready until dependencies are finished", ^{
-        ZipFile *zipFile = mock([ZipFile class]);
+        OZZipFile *zipFile = mock([OZZipFile class]);
         UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:[NSURL URLWithString:@"/some/dir"] fileManager:[NSFileManager defaultManager]];
         NSOperation *holdup = [[NSOperation alloc] init];
         [op addDependency:holdup];
@@ -188,7 +189,7 @@ describe(@"UnzipOperation", ^{
     });
 
     it(@"is ready if cancelled before executing", ^{
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([ZipFile class]) destDir:nil fileManager:[NSFileManager defaultManager]];
+        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([OZZipFile class]) destDir:nil fileManager:[NSFileManager defaultManager]];
         id observer = mock([NSObject class]);
         [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
 
@@ -201,7 +202,7 @@ describe(@"UnzipOperation", ^{
     });
 
     it(@"throws an exception when dest dir change is attempted while executing", ^{
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([ZipFile class]) destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
+        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([OZZipFile class]) destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
         [op block];
         [op performSelectorInBackground:@selector(start) withObject:nil];
 
@@ -222,7 +223,7 @@ describe(@"UnzipOperation", ^{
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
         NSString *zipFilePath = [bundle pathForResource:@"test_base_dir" ofType:@"zip"];
-        ZipFile *zipFile = [[ZipFile alloc] initWithFileName:zipFilePath mode:ZipFileModeUnzip];
+        OZZipFile *zipFile = [[OZZipFile alloc] initWithFileName:zipFilePath mode:OZZipFileModeUnzip];
         NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
         [fm createDirectoryAtURL:destDir withIntermediateDirectories:YES attributes:nil error:nil];
@@ -313,7 +314,7 @@ describe(@"UnzipOperation", ^{
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
         NSString *zipFilePath = [bundle pathForResource:@"test_no_base_dir" ofType:@"zip"];
-        ZipFile *zipFile = [[ZipFile alloc] initWithFileName:zipFilePath mode:ZipFileModeUnzip];
+        OZZipFile *zipFile = [[OZZipFile alloc] initWithFileName:zipFilePath mode:OZZipFileModeUnzip];
         NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
         [fm createDirectoryAtURL:destDir withIntermediateDirectories:YES attributes:nil error:nil];
@@ -402,7 +403,7 @@ describe(@"UnzipOperation", ^{
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
         NSString *zipFilePath = [bundle pathForResource:@"10x128_bytes" ofType:@"zip"];
-        ZipFile *zipFile = [[ZipFile alloc] initWithFileName:zipFilePath mode:ZipFileModeUnzip];
+        OZZipFile *zipFile = [[OZZipFile alloc] initWithFileName:zipFilePath mode:OZZipFileModeUnzip];
         NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
         [fm createDirectoryAtURL:destDir withIntermediateDirectories:YES attributes:nil error:nil];
@@ -436,12 +437,12 @@ describe(@"UnzipOperation", ^{
     });
 
     it(@"is unsuccessful when unzipping raises an exception", ^{
-        ZipFile *zipFile = mock([ZipFile class]);
-        ZipException *zipError = [[ZipException alloc] initWithError:99 reason:@"test error"];
+        OZZipFile *zipFile = mock([OZZipFile class]);
+        OZZipException *zipError = [[OZZipException alloc] initWithError:99 reason:@"test error"];
 
         [givenVoid([zipFile goToFirstFileInZip]) willThrow:zipError];
 
-        expect(zipError).to.beInstanceOf([ZipException class]);
+        expect(zipError).to.beInstanceOf([OZZipException class]);
 
         NSURL *destDir = [NSURL fileURLWithPath:@"/tmp/test"];
         UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
@@ -457,21 +458,21 @@ describe(@"UnzipOperation", ^{
 
     /*
      These tests are for a weird condition in which the catch block 
-     for ZipException gets skipped and drops through to NSException.
+     for OZZipException gets skipped and drops through to NSException.
      Maybe we can revisit this later, but for now, just check the 
      name on the NSException that actually gets caught.
      */
 
-    it(@"catches ZipException", ^{
-        ZipFile *zipFile = mock([ZipFile class]);
-        ZipException *ze = [[ZipException alloc] initWithError:99 reason:@"test error"];
+    it(@"catches OZZipException", ^{
+        OZZipFile *zipFile = mock([OZZipFile class]);
+        OZZipException *ze = [[OZZipException alloc] initWithError:99 reason:@"test error"];
         [givenVoid([zipFile goToFirstFileInZip]) willThrow:ze];
 
         @try {
             [zipFile goToFirstFileInZip];
         }
-        @catch (ZipException *exception) {
-            expect(exception).to.beInstanceOf([ZipException class]);
+        @catch (OZZipException *exception) {
+            expect(exception).to.beInstanceOf([OZZipException class]);
             return;
         }
 
@@ -482,13 +483,13 @@ describe(@"UnzipOperation", ^{
         ThrowException *thrower = mock([ThrowException class]);
         ExceptionTest *test = [[ExceptionTest alloc] initWithThrower:thrower];
 
-        ZipException *zipError = [[ZipException alloc] initWithError:99 reason:@"test error"];
+        OZZipException *zipError = [[OZZipException alloc] initWithError:99 reason:@"test error"];
         NSException *err = [[SpecificException alloc] initWithName:@"Test" reason:@"Testing" userInfo:nil];
         [givenVoid([thrower throwException]) willThrow:zipError];
 
         [test start];
 
-        expect([test.exception class]).to.equal([ZipException class]);
+        expect([test.exception class]).to.equal([OZZipException class]);
 
         stopMocking(thrower);
     });

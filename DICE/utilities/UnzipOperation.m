@@ -7,9 +7,10 @@
 //
 
 #import "UnzipOperation.h"
-#import "ZipException.h"
-#import "FileInZipInfo.h"
-#import "ZipReadStream.h"
+#import "OZZipException.h"
+#import "OZZipFile+Standard.h"
+#import "OZFileInZipInfo.h"
+#import "OZZipReadStream+Standard.h"
 
 
 @implementation UnzipOperation
@@ -36,7 +37,7 @@
     return NO;
 }
 
-- (instancetype)initWithZipFile:(ZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager
+- (instancetype)initWithZipFile:(OZZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager
 {
     self = [super init];
     if (!self) {
@@ -72,13 +73,13 @@
             [self calculateTotalSize];
             [self commenceUnzip];
         }
-        @catch (ZipException *e) {
+        @catch (OZZipException *e) {
             // TODO: this catch block does not activate in tests for some reason - maddening
             _wasSuccessful = NO;
             _errorMessage = [NSString stringWithFormat:@"Error reading zip file: %@", e.reason];
         }
         @catch (NSException *e) {
-            e = (ZipException *)e;
+            e = (OZZipException *)e;
             if ([@"ZipException" isEqualToString:e.name]) {
                 _wasSuccessful = NO;
                 _errorMessage = [NSString stringWithFormat:@"Error reading zip file: %@", e.reason];
@@ -90,7 +91,6 @@
         }
         @finally {
             _entryBuffer.length = 0;
-            [_entryBuffer release];
             [self.zipFile close];
         }
     }
@@ -132,7 +132,7 @@
 - (void)calculateTotalSize
 {
     NSArray *entries = [self.zipFile listFileInZipInfos];
-    for (FileInZipInfo *entry in entries) {
+    for (OZFileInZipInfo *entry in entries) {
         _totalUncompressedSize += entry.length;
     }
 }
@@ -143,12 +143,12 @@
 
     [self.zipFile goToFirstFileInZip];
     do {
-        FileInZipInfo *entry = [self.zipFile getCurrentFileInZipInfo];
+        OZFileInZipInfo *entry = [self.zipFile getCurrentFileInZipInfo];
         NSURL *entryUrl = [self.destDir URLByAppendingPathComponent:entry.name];
         BOOL entryIsDir = [entry.name hasSuffix:@"/"];
         if (entryIsDir) {
             [self createDirectoryForEntry:entry atUrl:entryUrl];
-            [dirDates setObject:entry.date forKey:entryUrl.path];
+            dirDates[entryUrl.path] = entry.date;
         }
         else {
             [self writeFileForEntry:entry atUrl:entryUrl];
@@ -173,7 +173,7 @@
     [dirDates removeAllObjects];
 }
 
-- (void)createDirectoryForEntry:(FileInZipInfo *)entry atUrl:(NSURL *)dir
+- (void)createDirectoryForEntry:(OZFileInZipInfo *)entry atUrl:(NSURL *)dir
 {
     BOOL existingFileIsDir = YES;
     if ([self.fileManager fileExistsAtPath:dir.path isDirectory:&existingFileIsDir]) {
@@ -190,7 +190,7 @@
     }
 }
 
-- (void)writeFileForEntry:(FileInZipInfo *)entry atUrl:(NSURL *)file
+- (void)writeFileForEntry:(OZFileInZipInfo *)entry atUrl:(NSURL *)file
 {
     BOOL created = [self.fileManager createFileAtPath:file.path contents:nil attributes:nil];
     if (!created) {
@@ -199,7 +199,7 @@
     }
 
     NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:file.path];
-    ZipReadStream *read = [self.zipFile readCurrentFileInZip];
+    OZZipReadStream *read = [self.zipFile readCurrentFileInZip];
     NSUInteger count;
     while ((count = [read readDataWithBuffer:_entryBuffer])) {
         _entryBuffer.length = count;

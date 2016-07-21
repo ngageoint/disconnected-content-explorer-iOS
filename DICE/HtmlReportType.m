@@ -8,9 +8,9 @@
 
 #import "HtmlReportType.h"
 
-#import "ZipFile.h"
+#import "OZZipFile+Standard.h"
+#import "UnzipOperation.h"
 #import "ZippedHtmlImportProcess.h"
-
 
 
 
@@ -66,7 +66,7 @@
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
     // TODO: support directories that have already been extracted
-    ZipFile *zipFile = [[ZipFile alloc] initWithFileName:report.url.path mode:ZipFileModeUnzip];
+    OZZipFile *zipFile = [[OZZipFile alloc] initWithFileName:report.url.path mode:OZZipFileModeUnzip];
     ZippedHtmlImportProcess *process = [[ZippedHtmlImportProcess alloc] initWithReport:report
         destDir:destDir zipFile:zipFile fileManager:self.fileManager];
 

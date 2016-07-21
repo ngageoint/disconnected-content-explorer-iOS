@@ -4,14 +4,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ZipFile.h"
-#import "FileInZipInfo.h"
+#import "OZZipFile.h"
+#import "OZFileInZipInfo.h"
 #import "FileTree.h"
 
-@interface FileInZipInfo (FileTree) <FileListingEntry>
+@interface OZFileInZipInfo (FileTree) <FileListingEntry>
 @end
 
-@interface ZipFile (FileTree) <FileTree>
+@interface OZZipFile (FileTree) <FileTree>
 @end
 
 
