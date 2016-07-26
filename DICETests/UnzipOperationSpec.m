@@ -461,6 +461,8 @@ describe(@"UnzipOperation", ^{
      for OZZipException gets skipped and drops through to NSException.
      Maybe we can revisit this later, but for now, just check the 
      name on the NSException that actually gets caught.
+
+     TODO: now with objective-zip 1.x there is NSError** style error handling available - should switch to that
      */
 
     it(@"catches OZZipException", ^{

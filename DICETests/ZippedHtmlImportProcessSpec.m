@@ -113,7 +113,7 @@
     OZZipFile *mockZip = mock([OZZipFile class]);
     [given([mockZip fileName]) willReturn:report.url.path];
     [given([mockZip listFileInZipInfos]) willReturn:entries];
-    [given([mockZip fileTree_enumerateFiles]) willReturn:nil];
+    [given([mockZip fileTree_enumerateFiles]) willReturn:entries.objectEnumerator];
 
     return mockZip;
 }
