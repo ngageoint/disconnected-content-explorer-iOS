@@ -598,9 +598,6 @@ describe(@"ZippedHtmlImportProcess", ^{
         stopMocking(zipFile);
         stopMocking(importListener);
     });
-
-
-
 });
 
 SpecEnd

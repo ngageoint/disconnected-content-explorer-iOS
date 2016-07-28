@@ -17,6 +17,7 @@
 @protocol FileTree <NSObject>
 
 - (NSEnumerator<id<FileListingEntry>> *)fileTree_enumerateFiles;
+- (id<FileListingEntry>)fileTree_findBaseName:(NSString *)baseName;
 
 @end
 

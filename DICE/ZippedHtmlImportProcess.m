@@ -33,7 +33,7 @@
         return nil;
     }
 
-    ValidateHtmlLayoutOperation *validation = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:[zipFile fileTree_enumerateFiles]];
+    ValidateHtmlLayoutOperation *validation = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
     MkdirOperation *makeDestDir = [[MkdirOperation alloc] initWithFileMananger:fileManager];
     [makeDestDir addDependency:validation];

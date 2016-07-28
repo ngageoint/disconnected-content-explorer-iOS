@@ -9,16 +9,14 @@
 
 #import <Specta/Specta.h>
 #import <Expecta/Expecta.h>
-
 #import <OCHamcrest/OCHamcrest.h>
 #import <OCMockito/OCMockito.h>
 
 #import "ResourceTypes.h"
 #import "HtmlReportType.h"
-#import "ValidateHtmlLayoutOperation.h"
-#import "FileOperations.h"
 #import "UnzipOperation.h"
-#import "OZFileInZipInfo.h"
+#import "ZippedHtmlImportProcess.h"
+#import "ExplodedHtmlImportProcess.h"
 
 
 @interface TestQueue : NSOperationQueue
@@ -126,6 +124,24 @@ describe(@"HtmlReportType", ^{
         [given([fileManager attributesOfItemAtPath:filePath.path error:nil]) willReturn:@{NSFileType: NSFileTypeSocket}];
 
         expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
+    });
+
+    it(@"creates an extracted html report import process for a directory report url", ^{
+        NSURL *reportPath = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
+        Report *report = [[Report alloc] init];
+        report.url = reportPath;
+        [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
+        ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
+        expect(import).to.beInstanceOf([ExplodedHtmlImportProcess class]);
+    });
+
+    it(@"creates a zipped html report import process for a zip file report url", ^{
+        NSURL *reportPath = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
+        Report *report = [[Report alloc] init];
+        report.url = reportPath;
+        [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
+        ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
+        expect(import).to.beInstanceOf([ZippedHtmlImportProcess class]);
     });
 
 });

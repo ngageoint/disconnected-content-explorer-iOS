@@ -81,6 +81,7 @@
 		8F688BFD1F0EB16F7A4FEE08 /* ValidateHtmlLayoutOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F688842B6D0DD3DBE2D0031 /* ValidateHtmlLayoutOperationSpec.m */; };
 		8F688C36C374A11B2AE4C497 /* ZipFile+FileTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F6882ADE3BA62FE773BE25F /* ZipFile+FileTree.m */; };
 		8F688CC2C154FBDDE86DCF4A /* ZipFile+FileTreeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F688990BD5705D4DC558B25 /* ZipFile+FileTreeSpec.m */; };
+		8F688DA57D3A60419FA63126 /* ExplodedHtmlImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F688BBB53A195ED77F49176 /* ExplodedHtmlImportProcess.m */; };
 		8F688E34C1B9AA47C180D06C /* ParseJsonOperationSpec.json in Resources */ = {isa = PBXBuildFile; fileRef = 8F6883A2A594E36D473677D8 /* ParseJsonOperationSpec.json */; };
 		8F688EE59190CE063147EDB7 /* KVOBlockObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F68874C7022F5AD99CB5907 /* KVOBlockObserver.m */; };
 		8F9DA036F086CF997A65F0233F626610 /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */; };
@@ -279,7 +280,9 @@
 		8F688990BD5705D4DC558B25 /* ZipFile+FileTreeSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZipFile+FileTreeSpec.m"; sourceTree = "<group>"; };
 		8F688AADFA1F457406B84444 /* FileTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileTree.h; sourceTree = "<group>"; };
 		8F688BAF3CC3393D6960FD77 /* NSOperation+Blockable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSOperation+Blockable.m"; sourceTree = "<group>"; };
+		8F688BBB53A195ED77F49176 /* ExplodedHtmlImportProcess.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExplodedHtmlImportProcess.m; sourceTree = "<group>"; };
 		8F688D2E4C8D6295B58D4B8A /* ZipFile+FileTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ZipFile+FileTree.h"; sourceTree = "<group>"; };
+		8F688F31CC2251486363E02B /* ExplodedHtmlImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExplodedHtmlImportProcess.h; sourceTree = "<group>"; };
 		8F688F4A54776137121FFED4 /* NotificationRecordingObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationRecordingObserver.m; sourceTree = "<group>"; };
 		9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportUtils.m; sourceTree = "<group>"; };
 		91DE9AADF066A41E4737F8A176CC9B3F /* CGPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPDFDocument.h; sourceTree = "<group>"; };
@@ -738,6 +741,8 @@
 				82C7F74932A31C09F40260215E150384 /* ValidateHtmlLayoutOperation.m */,
 				3AC2F1F6790368EB8AFDDA24B79A6D42 /* ZippedHtmlImportProcess.h */,
 				E7CCF3194FCDEFB90C1C77BE35BA448B /* ZippedHtmlImportProcess.m */,
+				8F688BBB53A195ED77F49176 /* ExplodedHtmlImportProcess.m */,
+				8F688F31CC2251486363E02B /* ExplodedHtmlImportProcess.h */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -1130,6 +1135,7 @@
 				DE7809A9412F9FCD075BF618E1956647 /* ZippedHtmlImportProcess.m in Sources */,
 				DEF92CAB7F363E401DD06E10DDD34956 /* main.m in Sources */,
 				8F688C36C374A11B2AE4C497 /* ZipFile+FileTree.m in Sources */,
+				8F688DA57D3A60419FA63126 /* ExplodedHtmlImportProcess.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
