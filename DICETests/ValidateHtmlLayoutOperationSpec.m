@@ -12,85 +12,8 @@
 #import <OCMockito/OCMockito.h>
 
 #import "ValidateHtmlLayoutOperation.h"
-#import "FileTree.h"
-#import "OZZipFile.h"
-#import "OZFileInZipInfo.h"
-
-
-@interface VHLOSFileListingEntry : NSObject <FileListingEntry>
-
-+ (NSArray<VHLOSFileListingEntry *> *)createFromPathsAndSizes:(NSArray *)pathsAndSizes;
-+ (instancetype)createWithPath:(NSString *)path size:(NSUInteger)size;
-
-@property NSString *fileListing_path;
-@property NSUInteger fileListing_size;
-
-- (instancetype)initWithPath:(NSString *)path size:(NSUInteger)size;
-
-@end
-
-@implementation VHLOSFileListingEntry
-+ (NSArray<VHLOSFileListingEntry *> *)createFromPathsAndSizes:(NSArray *)pathsAndSizes
-{
-    NSMutableArray<VHLOSFileListingEntry *> *entries = [NSMutableArray array];
-    for (NSUInteger i = 0; i < pathsAndSizes.count; i += 2) {
-        NSString *path = pathsAndSizes[i];
-        NSNumber *size = pathsAndSizes[i + 1];
-        [entries addObject:[VHLOSFileListingEntry createWithPath:path size:size.unsignedIntegerValue]];
-    }
-    return [NSArray arrayWithArray:entries];
-}
-+ (instancetype)createWithPath:(NSString *)path size:(NSUInteger)size
-{
-    return [[VHLOSFileListingEntry alloc] initWithPath:path size:size];
-}
-- (instancetype)initWithPath:(NSString *)path size:(NSUInteger)size
-{
-    if (!(self = [super init])) {
-        return nil;
-    }
-    _fileListing_path = path;
-    _fileListing_size = size;
-    return self;
-}
-@end
-
-
-@interface VHLOSFileListing : NSEnumerator
-
-+ (instancetype)listingWithEntries:(NSArray *)pathsAndSizes;
-
-@property NSEnumerator<VHLOSFileListingEntry *> *entries;
-
-- (instancetype)initWithEntries:(NSArray<VHLOSFileListingEntry *> *)entries;
-
-@end
-
-@implementation VHLOSFileListing
-+ (instancetype)listingWithEntries:(NSArray *)pathsAndSizes
-{
-    VHLOSFileListing *listing = [[VHLOSFileListing alloc] initWithEntries:[VHLOSFileListingEntry createFromPathsAndSizes:pathsAndSizes]];
-    return listing;
-}
-- (instancetype)initWithEntries:(NSArray<VHLOSFileListingEntry *> *)entries
-{
-    if (!(self = [super init])) {
-        return nil;
-    }
-
-    _entries = [entries objectEnumerator];
-
-    return self;
-}
-- (VHLOSFileListingEntry *)nextObject
-{
-    return self.entries.nextObject;
-}
-- (NSArray<VHLOSFileListingEntry *> *)allObjects
-{
-    return self.entries.allObjects;
-}
-@end
+#import "Objective-Zip.h"
+#import "OZFileInZipInfo+Internals.h"
 
 
 SpecBegin(ValidateHtmlLayoutOperation)
@@ -98,12 +21,14 @@ SpecBegin(ValidateHtmlLayoutOperation)
     describe(@"ValidateHtmlLayoutOperation", ^{
 
         it(@"validates a zip with index.html at the root level", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"images/", @0,
-                @"images/favicon.gif", @0,
-                @"index.html", @0
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"images/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"images/favicon.gif" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
             expect(op.indexDirPath).to.beNil;
@@ -117,13 +42,15 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"validates a zip with index.html in a top-level directory", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"base/", @0,
-                @"base/images/", @0,
-                @"base/images/favicon.gif", @0,
-                @"base/index.html", @0
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"base/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
             expect(op.indexDirPath).to.beNil;
@@ -137,13 +64,14 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"invalidates a zip without index.html", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"images/", @0,
-                @"images/favicon.gif", @0,
-                @"report.html", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"images/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"images/favicon.gif" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"report.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
             expect(op.indexDirPath).to.beNil;
@@ -157,14 +85,15 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"invalidates a zip with index.html in a lower-level directory", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"base/", @0,
-                @"base/images/", @0,
-                @"base/images/favicon.gif", @0,
-                @"base/sub/index.html", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"base/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/sub/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
             expect(op.indexDirPath).to.beNil;
@@ -178,15 +107,16 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"invalidates a zip with root entries and non-root index.html", ^{
-                NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"base/", @0,
-                @"base/images/", @0,
-                @"base/images/favicon.gif", @0,
-                @"base/index.html", @0,
-                @"root.cruft", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"base/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"root.cruft" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
             expect(op.indexDirPath).to.beNil;
@@ -200,16 +130,24 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"uses the most shallow index.html", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"base/", @0,
-                @"base/images/", @0,
-                @"base/images/favicon.gif", @0,
-                @"base/sub/", @0,
-                @"base/sub/index.html", @0,
-                @"index.html", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [[given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"base/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/sub/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/sub/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+            ]] willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/images/favicon.gif" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/sub/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/sub/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
             expect(op.indexDirPath).to.beNil;
@@ -220,16 +158,8 @@ SpecBegin(ValidateHtmlLayoutOperation)
             expect(op.isCancelled).to.equal(NO);
             expect(op.isLayoutValid).to.equal(YES);
             expect(op.indexDirPath).to.equal(@"");
-            
-            files = [VHLOSFileListing listingWithEntries:@[
-                @"index.html", @0,
-                @"base/", @0,
-                @"base/images/", @0,
-                @"base/images/favicon.gif", @0,
-                @"base/sub/", @0,
-                @"base/sub/index.html", @0,
-            ]];
-            op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+
+            op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
             expect(op.indexDirPath).to.beNil;
@@ -243,15 +173,16 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"validates multiple base dirs with root index.html", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"base1/", @0,
-                @"base2/", @0,
-                @"base1/index.html", @0,
-                @"base2/index.html", @0,
-                @"index.html", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"base1/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base2/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base1/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base2/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
             expect(op.indexDirPath).to.beNil;
@@ -265,16 +196,17 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"invalidates multiple base dirs without root index.html", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"base1/", @0,
-                @"base2/", @0,
-                @"base0/", @0,
-                @"base1/index.html", @0,
-                @"base2/index.html", @0,
-                @"base0/index.html", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"base1/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base2/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base0/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base1/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base2/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base0/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
             expect(op.indexDirPath).to.beNil;
@@ -288,13 +220,14 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"sets the report descriptor url when available next to index.html", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"base/", @0,
-                @"base/metadata.json", @0,
-                @"base/index.html", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"base/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/metadata.json" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"base/index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.hasDescriptor).to.equal(NO);
             expect(op.descriptorPath).to.beNil;
@@ -306,12 +239,13 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"sets the report descriptor url when available next to index.html without base dir", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"metadata.json", @0,
-                @"index.html", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"metadata.json" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.hasDescriptor).to.equal(NO);
             expect(op.descriptorPath).to.beNil;
@@ -323,13 +257,14 @@ SpecBegin(ValidateHtmlLayoutOperation)
         });
 
         it(@"does not set the report descriptor if not next to index.html", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"index.html", @0,
-                @"sub/", @0,
-                @"sub/metadata.json", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"sub/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"sub/metadata.json" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.hasDescriptor).to.equal(NO);
             expect(op.descriptorPath).to.beNil;
@@ -342,13 +277,14 @@ SpecBegin(ValidateHtmlLayoutOperation)
 
 
         it(@"does not set the report descriptor if not available", ^{
-            NSEnumerator<id<FileListingEntry>> *files = [VHLOSFileListing listingWithEntries:@[
-                @"index.html", @0,
-                @"sub/", @0,
-                @"sub/other.json", @0,
+            OZZipFile *zipFile = mock([OZZipFile class]);
+            [given([zipFile listFileInZipInfos]) willReturn:@[
+                [[OZFileInZipInfo alloc] initWithName:@"index.html" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"sub/" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
+                [[OZFileInZipInfo alloc] initWithName:@"sub/other.json" length:0 level:OZZipCompressionLevelNone crypted:NO size:0 date:nil crc32:0],
             ]];
 
-            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithFileListing:files];
+            ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.hasDescriptor).to.equal(NO);
             expect(op.descriptorPath).to.beNil;
