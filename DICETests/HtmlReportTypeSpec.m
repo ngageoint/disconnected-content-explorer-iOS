@@ -126,13 +126,22 @@ describe(@"HtmlReportType", ^{
         expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
     });
 
-    it(@"creates an extracted html report import process for a directory report url", ^{
+    it(@"creates an exploded html report import process for a directory report url", ^{
         NSURL *reportPath = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
         Report *report = [[Report alloc] init];
         report.url = reportPath;
         NSString *indexPath = [reportPath.path stringByAppendingPathComponent:@"index.html"];
         [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
         [given([fileManager attributesOfItemAtPath:indexPath error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
+        ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
+        expect(import).to.beInstanceOf([ExplodedHtmlImportProcess class]);
+    });
+
+    it(@"creates an exploded html report import process for an html file report url", ^{
+        NSURL *reportPath = [reportsDir URLByAppendingPathComponent:@"test_report.html" isDirectory:NO];
+        Report *report = [[Report alloc] init];
+        report.url = reportPath;
+        [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
         ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
         expect(import).to.beInstanceOf([ExplodedHtmlImportProcess class]);
     });
