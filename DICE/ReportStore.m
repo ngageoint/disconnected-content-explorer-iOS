@@ -129,6 +129,7 @@
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
+    // TODO: run off main thread? there's file access
     ImportProcess *import;
     @synchronized (_pendingImports) {
         import = _pendingImports[reportUrl];

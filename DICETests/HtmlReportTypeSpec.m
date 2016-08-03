@@ -130,16 +130,20 @@ describe(@"HtmlReportType", ^{
         NSURL *reportPath = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
         Report *report = [[Report alloc] init];
         report.url = reportPath;
+        NSString *indexPath = [reportPath.path stringByAppendingPathComponent:@"index.html"];
         [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
+        [given([fileManager attributesOfItemAtPath:indexPath error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
         ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
         expect(import).to.beInstanceOf([ExplodedHtmlImportProcess class]);
     });
 
     it(@"creates a zipped html report import process for a zip file report url", ^{
-        NSURL *reportPath = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
+        NSBundle *bundle = [NSBundle bundleForClass:[HtmlReportTypeSpec class]];
+        NSString *path = [bundle pathForResource:@"test_base_dir" ofType:@"zip"];
+        NSURL *reportPath = [NSURL fileURLWithPath:path];
         Report *report = [[Report alloc] init];
         report.url = reportPath;
-        [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
+        [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
         ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
         expect(import).to.beInstanceOf([ZippedHtmlImportProcess class]);
     });
