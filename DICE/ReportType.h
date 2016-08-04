@@ -11,7 +11,7 @@
 @protocol ReportType <NSObject>
 
 - (BOOL)couldHandleFile:(NSURL *)reportPath;
-- (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir;
+- (nullable ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir;
 
 @end
 

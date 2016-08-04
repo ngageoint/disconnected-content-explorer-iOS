@@ -19,27 +19,6 @@
 #import "ExplodedHtmlImportProcess.h"
 
 
-@interface TestQueue : NSOperationQueue
-
-@property (strong, nonatomic, readonly) NSOperation *lastOperation;
-
-@end
-
-
-@implementation TestQueue
-
-- (void)addOperation:(NSOperation *)op
-{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        _lastOperation = op;
-    });
-}
-
-@end
-
-
-
-
 
 SpecBegin(HtmlReportType)
 

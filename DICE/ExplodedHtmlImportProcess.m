@@ -4,6 +4,8 @@
 //
 
 #import "ExplodedHtmlImportProcess.h"
+#import "ImportProcess+Internal.h"
+#import "ParseJsonOperation.h"
 
 
 @implementation ExplodedHtmlImportProcess {
@@ -16,7 +18,17 @@
         return nil;
     }
 
+    ParseJsonOperation *parseDescriptor = [[ParseJsonOperation alloc] init];
+    NSString *descriptorPath = [report.url.path stringByAppendingPathComponent:@"metadata.json"];
+    parseDescriptor.jsonUrl = [NSURL fileURLWithPath:descriptorPath isDirectory:NO];
+    self.steps = @[parseDescriptor];
+
     return self;
+}
+
+- (void)stepWillFinish:(NSOperation *)step
+{
+
 }
 
 @end
