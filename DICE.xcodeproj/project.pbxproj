@@ -128,6 +128,7 @@
 		E3ACD3E45E5E5A49AB1196A026520BA4 /* MainStoryboard-iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BD723636131FA5D07A079A929250A05B /* MainStoryboard-iPad.storyboard */; };
 		E52B5F7F205C75C6F759ABB9BC67F63E /* CGPDFDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 4499ED5CC81FA279C1A21B2E2D9303EF /* CGPDFDocument.m */; };
 		E5E36A1026B51BC927A57B4D8DDB710A /* MapOverlayCellItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */; };
+		E68E2E9936A8EC1888DA9FF9F711AF59 /* TestParseJsonOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 80650670209CE88AB03251350F2A6C5E /* TestParseJsonOperation.m */; };
 		E6CFF16244A86E2CC7D7F15E6B2A96A8 /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 929910FE4FA114751847631B92EF367B /* resources */; };
 		EAD14095635E7CD022DE7F949EDBF464 /* Reader-Print.png in Resources */ = {isa = PBXBuildFile; fileRef = 799083837BE434E792107B5329AA2A52 /* Reader-Print.png */; };
 		EDC811DF2395C9B5E0BE59C70AF06F5A /* AppIcon-180.png in Resources */ = {isa = PBXBuildFile; fileRef = 2E816633A0F9664041FA4F640E048518 /* AppIcon-180.png */; };
@@ -176,6 +177,7 @@
 		102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZippedHtmlImportProcessSpec.m; sourceTree = "<group>"; };
 		1231F813DFFCAA88FA0AF6A5400B8E2E /* DICE-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DICE-Info.plist"; sourceTree = "<group>"; };
 		136C41DAD43029A23E5852C8E91B020D /* KVOBlockObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KVOBlockObserver.h; sourceTree = "<group>"; };
+		191EFF3FA422C46D6862F39A78455C14 /* TestParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestParseJsonOperation.h; sourceTree = "<group>"; };
 		1A9C25D39666109CB4144F843B809BAB /* AppIcon-072.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-072.png"; sourceTree = "<group>"; };
 		1AB0215D024A45538EF9CFC2950CA73A /* GeoPackageTableMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageTableMapData.m; sourceTree = "<group>"; };
 		1B9B0F1CC29D010DBF559E079D8B032A /* ReaderDocumentOutline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderDocumentOutline.h; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 		7F08FA6D829C10D714634130D174FBBD /* ReaderMainPagebar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderMainPagebar.m; sourceTree = "<group>"; };
 		7F9BB26938972B5CE474E51AA09F307C /* ReaderContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderContentView.h; sourceTree = "<group>"; };
 		805CD7BE25D8EAA7E7EE27408E5D2EEE /* ZipFile+FileTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ZipFile+FileTree.h"; sourceTree = "<group>"; };
+		80650670209CE88AB03251350F2A6C5E /* TestParseJsonOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestParseJsonOperation.m; sourceTree = "<group>"; };
 		8160472C3F803823AEAE56407DAACE88 /* MapOverlayTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayTableCell.m; sourceTree = "<group>"; };
 		82031602C7DA4825BE0A08635CF45C9C /* ImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImportProcess.h; sourceTree = "<group>"; };
 		82700369A95E41424285EB966DE4C6C4 /* Reader-Mark-N@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Mark-N@2x.png"; sourceTree = "<group>"; };
@@ -625,6 +628,8 @@
 				66F032AED736634E845E981BB50C38E3 /* ReportSpec.m */,
 				E3637EAEA07D8BC7F6668D1B445DAA0D /* ReportStoreSpec.m */,
 				3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */,
+				191EFF3FA422C46D6862F39A78455C14 /* TestParseJsonOperation.h */,
+				80650670209CE88AB03251350F2A6C5E /* TestParseJsonOperation.m */,
 				A31A615AB298DCFBC9CF3A36F72C5448 /* UnzipOperationSpec.m */,
 				4DC1D30FD900F88E1024E5A7212862D3 /* ValidateHtmlLayoutOperationSpec.m */,
 				95FAC6B2FBA0BD40D74EF284682C22CD /* ZipFile+FileTreeSpec.m */,
@@ -821,7 +826,7 @@
 				1534439D08C7AAA938707E99E7BF0056 /* Sources */,
 				DAEB822D4A9A383A423DEACD737CA0A2 /* Frameworks */,
 				5D5B540FA2BDB950BF2D70387D731A61 /* Resources */,
-				1F32FFE7E350A0E932A6BB14FF081E66 /* [CP] Embed Pods Frameworks */,
+				1F32FFE7E350A0E932A6BB14FF081E66 /* Embed Pods Frameworks */,
 				D8EC6440B503DE36C07E40595DB8ED16 /* [CP] Copy Pods Resources */,
 				1F32FFE7E350A0E932A6BB14FF081E66 /* Embed Pods Frameworks */,
 			);
@@ -842,7 +847,7 @@
 				24C6D00EC77ADB56C64F7B21EA4FCD97 /* Sources */,
 				E6808B28F0705F2A3E03DA878B837CB9 /* Frameworks */,
 				7286E2689E35060931D5838E16F6C8B1 /* Resources */,
-				45EB590DF4295665C5365970DAFC8ED0 /* [CP] Embed Pods Frameworks */,
+				45EB590DF4295665C5365970DAFC8ED0 /* Embed Pods Frameworks */,
 				D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* [CP] Copy Pods Resources */,
 				EF3550294D4392707BB15E9221D0BC36 /* CopyFiles */,
 				45EB590DF4295665C5365970DAFC8ED0 /* Embed Pods Frameworks */,
@@ -945,14 +950,29 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1F32FFE7E350A0E932A6BB14FF081E66 /* [CP] Embed Pods Frameworks */ = {
+		1573CC6FA4D95CEC26CC71BFE153E34F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "[CP] Embed Pods Frameworks";
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		1F32FFE7E350A0E932A6BB14FF081E66 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -975,36 +995,6 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		45EB590DF4295665C5365970DAFC8ED0 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		1F32FFE7E350A0E932A6BB14FF081E66 /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICE/Pods-DICE-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		45EB590DF4295665C5365970DAFC8ED0 /* Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1018,21 +1008,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DICETests/Pods-DICETests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		1573CC6FA4D95CEC26CC71BFE153E34F /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* [CP] Copy Pods Resources */ = {
@@ -1157,6 +1132,7 @@
 				71C7198B92D481F40C453492764425BF /* ReportSpec.m in Sources */,
 				609D8685B07AC8BD8EC3E8FFF7EF564C /* ReportStoreSpec.m in Sources */,
 				7850CC9236DA9EF5F2A6C026F107304A /* ResourceTypesTests.m in Sources */,
+				E68E2E9936A8EC1888DA9FF9F711AF59 /* TestParseJsonOperation.m in Sources */,
 				3D0B2D880F9D5CDEF27766D71AAF10E5 /* UnzipOperationSpec.m in Sources */,
 				FF016C9378AC2E59E369103F4D50CAB2 /* ValidateHtmlLayoutOperationSpec.m in Sources */,
 				42BAB79C80F23CF239E6E511AE9827E1 /* ZipFile+FileTreeSpec.m in Sources */,

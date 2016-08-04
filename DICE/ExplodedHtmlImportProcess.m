@@ -28,7 +28,16 @@
 
 - (void)stepWillFinish:(NSOperation *)step
 {
-
+    ParseJsonOperation *parseDescriptor = (ParseJsonOperation *) self.steps.firstObject;
+    if (parseDescriptor.parsedJsonDictionary == nil) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.report setPropertiesFromJsonDescriptor:parseDescriptor.parsedJsonDictionary];
+        if (self.delegate) {
+            [self.delegate importDidFinishForImportProcess:self];
+        }
+    });
 }
 
 @end

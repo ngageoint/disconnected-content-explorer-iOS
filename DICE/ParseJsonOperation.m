@@ -8,7 +8,7 @@
 
 #import "ParseJsonOperation.h"
 
-
+// TODO: use NSFileManager or NSURLConnection/Session to load the json data for better testability
 @implementation ParseJsonOperation
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
