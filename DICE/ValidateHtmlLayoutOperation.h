@@ -15,10 +15,6 @@
 
 @property (readonly) OZZipFile *zipFile;
 
-@property (readonly) NSURL *baseDir;
-
-@property (readonly) NSFileManager *fileManager;
-
 /**
  whether the zip contains a valid index.html in a valid location;
  set after the operation finishes
@@ -41,6 +37,5 @@
 @property (readonly) NSString *descriptorPath;
 
 - (instancetype)initWithZipFile:(OZZipFile *)zipFile;
-- (instancetype)initWithBaseDirectory:(NSURL *)dir fileManager:(NSFileManager *)fileManager;
 
 @end

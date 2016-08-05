@@ -8,7 +8,6 @@
 
 #import <objective-zip/OZZipFile.h>
 #import "ValidateHtmlLayoutOperation.h"
-#import "OZZipFile.h"
 #import "Objective-Zip.h"
 
 
@@ -37,9 +36,6 @@
         return nil;
     }
 
-    _baseDir = dir;
-    _fileManager = fileManager;
-
     return self;
 }
 
@@ -53,9 +49,6 @@
     @autoreleasepool {
         if (self.zipFile) {
             [self validateZipFile];
-        }
-        else if (self.baseDir) {
-            [self validateDirTree];
         }
     }
 }
@@ -112,11 +105,6 @@
             _descriptorPath = nil;
         }
     }
-}
-
-- (void)validateDirTree
-{
-    // TODO: look for index.html and metadata.json in report base directory
 }
 
 @end
