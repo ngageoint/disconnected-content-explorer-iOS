@@ -39,7 +39,6 @@
 		3D12A0793D000300A4799BE983F6C410 /* MapOverlayTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8160472C3F803823AEAE56407DAACE88 /* MapOverlayTableCell.m */; };
 		3D246C317202B25F1D64AE5D2508EBAF /* ReaderMainPagebar.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F08FA6D829C10D714634130D174FBBD /* ReaderMainPagebar.m */; };
 		4103EE6883FBAC0B2745937BA0B54172 /* ReaderMainToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = B82E56AF6DA2F8F3E59CE6516AADBC4C /* ReaderMainToolbar.m */; };
-		42BAB79C80F23CF239E6E511AE9827E1 /* ZipFile+FileTreeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 95FAC6B2FBA0BD40D74EF284682C22CD /* ZipFile+FileTreeSpec.m */; };
 		439FB79AF23F4548BA73802F87684C50 /* AppIcon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = DF20C6768FA0AE0F8ADEEC711E0DD75C /* AppIcon-144.png */; };
 		46A2140F57718976DA2ED012C3D8F52E /* ImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = FF20F328219E27E9F7D6C1FCF462789F /* ImportProcess.m */; };
 		4792F9718A866921F1A5D902AD46CBF0 /* ReportCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A09645E0302151B0530EEC8597069D7 /* ReportCollectionViewController.m */; };
@@ -132,7 +131,6 @@
 		E6CFF16244A86E2CC7D7F15E6B2A96A8 /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 929910FE4FA114751847631B92EF367B /* resources */; };
 		EAD14095635E7CD022DE7F949EDBF464 /* Reader-Print.png in Resources */ = {isa = PBXBuildFile; fileRef = 799083837BE434E792107B5329AA2A52 /* Reader-Print.png */; };
 		EDC811DF2395C9B5E0BE59C70AF06F5A /* AppIcon-180.png in Resources */ = {isa = PBXBuildFile; fileRef = 2E816633A0F9664041FA4F640E048518 /* AppIcon-180.png */; };
-		EDE45C9B65980AC860683D3687AB39EC /* ZipFile+FileTree.m in Sources */ = {isa = PBXBuildFile; fileRef = CD80A8EC94142CA535DCC59464D17068 /* ZipFile+FileTree.m */; };
 		EF3E35357D0EC3E3E93D41897814552C /* MapOverlayActiveSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = CB25E4ECD46494ECBCEB24550840ED41 /* MapOverlayActiveSwitch.m */; };
 		F14AA5A359E19CBD321B29698681E701 /* ReaderContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = D59F27657D7CECA9CDC6B5FFA71D07A7 /* ReaderContentView.m */; };
 		F2B7294F935F4F1FCFD32D5B0DF0FE38 /* ExplodedHtmlImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C5B50A7E11E05CF24EE64B28D1DC051 /* ExplodedHtmlImportProcess.m */; };
@@ -185,7 +183,6 @@
 		1F430D0D90D477B71C4677817A684EAC /* MapOverlayActiveSwitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayActiveSwitch.h; sourceTree = "<group>"; };
 		21428E9DD5543664B47E4A17EF41CE7A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		21A89200515E985EB893EAD6BE26DBC8 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
-		21FCAD2F8427804C0753F12A3180BE6F /* FileTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileTree.h; sourceTree = "<group>"; };
 		22E16068937A4E1E39E05A5AC644740A /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		2574220607BC22FE54717F0A6D04A9B8 /* ReaderThumbCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbCache.m; sourceTree = "<group>"; };
 		26B5A37FF23AED5C0E784E60F92BF27B /* ReportCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCache.h; sourceTree = "<group>"; };
@@ -261,7 +258,6 @@
 		7E685ED6C17BABD2E6CE203D83A4F54F /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		7F08FA6D829C10D714634130D174FBBD /* ReaderMainPagebar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderMainPagebar.m; sourceTree = "<group>"; };
 		7F9BB26938972B5CE474E51AA09F307C /* ReaderContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderContentView.h; sourceTree = "<group>"; };
-		805CD7BE25D8EAA7E7EE27408E5D2EEE /* ZipFile+FileTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ZipFile+FileTree.h"; sourceTree = "<group>"; };
 		80650670209CE88AB03251350F2A6C5E /* TestParseJsonOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestParseJsonOperation.m; sourceTree = "<group>"; };
 		8160472C3F803823AEAE56407DAACE88 /* MapOverlayTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayTableCell.m; sourceTree = "<group>"; };
 		82031602C7DA4825BE0A08635CF45C9C /* ImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImportProcess.h; sourceTree = "<group>"; };
@@ -285,7 +281,6 @@
 		9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseJsonOperation.h; path = ../ParseJsonOperation.h; sourceTree = "<group>"; };
 		926F8CF6FAD526952A067E62D3AFEAFF /* ReaderThumbFetch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbFetch.m; sourceTree = "<group>"; };
 		929910FE4FA114751847631B92EF367B /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resources; sourceTree = "<group>"; };
-		95FAC6B2FBA0BD40D74EF284682C22CD /* ZipFile+FileTreeSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZipFile+FileTreeSpec.m"; sourceTree = "<group>"; };
 		964C827CDF701E097D1EE25DC8811CD4 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportAPI.m; sourceTree = "<group>"; };
 		979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapData.m; sourceTree = "<group>"; };
@@ -333,7 +328,6 @@
 		CA8BF985D3EC3EAD5B50ECD571BAA67C /* GeoPackageMapOverlays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapOverlays.h; sourceTree = "<group>"; };
 		CAB552427B765A65BC345281B35D8957 /* NotificationRecordingObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationRecordingObserver.h; sourceTree = "<group>"; };
 		CB25E4ECD46494ECBCEB24550840ED41 /* MapOverlayActiveSwitch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayActiveSwitch.m; sourceTree = "<group>"; };
-		CD80A8EC94142CA535DCC59464D17068 /* ZipFile+FileTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZipFile+FileTree.m"; sourceTree = "<group>"; };
 		CE556F6AEF155A11F46A0B6435CDC4EC /* HtmlReportType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HtmlReportType.h; sourceTree = "<group>"; };
 		CE636D09070B4E049CEBDC10D013A59F /* ReaderDemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderDemoController.m; sourceTree = "<group>"; };
 		CF9B13DD7EF9090D1C0A06D1C822B22B /* ReaderMainPagebar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderMainPagebar.h; sourceTree = "<group>"; };
@@ -545,7 +539,6 @@
 			children = (
 				5D7DF856C2AFF3927424A1719E6A984A /* FileOperations.h */,
 				B52DB2B934C3FDAC88D176B8144E074F /* FileOperations.m */,
-				21FCAD2F8427804C0753F12A3180BE6F /* FileTree.h */,
 				7B138AAC3B91D624A57D33CA66EF8823 /* OfflineMapUtility.h */,
 				E7449828F94774A7779D000A98DDA60C /* OfflineMapUtility.m */,
 				9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */,
@@ -556,8 +549,6 @@
 				D3AEF0E9E67F338417CAF00EE25D57D1 /* ResourceTypes.m */,
 				7A947E8E1F43159B408897F94628A8E7 /* UnzipOperation.h */,
 				2F6FFAFBAAC2370CE0A5F7ECAD000F85 /* UnzipOperation.m */,
-				805CD7BE25D8EAA7E7EE27408E5D2EEE /* ZipFile+FileTree.h */,
-				CD80A8EC94142CA535DCC59464D17068 /* ZipFile+FileTree.m */,
 			);
 			path = utilities;
 			sourceTree = "<group>";
@@ -632,7 +623,6 @@
 				80650670209CE88AB03251350F2A6C5E /* TestParseJsonOperation.m */,
 				A31A615AB298DCFBC9CF3A36F72C5448 /* UnzipOperationSpec.m */,
 				4DC1D30FD900F88E1024E5A7212862D3 /* ValidateHtmlLayoutOperationSpec.m */,
-				95FAC6B2FBA0BD40D74EF284682C22CD /* ZipFile+FileTreeSpec.m */,
 				102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */,
 			);
 			path = DICETests;
@@ -1111,7 +1101,6 @@
 				517D8096337C9E0790848C5D0858785F /* URLProtocolUtils.m in Sources */,
 				DDED2AAEA08CE7E8962E354975F1EC5B /* UnzipOperation.m in Sources */,
 				ACA7999F8D4CFC70DAE69D7693619D4F /* ValidateHtmlLayoutOperation.m in Sources */,
-				EDE45C9B65980AC860683D3687AB39EC /* ZipFile+FileTree.m in Sources */,
 				DE7809A9412F9FCD075BF618E1956647 /* ZippedHtmlImportProcess.m in Sources */,
 				DEF92CAB7F363E401DD06E10DDD34956 /* main.m in Sources */,
 			);
@@ -1135,7 +1124,6 @@
 				E68E2E9936A8EC1888DA9FF9F711AF59 /* TestParseJsonOperation.m in Sources */,
 				3D0B2D880F9D5CDEF27766D71AAF10E5 /* UnzipOperationSpec.m in Sources */,
 				FF016C9378AC2E59E369103F4D50CAB2 /* ValidateHtmlLayoutOperationSpec.m in Sources */,
-				42BAB79C80F23CF239E6E511AE9827E1 /* ZipFile+FileTreeSpec.m in Sources */,
 				8F9DA036F086CF997A65F0233F626610 /* ZippedHtmlImportProcessSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -13,7 +13,6 @@
 #import "ValidateHtmlLayoutOperation.h"
 #import "UnzipOperation.h"
 #import "ZippedHtmlImportProcess.h"
-#import "ZipFile+FileTree.h"
 
 
 @implementation ZippedHtmlImportProcess

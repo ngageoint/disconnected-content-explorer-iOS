@@ -19,7 +19,6 @@
 #import "ParseJsonOperation.h"
 #import "OZFileInZipInfo+Internals.h"
 #import "ImportProcess+Internal.h"
-#import "ZipFile+FileTree.h"
 #import "OZZipFile+Standard.h"
 
 
@@ -113,7 +112,6 @@
     OZZipFile *mockZip = mock([OZZipFile class]);
     [given([mockZip fileName]) willReturn:report.url.path];
     [given([mockZip listFileInZipInfos]) willReturn:entries];
-    [given([mockZip fileTree_enumerateFiles]) willReturn:entries.objectEnumerator];
 
     return mockZip;
 }
