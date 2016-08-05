@@ -35,12 +35,10 @@ describe(@"ExplodedHtmlImportProcess", ^{
 
     it(@"parses the report descriptor from the standard location under the base dir", ^{
         Report *report = [[Report alloc] init];
-        NSString *reportPath = [reportsDir.path stringByAppendingPathComponent:@"test_report"];
-        report.url = [NSURL fileURLWithPath:reportPath isDirectory:YES];
+        report.url = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
         ExplodedHtmlImportProcess *import = [[ExplodedHtmlImportProcess alloc] initWithReport:report fileManager:fileManager];
         ParseJsonOperation *op = (ParseJsonOperation *) import.steps.firstObject;
-        NSString *descriptorPath = [reportPath stringByAppendingPathComponent:@"metadata.json"];
-        NSURL *descriptorUrl = [NSURL fileURLWithPath:descriptorPath isDirectory:NO];
+        NSURL *descriptorUrl = [report.url URLByAppendingPathComponent:@"metadata.json" isDirectory:NO];
 
         expect(op.jsonUrl).to.equal(descriptorUrl);
     });
@@ -73,7 +71,7 @@ describe(@"ExplodedHtmlImportProcess", ^{
 
     it(@"notifies the delegate on the main thread when finished", ^{
         Report *report = [[Report alloc] init];
-        report.url = [NSURL fileURLWithPath:[reportsDir.path stringByAppendingPathComponent:@"test_report"] isDirectory:YES];
+        report.url = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
         ExplodedHtmlImportProcess *import = [[ExplodedHtmlImportProcess alloc] initWithReport:report fileManager:fileManager];
         ParseJsonOperation *parseDescriptor = (ParseJsonOperation *) import.steps.firstObject;
         TestParseJsonOperation *modParseDescriptor = [[TestParseJsonOperation alloc] init];
