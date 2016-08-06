@@ -6,9 +6,8 @@
 //  Copyright (c) 2015 mil.nga. All rights reserved.
 //
 
+#import <objective-zip/Objective-Zip.h>
 #import "HtmlReportType.h"
-
-#import "OZZipFile+Standard.h"
 #import "UnzipOperation.h"
 #import "ZippedHtmlImportProcess.h"
 #import "ExplodedHtmlImportProcess.h"
