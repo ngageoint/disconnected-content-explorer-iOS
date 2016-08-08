@@ -96,6 +96,14 @@ describe(@"ExplodedHtmlImportProcess", ^{
         assertWithTimeout(1.0, thatEventually(@(delegateNotified)), isTrue());
     });
 
+    it(@"initializes the json operation with the file manager", ^{
+        Report *report = [[Report alloc] init];
+        report.url = [NSURL fileURLWithPath:@"/whatever" isDirectory:YES];
+        ExplodedHtmlImportProcess *import = [[ExplodedHtmlImportProcess alloc] initWithReport:report fileManager:fileManager];
+        ParseJsonOperation *op = (ParseJsonOperation *) import.steps.firstObject;
+        expect(op.fileManager).to.beIdenticalTo(fileManager);
+    });
+
     afterEach(^{
 
     });

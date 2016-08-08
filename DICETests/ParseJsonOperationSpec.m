@@ -23,17 +23,19 @@ describe(@"ParseJsonOperation", ^{
 
     NSBundle *bundle = [NSBundle bundleForClass:[ParseJsonOperationSpec class]];
     NSURL *jsonUrl = [NSURL fileURLWithPath:[bundle pathForResource:@"ParseJsonOperationSpec" ofType:@"json"]];
-    
+
+    __block NSFileManager *fileManager;
+
     beforeAll(^{
 
     });
     
     beforeEach(^{
-
+        fileManager = mock([NSFileManager class]);
     });
 
     it(@"is not ready until json url is set", ^{
-        ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] initWithFileManager:fileManager];
 
         id observer = mock([NSObject class]);
 
@@ -106,7 +108,7 @@ describe(@"ParseJsonOperation", ^{
     });
 
     it(@"parses the json", ^{
-        ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] initWithFileManager:[NSFileManager defaultManager]];
 
         op.jsonUrl = jsonUrl;
 
@@ -118,6 +120,26 @@ describe(@"ParseJsonOperation", ^{
         expect(result[@"array"]).to.equal(@[@1, @2, @3]);
         expect(result[@"string"]).to.equal(@"ner ner");
         expect(result[@"object"]).to.equal(@{@"key": @"value"});
+    });
+
+    it(@"uses the default file manager when none is given", ^{
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] init];
+        expect(op.fileManager).to.beIdenticalTo([NSFileManager defaultManager]);
+    });
+
+    it(@"uses the given file manager to load the json", ^{
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] initWithFileManager:fileManager];
+        op.jsonUrl = jsonUrl;
+        [given([fileManager contentsAtPath:jsonUrl.path]) willReturn:[@"{}" dataUsingEncoding:NSUTF8StringEncoding]];
+        [op start];
+        [verify(fileManager) contentsAtPath:jsonUrl.path];
+    });
+
+    it(@"sets the parsed dictionary to nil if file manager cannot load the url", ^{
+        ParseJsonOperation *op = [[ParseJsonOperation alloc] initWithFileManager:[NSFileManager defaultManager]];
+        op.jsonUrl = [NSURL fileURLWithPath:@"/path/to/nowhere.json" isDirectory:NO];
+        [op start];
+        expect(op.parsedJsonDictionary).to.beNil;
     });
     
     afterEach(^{

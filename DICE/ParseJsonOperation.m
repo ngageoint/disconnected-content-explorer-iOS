@@ -30,10 +30,17 @@
 
 - (instancetype)init
 {
+    return [self initWithFileManager:[NSFileManager defaultManager]];
+}
+
+- (instancetype)initWithFileManager:(NSFileManager *)fileManager
+{
     self = [super init];
     if (!self) {
         return nil;
     }
+
+    _fileManager = fileManager;
 
     return self;
 }
@@ -65,7 +72,11 @@
 - (void)main
 {
     @autoreleasepool {
-        NSData *jsonData = [NSData dataWithContentsOfURL:self.jsonUrl];
+        [NSData dataWithContentsOfFile:@""];
+        NSData *jsonData = [self.fileManager contentsAtPath:self.jsonUrl.path];
+        if (jsonData == nil) {
+            return;
+        }
         _parsedJsonDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     }
 }

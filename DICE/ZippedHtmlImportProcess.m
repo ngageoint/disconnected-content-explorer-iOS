@@ -41,7 +41,7 @@
     [unzip addDependency:makeDestDir];
     unzip.delegate = self;
 
-    ParseJsonOperation *parseMetaData = [[ParseJsonOperation alloc] init];
+    ParseJsonOperation *parseMetaData = [[ParseJsonOperation alloc] initWithFileManager:fileManager];
     [parseMetaData addDependency:unzip];
 
     DeleteFileOperation *deleteZip = [[DeleteFileOperation alloc] initWithFileUrl:report.url fileManager:fileManager];

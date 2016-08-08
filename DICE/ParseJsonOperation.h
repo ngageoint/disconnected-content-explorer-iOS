@@ -13,7 +13,10 @@
 
 @interface ParseJsonOperation : NSOperation
 
+@property (readonly) NSFileManager *fileManager;
 @property (nonatomic) NSURL *jsonUrl;
 @property (readonly) NSDictionary *parsedJsonDictionary;
+
+- (instancetype)initWithFileManager:(NSFileManager *)fileManager;
 
 @end

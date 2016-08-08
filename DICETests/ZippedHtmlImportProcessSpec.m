@@ -150,6 +150,18 @@ describe(@"ZippedHtmlImportProcess", ^{
 
     });
 
+    it(@"initializes the steps with the file manager", ^{
+        ZippedHtmlImportProcess *proc = [[ZippedHtmlImportProcess alloc] initWithReport:initialReport destDir:reportsDir zipFile:mock([OZZipFile class]) fileManager:fileManager];
+        MkdirOperation *mkdir = (MkdirOperation *)proc.steps[ZippedHtmlImportMakeBaseDirStep];
+        UnzipOperation *unzip = (UnzipOperation *)proc.steps[ZippedHtmlImportUnzipStep];
+        DeleteFileOperation *deleteZip = (DeleteFileOperation *)proc.steps[ZippedHtmlImportDeleteStep];
+        ParseJsonOperation *parseDescriptor = (ParseJsonOperation *)proc.steps[ZippedHtmlImportParseDescriptorStep];
+        expect(mkdir.fileManager).to.beIdenticalTo(fileManager);
+        expect(unzip.fileManager).to.beIdenticalTo(fileManager);
+        expect(deleteZip.fileManager).to.beIdenticalTo(fileManager);
+        expect(parseDescriptor.fileManager).to.beIdenticalTo(fileManager);
+    });
+
     it(@"validates the zip file contents first", ^{
         OZZipFile *zipFile = [ZippedHtmlImportProcessSpecUtil mockZipForReport:initialReport entryNames:@[
             @"base/",

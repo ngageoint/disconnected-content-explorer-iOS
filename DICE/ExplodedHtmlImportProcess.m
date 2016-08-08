@@ -18,7 +18,7 @@
         return nil;
     }
 
-    ParseJsonOperation *parseDescriptor = [[ParseJsonOperation alloc] init];
+    ParseJsonOperation *parseDescriptor = [[ParseJsonOperation alloc] initWithFileManager:fileManager];
     NSString *descriptorPath = [report.url.path stringByAppendingPathComponent:@"metadata.json"];
     parseDescriptor.jsonUrl = [NSURL fileURLWithPath:descriptorPath isDirectory:NO];
     self.steps = @[parseDescriptor];
