@@ -30,7 +30,7 @@ describe(@"ExplodedHtmlImportProcess", ^{
     });
 
     beforeEach(^{
-
+        fileManager = mock([NSFileManager class]);
     });
 
     it(@"parses the report descriptor from the standard location under the base dir", ^{
@@ -96,6 +96,32 @@ describe(@"ExplodedHtmlImportProcess", ^{
         assertWithTimeout(1.0, thatEventually(@(delegateNotified)), isTrue());
     });
 
+    it(@"notifies the delegate on the main thread when there is no json descriptor", ^{
+        Report *report = [[Report alloc] init];
+        report.url = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
+        ExplodedHtmlImportProcess *import = [[ExplodedHtmlImportProcess alloc] initWithReport:report fileManager:fileManager];
+        ParseJsonOperation *parseDescriptor = (ParseJsonOperation *) import.steps.firstObject;
+        TestParseJsonOperation *modParseDescriptor = [[TestParseJsonOperation alloc] init];
+        modParseDescriptor.jsonUrl = parseDescriptor.jsonUrl;
+        modParseDescriptor.parsedJsonDictionary = nil;
+        NSMutableArray<NSOperation *> *modSteps = [NSMutableArray array];
+        [modSteps addObject:modParseDescriptor];
+        import.steps = modSteps;
+
+        __block BOOL delegateNotified = NO;
+        id<ImportDelegate> importListener = mockProtocol(@protocol(ImportDelegate));
+        [givenVoid([importListener importDidFinishForImportProcess:import]) willDo:^id(NSInvocation *invocation) {
+            delegateNotified = [NSThread isMainThread];
+            return nil;
+        }];
+        import.delegate = importListener;
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperations:import.steps waitUntilFinished:NO];
+
+        assertWithTimeout(1.0, thatEventually(@(delegateNotified)), isTrue());
+    });
+
     it(@"initializes the json operation with the file manager", ^{
         Report *report = [[Report alloc] init];
         report.url = [NSURL fileURLWithPath:@"/whatever" isDirectory:YES];
@@ -105,7 +131,7 @@ describe(@"ExplodedHtmlImportProcess", ^{
     });
 
     afterEach(^{
-
+        stopMocking(fileManager);
     });
 
     afterAll(^{
