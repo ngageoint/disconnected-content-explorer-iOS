@@ -491,6 +491,23 @@ describe(@"ReportStore", ^{
             expect(observer.received.count).to.equal(0);
         });
 
+        it(@"enables the report when the import finishes", ^{
+            Report *report = mock([Report class]);
+            ReportStoreSpec_ImportProcess *import = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
+
+            __block BOOL enabledOnMainThread = NO;
+            [givenVoid([report setIsEnabled:YES]) willDo:^id(NSInvocation *invocation) {
+                BOOL enabled = NO;
+                [invocation getArgument:&enabled atIndex:2];
+                enabledOnMainThread = enabled && [NSThread isMainThread];
+                return nil;
+            }];
+
+            [store importDidFinishForImportProcess:import];
+
+            assertWithTimeout(1.0, thatEventually(@(enabledOnMainThread)), isTrue());
+        });
+
         it(@"sends a notification when the import finishes", ^{
             __block ReportStoreSpec_ImportProcess *import;
             redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {

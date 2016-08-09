@@ -192,6 +192,7 @@
         [_pendingImports removeObjectsForKeys:keys.allObjects];
     }
     dispatch_async(dispatch_get_main_queue(), ^{
+        import.report.isEnabled = YES;
         [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
     });
 }

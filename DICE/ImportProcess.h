@@ -28,8 +28,6 @@
 
 @protocol ImportDelegate <NSObject>
 
-@optional
-
 - (void)reportWasUpdatedByImportProcess:(ImportProcess *)import;
 - (void)importDidFinishForImportProcess:(ImportProcess *)import;
 
