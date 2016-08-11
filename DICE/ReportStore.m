@@ -202,7 +202,7 @@
 - (id<ReportType>)reportTypeForFile:(NSURL *)reportPath
 {
     for (id<ReportType> maybe in self.reportTypes) {
-        if ([maybe couldHandleFile:reportPath]) {
+        if ([maybe couldImportFile:reportPath]) {
             return maybe;
         }
     }

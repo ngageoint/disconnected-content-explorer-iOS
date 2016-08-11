@@ -50,7 +50,7 @@ describe(@"HtmlReportType", ^{
         [given([fileManager attributesOfItemAtPath:dirPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
         [given([fileManager attributesOfItemAtPath:indexPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
-        expect([htmlReportType couldHandleFile:dirPath]).to.equal(YES);
+        expect([htmlReportType couldImportFile:dirPath]).to.equal(YES);
     });
 
     it(@"could not handle a directory without index.html", ^{
@@ -60,7 +60,7 @@ describe(@"HtmlReportType", ^{
         [given([fileManager attributesOfItemAtPath:dirPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
         [given([fileManager attributesOfItemAtPath:indexPath.path error:nil]) willReturn:nil];
 
-        expect([htmlReportType couldHandleFile:dirPath]).to.equal(NO);
+        expect([htmlReportType couldImportFile:dirPath]).to.equal(NO);
     });
 
     it(@"could not handle a directory when index.html is a directory", ^{
@@ -70,7 +70,7 @@ describe(@"HtmlReportType", ^{
         [given([fileManager attributesOfItemAtPath:dirPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
         [given([fileManager attributesOfItemAtPath:indexPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
 
-        expect([htmlReportType couldHandleFile:dirPath]).to.equal(NO);
+        expect([htmlReportType couldImportFile:dirPath]).to.equal(NO);
     });
 
     it(@"could handle a zip file", ^{
@@ -78,7 +78,7 @@ describe(@"HtmlReportType", ^{
 
         [given([fileManager attributesOfItemAtPath:zipPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
-        expect([htmlReportType couldHandleFile:zipPath]).to.equal(YES);
+        expect([htmlReportType couldImportFile:zipPath]).to.equal(YES);
     });
 
     it(@"could handle an html file", ^{
@@ -86,7 +86,7 @@ describe(@"HtmlReportType", ^{
 
         [given([fileManager attributesOfItemAtPath:htmlPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
-        expect([htmlReportType couldHandleFile:htmlPath]).to.equal(YES);
+        expect([htmlReportType couldImportFile:htmlPath]).to.equal(YES);
     });
 
     it(@"could not handle something else", ^{
@@ -94,7 +94,7 @@ describe(@"HtmlReportType", ^{
 
         [given([fileManager attributesOfItemAtPath:filePath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
-        expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
+        expect([htmlReportType couldImportFile:filePath]).to.equal(NO);
     });
 
     it(@"could not handle a non-regular file or non-directory", ^{
@@ -102,7 +102,7 @@ describe(@"HtmlReportType", ^{
 
         [given([fileManager attributesOfItemAtPath:filePath.path error:nil]) willReturn:@{NSFileType: NSFileTypeSocket}];
 
-        expect([htmlReportType couldHandleFile:filePath]).to.equal(NO);
+        expect([htmlReportType couldImportFile:filePath]).to.equal(NO);
     });
 
     it(@"creates an exploded html report import process for a directory report url", ^{

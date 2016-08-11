@@ -42,7 +42,7 @@
     return [self initWithFileManager:[NSFileManager defaultManager]];
 }
 
-- (BOOL)couldHandleFile:(NSURL *)filePath
+- (BOOL)couldImportFile:(NSURL *)filePath
 {
     NSDictionary *attrs = [self.fileManager attributesOfItemAtPath:filePath.path error:nil];
 
