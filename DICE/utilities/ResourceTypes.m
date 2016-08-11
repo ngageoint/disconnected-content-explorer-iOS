@@ -23,8 +23,9 @@ UIStoryboard *activeStoryboard;
 
 + (void) initialize
 {
+    // TODO: remove these and add uti definitons
     supportedFileExtensions = @[
-        @"zip",
+        @"html",
         @"pdf",
         @"doc",
         @"docx",
@@ -36,8 +37,8 @@ UIStoryboard *activeStoryboard;
     
     resourceViewers = @{
         @"default": @"storyboard:htmlViewController",
+        @"public.folder": @"storyboard:htmlViewController",
         @"public.html": @"storyboard:htmlViewController",
-        @"public.zip-archive": @"storyboard:htmlViewController",
         @"com.adobe.pdf": @"class:PDFViewController"
         // TODO: add office types
     };
@@ -79,7 +80,7 @@ UIStoryboard *activeStoryboard;
     }
     NSArray *docTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDocumentTypes"];
     docTypes = [docTypes filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary *docType, NSDictionary *bindings) {
-        NSArray *utiList = [docType objectForKey:@"LSItemContentTypes"];
+        NSArray *utiList = docType[@"LSItemContentTypes"];
         return [utiList containsObject:uti];
     }]];
     return docTypes.count > 0 || [supportedFileExtensions containsObject:resource.pathExtension.lowercaseString];
