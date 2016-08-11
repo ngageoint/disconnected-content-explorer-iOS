@@ -88,7 +88,7 @@
 /**
  The list of Report objects
  */
-@property NSArray<Report *> *reports;
+@property (readonly) NSArray<Report *> *reports;
 
 
 /**
