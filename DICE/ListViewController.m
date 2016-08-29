@@ -95,7 +95,7 @@
     Report *report = self.reports[indexPath.row];
     UITableViewCell *cell;
     
-    if ([report.fileExtension isEqualToString:@"pdf"]) {
+    if ([report.url.pathExtension isEqualToString:@"pdf"]) {
         cell = [self.tableView dequeueReusableCellWithIdentifier:@"pdfCell" forIndexPath:indexPath];
     }
     else {

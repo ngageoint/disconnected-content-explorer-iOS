@@ -11,7 +11,7 @@
 #import "Report.h"
 #import "ImportProcess.h"
 #import "ReportType.h"
-
+#import "DICEUtiExpert.h"
 
 
 /**
@@ -79,7 +79,6 @@
 
 + (instancetype)sharedInstance;
 
-
 /**
  The list of ReportType objects for handling report files
  */
@@ -101,7 +100,10 @@
 
  @return the initialized ReportStore
  */
-- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager importQueue:(NSOperationQueue *)importQueue NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithReportsDir:(NSURL *)reportsDir
+    fileManager:(NSFileManager *)fileManager
+    utiExpert:(DICEUtiExpert *)utiExpert
+    importQueue:(NSOperationQueue *)importQueue NS_DESIGNATED_INITIALIZER;
 
 /**
  Load/refresh the list of reports based on the contents of the app's file system.

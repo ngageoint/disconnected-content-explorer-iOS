@@ -13,13 +13,10 @@
 @property (nonatomic) NSString *summary;
 @property (nonatomic) NSString *thumbnail;
 @property (nonatomic) NSString *tileThumbnail;
-/**
- @todo change to UTI, or remove completely
- */
-@property (nonatomic) NSString *fileExtension;
+/** the uniform type identifier of the report's root resource */
+@property (nonatomic) CFStringRef uti;
 @property (nonatomic) NSString *error;
 @property (nonatomic) NSURL *url;
-@property (nonatomic) NSURL *sourceFile;
 @property (nonatomic) NSNumber *lat;
 @property (nonatomic) NSNumber *lon;
 @property (nonatomic) int totalNumberOfFiles;

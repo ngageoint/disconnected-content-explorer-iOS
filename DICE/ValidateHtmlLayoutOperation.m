@@ -14,7 +14,7 @@
 @implementation ValidateHtmlLayoutOperation
 
 /*
- TODO: combine this with the logic of couldImportFile: to DRY
+ TODO: combine this with the logic of couldImportFromPath: to DRY
  */
 
 - (instancetype)initWithZipFile:(OZZipFile *)zipFile

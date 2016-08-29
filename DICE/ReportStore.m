@@ -6,8 +6,11 @@
 //  Copyright (c) 2015 mil.nga. All rights reserved.
 //
 
+#import <MobileCoreServices/MobileCoreServices.h>
 #import "ReportStore.h"
-
+#import "MatchReportTypeToReportArchiveOperation.h"
+#import "MatchReportTypeToContentAtPathOperation.h"
+#import "DICEOZZipFileArchive.h"
 
 
 @implementation ReportNotification
@@ -37,10 +40,11 @@
 // TODO: thread safety for reports array
 @implementation ReportStore
 {
-    NSMutableArray<Report *> *_reports;
-    NSFileManager *_fileManager;
     NSURL *_reportsDir;
+    NSFileManager *_fileManager;
+    DICEUtiExpert *_utiExpert;
     NSOperationQueue *_importQueue;
+    NSMutableArray<Report *> *_reports;
     NSMutableDictionary<NSURL *, ImportProcess *> *_pendingImports;
 }
 
@@ -58,23 +62,23 @@
 - (instancetype)init
 {
     NSURL *docsDir = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
-    return [self initWithReportsDir:docsDir fileManager:[NSFileManager defaultManager] importQueue:[[NSOperationQueue alloc] init]];
+    return [self initWithReportsDir:docsDir
+        fileManager:[NSFileManager defaultManager]
+        utiExpert:[[DICEUtiExpert alloc] init]
+        importQueue:[[NSOperationQueue alloc] init]];
 }
 
-- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager importQueue:(NSOperationQueue *)importQueue
+- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager utiExpert:(DICEUtiExpert *)utiExpert importQueue:(NSOperationQueue *)importQueue
 {
     self = [super init];
     if (!self) {
         return nil;
     }
 
-    if (!importQueue) {
-        importQueue = [[NSOperationQueue alloc] init];
-    }
-
     _reports = [NSMutableArray array];
     _reportsDir = reportsDir;
     _fileManager = fileManager;
+    _utiExpert = utiExpert;
     _importQueue = importQueue;
     _pendingImports = [NSMutableDictionary dictionary];
 
@@ -84,14 +88,10 @@
 
 - (NSArray<Report *> *)loadReports
 {
-    [_reports filterUsingPredicate:[NSPredicate predicateWithBlock:
-        ^BOOL (Report *report, NSDictionary *bindings) {
-            BOOL importing = _pendingImports[report.url] != nil;
-            return importing;
-            // TODO: dispatch report removed notification?
-        }]];
-
     NSArray *files = [_fileManager contentsOfDirectoryAtURL:_reportsDir includingPropertiesForKeys:nil options:0 error:nil];
+
+    // TODO: remove deleted reports from list
+    // TODO: establish reserved/exclude paths in docs dir
 
     for (NSURL *file in files) {
         NSLog(@"attempting to add report from file %@", file);
@@ -110,7 +110,7 @@
         [self attemptToImportReportFromResource:reportUrl];
     }
 
-    // TODO: restore
+    // TODO: restore or replace with different view to indicate empty list and link to fetch examples
     // TODO: tests for user guide report
 //    if (_reports.count == 0)
 //    {
@@ -129,14 +129,40 @@
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
-    // TODO: run off main thread? there's file access
-    ImportProcess *import;
-    @synchronized (_pendingImports) {
-        import = _pendingImports[reportUrl];
+    // TODO: add excluded path checking, e.g., for geopackage folder
+    Report *report = [self reportAtPath:reportUrl];
+
+    if (report) {
+        return report;
     }
 
-    if (import) {
-        return import.report;
+    CFStringRef reportUti = [_utiExpert preferredUtiForExtension:reportUrl.pathExtension conformingToUti:NULL];
+    report = [[Report alloc] initWithTitle:reportUrl.path];
+    report.isEnabled = NO;
+    report.url = reportUrl;
+    report.uti = reportUti;
+    report.reportID = reportUrl.path;
+    report.title = reportUrl.lastPathComponent;
+    report.summary = @"Importing...";
+
+    // TODO: report is added here but might not be imported;
+    // maybe update report to reflect status then let nature take its course and remove on the next refresh
+    [_reports addObject:report];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
+    });
+
+    if ([_utiExpert uti:reportUti conformsToUti:kUTTypeZipArchive]) {
+        // get zip file listing on background thread
+        // find appropriate report type for archive contents
+        id<DICEArchive> archive = [[DICEOZZipFileArchive alloc] initWithArchivePath:reportUrl utType:reportUti];
+        MatchReportTypeToReportArchiveOperation *op = [[MatchReportTypeToReportArchiveOperation alloc]
+            initWithReport:report reportArchive:archive candidateTypes:self.reportTypes utiExpert:_utiExpert];
+        [_importQueue addOperation:op];
+        return report;
+    }
+    else {
+        MatchReportTypeToContentAtPathOperation *op = nil;
     }
 
     id<ReportType> reportType = [self reportTypeForFile:reportUrl];
@@ -146,25 +172,8 @@
         return nil;
     }
 
-    Report *report = [[Report alloc] initWithTitle:reportUrl.path];
-    report.isEnabled = NO;
-    report.url = reportUrl;
-    report.reportID = reportUrl.path;
-    report.title = reportUrl.lastPathComponent;
-    report.summary = @"Importing...";
-
-    [_reports addObject:report];
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
-    });
-
-    import = [reportType createProcessToImportReport:report toDir:_reportsDir];
+    ImportProcess *import = [reportType createProcessToImportReport:report toDir:_reportsDir];
     import.delegate = self;
-
-    @synchronized (_pendingImports) {
-        _pendingImports[reportUrl] = import;
-    }
 
     [_importQueue addOperations:import.steps waitUntilFinished:NO];
 
@@ -202,15 +211,24 @@
 - (id<ReportType>)reportTypeForFile:(NSURL *)reportPath
 {
     for (id<ReportType> maybe in self.reportTypes) {
-        if ([maybe couldImportFile:reportPath]) {
+        if ([maybe couldImportFromPath:reportPath]) {
             return maybe;
         }
     }
     return nil;
 }
 
-- (Report *)reportForPath:(NSURL *)path
+- (nullable Report *)reportAtPath:(NSURL *)path
 {
+    // TODO: this seems superfluous because the report would be in the reports array already anyway; maybe remove _pendingImports
+    ImportProcess *import;
+    @synchronized (_pendingImports) {
+        import = _pendingImports[path];
+    }
+    if (import) {
+        return import.report;
+    }
+
     for (Report *candidate in self.reports) {
         if ([candidate.url isEqual:path]) {
             return candidate;

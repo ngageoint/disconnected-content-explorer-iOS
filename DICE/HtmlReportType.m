@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 mil.nga. All rights reserved.
 //
 
-#import <objective-zip/Objective-Zip.h>
 #import "HtmlReportType.h"
 #import "UnzipOperation.h"
 #import "ZippedHtmlImportProcess.h"
@@ -20,6 +19,58 @@
 @end
 
 
+@interface HtmlReportTypeMatchPredicate : NSObject <ReportTypeMatchPredicate>
+
+@property (readonly) id<ReportType> reportType;
+@property (readonly) BOOL contentCouldMatch;
+
+@end
+
+
+@implementation HtmlReportTypeMatchPredicate {
+    NSString *_baseDir;
+    NSArray *_indexEntry;
+    NSMutableSet *_rootEntries;
+}
+
+- (instancetype)initWithReportType:(HtmlReportType *)reportType
+{
+    _reportType = reportType;
+    _rootEntries = [NSMutableSet set];
+}
+
+- (void)considerContentWithName:(NSString *)name probableUti:(CFStringRef)uti
+{
+    NSArray<NSString *> *nameParts = name.pathComponents;
+    NSString *entryRoot = nameParts.firstObject;
+    if ([entryRoot hasSuffix:@"/"]) {
+        if (_baseDir == nil) {
+            _baseDir = entryRoot;
+        }
+        else if (![entryRoot isEqualToString:_baseDir]) {
+            _baseDir = @"";
+        }
+    }
+
+    if (nameParts.count == 1) {
+        [_rootEntries addObject:name];
+    }
+
+    NSString *baseName = nameParts.lastObject;
+    if ([@"index.html" isEqualToString:baseName] && nameParts.count <= 2) {
+        if (_indexEntry == nil) {
+            _indexEntry = nameParts;
+        }
+        else if (nameParts.count < _indexEntry.count) {
+            _indexEntry = nameParts;
+        }
+        else if (nameParts.count == _indexEntry.count) {
+            // hmm - oh well
+        }
+    }
+}
+
+@end
 
 
 @implementation HtmlReportType
@@ -42,45 +93,25 @@
     return [self initWithFileManager:[NSFileManager defaultManager]];
 }
 
-- (BOOL)couldImportFile:(NSURL *)filePath
+- (BOOL)couldImportFromPath:(NSURL *)filePath
 {
     NSDictionary *attrs = [self.fileManager attributesOfItemAtPath:filePath.path error:nil];
 
-    return [self isZipFile:filePath attributes:attrs] ||
+    return
         [self isHtmlFile:filePath attributes:attrs] ||
         [self isHtmlBaseDir:filePath attributes:attrs];
 }
 
-- (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
+- (id<ReportTypeMatchPredicate>)createContentMatchingPredicate
 {
-    NSDictionary *fileAttrs = [self.fileManager attributesOfItemAtPath:report.url.path error:nil];
-    if ([self isZipFile:report.url attributes:fileAttrs]) {
-        OZZipFile *zipFile = [[OZZipFile alloc] initWithFileName:report.url.path mode:OZZipFileModeUnzip];
-        ZippedHtmlImportProcess *process = [[ZippedHtmlImportProcess alloc] initWithReport:report
-            destDir:destDir zipFile:zipFile fileManager:self.fileManager];
-        return process;
-    }
-    else if ([self isHtmlBaseDir:report.url attributes:fileAttrs]) {
-        ExplodedHtmlImportProcess *process = [[ExplodedHtmlImportProcess alloc]
-            initWithReport:report fileManager:self.fileManager];
-        return process;
-    }
-    else if ([self isHtmlFile:report.url attributes:fileAttrs]) {
-        ExplodedHtmlImportProcess *process = [[ExplodedHtmlImportProcess alloc]
-            initWithReport:report fileManager:self.fileManager];
-        return process;
-    }
-    return nil;
+
 }
 
-- (BOOL)isZipFile:(NSURL *)filePath attributes:(NSDictionary *)fileAttrs
+- (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
-    NSString *fileType = fileAttrs[NSFileType];
-    if ([NSFileTypeRegular isEqualToString:fileType]) {
-        NSString *ext = filePath.pathExtension.lowercaseString;
-        return [@"zip" isEqualToString:ext];
-    }
-    return NO;
+    ExplodedHtmlImportProcess *process = [[ExplodedHtmlImportProcess alloc]
+        initWithReport:report fileManager:self.fileManager];
+    return process;
 }
 
 - (BOOL)isHtmlBaseDir:(NSURL *)filePath attributes:(NSDictionary *)fileAttrs

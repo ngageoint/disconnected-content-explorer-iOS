@@ -14,7 +14,7 @@
         self.title = title;
         self.summary = nil;
         self.thumbnail = nil;
-        self.fileExtension = nil;
+        self.uti = NULL;
         self.reportID = nil;
         self.isEnabled = NO;
         self.error = nil;

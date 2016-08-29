@@ -174,7 +174,7 @@ describe(@"ReportStore", ^{
         blueType = [[ReportStoreSpec_ReportType alloc] initWithExtension:@"blue"];
 
         // initialize a new ReportStore to ensure all tests are independent
-        store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager importQueue:importQueue];
+        store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager utiExpert:[[DICEUtiExpert alloc] init] importQueue:importQueue];
         store.reportTypes = @[
             redType,
             blueType
