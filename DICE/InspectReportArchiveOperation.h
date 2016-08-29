@@ -4,6 +4,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "DICEArchive.h"
 
 @class Report;
 @class DICEUtiExpert;
@@ -11,13 +12,14 @@
 @protocol DICEArchive;
 
 
-@interface MatchReportTypeToReportArchiveOperation : NSOperation
+@interface InspectReportArchiveOperation : NSOperation
 
 @property (readonly) Report *report;
 @property (readonly) id<DICEArchive> reportArchive;
 @property (readonly) NSArray<id<ReportType>> *candidates;
 @property (readonly) id<ReportType> matchedReportType;
+@property (readonly) archive_size_t totalExtractedSize;
 
-- (instancetype)initWithReport:(Report *)report reportArchive:(id<DICEArchive>)archive candidateTypes:(NSArray<id<ReportType>> *)types utiExpert:(DICEUtiExpert *)utiExpert;
+- (instancetype)initWithReport:(Report *)report reportArchive:(id<DICEArchive>)archive candidateReportTypes:(NSArray<id<ReportType>> *)types utiExpert:(DICEUtiExpert *)utiExpert;
 
 @end

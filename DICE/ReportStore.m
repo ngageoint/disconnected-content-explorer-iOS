@@ -8,7 +8,7 @@
 
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "ReportStore.h"
-#import "MatchReportTypeToReportArchiveOperation.h"
+#import "InspectReportArchiveOperation.h"
 #import "MatchReportTypeToContentAtPathOperation.h"
 #import "DICEOZZipFileArchive.h"
 
@@ -156,8 +156,8 @@
         // get zip file listing on background thread
         // find appropriate report type for archive contents
         id<DICEArchive> archive = [[DICEOZZipFileArchive alloc] initWithArchivePath:reportUrl utType:reportUti];
-        MatchReportTypeToReportArchiveOperation *op = [[MatchReportTypeToReportArchiveOperation alloc]
-            initWithReport:report reportArchive:archive candidateTypes:self.reportTypes utiExpert:_utiExpert];
+        InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc]
+            initWithReport:report reportArchive:archive candidateReportTypes:self.reportTypes utiExpert:_utiExpert];
         [_importQueue addOperation:op];
         return report;
     }

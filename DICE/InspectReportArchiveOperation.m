@@ -3,18 +3,18 @@
 // Copyright (c) 2016 mil.nga. All rights reserved.
 //
 
-#import "MatchReportTypeToReportArchiveOperation.h"
+#import "InspectReportArchiveOperation.h"
 #import "Report.h"
 #import "DICEArchive.h"
 #import "ReportType.h"
 #import "DICEUtiExpert.h"
 
 
-@implementation MatchReportTypeToReportArchiveOperation {
+@implementation InspectReportArchiveOperation {
     DICEUtiExpert *_utiExpert;
 }
 
-- (instancetype)initWithReport:(Report *)report reportArchive:(id<DICEArchive>)archive candidateTypes:(NSArray<id<ReportType>> *)types utiExpert:(DICEUtiExpert *)utiExpert
+- (instancetype)initWithReport:(Report *)report reportArchive:(id<DICEArchive>)archive candidateReportTypes:(NSArray<id<ReportType>> *)types utiExpert:(DICEUtiExpert *)utiExpert
 {
     if (!(self = [super init])) {
         return nil;
@@ -24,6 +24,7 @@
     _reportArchive = archive;
     _candidates = types;
     _utiExpert = utiExpert;
+    _totalExtractedSize = 0;
 
     return self;
 }
@@ -37,6 +38,7 @@
             [predicates addObject:[candidate createContentMatchingPredicate]];
         }
         [self.reportArchive enumerateEntriesUsingBlock:^(id<DICEArchiveEntry> entry) {
+            _totalExtractedSize += [entry archiveEntrySizeExtracted];
             CFStringRef uti = [_utiExpert probableUtiForPathName:[entry archiveEntryPath] conformingToUti:NULL];
             for (id<ReportTypeMatchPredicate> predicate in predicates) {
                 [predicate considerContentWithName:entry.archiveEntryPath probableUti:uti];

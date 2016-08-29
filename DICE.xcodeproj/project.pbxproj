@@ -19,7 +19,7 @@
 		171A3C7DABA275D903BE54A7E5BA3EE0 /* UIXToolbarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F80D0EB64034E572F239A4D4AA6C5DE /* UIXToolbarView.m */; };
 		17D6D8C33043440FF54CF38E39815E78 /* Reader-Button-N@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8736A6614C3FB1D3830738D4A832B9DC /* Reader-Button-N@2x.png */; };
 		17FB669C0414684800F469FB754C6DAD /* DisclaimerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB03EAA46D6AFBAEF7FE406C74638A71 /* DisclaimerViewController.m */; };
-		196B1B96857195F28717E3DAF1C0E84F /* MatchReportTypeToReportArchiveOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 494D0FDD7AC128307D70A475C67AED8E /* MatchReportTypeToReportArchiveOperation.m */; };
+		196B1B96857195F28717E3DAF1C0E84F /* InspectReportArchiveOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 494D0FDD7AC128307D70A475C67AED8E /* InspectReportArchiveOperation.m */; };
 		198D111BBBDC4E2EE8BDAB059EA80DB0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39D46E4251184064FF69409D758E04CE /* Images.xcassets */; };
 		19BD26BC17140140C803042DEEB0418D /* ReaderDemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE636D09070B4E049CEBDC10D013A59F /* ReaderDemoController.m */; };
 		1F16055531467CC62B3ED6A37B61A69A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D46AE2C7DAA4990566CA0BC8DD75DF2 /* MapKit.framework */; };
@@ -222,7 +222,7 @@
 		42DC8D0E9D67A6011F44FA39BA1D229F /* Reader-Export@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Export@2x.png"; sourceTree = "<group>"; };
 		4499ED5CC81FA279C1A21B2E2D9303EF /* CGPDFDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGPDFDocument.m; sourceTree = "<group>"; };
 		46940E01625BD7F3E945302A0F301589 /* NoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteViewController.m; sourceTree = "<group>"; };
-		494D0FDD7AC128307D70A475C67AED8E /* MatchReportTypeToReportArchiveOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MatchReportTypeToReportArchiveOperation.m; sourceTree = "<group>"; };
+		494D0FDD7AC128307D70A475C67AED8E /* InspectReportArchiveOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectReportArchiveOperation.m; sourceTree = "<group>"; };
 		4D164ACC176BC15EB043506E393B0950 /* DisclaimerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DisclaimerViewController.h; sourceTree = "<group>"; };
 		4D96811406AAC834C785E138B886954C /* ReaderThumbsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbsView.m; sourceTree = "<group>"; };
 		4DB43A9F47D07C4F78266505BCF6D971 /* Reader-Mark-Y.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Mark-Y.png"; sourceTree = "<group>"; };
@@ -285,7 +285,7 @@
 		8DA05A54024256C0883FA5D7958178FB /* DICE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DICE.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9016A99D53FAA4679287F566D6C64D4F /* DICEOZZipFileArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEOZZipFileArchive.h; sourceTree = "<group>"; };
 		9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportUtils.m; sourceTree = "<group>"; };
-		9112B0FC045E99D6E472FF63CE270CD5 /* MatchReportTypeToReportArchiveOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatchReportTypeToReportArchiveOperation.h; sourceTree = "<group>"; };
+		9112B0FC045E99D6E472FF63CE270CD5 /* InspectReportArchiveOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectReportArchiveOperation.h; sourceTree = "<group>"; };
 		91DE9AADF066A41E4737F8A176CC9B3F /* CGPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPDFDocument.h; sourceTree = "<group>"; };
 		9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseJsonOperation.h; path = ../ParseJsonOperation.h; sourceTree = "<group>"; };
 		926F8CF6FAD526952A067E62D3AFEAFF /* ReaderThumbFetch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbFetch.m; sourceTree = "<group>"; };
@@ -750,8 +750,8 @@
 				FF20F328219E27E9F7D6C1FCF462789F /* ImportProcess.m */,
 				C6C935C9B16529C0DD8DC5884E66A622 /* MatchReportTypeToContentAtPathOperation.h */,
 				01CA6D3FC492D4E132C554B7F99E08BC /* MatchReportTypeToContentAtPathOperation.m */,
-				9112B0FC045E99D6E472FF63CE270CD5 /* MatchReportTypeToReportArchiveOperation.h */,
-				494D0FDD7AC128307D70A475C67AED8E /* MatchReportTypeToReportArchiveOperation.m */,
+				9112B0FC045E99D6E472FF63CE270CD5 /* InspectReportArchiveOperation.h */,
+				494D0FDD7AC128307D70A475C67AED8E /* InspectReportArchiveOperation.m */,
 				A4B97C6576F0625BEC99E2809AFC1004 /* Report.h */,
 				65DC78D879E03A1ABD81EE28AA7657F0 /* Report.m */,
 				26B5A37FF23AED5C0E784E60F92BF27B /* ReportCache.h */,
@@ -1084,7 +1084,7 @@
 				3D12A0793D000300A4799BE983F6C410 /* MapOverlayTableCell.m in Sources */,
 				A2A955DC3241517F69018FF2395B7F9A /* MapViewController.m in Sources */,
 				7748EDD2F7C10B9FEA8CB58BD7252643 /* MatchReportTypeToContentAtPathOperation.m in Sources */,
-				196B1B96857195F28717E3DAF1C0E84F /* MatchReportTypeToReportArchiveOperation.m in Sources */,
+				196B1B96857195F28717E3DAF1C0E84F /* InspectReportArchiveOperation.m in Sources */,
 				252EBD190BA1BB850F22D4A606590DC6 /* NoteViewController.m in Sources */,
 				489663D9A34EA5A601A0183AFD7DC291 /* OfflineMapUtility.m in Sources */,
 				7CA903F152A4E7AA5DFF30BCBFC52440 /* PDFViewController.m in Sources */,
