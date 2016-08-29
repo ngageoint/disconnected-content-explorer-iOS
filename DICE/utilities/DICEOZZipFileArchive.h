@@ -13,3 +13,8 @@
 - (instancetype)initWithArchivePath:(NSURL *)path utType:(CFStringRef)utType;
 
 @end
+
+
+@interface OZFileInZipInfo (DICEArchiveEntry) <DICEArchiveEntry>
+
+@end

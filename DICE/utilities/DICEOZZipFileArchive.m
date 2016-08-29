@@ -5,7 +5,6 @@
 
 #import <objective-zip/Objective-Zip.h>
 #import "DICEOZZipFileArchive.h"
-#import "DICEArchive.h"
 
 
 @implementation DICEOZZipFileArchive {
@@ -42,6 +41,26 @@
         info = [self getCurrentFileInZipInfo];
         block(info);
     } while ([self goToNextFileInZip]);
+}
+
+@end
+
+
+@implementation OZFileInZipInfo (DICEArchiveEntry)
+
+- (NSString *)archiveEntryPath
+{
+    return self.name;
+}
+
+- (archive_size_t)archiveEntrySizeExtracted
+{
+    return self.length;
+}
+
+- (archive_size_t)archiveEntrySizeInArchive
+{
+    return self.size;
 }
 
 @end
