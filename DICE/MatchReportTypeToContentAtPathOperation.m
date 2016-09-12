@@ -9,12 +9,32 @@
 
 
 @implementation MatchReportTypeToContentAtPathOperation {
-
+    NSArray *_candidates;
 }
 
-- (instancetype)initWithReport:(Report *)candidateTypes :(NSArray<id<ReportType>> *)candidates
+- (instancetype)initWithReport:(Report *)report candidateTypes:(NSArray<id<ReportType>> *)candidates
 {
-    return nil;
+    if (!(self = [super init])) {
+        return nil;
+    }
+
+    _report = report;
+    _candidates = candidates;
+
+    return self;
+}
+
+- (void)main
+{
+    @autoreleasepool {
+        [_candidates enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            id<ReportType> candidate = obj;
+            if ([candidate couldImportFromPath:self.report.url]) {
+                _matchedReportType = candidate;
+                *stop = YES;
+            }
+        }];
+    }
 }
 
 @end

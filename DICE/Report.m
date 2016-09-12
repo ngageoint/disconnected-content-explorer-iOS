@@ -68,4 +68,9 @@
     return self;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"Report: %@ @%@", self.title, self.url];
+}
+
 @end

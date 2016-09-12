@@ -22,6 +22,6 @@ typedef unsigned long long int archive_size_t;
 
 - (nonnull NSURL *)archiveUrl;
 - (nonnull CFStringRef)archiveUTType;
-- (void)enumerateEntriesUsingBlock:(void (^)(id<DICEArchiveEntry>))block;
+- (void)enumerateEntriesUsingBlock:(void (^_Nonnull)(_Nonnull id<DICEArchiveEntry>))block;
 
 @end

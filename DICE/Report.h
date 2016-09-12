@@ -13,12 +13,14 @@
 @property (nonatomic) NSString *summary;
 @property (nonatomic) NSString *thumbnail;
 @property (nonatomic) NSString *tileThumbnail;
+@property (nonatomic) NSString *error;
+/** the url of the resource that a client should load first when viewing this report */
+@property (nonatomic) NSURL *url;
 /** the uniform type identifier of the report's root resource */
 @property (nonatomic) CFStringRef uti;
-@property (nonatomic) NSString *error;
-@property (nonatomic) NSURL *url;
 @property (nonatomic) NSNumber *lat;
 @property (nonatomic) NSNumber *lon;
+// TODO: remove these
 @property (nonatomic) int totalNumberOfFiles;
 @property (nonatomic) int progress;
 @property (nonatomic) long downloadSize;

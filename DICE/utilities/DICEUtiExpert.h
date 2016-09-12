@@ -8,9 +8,9 @@
 
 @interface DICEUtiExpert : NSObject
 
-- (CFStringRef)preferredUtiForExtension:(NSString *)ext conformingToUti:(nullable CFStringRef)constraint;
-- (CFStringRef)probableUtiForPathName:(NSString *)pathName conformingToUti:(nullable CFStringRef)constraint;
-- (BOOL)uti:(CFStringRef)testUti isEqualToUti:(CFStringRef)basisUti;
-- (BOOL)uti:(CFStringRef)testUti conformsToUti:(CFStringRef)basisUti;
+- (nullable CFStringRef)preferredUtiForExtension:(nonnull NSString *)ext conformingToUti:(nullable CFStringRef)constraint;
+- (nullable CFStringRef)probableUtiForPathName:(nonnull NSString *)pathName conformingToUti:(nullable CFStringRef)constraint;
+- (BOOL)uti:(nonnull CFStringRef)testUti isEqualToUti:(nonnull CFStringRef)basisUti;
+- (BOOL)uti:(nonnull CFStringRef)testUti conformsToUti:(nonnull CFStringRef)basisUti;
 
 @end

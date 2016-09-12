@@ -11,6 +11,58 @@
 #import "NotificationRecordingObserver.h"
 
 
+@interface ReportStoreSpec_FileManager : NSFileManager
+
+@property NSURL *reportsDir;
+@property NSMutableArray<NSString *> *baseNamesInReportsDir;
+
+- (void)setReportsDirContentsBaseNames:(NSString *)baseName, ...;
+
+@end
+
+@implementation ReportStoreSpec_FileManager
+
+- (instancetype)init
+{
+    self = [super init];
+    self.baseNamesInReportsDir = [NSMutableArray array];
+    return self;
+}
+
+- (BOOL)fileExistsAtPath:(NSString *)path
+{
+    NSArray *reportsDirParts = [self.reportsDir pathComponents];
+    NSArray *pathParts = [path.pathComponents subarrayWithRange:NSMakeRange(0, reportsDirParts.count)];
+    return [self.baseNamesInReportsDir containsObject:path.lastPathComponent] &&
+        [pathParts isEqualToArray:reportsDirParts];
+}
+
+- (NSArray *)contentsOfDirectoryAtURL:(NSURL *)url includingPropertiesForKeys:(NSArray<NSString *> *)keys options:(NSDirectoryEnumerationOptions)mask error:(NSError **)error
+{
+    NSMutableArray *files = [NSMutableArray arrayWithCapacity:self.baseNamesInReportsDir.count];
+    for (NSString *baseName in self.baseNamesInReportsDir) {
+        [files addObject:[self.reportsDir URLByAppendingPathComponent:baseName]];
+    }
+    return files;
+}
+
+- (void)setReportsDirContentsBaseNames:(NSString *)baseName, ...
+{
+    [self.baseNamesInReportsDir removeAllObjects];
+    if (baseName == nil) {
+        return;
+    }
+    va_list args;
+    va_start(args, baseName);
+    for(NSString *arg = baseName; arg != nil; arg = va_arg(args, NSString *)) {
+        [self.baseNamesInReportsDir addObject:arg];
+    }
+    va_end(args);
+}
+
+
+@end
+
 /**
  This category enables the OCHamcrest endsWith matcher to accept
  NSURL objects.
@@ -45,9 +97,11 @@
 @interface ReportStoreSpec_ReportType : NSObject <ReportType>
 
 @property (readonly) NSString *extension;
-@property (copy) ReportStoreSpec_ImportProcess * (^nextImportProcess)(Report *);
+@property (readonly) BOOL isFinished;
+@property NSMutableArray<ReportStoreSpec_ImportProcess *> *importProcessQueue;
 
 - (instancetype)initWithExtension:(NSString *)ext NS_DESIGNATED_INITIALIZER;
+- (ReportStoreSpec_ImportProcess *)enqueueImport;
 
 @end
 
@@ -58,7 +112,7 @@
 - (instancetype)init
 {
     self = [self initWithReport:nil];
-    return nil;
+    return self;
 }
 
 - (instancetype)initWithReport:(Report *)report
@@ -68,18 +122,15 @@
     ReportStoreSpec_ImportProcess *my = self;
     NSBlockOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{
         my.report.summary = @"op1:finished";
-        if (my.delegate) {
-            [my.delegate reportWasUpdatedByImportProcess:my];
-        }
+        [my.delegate reportWasUpdatedByImportProcess:my];
     }];
     NSBlockOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{
-        my.report.isEnabled = YES;
-        my.report.title = @"Test Report";
-        my.report.summary = @"It's a test";
-        if (my.delegate) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            my.report.title = @"finished";
+            my.report.summary = @"finished";
             [my.delegate reportWasUpdatedByImportProcess:my];
             [my.delegate importDidFinishForImportProcess:my];
-        }
+        });
     }];
     [op2 addDependency:op1];
     self.steps = @[op1, op2];
@@ -105,6 +156,13 @@
     return self;
 }
 
+- (BOOL)isFinished
+{
+    @synchronized (self) {
+        return self.report.isEnabled;
+    }
+}
+
 @end
 
 
@@ -121,30 +179,64 @@
     if (!ext) {
         [NSException raise:NSInvalidArgumentException format:@"ext is nil"];
     }
-
     self = [super init];
-
     _extension = ext;
-
+    _importProcessQueue = [NSMutableArray array];
     return self;
 }
 
-- (BOOL)couldHandleFile:(NSURL *)reportPath
+- (ReportStoreSpec_ImportProcess *)enqueueImport
 {
-    return [reportPath.pathExtension isEqualToString:self.extension];
+    @synchronized (self) {
+        ReportStoreSpec_ImportProcess *proc = [[ReportStoreSpec_ImportProcess alloc] init];
+        [self.importProcessQueue addObject:proc];
+        return proc;
+    }
+}
+
+- (BOOL)couldImportFromPath:(NSURL *)path
+{
+    return [path.pathExtension isEqualToString:self.extension];
+}
+
+- (id<ReportTypeMatchPredicate>)createContentMatchingPredicate
+{
+    // TODO: something
+    return nil;
 }
 
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
-    if (self.nextImportProcess) {
-        return self.nextImportProcess(report);
+    @synchronized (self) {
+        if (self.importProcessQueue.count) {
+            ReportStoreSpec_ImportProcess *proc = self.importProcessQueue.firstObject;
+            [self.importProcessQueue removeObjectAtIndex:0];
+            [proc setReport:report];
+            return proc;
+        }
     }
-    return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
+    failure([NSString stringWithFormat:@"tried to create process from empty to queue to import report %@", report]);
+    return nil;
 }
 
 @end
 
+NSArray * baseNamesAsUrls(NSArray *baseNames, NSURL *parentDir) {
+    NSMutableArray *urls = [NSMutableArray arrayWithCapacity:baseNames.count];
+    for (NSString *baseName in baseNames) {
+        [urls addObject:[parentDir URLByAppendingPathComponent:baseName]];
+    }
+    return urls;
+}
 
+//[@[__VA_ARGS__] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) { \
+//    [given([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:obj].path]) willReturnBool:YES]; \
+//}];
+//#define mockFilesInReportsDir(...) \
+//[filesInReportsDir removeAllObjects]; \
+//[filesInReportsDir addObjectsFromArray:@[__VA_ARGS__]]; \
+//[given([fileManager contentsOfDirectoryAtURL:reportsDir includingPropertiesForKeys:nil \
+//    options:0 error:nil]) willReturn:baseNamesAsUrls(@[__VA_ARGS__], reportsDir)]
 
 
 SpecBegin(ReportStore)
@@ -153,20 +245,26 @@ describe(@"ReportStore", ^{
 
     __block ReportStoreSpec_ReportType *redType;
     __block ReportStoreSpec_ReportType *blueType;
-    __block NSFileManager *fileManager;
+    __block ReportStoreSpec_FileManager *fileManager;
     __block NSOperationQueue *importQueue;
     __block ReportStore *store;
 
     NSURL *reportsDir = [NSURL fileURLWithPath:@"/dice/reports"];
 
     beforeAll(^{
-
     });
 
     beforeEach(^{
-        fileManager = mock([NSFileManager class]);
-        [given([fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil])
-            willReturn:reportsDir];
+//        fileManager = mock([NSFileManager class]);
+        fileManager = [[ReportStoreSpec_FileManager alloc] init];
+        fileManager.reportsDir = reportsDir;
+//        [given([fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil])
+//            willReturn:reportsDir];
+//        [[given([fileManager fileExistsAtPath:nil]) withMatcher:anything()] willDo:^id(NSInvocation *invocation) {
+//            NSString *path;
+//            [invocation getArgument:&path atIndex:2];
+//            return @([filesInReportsDir containsObject:path.lastPathComponent]);
+//        }];
 
         importQueue = [[NSOperationQueue alloc] init];
 
@@ -183,7 +281,7 @@ describe(@"ReportStore", ^{
 
     afterEach(^{
         [importQueue waitUntilAllOperationsAreFinished];
-        stopMocking(fileManager);
+//        stopMocking(fileManager);
         fileManager = nil;
     });
 
@@ -194,56 +292,39 @@ describe(@"ReportStore", ^{
     describe(@"loadReports", ^{
 
         beforeEach(^{
-
         });
 
-        it(@"finds the supported files in the reports directory", ^{
-            [given([fileManager contentsOfDirectoryAtURL:reportsDir
-                includingPropertiesForKeys:nil
-                options:0
-                error:nil]) willReturn:@[
-                    [reportsDir URLByAppendingPathComponent:@"report1.red"],
-                    [reportsDir URLByAppendingPathComponent:@"report2.blue"],
-                    [reportsDir URLByAppendingPathComponent:@"something.else"]
-                ]];
+        it(@"creates reports for each file in reports directory", ^{
+            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", @"something.else", nil];
+
+            id redImport = [redType enqueueImport];
+            id blueImport = [blueType enqueueImport];
 
             NSArray *reports = [store loadReports];
 
-            expect(reports.count).to.equal(2);
+            expect(reports.count).to.equal(3);
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
             expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(((Report *)reports[2]).url).to.equal([reportsDir URLByAppendingPathComponent:@"something.else"]);
+
+            assertWithTimeout(1.0, thatEventually(@([redImport isFinished] && [blueImport isFinished])), isTrue());
         });
 
-        it(@"removes reports with path that does not exist and not importing", ^{
-            [given([fileManager contentsOfDirectoryAtURL:reportsDir
-                includingPropertiesForKeys:nil options:0 error:nil])
-                willReturn:@[
-                    [reportsDir URLByAppendingPathComponent:@"report1.red"],
-                    [reportsDir URLByAppendingPathComponent:@"report2.blue"]
-                ]];
+        it(@"removes reports with path that does not exist and are not importing", ^{
+            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", nil];
 
-            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
-            };
-            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
-            };
+            ReportStoreSpec_ImportProcess *redImport = redType.enqueueImport;
+            ReportStoreSpec_ImportProcess *blueImport = blueType.enqueueImport;
 
             NSArray *reports = [store loadReports];
 
-            [importQueue waitUntilAllOperationsAreFinished];
+            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished && blueImport.isFinished)), isTrue());
 
             expect(reports.count).to.equal(2);
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
             expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
-            [given([fileManager contentsOfDirectoryAtURL:reportsDir
-                includingPropertiesForKeys:nil
-                options:0
-                error:nil])
-                willReturn:@[
-                    [reportsDir URLByAppendingPathComponent:@"report2.blue"]
-                ]];
+            [fileManager setReportsDirContentsBaseNames:@"report2.blue", nil];
 
             reports = [store loadReports];
 
@@ -251,113 +332,89 @@ describe(@"ReportStore", ^{
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
         });
 
-        // TODO: don't care for now
-        xit(@"leaves imported and importing reports in the same order", ^{
-            [given([fileManager contentsOfDirectoryAtURL:reportsDir
-                includingPropertiesForKeys:nil options:0 error:nil])
-                willReturn:@[
-                    [reportsDir URLByAppendingPathComponent:@"report1.red"],
-                    [reportsDir URLByAppendingPathComponent:@"report2.blue"],
-                    [reportsDir URLByAppendingPathComponent:@"report3.red"]
-                ]];
+        it(@"leaves imported and importing reports in order of discovery", ^{
 
-            __block Report *blueReport;
-            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                blueReport = report;
-                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
-            };
+            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", @"report3.red", nil];
 
-            __block Report *redReport;
-            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                redReport = report;
-                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
-            };
+            ReportStoreSpec_ImportProcess *blueImport = [blueType.enqueueImport block];
+            ReportStoreSpec_ImportProcess *redImport1 = [redType enqueueImport];
+            ReportStoreSpec_ImportProcess *redImport2 = [redType enqueueImport];
 
-            NSArray<Report *> *reports = [NSArray arrayWithArray:[store loadReports]];
+            NSArray<Report *> *reports1 = [NSArray arrayWithArray:[store loadReports]];
 
-            NSUInteger bluePos = [reports indexOfObject:blueReport];
+            expect(reports1.count).to.equal(3);
+            expect(reports1[0].url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(reports1[1].url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(reports1[2].url).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
 
-            expect(reports.count).to.equal(3);
+            assertWithTimeout(1.0, thatEventually(@(redImport1.isFinished && redImport2.isFinished)), isTrue());
 
-            [given([fileManager contentsOfDirectoryAtURL:reportsDir
-                includingPropertiesForKeys:nil options:0 error:nil])
-                willReturn:@[
-                    [reportsDir URLByAppendingPathComponent:@"report11.red"],
-                    [reportsDir URLByAppendingPathComponent:@"report2.blue"],
-                    [reportsDir URLByAppendingPathComponent:@"report3.red"]
-                ]];
+            [fileManager setReportsDirContentsBaseNames:@"report2.blue", @"report3.red", @"report11.red", nil];
+            redImport1 = [redType enqueueImport];
 
-            reports = [NSArray arrayWithArray:[store loadReports]];
-            [importQueue waitUntilAllOperationsAreFinished];
+            NSArray<Report *> *reports2 = [NSArray arrayWithArray:[store loadReports]];
 
-            failure(@"unimplemented");
+            expect(reports2.count).to.equal(3);
+            expect(reports2[0].url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(reports2[0]).to.beIdenticalTo(reports1[1]);
+            expect(reports2[1].url).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
+            expect(reports2[1]).to.beIdenticalTo(reports1[2]);
+            expect(reports2[2].url).to.equal([reportsDir URLByAppendingPathComponent:@"report11.red"]);
+            expect(reports2[2]).notTo.beIdenticalTo(reports1[0]);
+
+            [blueImport unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(redImport1.isFinished && blueImport.isFinished)), isTrue());
         });
 
         it(@"leaves reports whose path may not exist but are still importing", ^{
-            [given([fileManager contentsOfDirectoryAtURL:reportsDir
-                includingPropertiesForKeys:nil options:0 error:nil])
-                willReturn:@[
-                    [reportsDir URLByAppendingPathComponent:@"report1.red"],
-                    [reportsDir URLByAppendingPathComponent:@"report2.blue"]
-                ]];
 
-            __block ReportStoreSpec_ImportProcess *blueImport;
-            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return blueImport = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
-            };
-            __block ReportStoreSpec_ImportProcess *redImport;
-            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return redImport = [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] block];
-            };
+            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", nil];
+
+            ReportStoreSpec_ImportProcess *redImport = [redType.enqueueImport block];
+            ReportStoreSpec_ImportProcess *blueImport = [blueType enqueueImport];
 
             NSArray<Report *> *reports = [store loadReports];
-
-            assertWithTimeout(1.0, thatEventually(blueImport.steps), everyItem(hasProperty(@"isFinished", isTrue())));
 
             expect(reports.count).to.equal(2);
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
             expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
+            assertWithTimeout(1.0, thatEventually(@(blueImport.isFinished)), isTrue());
+
             expect([reports[0] isEnabled]).to.equal(NO);
             expect([reports[1] isEnabled]).to.equal(YES);
 
-            [given([fileManager contentsOfDirectoryAtURL:reportsDir
-                includingPropertiesForKeys:nil options:0 error:nil])
-                willReturn:@[[reportsDir URLByAppendingPathComponent:@"report1.transformed"]]];
+            Report *redReport = redImport.report;
+            redReport.url = [reportsDir URLByAppendingPathComponent:@"report1.transformed"];
+
+            [fileManager setReportsDirContentsBaseNames:@"report1.transformed", nil];
 
             reports = [store loadReports];
 
             expect(reports.count).to.equal(1);
-            expect(((Report *)reports.firstObject).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(((Report *)reports.firstObject).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.transformed"]);
             expect(((Report *)reports.firstObject).isEnabled).to.equal(NO);
 
             [redImport unblock];
 
-            assertWithTimeout(1.0, thatEventually(redImport.steps), everyItem(hasProperty(@"isFinished", isTrue())));
+            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
 
             expect(store.reports.count).to.equal(1);
-            expect(((Report *)store.reports.firstObject).url.lastPathComponent).to.equal(@"report1.red");
+            expect(((Report *)store.reports.firstObject).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.transformed"]);
             expect(((Report *)store.reports.firstObject).isEnabled).to.equal(YES);
         });
 
         it(@"sends notifications about added reports", ^{
+
             NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
 
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
-            [given([fileManager contentsOfDirectoryAtURL:reportsDir
-                includingPropertiesForKeys:nil options:0 error:nil])
-                willReturn:@[
-                   [reportsDir URLByAppendingPathComponent:@"report1.red"],
-                   [reportsDir URLByAppendingPathComponent:@"report2.blue"]
-                ]];
+            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", nil];
 
-            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] cancelAll];
-            };
-            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] cancelAll];
-            };
+            [redType.enqueueImport cancelAll];
+            [blueType.enqueueImport cancelAll];
 
             NSArray *reports = [store loadReports];
 
@@ -380,15 +437,8 @@ describe(@"ReportStore", ^{
 
         it(@"imports a report with the capable ReportType", ^{
 
-            __block ReportStoreSpec_ImportProcess *redImport;
-            __block ReportStoreSpec_ImportProcess *blueImport;
-
-            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return redImport = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
-            };
-            blueType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return blueImport = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
-            };
+            ReportStoreSpec_ImportProcess *redImport = redType.enqueueImport;
+            ReportStoreSpec_ImportProcess *blueImport = blueType.enqueueImport;
 
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
@@ -398,28 +448,22 @@ describe(@"ReportStore", ^{
             expect(blueImport).to.beNil;
         });
 
-        it(@"returns nil if the report cannot be imported", ^{
+        it(@"returns a report even if the url cannot be imported", ^{
             NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.green"];
             Report *report = [store attemptToImportReportFromResource:url];
 
-            expect(importQueue.operationCount).to.equal(0);
-
-            [importQueue waitUntilAllOperationsAreFinished];
-
-            expect(report).to.beNil;
+            expect(report).notTo.beNil;
+            expect(report.url).to.equal(url);
         });
 
         it(@"adds the initial report to the report list", ^{
-            __block ReportStoreSpec_ImportProcess *import;
-            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return import = [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] block];
-            };
+            ReportStoreSpec_ImportProcess *import = [redType.enqueueImport block];
 
             NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.red"];
             Report *report = [store attemptToImportReportFromResource:url];
 
             expect(store.reports).to.contain(report);
-            expect(report.reportID).to.equal(report.url.path);
+            expect(report.reportID).to.beNil;
             expect(report.title).to.equal(report.url.lastPathComponent);
             expect(report.summary).to.equal(@"Importing...");
             expect(report.error).to.beNil;
@@ -434,9 +478,7 @@ describe(@"ReportStore", ^{
             NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
-            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                return [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
-            };
+            redType.enqueueImport;
 
             Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
 
@@ -454,13 +496,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"does not start an import for a report file it is already importing", ^{
-            __block ReportStoreSpec_ImportProcess *import;
-            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                if (import) {
-                    [NSException raise:NSInternalInconsistencyException format:@"more than one import process created"];
-                }
-                return import = [[[ReportStoreSpec_ImportProcess alloc] initWithReport:report] block];
-            };
+            ReportStoreSpec_ImportProcess *import = [redType.enqueueImport block];
 
             NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
@@ -482,13 +518,13 @@ describe(@"ReportStore", ^{
 
             [import unblock];
 
-            [importQueue waitUntilAllOperationsAreFinished];
-
-            [notifications removeObserver:observer];
+            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
 
             expect(sameReport).to.beIdenticalTo(report);
             expect(store.reports.count).to.equal(1);
             expect(observer.received.count).to.equal(0);
+
+            [notifications removeObserver:observer];
         });
 
         it(@"enables the report when the import finishes", ^{
@@ -509,21 +545,14 @@ describe(@"ReportStore", ^{
         });
 
         it(@"sends a notification when the import finishes", ^{
-            __block ReportStoreSpec_ImportProcess *import;
-            redType.nextImportProcess = ^ReportStoreSpec_ImportProcess *(Report *report) {
-                if (import) {
-                    [NSException raise:NSInternalInconsistencyException format:@"more than one import process created"];
-                }
-                return import = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
-            };
 
             NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportImportFinished] on:notifications from:store withBlock:nil];
 
+            ReportStoreSpec_ImportProcess *redImport = [redType enqueueImport];
             Report *importReport = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"test.red"]];
 
-            [importQueue waitUntilAllOperationsAreFinished];
-
+            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
             assertWithTimeout(1.0, thatEventually(@(observer.received.count)), equalToInteger(1));
 
             [notifications removeObserver:observer];

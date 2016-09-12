@@ -9,12 +9,14 @@
 #import <Foundation/Foundation.h>
 
 #import "ImportProcess+Internal.h"
+#import "Report.h"
 
 
 @implementation ImportProcess
 {
     void *OBSERVATION_CONTEXT;
     NSArray<NSOperation *> *_steps;
+    Report *_report;
 }
 
 - (instancetype)initWithReport:(Report *)report
@@ -34,7 +36,10 @@
 
 - (instancetype)init
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
     return [self initWithReport:nil];
+#pragma clang diagnostic pop
 }
 
 - (NSArray<NSOperation *> *)steps
@@ -58,6 +63,20 @@
                 [self observeStep:step];
             }
         }
+    }
+}
+
+- (Report *)report
+{
+    @synchronized (self) {
+        return _report;
+    }
+}
+
+- (void)setReport:(Report *)report
+{
+    @synchronized (self) {
+        _report = report;
     }
 }
 

@@ -14,7 +14,7 @@
 #import <OCMockito/OCMockito.h>
 
 #import "ImportProcess+Internal.h"
-#import "NSOperation+Blockable.h"
+#import "Report.h"
 
 
 @interface TestBaseImportProcess : ImportProcess

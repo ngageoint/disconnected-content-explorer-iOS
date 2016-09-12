@@ -3,17 +3,13 @@
 #define DICE_ReportType_h
 
 
-#import "Report.h"
-#import "ImportProcess.h"
-#import "DICEArchive.h"
-
-
 @protocol ReportTypeMatchPredicate;
-
+@class ImportProcess;
+@class Report;
 
 @protocol ReportType <NSObject>
 
-- (BOOL)couldImportFromPath:(NSURL *)path;
+- (BOOL)couldImportFromPath:(nonnull NSURL *)path;
 /**
  * Create a predicate to evaluate the enumerated contents of a report archive.
  * The predicate need not be thread-safe, and will be thrown away after the enumeration
@@ -24,8 +20,18 @@
  *
  * @todo maybe add the archive url or base directory?  we'll see later
  */
-- (id<ReportTypeMatchPredicate>)createContentMatchingPredicate;
-- (nullable ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir;
+- (nonnull id<ReportTypeMatchPredicate>)createContentMatchingPredicate;
+
+/**
+ * Create the ImportProcess with the steps to import the given report from its URL.
+ * Implement this method in a thread-safe manner.  This method will run on a background
+ * thread in case file operations are necessary to create the ImportProcess.
+ *
+ * @param report
+ * @param destDir
+ * @return
+ */
+- (nullable ImportProcess *)createProcessToImportReport:(nonnull Report *)report toDir:(nonnull NSURL *)destDir;
 
 @end
 
@@ -49,7 +55,7 @@
  *
  * @return (id<ReportType>)
  */
-@property (readonly) id<ReportType> reportType;
+@property (readonly, nonnull) id<ReportType> reportType;
 
 /**
  * (BOOL) whether the content entries provided to this predicate could match its creating ReportType
@@ -62,7 +68,7 @@
  * @param name (NSString *) the name, usually including a file path, of a content file entry
  * @param uti (CFStringRef) the most probable uniform type identifier fo the content entry
  */
-- (void)considerContentWithName:(NSString *)name probableUti:(CFStringRef)uti;
+- (void)considerContentWithName:(nonnull NSString *)name probableUti:(nullable CFStringRef)uti;
 
 @end
 

@@ -8,19 +8,18 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Report.h"
-
 
 @protocol ImportDelegate;
+@class Report;
 
 
 @interface ImportProcess : NSObject
 
-@property (readonly) Report *report;
-@property (readonly, nonatomic) NSArray<NSOperation *> *steps;
-@property (weak) id<ImportDelegate> delegate;
+@property (readonly, nonnull) Report *report;
+@property (readonly, nonnull) NSArray<NSOperation *> *steps;
+@property (weak, nullable) id<ImportDelegate> delegate;
 
-- (instancetype)initWithReport:(Report *)report NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithReport:(nonnull Report *)report NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -28,8 +27,8 @@
 
 @protocol ImportDelegate <NSObject>
 
-- (void)reportWasUpdatedByImportProcess:(ImportProcess *)import;
-- (void)importDidFinishForImportProcess:(ImportProcess *)import;
+- (void)reportWasUpdatedByImportProcess:(nonnull ImportProcess *)import;
+- (void)importDidFinishForImportProcess:(nonnull ImportProcess *)import;
 
 // TODO:
 //- (void)importDidSucceedForImportProcess:(id<ImportProcess>)import;

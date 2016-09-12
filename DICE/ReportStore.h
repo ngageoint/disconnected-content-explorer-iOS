@@ -29,7 +29,7 @@
      @"index": (NSString*) integral index of the report in the reports array
  }
  */
-+ (NSString *)reportAdded;
++ (nonnull NSString *)reportAdded;
 /**
  This notification indicates that the app has started importing
  a given report.
@@ -39,7 +39,7 @@
      @"index": (NSString*) integral index of the report in the reports array
  }
  */
-+ (NSString *)reportImportBegan;
++ (nonnull NSString *)reportImportBegan;
 /**
  This notification indicates progress on importing a given report.
  The NSNotification object userInfo dictionary contains
@@ -49,7 +49,7 @@
      @"totalNumberOfFiles": (NSString*) integral total number for files the report contains
  }
  */
-+ (NSString *)reportImportProgress;
++ (nonnull NSString *)reportImportProgress;
 /**
  This notification indicates that a report was fully
  imported and is ready to view.
@@ -59,7 +59,7 @@
      @"index": (NSString*) integral index of the report in the reports array
  }
  */
-+ (NSString *)reportImportFinished;
++ (nonnull NSString *)reportImportFinished;
 /**
  This notification indicates that ReportStore has finished scanning for report files
  in the Documents directory and has populated the report list with its findings.
@@ -67,7 +67,7 @@
  may not yet be ready to view.
  The NSNotification object has a nil userInfo dictionary.
  */
-+ (NSString *)reportsLoaded;
++ (nonnull NSString *)reportsLoaded;
 
 @end
 
@@ -77,17 +77,17 @@
 @interface ReportStore : NSObject <ImportDelegate>
 
 
-+ (instancetype)sharedInstance;
++ (nullable instancetype)sharedInstance;
 
 /**
  The list of ReportType objects for handling report files
  */
-@property NSArray<id<ReportType>> *reportTypes;
+@property (nonnull) NSArray<id<ReportType>> *reportTypes;
 
 /**
  The list of Report objects
  */
-@property (readonly) NSArray<Report *> *reports;
+@property (readonly, nonnull) NSArray<Report *> *reports;
 
 
 /**
@@ -100,10 +100,10 @@
 
  @return the initialized ReportStore
  */
-- (instancetype)initWithReportsDir:(NSURL *)reportsDir
-    fileManager:(NSFileManager *)fileManager
-    utiExpert:(DICEUtiExpert *)utiExpert
-    importQueue:(NSOperationQueue *)importQueue NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithReportsDir:(nonnull NSURL *)reportsDir
+    fileManager:(nonnull NSFileManager *)fileManager
+    utiExpert:(nonnull DICEUtiExpert *)utiExpert
+    importQueue:(nonnull NSOperationQueue *)importQueue NS_DESIGNATED_INITIALIZER;
 
 /**
  Load/refresh the list of reports based on the contents of the app's file system.
@@ -114,7 +114,7 @@
  
  @return (NSArray *) the list of Report objects that were found
  */
-- (NSArray<Report *> *)loadReports;
+- (nonnull NSArray<Report *> *)loadReports;
 
 /**
  Import the resource the given URL references as a Report.  The import will occur
@@ -127,9 +127,8 @@
  @return (Report *) the initial Report object that will represent the report,
     or nil if the given resource cannot be imported
  */
-- (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl;
+- (nullable Report *)attemptToImportReportFromResource:(nonnull NSURL *)reportUrl;
 
-
-- (Report *)reportForID:(NSString *)reportID;
+- (nullable Report *)reportForID:(nonnull NSString *)reportID;
 
 @end

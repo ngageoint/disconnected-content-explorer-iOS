@@ -73,12 +73,12 @@ describe(@"HtmlReportType", ^{
         expect([htmlReportType couldImportFromPath:dirPath]).to.equal(NO);
     });
 
-    it(@"could handle a zip file", ^{
+    it(@"could not handle a zip file", ^{
         NSURL *zipPath = [reportsDir URLByAppendingPathComponent:@"test_report.zip"];
 
         [given([fileManager attributesOfItemAtPath:zipPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
 
-        expect([htmlReportType couldImportFromPath:zipPath]).to.equal(YES);
+        expect([htmlReportType couldImportFromPath:zipPath]).to.equal(NO);
     });
 
     it(@"could handle an html file", ^{

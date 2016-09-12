@@ -9,10 +9,11 @@
 @protocol ReportType;
 
 
-@interface MatchReportTypeToContentAtPathOperation : NSObject
+@interface MatchReportTypeToContentAtPathOperation : NSOperation
 
-@property (readonly) id<ReportType> matchedReportType;
+@property (readonly, nonnull) Report *report;
+@property (readonly, nullable) id<ReportType> matchedReportType;
 
-- (instancetype)initWithReport:(Report *) candidateTypes:(NSArray<id<ReportType>> *)candidates;
+- (nullable instancetype)initWithReport:(nonnull Report *)report candidateTypes:(nonnull NSArray<id<ReportType>> *)candidates;
 
 @end
