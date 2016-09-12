@@ -221,22 +221,6 @@
 
 @end
 
-NSArray * baseNamesAsUrls(NSArray *baseNames, NSURL *parentDir) {
-    NSMutableArray *urls = [NSMutableArray arrayWithCapacity:baseNames.count];
-    for (NSString *baseName in baseNames) {
-        [urls addObject:[parentDir URLByAppendingPathComponent:baseName]];
-    }
-    return urls;
-}
-
-//[@[__VA_ARGS__] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) { \
-//    [given([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:obj].path]) willReturnBool:YES]; \
-//}];
-//#define mockFilesInReportsDir(...) \
-//[filesInReportsDir removeAllObjects]; \
-//[filesInReportsDir addObjectsFromArray:@[__VA_ARGS__]]; \
-//[given([fileManager contentsOfDirectoryAtURL:reportsDir includingPropertiesForKeys:nil \
-//    options:0 error:nil]) willReturn:baseNamesAsUrls(@[__VA_ARGS__], reportsDir)]
 
 
 SpecBegin(ReportStore)
@@ -255,16 +239,8 @@ describe(@"ReportStore", ^{
     });
 
     beforeEach(^{
-//        fileManager = mock([NSFileManager class]);
         fileManager = [[ReportStoreSpec_FileManager alloc] init];
         fileManager.reportsDir = reportsDir;
-//        [given([fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil])
-//            willReturn:reportsDir];
-//        [[given([fileManager fileExistsAtPath:nil]) withMatcher:anything()] willDo:^id(NSInvocation *invocation) {
-//            NSString *path;
-//            [invocation getArgument:&path atIndex:2];
-//            return @([filesInReportsDir containsObject:path.lastPathComponent]);
-//        }];
 
         importQueue = [[NSOperationQueue alloc] init];
 
@@ -281,7 +257,6 @@ describe(@"ReportStore", ^{
 
     afterEach(^{
         [importQueue waitUntilAllOperationsAreFinished];
-//        stopMocking(fileManager);
         fileManager = nil;
     });
 
