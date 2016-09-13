@@ -8,10 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Report.h"
-#import "ImportProcess.h"
-#import "ReportType.h"
-#import "DICEUtiExpert.h"
+
+@protocol DICEArchiveFactory;
+@protocol ImportDelegate;
+@protocol ReportType;
+@class DICEUtiExpert;
+@class ImportProcess;
+@class Report;
 
 
 /**
@@ -102,6 +105,7 @@
  */
 - (nullable instancetype)initWithReportsDir:(nonnull NSURL *)reportsDir
     fileManager:(nonnull NSFileManager *)fileManager
+    archiveFactory:(nonnull id<DICEArchiveFactory>)archiveFactory
     utiExpert:(nonnull DICEUtiExpert *)utiExpert
     importQueue:(nonnull NSOperationQueue *)importQueue NS_DESIGNATED_INITIALIZER;
 

@@ -12,6 +12,12 @@
 #import "MatchReportTypeToContentAtPathOperation.h"
 #import "DICEOZZipFileArchive.h"
 #import "ImportProcess+Internal.h"
+#import "UnzipOperation.h"
+#import "DICEDefaultArchiveFactory.h"
+#import "DICEArchive.h"
+#import "Report.h"
+#import "ReportType.h"
+#import "DICEUtiExpert.h"
 
 
 @implementation ReportNotification
@@ -44,6 +50,7 @@
     NSURL *_reportsDir;
     NSFileManager *_fileManager;
     DICEUtiExpert *_utiExpert;
+    id<DICEArchiveFactory> _archiveFactory;
     NSOperationQueue *_importQueue;
     NSMutableArray<Report *> *_reports;
     NSMutableDictionary<NSURL *, Report *> *_pendingImports;
@@ -65,13 +72,15 @@
 - (instancetype)init
 {
     NSURL *docsDir = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
+    DICEUtiExpert *utiExpert = [[DICEUtiExpert alloc] init];
     return [self initWithReportsDir:docsDir
         fileManager:[NSFileManager defaultManager]
-        utiExpert:[[DICEUtiExpert alloc] init]
+        archiveFactory:[[DICEDefaultArchiveFactory alloc] initWithUtiExpert:utiExpert]
+        utiExpert:utiExpert
         importQueue:[[NSOperationQueue alloc] init]];
 }
 
-- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager utiExpert:(DICEUtiExpert *)utiExpert importQueue:(NSOperationQueue *)importQueue
+- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager archiveFactory:(id<DICEArchiveFactory>)archiveFactory utiExpert:(DICEUtiExpert *)utiExpert importQueue:(NSOperationQueue *)importQueue
 {
     self = [super init];
     if (!self) {
@@ -81,6 +90,7 @@
     _reports = [NSMutableArray array];
     _reportsDir = reportsDir;
     _fileManager = fileManager;
+    _archiveFactory = archiveFactory;
     _utiExpert = utiExpert;
     _importQueue = importQueue;
     _pendingImports = [NSMutableDictionary dictionary];
@@ -181,7 +191,7 @@
     if ([_utiExpert uti:reportUti conformsToUti:kUTTypeZipArchive]) {
         // get zip file listing on background thread
         // find appropriate report type for archive contents
-        id<DICEArchive> archive = [[DICEOZZipFileArchive alloc] initWithArchivePath:reportUrl utType:reportUti];
+        id<DICEArchive> archive = [_archiveFactory createArchiveForResource:reportUrl withUti:reportUti];
         InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc]
             initWithReport:report reportArchive:archive candidateReportTypes:self.reportTypes utiExpert:_utiExpert];
         [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:nil context:ARCHIVE_MATCH_CONTEXT];
@@ -205,7 +215,6 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
 {
-    // TODO: get completed InspectReportArchiveOperation or MathReportTypeToContentAtPathOperation
     // extract archive or get matched report type
     if (context == CONTENT_MATCH_CONTEXT) {
         MatchReportTypeToContentAtPathOperation *op = object;
@@ -218,11 +227,22 @@
                 [_importQueue addOperations:process.steps waitUntilFinished:NO];
             }];
         }
+        else {
+            op.report.error = @"Unkown content type";
+        }
     }
     else if (context == ARCHIVE_MATCH_CONTEXT) {
         // TODO: extract the zip and stuff
         InspectReportArchiveOperation *op = object;
         [op removeObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) context:ARCHIVE_MATCH_CONTEXT];
+        id<ReportType> type = op.matchedReportType;
+        if (type) {
+            // TODO: queue unzip op and add as dependency to import process ops
+//            UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:(OZZipFile *)op.reportArchive destDir:_reportsDir fileManager:_fileManager];
+        }
+        else {
+            op.report.error = @"Unkown content type";
+        }
     }
 }
 

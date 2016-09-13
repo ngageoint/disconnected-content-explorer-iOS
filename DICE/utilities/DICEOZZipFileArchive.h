@@ -10,7 +10,7 @@
 
 @interface DICEOZZipFileArchive : OZZipFile <DICEArchive>
 
-- (instancetype)initWithArchivePath:(NSURL *)path utType:(CFStringRef)utType;
+- (instancetype)initWithArchivePath:(NSURL *)path archiveUti:(CFStringRef)uti;
 
 @end
 

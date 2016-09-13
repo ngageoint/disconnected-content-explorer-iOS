@@ -8,38 +8,40 @@
 
 
 @implementation DICEOZZipFileArchive {
-    NSURL *_archiveUrl;
-    CFStringRef _utType;
+    NSURL *_url;
+    CFStringRef _uti;
 }
 
-- (instancetype)initWithArchivePath:(NSURL *)path utType:(CFStringRef)utType
+- (instancetype)initWithArchivePath:(NSURL *)path archiveUti:(CFStringRef)uti
 {
     self = [super initWithFileName:path.path mode:OZZipFileModeUnzip];
 
-    _archiveUrl = path;
-    _utType = utType;
+    _url = path;
+    _uti = uti;
 
     return self;
 }
 
 - (NSURL *)archiveUrl
 {
-    return _archiveUrl;
+    return _url;
 }
 
 // TOOD: maybe unnecessary
 - (CFStringRef)archiveUTType
 {
-    return _utType;
+    return _uti;
 }
 
-- (void)enumerateEntriesUsingBlock:(void (^)(id<DICEArchiveEntry>))block
+- (void)enumerateEntriesUsingBlock:(BOOL (^)(id<DICEArchiveEntry>))block
 {
     OZFileInZipInfo *info;
     [self goToFirstFileInZip];
     do {
         info = [self getCurrentFileInZipInfo];
-        block(info);
+        if (!block(info)) {
+            return;
+        }
     } while ([self goToNextFileInZip]);
 }
 

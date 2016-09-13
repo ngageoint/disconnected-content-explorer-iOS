@@ -3,6 +3,7 @@
 // Copyright (c) 2016 mil.nga. All rights reserved.
 //
 
+#import <MobileCoreServices/MobileCoreServices.h>
 #import "InspectReportArchiveOperation.h"
 #import "Report.h"
 #import "DICEArchive.h"
@@ -37,12 +38,14 @@
         for (id<ReportType> candidate in self.candidates) {
             [predicates addObject:[candidate createContentMatchingPredicate]];
         }
-        [self.reportArchive enumerateEntriesUsingBlock:^(id<DICEArchiveEntry> entry) {
+        [self.reportArchive enumerateEntriesUsingBlock:^BOOL (id<DICEArchiveEntry> entry) {
             _totalExtractedSize += [entry archiveEntrySizeExtracted];
+            [self checkForBaseDirFromEntry:entry];
             CFStringRef uti = [_utiExpert probableUtiForPathName:[entry archiveEntryPath] conformingToUti:NULL];
             for (id<ReportTypeMatchPredicate> predicate in predicates) {
                 [predicate considerContentWithName:entry.archiveEntryPath probableUti:uti];
             }
+            return YES;
         }];
         for (id<ReportTypeMatchPredicate> predicate in predicates) {
             if (predicate.contentCouldMatch) {
@@ -51,7 +54,24 @@
             }
         }
     }
+}
 
+- (void)checkForBaseDirFromEntry:(id<DICEArchiveEntry>)entry
+{
+    if (self.archiveBaseDir && self.archiveBaseDir.length == 0) {
+        return;
+    }
+    NSString *entryRoot = @"";
+    NSArray *pathParts = entry.archiveEntryPath.pathComponents;
+    if (pathParts.count > 1 || (pathParts.count == 1 && [entry.archiveEntryPath hasSuffix:@"/"])) {
+        entryRoot = pathParts.firstObject;
+    }
+    if (self.archiveBaseDir == nil) {
+        _archiveBaseDir = entryRoot;
+    }
+    else if (![self.archiveBaseDir isEqualToString:entryRoot]) {
+        _archiveBaseDir = @"";
+    }
 }
 
 @end

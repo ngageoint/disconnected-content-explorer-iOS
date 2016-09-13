@@ -1,4 +1,4 @@
-
+#import "Report.h"
 #import "Specta.h"
 #import <Expecta/Expecta.h>
 
@@ -6,9 +6,11 @@
 #import <OCMockito/OCMockito.h>
 
 #import "ImportProcess+Internal.h"
-#import "ReportStore.h"
-#import "NSOperation+Blockable.h"
 #import "NotificationRecordingObserver.h"
+#import "ReportStore.h"
+#import "ReportType.h"
+#import "TestReportType.h"
+#import "DICEUtiExpert.h"
 
 
 @interface ReportStoreSpec_FileManager : NSFileManager
@@ -16,7 +18,7 @@
 @property NSURL *reportsDir;
 @property NSMutableArray<NSString *> *baseNamesInReportsDir;
 
-- (void)setReportsDirContentsBaseNames:(NSString *)baseName, ...;
+- (void)setReportsDirContentsBaseNames:(NSString *)baseName, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end
 
@@ -83,153 +85,14 @@
 @end
 
 
-
-@interface ReportStoreSpec_ImportProcess : ImportProcess
-
-- (instancetype)initWithReport:(Report *)report NS_DESIGNATED_INITIALIZER;
-- (instancetype)block;
-- (instancetype)unblock;
-
-@end
-
-
-
-@interface ReportStoreSpec_ReportType : NSObject <ReportType>
-
-@property (readonly) NSString *extension;
-@property (readonly) BOOL isFinished;
-@property NSMutableArray<ReportStoreSpec_ImportProcess *> *importProcessQueue;
-
-- (instancetype)initWithExtension:(NSString *)ext NS_DESIGNATED_INITIALIZER;
-- (ReportStoreSpec_ImportProcess *)enqueueImport;
-
-@end
-
-
-
-@implementation ReportStoreSpec_ImportProcess
-
-- (instancetype)init
-{
-    self = [self initWithReport:nil];
-    return self;
-}
-
-- (instancetype)initWithReport:(Report *)report
-{
-    self = [super initWithReport:report];
-
-    ReportStoreSpec_ImportProcess *my = self;
-    NSBlockOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{
-        my.report.summary = @"op1:finished";
-        [my.delegate reportWasUpdatedByImportProcess:my];
-    }];
-    NSBlockOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            my.report.title = @"finished";
-            my.report.summary = @"finished";
-            [my.delegate reportWasUpdatedByImportProcess:my];
-            [my.delegate importDidFinishForImportProcess:my];
-        });
-    }];
-    [op2 addDependency:op1];
-    self.steps = @[op1, op2];
-
-    return self;
-}
-
-- (instancetype)cancelAll
-{
-    self.steps = @[];
-    return self;
-}
-
-- (instancetype)block
-{
-    [self.steps.firstObject block];
-    return self;
-}
-
-- (instancetype)unblock
-{
-    [self.steps.firstObject unblock];
-    return self;
-}
-
-- (BOOL)isFinished
-{
-    @synchronized (self) {
-        return self.report.isEnabled;
-    }
-}
-
-@end
-
-
-
-@implementation ReportStoreSpec_ReportType
-
-- (instancetype)init
-{
-    return [self initWithExtension:nil];
-}
-
-- (instancetype)initWithExtension:(NSString *)ext
-{
-    if (!ext) {
-        [NSException raise:NSInvalidArgumentException format:@"ext is nil"];
-    }
-    self = [super init];
-    _extension = ext;
-    _importProcessQueue = [NSMutableArray array];
-    return self;
-}
-
-- (ReportStoreSpec_ImportProcess *)enqueueImport
-{
-    @synchronized (self) {
-        ReportStoreSpec_ImportProcess *proc = [[ReportStoreSpec_ImportProcess alloc] init];
-        [self.importProcessQueue addObject:proc];
-        return proc;
-    }
-}
-
-- (BOOL)couldImportFromPath:(NSURL *)path
-{
-    return [path.pathExtension isEqualToString:self.extension];
-}
-
-- (id<ReportTypeMatchPredicate>)createContentMatchingPredicate
-{
-    // TODO: something
-    return nil;
-}
-
-- (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
-{
-    @synchronized (self) {
-        if (self.importProcessQueue.count) {
-            ReportStoreSpec_ImportProcess *proc = self.importProcessQueue.firstObject;
-            [self.importProcessQueue removeObjectAtIndex:0];
-            [proc setReport:report];
-            return proc;
-        }
-    }
-    failure([NSString stringWithFormat:@"tried to create process from empty to queue to import report %@", report]);
-    return nil;
-}
-
-@end
-
-
-
 SpecBegin(ReportStore)
 
 describe(@"ReportStore", ^{
 
-    __block ReportStoreSpec_ReportType *redType;
-    __block ReportStoreSpec_ReportType *blueType;
+    __block TestReportType *redType;
+    __block TestReportType *blueType;
     __block ReportStoreSpec_FileManager *fileManager;
+    __block id<DICEArchiveFactory> archiveFactory;
     __block NSOperationQueue *importQueue;
     __block ReportStore *store;
 
@@ -241,14 +104,14 @@ describe(@"ReportStore", ^{
     beforeEach(^{
         fileManager = [[ReportStoreSpec_FileManager alloc] init];
         fileManager.reportsDir = reportsDir;
-
+        archiveFactory = mockProtocol(@protocol(DICEArchiveFactory));
         importQueue = [[NSOperationQueue alloc] init];
 
-        redType = [[ReportStoreSpec_ReportType alloc] initWithExtension:@"red"];
-        blueType = [[ReportStoreSpec_ReportType alloc] initWithExtension:@"blue"];
+        redType = [[TestReportType alloc] initWithExtension:@"red"];
+        blueType = [[TestReportType alloc] initWithExtension:@"blue"];
 
         // initialize a new ReportStore to ensure all tests are independent
-        store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager utiExpert:[[DICEUtiExpert alloc] init] importQueue:importQueue];
+        store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager archiveFactory:archiveFactory utiExpert:[[DICEUtiExpert alloc] init] importQueue:importQueue];
         store.reportTypes = @[
             redType,
             blueType
@@ -288,8 +151,8 @@ describe(@"ReportStore", ^{
         it(@"removes reports with path that does not exist and are not importing", ^{
             [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", nil];
 
-            ReportStoreSpec_ImportProcess *redImport = redType.enqueueImport;
-            ReportStoreSpec_ImportProcess *blueImport = blueType.enqueueImport;
+            TestImportProcess *redImport = redType.enqueueImport;
+            TestImportProcess *blueImport = blueType.enqueueImport;
 
             NSArray *reports = [store loadReports];
 
@@ -311,9 +174,9 @@ describe(@"ReportStore", ^{
 
             [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", @"report3.red", nil];
 
-            ReportStoreSpec_ImportProcess *blueImport = [blueType.enqueueImport block];
-            ReportStoreSpec_ImportProcess *redImport1 = [redType enqueueImport];
-            ReportStoreSpec_ImportProcess *redImport2 = [redType enqueueImport];
+            TestImportProcess *blueImport = [blueType.enqueueImport block];
+            TestImportProcess *redImport1 = [redType enqueueImport];
+            TestImportProcess *redImport2 = [redType enqueueImport];
 
             NSArray<Report *> *reports1 = [NSArray arrayWithArray:[store loadReports]];
 
@@ -346,8 +209,8 @@ describe(@"ReportStore", ^{
 
             [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", nil];
 
-            ReportStoreSpec_ImportProcess *redImport = [redType.enqueueImport block];
-            ReportStoreSpec_ImportProcess *blueImport = [blueType enqueueImport];
+            TestImportProcess *redImport = [redType.enqueueImport block];
+            TestImportProcess *blueImport = [blueType enqueueImport];
 
             NSArray<Report *> *reports = [store loadReports];
 
@@ -412,15 +275,12 @@ describe(@"ReportStore", ^{
 
         it(@"imports a report with the capable ReportType", ^{
 
-            ReportStoreSpec_ImportProcess *redImport = redType.enqueueImport;
-            ReportStoreSpec_ImportProcess *blueImport = blueType.enqueueImport;
+            TestImportProcess *redImport = redType.enqueueImport;
 
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
-            [importQueue waitUntilAllOperationsAreFinished];
-
+            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
             expect(redImport).toNot.beNil;
-            expect(blueImport).to.beNil;
         });
 
         it(@"returns a report even if the url cannot be imported", ^{
@@ -431,8 +291,15 @@ describe(@"ReportStore", ^{
             expect(report.url).to.equal(url);
         });
 
+        it(@"assigns an error message if the report type was unknown", ^{
+            NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.green"];
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            assertWithTimeout(1.0, thatEventually(report.error), isNot(nilValue()));
+        });
+
         it(@"adds the initial report to the report list", ^{
-            ReportStoreSpec_ImportProcess *import = [redType.enqueueImport block];
+            TestImportProcess *import = [redType.enqueueImport block];
 
             NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.red"];
             Report *report = [store attemptToImportReportFromResource:url];
@@ -471,7 +338,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"does not start an import for a report file it is already importing", ^{
-            ReportStoreSpec_ImportProcess *import = [redType.enqueueImport block];
+            TestImportProcess *import = [redType.enqueueImport block];
 
             NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
@@ -504,7 +371,7 @@ describe(@"ReportStore", ^{
 
         it(@"enables the report when the import finishes", ^{
             Report *report = mock([Report class]);
-            ReportStoreSpec_ImportProcess *import = [[ReportStoreSpec_ImportProcess alloc] initWithReport:report];
+            TestImportProcess *import = [[TestImportProcess alloc] initWithReport:report];
 
             __block BOOL enabledOnMainThread = NO;
             [givenVoid([report setIsEnabled:YES]) willDo:^id(NSInvocation *invocation) {
@@ -524,7 +391,7 @@ describe(@"ReportStore", ^{
             NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportImportFinished] on:notifications from:store withBlock:nil];
 
-            ReportStoreSpec_ImportProcess *redImport = [redType enqueueImport];
+            TestImportProcess *redImport = [redType enqueueImport];
             Report *importReport = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"test.red"]];
 
             assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
