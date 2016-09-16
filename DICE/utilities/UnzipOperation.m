@@ -7,18 +7,15 @@
 //
 
 #import "UnzipOperation.h"
-#import "OZZipException.h"
-#import "OZZipFile+Standard.h"
-#import "OZFileInZipInfo.h"
-#import "OZZipReadStream+Standard.h"
+#import "DICEArchive.h"
 
 
 @implementation UnzipOperation
 {
-    NSUInteger _totalUncompressedSize;
+    archive_size_t _totalUncompressedSize;
     NSUInteger _percentExtracted;
     NSUInteger _bytesExtracted;
-    NSMutableData *_entryBuffer;
+    id<DICEArchive> _archive;
 }
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
@@ -37,21 +34,20 @@
     return NO;
 }
 
-- (instancetype)initWithZipFile:(OZZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager
+- (instancetype)initWithArchive:(id<DICEArchive>)archive destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager
 {
     self = [super init];
     if (!self) {
         return nil;
     }
 
-    if (zipFile == nil) {
-        [NSException raise:@"IllegalArgumentException" format:@"zipFile is nil"];
+    if (archive == nil) {
+        [NSException raise:@"IllegalArgumentException" format:@"archive is nil"];
     }
 
-    _zipFile = zipFile;
+    _archive = archive;
     _destDir = destDir;
     _fileManager = fileManager;
-    _bufferSize = 1 << 16; // 64kB
     _totalUncompressedSize = 0;
     _percentExtracted = 0;
     _bytesExtracted = 0;
@@ -67,32 +63,14 @@
     }
     
     @autoreleasepool {
-        _entryBuffer = [NSMutableData dataWithLength:(_bufferSize)];
+        if (!self.buffer) {
+            _buffer = [NSMutableData dataWithLength:(1 << 16)];
+        }
 
-        @try {
-            [self calculateTotalSize];
-            [self commenceUnzip];
-        }
-        @catch (OZZipException *e) {
-            // TODO: this catch block does not activate in tests for some reason - maddening
-            _wasSuccessful = NO;
-            _errorMessage = [NSString stringWithFormat:@"Error reading zip file: %@", e.reason];
-        }
-        @catch (NSException *e) {
-            e = (OZZipException *)e;
-            if ([@"ZipException" isEqualToString:e.name]) {
-                _wasSuccessful = NO;
-                _errorMessage = [NSString stringWithFormat:@"Error reading zip file: %@", e.reason];
-            }
-            else {
-                _wasSuccessful = NO;
-                _errorMessage = e.reason;
-            }
-        }
-        @finally {
-            _entryBuffer.length = 0;
-            [self.zipFile close];
-        }
+        [self calculateTotalSize];
+        [self commenceUnzip];
+        [_archive closeArchiveWithError:NULL];
+        self.buffer.length = 0;
     }
 }
 
@@ -120,48 +98,41 @@
     [self didChangeValueForKey:destDirKey];
 }
 
-- (void)setBufferSize:(NSUInteger)bufferSize
+- (void)setBuffer:(NSMutableData *)buffer
 {
     if (self.isExecuting) {
         [NSException raise:@"IllegalStateException" format:@"cannot change bufferSize after UnzipOperation has started"];
     }
 
-    _bufferSize = bufferSize;
+    _buffer = buffer;
 }
 
 - (void)calculateTotalSize
 {
-    NSArray *entries = [self.zipFile listFileInZipInfos];
-    for (OZFileInZipInfo *entry in entries) {
-        _totalUncompressedSize += entry.length;
-    }
+    _totalUncompressedSize = [_archive calculateArchiveSizeExtractedWithError:NULL];
 }
 
 - (void)commenceUnzip
 {
     NSMutableDictionary *dirDates = [NSMutableDictionary dictionary];
 
-    [self.zipFile goToFirstFileInZip];
-    do {
-        OZFileInZipInfo *entry = [self.zipFile getCurrentFileInZipInfo];
-        NSURL *entryUrl = [self.destDir URLByAppendingPathComponent:entry.name];
-        BOOL entryIsDir = [entry.name hasSuffix:@"/"];
-        if (entryIsDir) {
-            [self createDirectoryForEntry:entry atUrl:entryUrl];
-            dirDates[entryUrl.path] = entry.date;
+    [_archive enumerateEntriesUsingBlock:^(id<DICEArchiveEntry> entry) {
+        if (self.isCancelled) {
+            return;
         }
-        else {
-            [self writeFileForEntry:entry atUrl:entryUrl];
-            NSDictionary *modDate = @{ NSFileModificationDate: entry.date };
+        NSURL *entryUrl = [self.destDir URLByAppendingPathComponent:entry.archiveEntryPath];
+        BOOL entryIsDir = [entry.archiveEntryPath hasSuffix:@"/"];
+        if (entryIsDir) {
+            [self createDirectoryAtUrl:entryUrl];
+            dirDates[entryUrl.path] = entry.archiveEntryDate;
+        } else {
+            [self writeFileAtUrl:entryUrl];
+            NSDictionary *modDate = @{NSFileModificationDate: entry.archiveEntryDate};
             [self.fileManager setAttributes:modDate ofItemAtPath:entryUrl.path error:nil];
         }
-    } while (!self.isCancelled && [self.zipFile goToNextFileInZip]);
+    } error:NULL];
 
-    if (self.isCancelled) {
-        return;
-    }
-
-    _wasSuccessful = YES;
+    _wasSuccessful = !self.isCancelled;
 
     // set the directory mod dates last because to ensure that writing the files
     // while unzipping does not update the mod date
@@ -173,7 +144,7 @@
     [dirDates removeAllObjects];
 }
 
-- (void)createDirectoryForEntry:(OZFileInZipInfo *)entry atUrl:(NSURL *)dir
+- (void)createDirectoryAtUrl:(NSURL *)dir
 {
     BOOL existingFileIsDir = YES;
     if ([self.fileManager fileExistsAtPath:dir.path isDirectory:&existingFileIsDir]) {
@@ -190,7 +161,7 @@
     }
 }
 
-- (void)writeFileForEntry:(OZFileInZipInfo *)entry atUrl:(NSURL *)file
+- (void)writeFileAtUrl:(NSURL *)file
 {
     BOOL created = [self.fileManager createFileAtPath:file.path contents:nil attributes:nil];
     if (!created) {
@@ -199,20 +170,19 @@
     }
 
     NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:file.path];
-    OZZipReadStream *read = [self.zipFile readCurrentFileInZip];
+    [_archive openCurrentArchiveEntryWithError:nil];
     NSUInteger count;
-    while ((count = [read readDataWithBuffer:_entryBuffer])) {
-        _entryBuffer.length = count;
-        [handle writeData:_entryBuffer];
-        _entryBuffer.length = _bufferSize;
+    while ((count = [_archive readCurrentArchiveEntryToBuffer:self.buffer error:NULL])) {
         _bytesExtracted += count;
-        NSUInteger percent = floor(100.0f * _bytesExtracted / _totalUncompressedSize);
+        void *bytes = (void *) self.buffer.bytes;
+        [handle writeData:[NSData dataWithBytesNoCopy:bytes length:count freeWhenDone:NO]];
+        NSUInteger percent = (NSUInteger) floor(100.0f * _bytesExtracted / _totalUncompressedSize);
         if (percent > _percentExtracted) {
             _percentExtracted = percent;
             [self sendPercentageUpdate];
         }
     }
-    [read finishedReading];
+    [_archive closeCurrentArchiveEntryWithError:nil];
     [handle closeFile];
 }
 

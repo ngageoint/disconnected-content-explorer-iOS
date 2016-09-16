@@ -40,12 +40,10 @@
     return _uti;
 }
 
-- (void)enumerateEntriesUsingBlock:(BOOL (^)(id<DICEArchiveEntry>))block
+- (void)enumerateEntriesUsingBlock:(void (^)(id<DICEArchiveEntry>))block error:(NSError **)error
 {
     for (id<DICEArchiveEntry> entry in _entries) {
-        if (!block(entry)) {
-            return;
-        }
+        block(entry);
     }
 }
 
@@ -88,5 +86,11 @@
 {
     return _sizeInArchive;
 }
+
+- (NSDate *)archiveEntryDate
+{
+    return [NSDate date];
+}
+
 
 @end

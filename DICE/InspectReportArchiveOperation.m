@@ -38,15 +38,14 @@
         for (id<ReportType> candidate in self.candidates) {
             [predicates addObject:[candidate createContentMatchingPredicate]];
         }
-        [self.reportArchive enumerateEntriesUsingBlock:^BOOL (id<DICEArchiveEntry> entry) {
+        [self.reportArchive enumerateEntriesUsingBlock:^void(id<DICEArchiveEntry> entry) {
             _totalExtractedSize += [entry archiveEntrySizeExtracted];
             [self checkForBaseDirFromEntry:entry];
             CFStringRef uti = [_utiExpert probableUtiForPathName:[entry archiveEntryPath] conformingToUti:NULL];
             for (id<ReportTypeMatchPredicate> predicate in predicates) {
                 [predicate considerContentWithName:entry.archiveEntryPath probableUti:uti];
             }
-            return YES;
-        }];
+        } error:NULL];
         for (id<ReportTypeMatchPredicate> predicate in predicates) {
             if (predicate.contentCouldMatch) {
                 _matchedReportType = predicate.reportType;

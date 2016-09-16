@@ -37,7 +37,7 @@
     MkdirOperation *makeDestDir = [[MkdirOperation alloc] initWithFileMananger:fileManager];
     [makeDestDir addDependency:validation];
 
-    UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:nil fileManager:fileManager];
+    UnzipOperation *unzip = [[UnzipOperation alloc] initWithArchive:zipFile destDir:nil fileManager:fileManager];
     [unzip addDependency:makeDestDir];
     unzip.delegate = self;
 

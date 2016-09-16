@@ -16,6 +16,7 @@
 #import "OZZipException+Internals.h"
 #import "UnzipOperation.h"
 #import "NSOperation+Blockable.h"
+#import "DICEOZZipFileArchive.h"
 
 
 @interface SpecificException : NSException
@@ -144,14 +145,15 @@ describe(@"UnzipOperation", ^{
         __block UnzipOperation *op;
 
         expect(^{
-            op = [[UnzipOperation alloc] initWithZipFile:nil destDir:[NSURL URLWithString:@"/some/dir"] fileManager:[NSFileManager defaultManager]];
-        }).to.raiseWithReason(@"IllegalArgumentException", @"zipFile is nil");
+            op = [[UnzipOperation alloc] initWithArchive:nil destDir:[NSURL URLWithString:@"/some/dir"] fileManager:[NSFileManager defaultManager]];
+        }).to.raiseWithReason(@"IllegalArgumentException", @"archive is nil");
 
         expect(op).to.beNil;
     });
 
     it(@"is not ready until dest dir is set", ^{
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([OZZipFile class]) destDir:nil fileManager:[NSFileManager defaultManager]];
+        id<DICEArchive> archive = mockProtocol(@protocol(DICEArchive));
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:nil fileManager:[NSFileManager defaultManager]];
 
         id observer = mock([NSObject class]);
 
@@ -171,11 +173,12 @@ describe(@"UnzipOperation", ^{
         [verify(observer) observeValueForKeyPath:@"isReady" ofObject:op change:isNot(hasEntry(NSKeyValueChangeNotificationIsPriorKey, @YES)) context:NULL];
 
         stopMocking(observer);
+        stopMocking(archive);
     });
 
     it(@"is not ready until dependencies are finished", ^{
-        OZZipFile *zipFile = mock([OZZipFile class]);
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:[NSURL URLWithString:@"/some/dir"] fileManager:[NSFileManager defaultManager]];
+        id<DICEArchive> archive = mockProtocol(@protocol(DICEArchive));
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:[NSURL URLWithString:@"/some/dir"] fileManager:[NSFileManager defaultManager]];
         NSOperation *holdup = [[NSOperation alloc] init];
         [op addDependency:holdup];
 
@@ -185,11 +188,12 @@ describe(@"UnzipOperation", ^{
 
         assertWithTimeout(1.0, thatEventually(@(holdup.isFinished && op.isReady)), isTrue());
 
-        stopMocking(zipFile);
+        stopMocking(archive);
     });
 
     it(@"is ready if cancelled before executing", ^{
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([OZZipFile class]) destDir:nil fileManager:[NSFileManager defaultManager]];
+        id<DICEArchive> archive = mockProtocol(@protocol(DICEArchive));
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:nil fileManager:[NSFileManager defaultManager]];
         id observer = mock([NSObject class]);
         [op addObserver:observer forKeyPath:@"isReady" options:0 context:NULL];
 
@@ -199,10 +203,13 @@ describe(@"UnzipOperation", ^{
 
         expect(op.isReady).to.equal(YES);
         [verify(observer) observeValueForKeyPath:@"isReady" ofObject:op change:anything() context:NULL];
+
+        stopMocking(archive);
     });
 
     it(@"throws an exception when dest dir change is attempted while executing", ^{
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:mock([OZZipFile class]) destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
+        id<DICEArchive> archive = mockProtocol(@protocol(DICEArchive));
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
         [op block];
         [op performSelectorInBackground:@selector(start) withObject:nil];
 
@@ -216,19 +223,21 @@ describe(@"UnzipOperation", ^{
         [op waitUntilFinished];
 
         expect(op.destDir).to.equal([NSURL URLWithString:@"/tmp/"]);
+
+        stopMocking(archive);
     });
 
     it(@"unzips with base dir", ^{
         NSFileManager *fm = [NSFileManager defaultManager];
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
-        NSString *zipFilePath = [bundle pathForResource:@"test_base_dir" ofType:@"zip"];
-        OZZipFile *zipFile = [[OZZipFile alloc] initWithFileName:zipFilePath mode:OZZipFileModeUnzip];
+        NSURL *zipFilePath = [bundle URLForResource:@"test_base_dir" withExtension:@"zip"];
+        DICEOZZipFileArchive *archive = [[DICEOZZipFileArchive alloc] initWithArchivePath:zipFilePath archiveUti:NULL];
         NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
         [fm createDirectoryAtURL:destDir withIntermediateDirectories:YES attributes:nil error:nil];
 
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:destDir fileManager:[NSFileManager defaultManager]];
         [op start];
 
         expect(op.wasSuccessful).to.equal(YES);
@@ -313,13 +322,13 @@ describe(@"UnzipOperation", ^{
         NSFileManager *fm = [NSFileManager defaultManager];
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
-        NSString *zipFilePath = [bundle pathForResource:@"test_no_base_dir" ofType:@"zip"];
-        OZZipFile *zipFile = [[OZZipFile alloc] initWithFileName:zipFilePath mode:OZZipFileModeUnzip];
+        NSURL *zipFilePath = [bundle URLForResource:@"test_no_base_dir" withExtension:@"zip"];
+        DICEOZZipFileArchive *zipFile = [[DICEOZZipFileArchive alloc] initWithArchivePath:zipFilePath archiveUti:NULL];
         NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
         [fm createDirectoryAtURL:destDir withIntermediateDirectories:YES attributes:nil error:nil];
 
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
         [op start];
 
         expect(op.wasSuccessful).to.equal(YES);
@@ -402,15 +411,15 @@ describe(@"UnzipOperation", ^{
         NSFileManager *fm = [NSFileManager defaultManager];
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
-        NSString *zipFilePath = [bundle pathForResource:@"10x128_bytes" ofType:@"zip"];
-        OZZipFile *zipFile = [[OZZipFile alloc] initWithFileName:zipFilePath mode:OZZipFileModeUnzip];
+        NSURL *zipFilePath = [bundle URLForResource:@"10x128_bytes" withExtension:@"zip"];
+        DICEOZZipFileArchive *zipFile = [[DICEOZZipFileArchive alloc] initWithArchivePath:zipFilePath archiveUti:NULL];
         NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
         [fm createDirectoryAtURL:destDir withIntermediateDirectories:YES attributes:nil error:nil];
 
         id<UnzipDelegate> unzipDelegate = mockProtocol(@protocol(UnzipDelegate));
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
-        op.bufferSize = 64;
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
+        op.buffer = [NSMutableData dataWithLength:64];
         op.delegate = unzipDelegate;
 
         __block BOOL wasMainThread = YES;
@@ -437,15 +446,15 @@ describe(@"UnzipOperation", ^{
     });
 
     it(@"is unsuccessful when unzipping raises an exception", ^{
-        OZZipFile *zipFile = mock([OZZipFile class]);
+        id<DICEArchive> zipFile = mockProtocol(@protocol(DICEArchive));
         OZZipException *zipError = [[OZZipException alloc] initWithError:99 reason:@"test error"];
 
-        [givenVoid([zipFile goToFirstFileInZip]) willThrow:zipError];
+        [given([zipFile openCurrentArchiveEntryWithError:NULL]) willThrow:zipError];
 
         expect(zipError).to.beInstanceOf([OZZipException class]);
 
         NSURL *destDir = [NSURL fileURLWithPath:@"/tmp/test"];
-        UnzipOperation *op = [[UnzipOperation alloc] initWithZipFile:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
 
         [op start];
 

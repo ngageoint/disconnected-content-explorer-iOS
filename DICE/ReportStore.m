@@ -18,6 +18,7 @@
 #import "Report.h"
 #import "ReportType.h"
 #import "DICEUtiExpert.h"
+#import "FileOperations.h"
 
 
 @implementation ReportNotification
@@ -215,10 +216,10 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
 {
+    [object removeObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) context:context];
     // extract archive or get matched report type
     if (context == CONTENT_MATCH_CONTEXT) {
         MatchReportTypeToContentAtPathOperation *op = object;
-        [op removeObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) context:CONTENT_MATCH_CONTEXT];
         id<ReportType> type = op.matchedReportType;
         if (type) {
             [_importQueue addOperationWithBlock:^{
@@ -232,13 +233,12 @@
         }
     }
     else if (context == ARCHIVE_MATCH_CONTEXT) {
-        // TODO: extract the zip and stuff
         InspectReportArchiveOperation *op = object;
-        [op removeObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) context:ARCHIVE_MATCH_CONTEXT];
         id<ReportType> type = op.matchedReportType;
         if (type) {
-            // TODO: queue unzip op and add as dependency to import process ops
-//            UnzipOperation *unzip = [[UnzipOperation alloc] initWithZipFile:(OZZipFile *)op.reportArchive destDir:_reportsDir fileManager:_fileManager];
+            [_importQueue addOperationWithBlock:^{
+                [self extractReportArchive:op.reportArchive withBaseDir:op.archiveBaseDir forReport:op.report ofType:op.matchedReportType];
+            }];
         }
         else {
             op.report.error = @"Unkown content type";
@@ -270,7 +270,6 @@
 
 - (nullable Report *)reportAtPath:(NSURL *)path
 {
-    // TODO: this seems superfluous because the report would be in the reports array already anyway; maybe remove _pendingImports
     Report *report = _pendingImports[path];
 
     if (report) {
@@ -285,6 +284,27 @@
     }
 
     return nil;
+}
+
+- (void)extractReportArchive:(id<DICEArchive>)archive withBaseDir:(NSString *)baseDir forReport:(Report *)report ofType:(id<ReportType>)reportType
+{
+    NSURL *destDir = _reportsDir;
+    if (baseDir == nil) {
+        // TODO: more robust check for possible conflicting base dirs?
+        NSString *baseName = [NSString stringWithFormat:@"%@.dicex", report.url.path.lastPathComponent];
+        destDir = [destDir URLByAppendingPathComponent:baseName isDirectory:YES];
+        NSError *mkdirError;
+        if (![_fileManager createDirectoryAtURL:destDir withIntermediateDirectories:NO attributes:nil error:&mkdirError]) {
+            report.error = [NSString stringWithFormat:@"Error creating base directory for package %@: %@", report.title, mkdirError.localizedDescription];
+        }
+    }
+    UnzipOperation *unzip = [[UnzipOperation alloc] initWithArchive:archive destDir:destDir fileManager:_fileManager];
+    ImportProcess *process = [reportType createProcessToImportReport:report toDir:destDir];
+    for (NSOperation *step in process.steps) {
+        [step addDependency:unzip];
+    }
+    [_importQueue addOperation:unzip];
+    [_importQueue addOperations:process.steps waitUntilFinished:NO];
 }
 
 @end

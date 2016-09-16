@@ -8,10 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "OZZipFile.h"
-
 
 @class UnzipOperation;
+@protocol DICEArchive;
 
 
 @protocol UnzipDelegate <NSObject>
@@ -31,13 +30,12 @@
 
 @interface UnzipOperation : NSOperation
 
-@property (nonatomic, readonly) OZZipFile *zipFile;
 @property (nonatomic) NSURL *destDir;
 @property (nonatomic, readonly) NSFileManager *fileManager;
 /**
  the buffer size in bytes
  */
-@property (nonatomic) NSUInteger bufferSize;
+@property (nonatomic) NSMutableData *buffer;
 @property (nonatomic, weak) id<UnzipDelegate> delegate;
 /**
  whether the unzip completed successfully
@@ -45,6 +43,6 @@
 @property (readonly) BOOL wasSuccessful;
 @property (readonly) NSString *errorMessage;
 
-- (instancetype)initWithZipFile:(OZZipFile *)zipFile destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager;
+- (instancetype)initWithArchive:(id<DICEArchive>)archive destDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager;
 
 @end
