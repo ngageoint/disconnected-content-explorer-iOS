@@ -126,7 +126,7 @@
             [self createDirectoryAtUrl:entryUrl];
             dirDates[entryUrl.path] = entry.archiveEntryDate;
         } else {
-            [self writeFileAtUrl:entryUrl];
+            [self writeFileForEntry:entry atUrl:entryUrl];
             NSDictionary *modDate = @{NSFileModificationDate: entry.archiveEntryDate};
             [self.fileManager setAttributes:modDate ofItemAtPath:entryUrl.path error:nil];
         }
@@ -161,16 +161,27 @@
     }
 }
 
-- (void)writeFileAtUrl:(NSURL *)file
+- (void)writeFileForEntry:(id<DICEArchiveEntry>)entry atUrl:(NSURL *)file
 {
     BOOL created = [self.fileManager createFileAtPath:file.path contents:nil attributes:nil];
     if (!created) {
+        _errorMessage = [NSString stringWithFormat:@"Failed to create file to extract archive entry %@", entry.archiveEntryPath];
+        [self cancel];
+        return;
+    }
+    NSError *error;
+    NSFileHandle *handle = [NSFileHandle fileHandleForWritingToURL:file error:&error];
+    if (error) {
+        _errorMessage = [NSString stringWithFormat:@"Failed to open file for writing archive entry %@: %@", entry.archiveEntryPath, error.localizedDescription];
+        [self cancel];
+        return;
+    }
+    if (![_archive openCurrentArchiveEntryWithError:&error]) {
+        _errorMessage = [NSString stringWithFormat:@"Failed to read archive entry %@: %@", entry.archiveEntryPath, error.localizedDescription];
         [self cancel];
         return;
     }
 
-    NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:file.path];
-    [_archive openCurrentArchiveEntryWithError:nil];
     NSUInteger count;
     while ((count = [_archive readCurrentArchiveEntryToBuffer:self.buffer error:NULL])) {
         _bytesExtracted += count;

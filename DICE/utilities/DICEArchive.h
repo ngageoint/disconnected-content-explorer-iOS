@@ -43,9 +43,9 @@ typedef unsigned long long int archive_size_t;
  */
 - (NSUInteger)readCurrentArchiveEntryToBuffer:(NSMutableData *)buffer error:(NSError **)error;
 
-- (void)closeCurrentArchiveEntryWithError:(NSError **)error;
+- (BOOL)closeCurrentArchiveEntryWithError:(NSError **)error;
 
-- (void)closeArchiveWithError:(NSError **)error;
+- (BOOL)closeArchiveWithError:(NSError **)error;
 
 @end
 

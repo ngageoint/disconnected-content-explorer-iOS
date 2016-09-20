@@ -12,6 +12,12 @@
 
 + (instancetype)archiveWithEntries:(NSArray<id<DICEArchiveEntry>> *)entries archiveUrl:(NSURL *)url archiveUti:(CFStringRef)uti;
 
+/** enqueue to the end, dequeue from the start */
+@property NSMutableArray<NSError *> *errorQueue;
+
+- (void)enqueueError:(NSError *)error;
+- (NSError *)dequeuError;
+
 @end
 
 

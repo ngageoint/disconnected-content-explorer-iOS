@@ -7,17 +7,42 @@
 #import "TestDICEArchive.h"
 
 
+#define _TDA_CHECK_ERROR_RETURNING_BOOL_ if (self.errorQueue.firstObject) { \
+    if (error) { \
+        *error = [self dequeuError]; \
+    } \
+    return NO; \
+} \
+return YES
+
 @implementation TestDICEArchive {
     NSURL *_url;
     CFStringRef _uti;
     NSArray *_entries;
-
+    archive_size_t _sizeExtracted;
+    id<DICEArchiveEntry> _currentEntry;
+    archive_size_t _currentEntryPos;
 }
 
 + (instancetype)archiveWithEntries:(NSArray<id<DICEArchiveEntry>> *)entries archiveUrl:(NSURL *)url archiveUti:(CFStringRef)uti
 {
     return [[self alloc] initWithEntries:entries archiveUrl:url archiveUti:uti];
 }
+
+- (void)enqueueError:(NSError *)error
+{
+    [self.errorQueue addObject:error];
+}
+
+- (NSError *)dequeuError
+{
+    NSError *err = self.errorQueue.firstObject;
+    if (err) {
+        [self.errorQueue removeObjectAtIndex:0];
+    }
+    return err;
+}
+
 
 - (instancetype)initWithEntries:(NSArray *)entries archiveUrl:(NSURL *)url archiveUti:(CFStringRef)uti
 {
@@ -26,6 +51,9 @@
     _url = url;
     _uti = uti;
     _entries = entries;
+    _sizeExtracted = 0;
+    _errorQueue = [NSMutableArray array];
+    _currentEntryPos = 0;
 
     return self;
 }
@@ -40,9 +68,82 @@
     return _uti;
 }
 
+- (archive_size_t)calculateArchiveSizeExtractedWithError:(NSError **)error
+{
+    if (self.errorQueue.firstObject) {
+        if (error) {
+            *error = [self dequeuError];
+        }
+        return 0;
+    }
+    if (!_sizeExtracted) {
+        for (id<DICEArchiveEntry> e in _entries) {
+            _sizeExtracted += e.archiveEntrySizeExtracted;
+        }
+    }
+    return _sizeExtracted;
+}
+
+- (BOOL)openCurrentArchiveEntryWithError:(NSError **)error
+{
+    _TDA_CHECK_ERROR_RETURNING_BOOL_;
+}
+
+- (NSUInteger)readCurrentArchiveEntryToBuffer:(NSMutableData *)buffer error:(NSError **)error
+{
+    if (!_currentEntry) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"TestDICEArchive" code:0 userInfo:@{
+                NSLocalizedFailureReasonErrorKey: @"no current archive entry"
+            }];
+        }
+        return 0;
+    }
+    if (self.errorQueue.firstObject) {
+        if (error) {
+            *error = [self dequeuError];
+        }
+        return 0;
+    }
+
+    archive_size_t entrySize = _currentEntry.archiveEntrySizeExtracted;
+    if (entrySize <= _currentEntryPos) {
+        return 0;
+    }
+
+    NSUInteger bufferSize = buffer.length;
+    NSUInteger bytesRemaining = (NSUInteger)(entrySize - _currentEntryPos);
+    NSUInteger readCount = MIN(bufferSize, bytesRemaining);
+
+    const char *bytes = "abcdefghijklmnopqrstuvwxyz";
+    bytesRemaining = readCount;
+    while (bytesRemaining > 0) {
+        NSUInteger writeCount = MIN(bytesRemaining, 26);
+        [buffer replaceBytesInRange:NSMakeRange(readCount - bytesRemaining, writeCount) withBytes:bytes length:writeCount];
+        bytesRemaining -= writeCount;
+    }
+
+    _currentEntryPos += readCount;
+
+    return readCount;
+}
+
+- (BOOL)closeCurrentArchiveEntryWithError:(NSError **)error
+{
+    _TDA_CHECK_ERROR_RETURNING_BOOL_;
+}
+
+- (BOOL)closeArchiveWithError:(NSError **)error
+{
+    _TDA_CHECK_ERROR_RETURNING_BOOL_;
+}
+
+
 - (void)enumerateEntriesUsingBlock:(void (^)(id<DICEArchiveEntry>))block error:(NSError **)error
 {
     for (id<DICEArchiveEntry> entry in _entries) {
+        _currentEntry = entry;
+        _currentEntryPos = 0;
         block(entry);
     }
 }

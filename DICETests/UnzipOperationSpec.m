@@ -13,10 +13,12 @@
 #import <OCMockito/OCMockito.h>
 
 #import "OZZipFile+Standard.h"
-#import "OZZipException+Internals.h"
+#import "OZZipException.h"
 #import "UnzipOperation.h"
 #import "NSOperation+Blockable.h"
 #import "DICEOZZipFileArchive.h"
+#import "TestDICEArchive.h"
+#import "OZZipException+Internals.h"
 
 
 @interface SpecificException : NSException
@@ -445,24 +447,57 @@ describe(@"UnzipOperation", ^{
         }];
     });
 
-    it(@"is unsuccessful when unzipping raises an exception", ^{
-        id<DICEArchive> zipFile = mockProtocol(@protocol(DICEArchive));
-        OZZipException *zipError = [[OZZipException alloc] initWithError:99 reason:@"test error"];
-
-        [given([zipFile openCurrentArchiveEntryWithError:NULL]) willThrow:zipError];
-
-        expect(zipError).to.beInstanceOf([OZZipException class]);
-
+    it(@"is unsuccessful when the file for an entry cannot be created for writing", ^{
+        TestDICEArchive *zipFile = [TestDICEArchive archiveWithEntries:@[
+            [TestDICEArchiveEntry entryWithName:@"index.html" sizeInArchive:128 sizeExtracted:256]
+        ] archiveUrl:[NSURL fileURLWithPath:@"/dice/test.zip"] archiveUti:NULL];
         NSURL *destDir = [NSURL fileURLWithPath:@"/tmp/test"];
-        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:zipFile destDir:destDir fileManager:[NSFileManager defaultManager]];
+        NSFileManager *fileManager = mock([NSFileManager class]);
+        id fileHandleClass = mockClass([NSFileHandle class]);
+
+
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:zipFile destDir:destDir fileManager:fileManager];
+
+        [zipFile calculateArchiveSizeExtractedWithError:nil];
+        [zipFile enqueueError:[NSError errorWithDomain:@"dice.test" code:1 userInfo:@{NSLocalizedDescriptionKey: @"test error"}]];
+
+        [given([fileManager createFileAtPath:@"/tmp/test/index.html" contents:nil attributes:nil]) willReturnBool:NO];
+        [given([fileHandleClass fileHandleForWritingToURL:[destDir URLByAppendingPathComponent:@"index.html"] error:nil]) willReturnBool:NO];
 
         [op start];
 
         expect(op.wasSuccessful).to.equal(NO);
-        expect(op.errorMessage).to.equal(@"Error reading zip file: test error");
-        [verify(zipFile) close];
+        expect(op.errorMessage).to.equal(@"Failed to create file to extract archive entry index.html");
 
-        stopMocking(zipFile);
+        stopMocking(fileManager);
+        stopMocking(fileHandleClass);
+    });
+
+    it(@"is unsuccessful when an entry cannot be opened", ^{
+        TestDICEArchive *zipFile = [TestDICEArchive archiveWithEntries:@[
+            [TestDICEArchiveEntry entryWithName:@"index.html" sizeInArchive:128 sizeExtracted:256]
+        ] archiveUrl:[NSURL fileURLWithPath:@"/dice/test.zip"] archiveUti:NULL];
+        NSURL *destDir = [NSURL fileURLWithPath:@"/tmp/test"];
+        NSFileManager *fileManager = mock([NSFileManager class]);
+        id fileHandleClass = mockClass([NSFileHandle class]);
+
+
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:zipFile destDir:destDir fileManager:fileManager];
+
+        [zipFile calculateArchiveSizeExtractedWithError:nil];
+        [zipFile enqueueError:[NSError errorWithDomain:@"dice.test" code:1 userInfo:@{NSLocalizedDescriptionKey: @"test error"}]];
+
+        [given([fileManager createFileAtPath:@"/tmp/test/index.html" contents:nil attributes:nil]) willReturnBool:YES];
+        stubSingleton(fileHandleClass, fileHandleForWritingToURL:error:);
+        [[given([fileHandleClass fileHandleForWritingToURL:[destDir URLByAppendingPathComponent:@"index.html"] error:nil]) withMatcher:anything() forArgument:1] willReturnBool:YES];
+
+        [op start];
+
+        expect(op.wasSuccessful).to.equal(NO);
+        expect(op.errorMessage).to.equal(@"Failed to read archive entry index.html: test error");
+
+        stopMocking(fileManager);
+        stopMocking(fileHandleClass);
     });
 
     /*
@@ -494,7 +529,7 @@ describe(@"UnzipOperation", ^{
         ThrowException *thrower = mock([ThrowException class]);
         ExceptionTest *test = [[ExceptionTest alloc] initWithThrower:thrower];
 
-        OZZipException *zipError = [[OZZipException alloc] initWithError:99 reason:@"test error"];
+        OZZipException *zipError = [[OZZipException alloc] initWithReason:@"test error"];
         NSException *err = [[SpecificException alloc] initWithName:@"Test" reason:@"Testing" userInfo:nil];
         [givenVoid([thrower throwException]) willThrow:zipError];
 
