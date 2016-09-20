@@ -46,6 +46,9 @@
                 [predicate considerContentWithName:entry.archiveEntryPath probableUti:uti];
             }
         } error:NULL];
+        if (self.archiveBaseDir && self.archiveBaseDir.length == 0) {
+            _archiveBaseDir = nil;
+        }
         for (id<ReportTypeMatchPredicate> predicate in predicates) {
             if (predicate.contentCouldMatch) {
                 _matchedReportType = predicate.reportType;

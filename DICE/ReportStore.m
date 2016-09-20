@@ -7,6 +7,8 @@
 //
 
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <objc/runtime.h>
+#import "ImportProcess.h"
 #import "ReportStore.h"
 #import "InspectReportArchiveOperation.h"
 #import "MatchReportTypeToContentAtPathOperation.h"
@@ -21,6 +23,7 @@
 #import "FileOperations.h"
 
 
+
 @implementation ReportNotification
 
 + (NSString *)reportAdded {
@@ -29,7 +32,7 @@
 + (NSString *)reportImportBegan {
     return @"DICE.ReportImportBegan";
 }
-+ (NSString *)reportImportProgress {
++ (NSString *)reportExtractProgress {
     return @"DICE.ReportImportProgress";
 }
 + (NSString *)reportImportFinished {
@@ -42,6 +45,10 @@
     return @"DICE.ReportsLoaded";
 }
 
+@end
+
+
+@interface ReportStore () <UnzipDelegate>
 @end
 
 
@@ -299,6 +306,7 @@
         }
     }
     UnzipOperation *unzip = [[UnzipOperation alloc] initWithArchive:archive destDir:destDir fileManager:_fileManager];
+    unzip.delegate = self;
     ImportProcess *process = [reportType createProcessToImportReport:report toDir:destDir];
     for (NSOperation *step in process.steps) {
         [step addDependency:unzip];
@@ -306,5 +314,17 @@
     [_importQueue addOperation:unzip];
     [_importQueue addOperations:process.steps waitUntilFinished:NO];
 }
+
+- (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        Report *report = [self reportAtPath:op.archive.archiveUrl];
+        report.summary = [NSString stringWithFormat:@"Extracting - %@%%", @(percent)];
+        [[NSNotificationCenter defaultCenter]
+            postNotificationName:[ReportNotification reportExtractProgress]
+            object:self userInfo:@{@"report": report, @"percentExtracted": @(percent)}];
+    });
+}
+
 
 @end

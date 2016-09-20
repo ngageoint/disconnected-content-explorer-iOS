@@ -39,7 +39,7 @@ describe(@"MkdirOperation", ^{
         [op addObserver:observer forKeyPath:@"dirUrl" options:NSKeyValueObservingOptionPrior context:NULL];
 
         expect(op.ready).to.equal(NO);
-        expect(op.dirUrl).to.beNil;
+        expect(op.dirUrl).to.beNil();
 
         op.dirUrl = [NSURL URLWithString:@"/reports_dir"];
 

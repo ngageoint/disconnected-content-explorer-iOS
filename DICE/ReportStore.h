@@ -48,11 +48,10 @@
  The NSNotification object userInfo dictionary contains
  {
      @"report": (Report*) the report object being imported,
-     @"progress": (NSString*) integral number of files that have been imported,
-     @"totalNumberOfFiles": (NSString*) integral total number for files the report contains
+     @"percentExtracted": (NSNumber*) integral percentage of report content extracted from archive
  }
  */
-+ (nonnull NSString *)reportImportProgress;
++ (nonnull NSString *)reportExtractProgress;
 /**
  This notification indicates that a report was fully
  imported and is ready to view.

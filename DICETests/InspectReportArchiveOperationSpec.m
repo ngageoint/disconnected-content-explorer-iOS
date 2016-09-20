@@ -132,8 +132,21 @@ describe(@"InspectReportArchiveOperation", ^{
             initWithReport:report reportArchive:archive candidateReportTypes:@[blueType, redType] utiExpert:utiExpert];
         [op start];
 
-        expect(op.archiveBaseDir).to.beNil;
+        expect(op.archiveBaseDir).to.beNil();
         expect(op.matchedReportType).to.beIdenticalTo(redType);
+    });
+
+    it(@"has a nil base directory when the archive has a single file entry", ^{
+        NSURL *url = [NSURL fileURLWithPath:@"/dice/test.zip"];
+        TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+            entry(@"index.red", 10, 40)
+        ] archiveUrl:url archiveUti:kUTTypeZipArchive];
+        InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc]
+            initWithReport:report reportArchive:archive candidateReportTypes:@[blueType, redType] utiExpert:utiExpert];
+        [op start];
+
+        expect(op.matchedReportType).to.beIdenticalTo(redType);
+        expect(op.archiveBaseDir).to.beNil();
     });
 
 });

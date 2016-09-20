@@ -67,8 +67,8 @@ describe(@"Report", ^{
         expect(report.reportID).to.equal(@"/path/to/report");
         expect(report.title).to.equal(@"/path/to/report");
         expect(report.summary).to.equal(@"new description");
-        expect(report.lat).to.beNil;
-        expect(report.lon).to.beNil;
+        expect(report.lat).to.beNil();
+        expect(report.lon).to.beNil();
         expect(report.thumbnail).to.equal(@"default.png");
         expect(report.tileThumbnail).to.equal(@"my_tile.png");
     });

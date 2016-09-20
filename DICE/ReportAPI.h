@@ -42,7 +42,7 @@
 //     @"totalNumberOfFiles": (NSString*) integral total number for files the report contains
 // }
 // */
-//+ (NSString *)reportImportProgress;
+//+ (NSString *)reportExtractProgress;
 ///**
 // This notification indicates that a report was fully
 // imported and is ready to view.

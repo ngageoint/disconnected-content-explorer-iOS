@@ -4,11 +4,15 @@
 
 #import <OCHamcrest/OCHamcrest.h>
 #import <OCMockito/OCMockito.h>
+#import <MobileCoreServices/MobileCoreServices.h>
+#import <JGMethodSwizzler/JGMethodSwizzler.h>
 
+#import "DICEArchive.h"
 #import "ImportProcess+Internal.h"
 #import "NotificationRecordingObserver.h"
 #import "ReportStore.h"
 #import "ReportType.h"
+#import "TestDICEArchive.h"
 #import "TestReportType.h"
 #import "DICEUtiExpert.h"
 
@@ -16,9 +20,12 @@
 @interface ReportStoreSpec_FileManager : NSFileManager
 
 @property NSURL *reportsDir;
-@property NSMutableArray<NSString *> *baseNamesInReportsDir;
+@property NSMutableArray<NSString *> *pathsInReportsDir;
+@property NSMutableDictionary *pathAttrs;
+@property BOOL (^createFileAtPathBlock)(NSString *path);
+@property BOOL (^createDirectoryAtPathBlock)(NSString *path, BOOL createIntermediates, NSError **error);
 
-- (void)setReportsDirContentsBaseNames:(NSString *)baseName, ... NS_REQUIRES_NIL_TERMINATION;
+- (void)setContentsOfReportsDir:(NSString *)relPath, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end
 
@@ -27,7 +34,7 @@
 - (instancetype)init
 {
     self = [super init];
-    self.baseNamesInReportsDir = [NSMutableArray array];
+    self.pathsInReportsDir = [NSMutableArray array];
     return self;
 }
 
@@ -35,33 +42,64 @@
 {
     NSArray *reportsDirParts = [self.reportsDir pathComponents];
     NSArray *pathParts = [path.pathComponents subarrayWithRange:NSMakeRange(0, reportsDirParts.count)];
-    return [self.baseNamesInReportsDir containsObject:path.lastPathComponent] &&
+    return [self.pathsInReportsDir containsObject:path.lastPathComponent] &&
         [pathParts isEqualToArray:reportsDirParts];
+}
+
+- (BOOL)fileExistsAtPath:(NSString *)path isDirectory:(BOOL *)isDirectory
+{
+    if (![self fileExistsAtPath:path]) {
+        *isDirectory = NO;
+        return NO;
+    }
+    *isDirectory = self.pathAttrs[path.lastPathComponent] && [self.pathAttrs[path.lastPathComponent][NSFileType] isEqualToString:NSFileTypeDirectory];
+    return YES;
 }
 
 - (NSArray *)contentsOfDirectoryAtURL:(NSURL *)url includingPropertiesForKeys:(NSArray<NSString *> *)keys options:(NSDirectoryEnumerationOptions)mask error:(NSError **)error
 {
-    NSMutableArray *files = [NSMutableArray arrayWithCapacity:self.baseNamesInReportsDir.count];
-    for (NSString *baseName in self.baseNamesInReportsDir) {
-        [files addObject:[self.reportsDir URLByAppendingPathComponent:baseName]];
-    }
-    return files;
+    return [self.pathsInReportsDir filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path, NSDictionary *bindings) {
+        return path.pathComponents.count == 1;
+    }]];
 }
 
-- (void)setReportsDirContentsBaseNames:(NSString *)baseName, ...
+- (void)setContentsOfReportsDir:(NSString *)relPath, ...
 {
-    [self.baseNamesInReportsDir removeAllObjects];
-    if (baseName == nil) {
+    [self.pathsInReportsDir removeAllObjects];
+    [self.pathAttrs removeAllObjects];
+    if (relPath == nil) {
         return;
     }
     va_list args;
-    va_start(args, baseName);
-    for(NSString *arg = baseName; arg != nil; arg = va_arg(args, NSString *)) {
-        [self.baseNamesInReportsDir addObject:arg];
+    va_start(args, relPath);
+    for(NSString *arg = relPath; arg != nil; arg = va_arg(args, NSString *)) {
+        if ([arg hasSuffix:@"/"]) {
+            arg = [arg stringByReplacingCharactersInRange:NSMakeRange(arg.length - 1, 1) withString:@""];
+            self.pathAttrs[arg] = @{NSFileType: NSFileTypeDirectory};
+        }
+        else {
+            self.pathAttrs[arg] = @{NSFileType: NSFileTypeRegular};
+        }
+        [self.pathsInReportsDir addObject:arg];
     }
     va_end(args);
 }
 
+- (BOOL)createFileAtPath:(NSString *)path contents:(NSData *)data attributes:(NSDictionary<NSString *, id> *)attr
+{
+    if (self.createFileAtPathBlock) {
+        return self.createFileAtPathBlock(path);
+    }
+    return NO;
+}
+
+- (BOOL)createDirectoryAtPath:(NSString *)path withIntermediateDirectories:(BOOL)createIntermediates attributes:(NSDictionary<NSString *, id> *)attributes error:(NSError **)error
+{
+    if (self.createDirectoryAtPathBlock) {
+        return self.createDirectoryAtPathBlock(path, createIntermediates, error);
+    }
+    return NO;
+}
 
 @end
 
@@ -120,6 +158,7 @@ describe(@"ReportStore", ^{
 
     afterEach(^{
         [importQueue waitUntilAllOperationsAreFinished];
+        stopMocking(archiveFactory);
         fileManager = nil;
     });
 
@@ -133,7 +172,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"creates reports for each file in reports directory", ^{
-            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", @"something.else", nil];
+            [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", @"something.else", nil];
 
             id redImport = [redType enqueueImport];
             id blueImport = [blueType enqueueImport];
@@ -149,7 +188,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"removes reports with path that does not exist and are not importing", ^{
-            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", nil];
+            [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", nil];
 
             TestImportProcess *redImport = redType.enqueueImport;
             TestImportProcess *blueImport = blueType.enqueueImport;
@@ -162,7 +201,7 @@ describe(@"ReportStore", ^{
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
             expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
-            [fileManager setReportsDirContentsBaseNames:@"report2.blue", nil];
+            [fileManager setContentsOfReportsDir:@"report2.blue", nil];
 
             reports = [store loadReports];
 
@@ -172,7 +211,7 @@ describe(@"ReportStore", ^{
 
         it(@"leaves imported and importing reports in order of discovery", ^{
 
-            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", @"report3.red", nil];
+            [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", @"report3.red", nil];
 
             TestImportProcess *blueImport = [blueType.enqueueImport block];
             TestImportProcess *redImport1 = [redType enqueueImport];
@@ -187,7 +226,7 @@ describe(@"ReportStore", ^{
 
             assertWithTimeout(1.0, thatEventually(@(redImport1.isFinished && redImport2.isFinished)), isTrue());
 
-            [fileManager setReportsDirContentsBaseNames:@"report2.blue", @"report3.red", @"report11.red", nil];
+            [fileManager setContentsOfReportsDir:@"report2.blue", @"report3.red", @"report11.red", nil];
             redImport1 = [redType enqueueImport];
 
             NSArray<Report *> *reports2 = [NSArray arrayWithArray:[store loadReports]];
@@ -207,7 +246,7 @@ describe(@"ReportStore", ^{
 
         it(@"leaves reports whose path may not exist but are still importing", ^{
 
-            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", nil];
+            [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", nil];
 
             TestImportProcess *redImport = [redType.enqueueImport block];
             TestImportProcess *blueImport = [blueType enqueueImport];
@@ -226,7 +265,7 @@ describe(@"ReportStore", ^{
             Report *redReport = redImport.report;
             redReport.url = [reportsDir URLByAppendingPathComponent:@"report1.transformed"];
 
-            [fileManager setReportsDirContentsBaseNames:@"report1.transformed", nil];
+            [fileManager setContentsOfReportsDir:@"report1.transformed", nil];
 
             reports = [store loadReports];
 
@@ -249,7 +288,7 @@ describe(@"ReportStore", ^{
 
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
-            [fileManager setReportsDirContentsBaseNames:@"report1.red", @"report2.blue", nil];
+            [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", nil];
 
             [redType.enqueueImport cancelAll];
             [blueType.enqueueImport cancelAll];
@@ -287,7 +326,7 @@ describe(@"ReportStore", ^{
             NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.green"];
             Report *report = [store attemptToImportReportFromResource:url];
 
-            expect(report).notTo.beNil;
+            expect(report).notTo.beNil();
             expect(report.url).to.equal(url);
         });
 
@@ -305,10 +344,10 @@ describe(@"ReportStore", ^{
             Report *report = [store attemptToImportReportFromResource:url];
 
             expect(store.reports).to.contain(report);
-            expect(report.reportID).to.beNil;
+            expect(report.reportID).to.beNil();
             expect(report.title).to.equal(report.url.lastPathComponent);
             expect(report.summary).to.equal(@"Importing...");
-            expect(report.error).to.beNil;
+            expect(report.error).to.beNil();
             expect(report.isEnabled).to.equal(NO);
 
             [import unblock];
@@ -401,6 +440,60 @@ describe(@"ReportStore", ^{
 
             Report *notificationReport = observer.received.firstObject.notification.userInfo[@"report"];
             expect(notificationReport).to.beIdenticalTo(importReport);
+        });
+
+    });
+
+    describe(@"importing report archives", ^{
+
+        it(@"matches the report type to the archive content", ^{
+            [fileManager setContentsOfReportsDir:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+
+            NSString *baseDir = [reportsDir.path stringByAppendingPathComponent:@"blue.zip.dicex"];
+            [fileManager setCreateDirectoryAtPathBlock:^BOOL(NSString *path, BOOL intermediates, NSError **error) {
+                return [path isEqualToString:baseDir];
+            }];
+            [fileManager setCreateFileAtPathBlock:^BOOL(NSString *path) {
+                return [path isEqualToString:[baseDir stringByAppendingPathComponent:@"index.blue"]];
+            }];
+            NSFileHandle *stdout = [NSFileHandle fileHandleWithStandardOutput];
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return stdout;
+                };
+            }];
+
+            Report *report = [store attemptToImportReportFromResource:archiveUrl];
+
+            assertWithTimeout(1.0, thatEventually(@(blueImport.isFinished)), isTrue());
+
+            deswizzleAll();
+        });
+
+        it(@"creates a base dir if none in archive", ^{
+
+        });
+
+        it(@"extracts the report before the import process begins", ^{
+
+        });
+
+        it(@"posts notifications about extract progress", ^{
+
+        });
+
+        it(@"runs the import process after extracting the report contents", ^{
+
+        });
+
+        it(@"does not create multiple reports while the archive is extracting", ^{
+
         });
 
     });

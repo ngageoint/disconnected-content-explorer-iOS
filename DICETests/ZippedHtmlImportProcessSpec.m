@@ -183,7 +183,7 @@ describe(@"ZippedHtmlImportProcess", ^{
 
         expect(makeDestDirStep.dependencies).to.contain(validateStep);
         expect(makeDestDirStep.ready).to.equal(NO);
-        expect(makeDestDirStep.dirUrl).to.beNil;
+        expect(makeDestDirStep.dirUrl).to.beNil();
 
         [validateStep start];
 
@@ -264,7 +264,7 @@ describe(@"ZippedHtmlImportProcess", ^{
         MkdirOperation *makeDestDirStep = (MkdirOperation *) import.steps[1];
         UnzipOperation *unzipStep = (UnzipOperation *) import.steps[2];
 
-        expect(unzipStep.destDir).to.beNil;
+        expect(unzipStep.destDir).to.beNil();
 
         [validateStep start];
 
@@ -292,8 +292,8 @@ describe(@"ZippedHtmlImportProcess", ^{
         NSString *baseDirName = @"ZippedHtmlImportProcessSpec";
         NSURL *destDir = [reportsDir URLByAppendingPathComponent:baseDirName isDirectory:YES];
 
-        expect(makeDestDirStep.dirUrl).to.beNil;
-        expect(unzipStep.destDir).to.beNil;
+        expect(makeDestDirStep.dirUrl).to.beNil();
+        expect(unzipStep.destDir).to.beNil();
 
         [validateStep start];
 

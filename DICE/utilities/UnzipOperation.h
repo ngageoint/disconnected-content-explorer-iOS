@@ -30,6 +30,7 @@
 
 @interface UnzipOperation : NSOperation
 
+@property (nonatomic, readonly) id<DICEArchive> archive;
 @property (nonatomic) NSURL *destDir;
 @property (nonatomic, readonly) NSFileManager *fileManager;
 /**

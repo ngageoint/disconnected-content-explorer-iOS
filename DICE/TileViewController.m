@@ -23,7 +23,7 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportExtractProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportImportFinished] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportsLoaded] object:nil];
     

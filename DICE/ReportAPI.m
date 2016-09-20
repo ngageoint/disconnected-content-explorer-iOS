@@ -27,7 +27,7 @@
 //+ (NSString *)reportImportBegan {
 //    return @"DICE.ReportImportBegan";
 //}
-//+ (NSString *)reportImportProgress {
+//+ (NSString *)reportExtractProgress {
 //    return @"DICE.ReportImportProgress";
 //}
 //+ (NSString *)reportImportFinished {
@@ -412,7 +412,7 @@
 //                report.progress = filesExtracted;
 //                dispatch_async(dispatch_get_main_queue(), ^{
 //                    [[NSNotificationCenter defaultCenter]
-//                     postNotificationName:[ReportNotification reportImportProgress]
+//                     postNotificationName:[ReportNotification reportExtractProgress]
 //                     object:self
 //                     userInfo:@{
 //                                @"report": report,
@@ -496,7 +496,7 @@
 //
 //            dispatch_async(dispatch_get_main_queue(), ^{
 //                [[NSNotificationCenter defaultCenter]
-//                 postNotificationName:[ReportNotification reportImportProgress]
+//                 postNotificationName:[ReportNotification reportExtractProgress]
 //                 object:self
 //                 userInfo:@{
 //                            @"report": report,

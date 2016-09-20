@@ -133,7 +133,7 @@ describe(@"ImportProcess", ^{
         [ops waitUntilAllOperationsAreFinished];
 
         expect(cancelBlockCalled).to.equal(@YES);
-        expect(finishBlockCalled).to.beNil;
+        expect(finishBlockCalled).to.beNil();
     });
 
     it(@"stops observing operations after they finish", ^{

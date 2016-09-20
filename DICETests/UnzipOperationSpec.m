@@ -160,7 +160,7 @@ describe(@"UnzipOperation", ^{
             op = [[UnzipOperation alloc] initWithArchive:nil destDir:[NSURL URLWithString:@"/some/dir"] fileManager:[NSFileManager defaultManager]];
         }).to.raiseWithReason(@"IllegalArgumentException", @"archive is nil");
 
-        expect(op).to.beNil;
+        expect(op).to.beNil();
     });
 
     it(@"is not ready until dest dir is set", ^{
@@ -173,7 +173,7 @@ describe(@"UnzipOperation", ^{
         [op addObserver:observer forKeyPath:@"destDir" options:NSKeyValueObservingOptionPrior context:NULL];
 
         expect(op.ready).to.equal(NO);
-        expect(op.destDir).to.beNil;
+        expect(op.destDir).to.beNil();
 
         op.destDir = [NSURL URLWithString:@"/reports_dir"];
 
@@ -317,11 +317,11 @@ describe(@"UnzipOperation", ^{
             NSMutableDictionary *attrs = [[fm attributesOfItemAtPath:entry.path error:nil] mutableCopy];
             attrs[@"path"] = entry.path;
 
-            expect(attrs).notTo.beNil;
+            expect(attrs).notTo.beNil();
             assertThat(attrs, hasEntry(NSFileModificationDate, modDate));
             void (^verifyEntryExpectations)(NSURL *entry, NSDictionary *attrs) = expectedContents[entry];
 
-            expect(verifyEntryExpectations).notTo.beNil;
+            expect(verifyEntryExpectations).notTo.beNil();
             verifyEntryExpectations(entry, attrs);
 
             [expectedContents removeObjectForKey:entry];
@@ -406,11 +406,11 @@ describe(@"UnzipOperation", ^{
             NSMutableDictionary *attrs = [[fm attributesOfItemAtPath:entry.path error:nil] mutableCopy];
             attrs[@"path"] = entry.path;
 
-            expect(attrs).notTo.beNil;
+            expect(attrs).notTo.beNil();
             assertThat(attrs, hasEntry(NSFileModificationDate, modDate));
             void (^verifyEntryExpectations)(NSURL *entry, NSDictionary *attrs) = expectedContents[entry];
 
-            expect(verifyEntryExpectations).notTo.beNil;
+            expect(verifyEntryExpectations).notTo.beNil();
             verifyEntryExpectations(entry, attrs);
 
             [expectedContents removeObjectForKey:entry];

@@ -31,7 +31,7 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
 
             [op start];
 
@@ -53,7 +53,7 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
 
             [op start];
 
@@ -74,14 +74,14 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
 
             [op start];
 
             expect(op.isFinished).to.equal(YES);
             expect(op.isCancelled).to.equal(NO);
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
         });
 
         it(@"invalidates a zip with index.html in a lower-level directory", ^{
@@ -96,14 +96,14 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
 
             [op start];
 
             expect(op.isFinished).to.equal(YES);
             expect(op.isCancelled).to.equal(NO);
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
         });
 
         it(@"invalidates a zip with root entries and non-root index.html", ^{
@@ -119,14 +119,14 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
 
             [op start];
 
             expect(op.isFinished).to.equal(YES);
             expect(op.isCancelled).to.equal(NO);
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
         });
 
         it(@"uses the most shallow index.html", ^{
@@ -150,7 +150,7 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
 
             [op start];
 
@@ -162,7 +162,7 @@ SpecBegin(ValidateHtmlLayoutOperation)
             op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
 
             [op start];
 
@@ -185,7 +185,7 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
 
             [op start];
 
@@ -209,14 +209,14 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
 
             [op start];
 
             expect(op.isFinished).to.equal(YES);
             expect(op.isCancelled).to.equal(NO);
             expect(op.isLayoutValid).to.equal(NO);
-            expect(op.indexDirPath).to.beNil;
+            expect(op.indexDirPath).to.beNil();
         });
 
         it(@"sets the report descriptor url when available next to index.html", ^{
@@ -230,7 +230,7 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.hasDescriptor).to.equal(NO);
-            expect(op.descriptorPath).to.beNil;
+            expect(op.descriptorPath).to.beNil();
 
             [op start];
 
@@ -248,7 +248,7 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.hasDescriptor).to.equal(NO);
-            expect(op.descriptorPath).to.beNil;
+            expect(op.descriptorPath).to.beNil();
 
             [op start];
 
@@ -267,12 +267,12 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.hasDescriptor).to.equal(NO);
-            expect(op.descriptorPath).to.beNil;
+            expect(op.descriptorPath).to.beNil();
 
             [op start];
 
             expect(op.hasDescriptor).to.equal(NO);
-            expect(op.descriptorPath).to.beNil;
+            expect(op.descriptorPath).to.beNil();
         });
 
 
@@ -287,12 +287,12 @@ SpecBegin(ValidateHtmlLayoutOperation)
             ValidateHtmlLayoutOperation *op = [[ValidateHtmlLayoutOperation alloc] initWithZipFile:zipFile];
 
             expect(op.hasDescriptor).to.equal(NO);
-            expect(op.descriptorPath).to.beNil;
+            expect(op.descriptorPath).to.beNil();
 
             [op start];
 
             expect(op.hasDescriptor).to.equal(NO);
-            expect(op.descriptorPath).to.beNil;
+            expect(op.descriptorPath).to.beNil();
         });
     });
 

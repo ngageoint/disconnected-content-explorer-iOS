@@ -43,7 +43,7 @@ describe(@"ParseJsonOperation", ^{
         [op addObserver:observer forKeyPath:@"jsonUrl" options:NSKeyValueObservingOptionPrior context:NULL];
 
         expect(op.isReady).to.equal(NO);
-        expect(op.jsonUrl).to.beNil;
+        expect(op.jsonUrl).to.beNil();
 
         op.jsonUrl = [NSURL URLWithString:@"/metadata.json"];
 
@@ -139,7 +139,7 @@ describe(@"ParseJsonOperation", ^{
         ParseJsonOperation *op = [[ParseJsonOperation alloc] initWithFileManager:[NSFileManager defaultManager]];
         op.jsonUrl = [NSURL fileURLWithPath:@"/path/to/nowhere.json" isDirectory:NO];
         [op start];
-        expect(op.parsedJsonDictionary).to.beNil;
+        expect(op.parsedJsonDictionary).to.beNil();
     });
     
     afterEach(^{

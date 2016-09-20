@@ -15,7 +15,6 @@
     archive_size_t _totalUncompressedSize;
     NSUInteger _percentExtracted;
     NSUInteger _bytesExtracted;
-    id<DICEArchive> _archive;
 }
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
