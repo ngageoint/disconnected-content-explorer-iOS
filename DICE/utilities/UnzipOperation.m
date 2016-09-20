@@ -171,8 +171,12 @@
     }
     NSError *error;
     NSFileHandle *handle = [NSFileHandle fileHandleForWritingToURL:file error:&error];
-    if (error) {
-        _errorMessage = [NSString stringWithFormat:@"Failed to open file for writing archive entry %@: %@", entry.archiveEntryPath, error.localizedDescription];
+    if (error || !handle) {
+        NSString *errDesc = @"null file handle";
+        if (error) {
+            errDesc = error.localizedDescription;
+        }
+        _errorMessage = [NSString stringWithFormat:@"Failed to open file for writing archive entry %@: %@", entry.archiveEntryPath, errDesc];
         [self cancel];
         return;
     }
