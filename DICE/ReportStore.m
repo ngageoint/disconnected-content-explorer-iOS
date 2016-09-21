@@ -17,6 +17,7 @@
 #import "Report.h"
 #import "ReportType.h"
 #import "DICEUtiExpert.h"
+#import "DICEExtractReportOperation.h"
 
 
 @implementation ReportNotification
@@ -290,25 +291,23 @@
 
 - (void)extractReportArchive:(id<DICEArchive>)archive withBaseDir:(NSString *)baseDir forReport:(Report *)report ofType:(id<ReportType>)reportType
 {
-    NSURL *destDir = _reportsDir;
+    NSURL *extractToDir = _reportsDir;
     if (baseDir == nil) {
         // TODO: more robust check for possible conflicting base dirs?
         NSString *baseName = [NSString stringWithFormat:@"%@.dicex", report.url.path.lastPathComponent];
-        destDir = [destDir URLByAppendingPathComponent:baseName isDirectory:YES];
+        extractToDir = [extractToDir URLByAppendingPathComponent:baseName isDirectory:YES];
         NSError *mkdirError;
-        if (![_fileManager createDirectoryAtURL:destDir withIntermediateDirectories:NO attributes:nil error:&mkdirError]) {
+        if (![_fileManager createDirectoryAtURL:extractToDir withIntermediateDirectories:NO attributes:nil error:&mkdirError]) {
             report.error = [NSString stringWithFormat:@"Error creating base directory for package %@: %@", report.title, mkdirError.localizedDescription];
         }
+        baseDir = baseName;
     }
-    UnzipOperation *unzip = [[UnzipOperation alloc] initWithArchive:archive destDir:destDir fileManager:_fileManager];
-    unzip.delegate = self;
-    ImportProcess *process = [reportType createProcessToImportReport:report toDir:destDir];
-    process.delegate = self;
-    for (NSOperation *step in process.steps) {
-        [step addDependency:unzip];
-    }
-    [_importQueue addOperation:unzip];
-    [_importQueue addOperations:process.steps waitUntilFinished:NO];
+    NSURL *baseDirUrl = [_reportsDir URLByAppendingPathComponent:baseDir isDirectory:YES];
+    DICEExtractReportOperation *extract = [[DICEExtractReportOperation alloc]
+        initWithReport:report reportType:reportType extractedBaseDir:baseDirUrl
+        archive:archive extractToDir:extractToDir fileManager:_fileManager];
+    extract.delegate = self;
+    [_importQueue addOperation:extract];
 }
 
 - (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent
@@ -319,6 +318,31 @@
         [[NSNotificationCenter defaultCenter]
             postNotificationName:[ReportNotification reportExtractProgress]
             object:self userInfo:@{@"report": report, @"percentExtracted": @(percent)}];
+    });
+}
+
+- (void)unzipOperationDidFinish:(UnzipOperation *)op
+{
+    DICEExtractReportOperation *extract = (DICEExtractReportOperation *)op;
+    BOOL success = op.wasSuccessful;
+    Report *report = extract.report;
+    id<ReportType> reportType = extract.reportType;
+    NSURL *baseDir = extract.extractedReportBaseDir;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!success) {
+            report.error = @"Failed to extract archive content";
+            return;
+        }
+        report.url = baseDir;
+        report.summary = @"Import report content ...";
+        NSBlockOperation *creaateImportProcess = [NSBlockOperation blockOperationWithBlock:^{
+            ImportProcess *importProcess = [reportType createProcessToImportReport:report toDir:_reportsDir];
+            // TODO: check nil importProcess
+            importProcess.delegate = self;
+            [_importQueue addOperations:importProcess.steps waitUntilFinished:NO];
+        }];
+        [_importQueue addOperation:creaateImportProcess];
     });
 }
 

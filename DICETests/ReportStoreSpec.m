@@ -23,7 +23,7 @@
 @property NSMutableArray<NSString *> *pathsInReportsDir;
 @property NSMutableDictionary *pathAttrs;
 @property BOOL (^createFileAtPathBlock)(NSString *path);
-@property BOOL (^createDirectoryAtPathBlock)(NSString *path, BOOL createIntermediates, NSError **error);
+@property BOOL (^createDirectoryAtUrlBlock)(NSURL *path, BOOL createIntermediates, NSError **error);
 
 - (void)setContentsOfReportsDir:(NSString *)relPath, ... NS_REQUIRES_NIL_TERMINATION;
 
@@ -90,15 +90,20 @@
     if (self.createFileAtPathBlock) {
         return self.createFileAtPathBlock(path);
     }
-    return NO;
+    return YES;
 }
 
 - (BOOL)createDirectoryAtPath:(NSString *)path withIntermediateDirectories:(BOOL)createIntermediates attributes:(NSDictionary<NSString *, id> *)attributes error:(NSError **)error
 {
-    if (self.createDirectoryAtPathBlock) {
-        return self.createDirectoryAtPathBlock(path, createIntermediates, error);
+    return [self createDirectoryAtURL:[NSURL fileURLWithPath:path isDirectory:YES] withIntermediateDirectories:createIntermediates attributes:attributes error:error];
+}
+
+- (BOOL)createDirectoryAtURL:(NSURL *)url withIntermediateDirectories:(BOOL)createIntermediates attributes:(NSDictionary<NSString *, id> *)attributes error:(NSError **)error
+{
+    if (self.createDirectoryAtUrlBlock) {
+        return self.createDirectoryAtUrlBlock(url, createIntermediates, error);
     }
-    return NO;
+    return YES;
 }
 
 @end
@@ -446,7 +451,7 @@ describe(@"ReportStore", ^{
 
     describe(@"importing report archives", ^{
 
-        it(@"matches the report type to the archive content", ^{
+        it(@"creates a base dir if the archive has no base dir", ^{
             [fileManager setContentsOfReportsDir:@"blue.zip", nil];
             NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
             TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
@@ -455,29 +460,117 @@ describe(@"ReportStore", ^{
             [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
             TestImportProcess *blueImport = [blueType enqueueImport];
 
-            NSString *baseDir = [reportsDir.path stringByAppendingPathComponent:@"blue.zip.dicex"];
-            [fileManager setCreateDirectoryAtPathBlock:^BOOL(NSString *path, BOOL intermediates, NSError **error) {
-                return [path isEqualToString:baseDir];
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dicex" isDirectory:YES];
+            [fileManager setCreateDirectoryAtUrlBlock:^BOOL(NSURL *url, BOOL intermediates, NSError **error) {
+                expect(url).to.equal(baseDir);
+                return [url isEqual:baseDir];
             }];
             [fileManager setCreateFileAtPathBlock:^BOOL(NSString *path) {
-                return [path isEqualToString:[baseDir stringByAppendingPathComponent:@"index.blue"]];
+                expect(path).to.equal([baseDir.path stringByAppendingPathComponent:@"index.blue"]);
+                return [path isEqualToString:[baseDir.path stringByAppendingPathComponent:@"index.blue"]];
             }];
-            NSFileHandle *stdout = [NSFileHandle fileHandleWithStandardOutput];
+            NSFileHandle *handle = mock([NSFileHandle class]);
             [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
                 return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
-                    return stdout;
+                    return handle;
                 };
             }];
 
-            Report *report = [store attemptToImportReportFromResource:archiveUrl];
+            [store attemptToImportReportFromResource:archiveUrl];
 
             assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
 
             [NSFileHandle deswizzleAllClassMethods];
         });
 
-        it(@"creates a base dir if none in archive", ^{
+        it(@"does not create a new base dir if archive has base dir", ^{
+            [fileManager setContentsOfReportsDir:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"blue_base/" sizeInArchive:0 sizeExtracted:0],
+                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
 
+            [fileManager setCreateDirectoryAtUrlBlock:^BOOL(NSURL *path, BOOL intermediates, NSError **error) {
+                expect(path).to.equal(baseDir);
+                return [path isEqual:baseDir];
+            }];
+            [fileManager setCreateFileAtPathBlock:^BOOL(NSString *path) {
+                expect(path).to.equal([baseDir.path stringByAppendingPathComponent:@"index.blue"]);
+                return [path isEqualToString:[baseDir.path stringByAppendingPathComponent:@"index.blue"]];
+            }];
+            NSFileHandle *handle = mock([NSFileHandle class]);
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return handle;
+                };
+            }];
+
+            [store attemptToImportReportFromResource:archiveUrl];
+
+            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+
+            [NSFileHandle deswizzleAllClassMethods];
+        });
+
+        it(@"creates the import process for the extracted content after extracting the archive", ^{
+
+        });
+
+        it(@"changes the report url to the extracted base dir", ^{
+            [fileManager setContentsOfReportsDir:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"blue_base/" sizeInArchive:0 sizeExtracted:0],
+                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
+
+            NSFileHandle *handle = mock([NSFileHandle class]);
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return handle;
+                };
+            }];
+
+            [store attemptToImportReportFromResource:archiveUrl];
+
+            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+
+            expect(blueImport.report.url).to.equal(baseDir);
+
+            [NSFileHandle deswizzleAllClassMethods];
+        });
+
+        it(@"changes the report url to the created base dir", ^{
+            [fileManager setContentsOfReportsDir:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dicex" isDirectory:YES];
+            NSFileHandle *handle = mock([NSFileHandle class]);
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return handle;
+                };
+            }];
+
+            [store attemptToImportReportFromResource:archiveUrl];
+
+            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+
+            expect(blueImport.report.url).to.equal(baseDir);
+
+            [NSFileHandle deswizzleAllClassMethods];
         });
 
         it(@"extracts the report before the import process begins", ^{

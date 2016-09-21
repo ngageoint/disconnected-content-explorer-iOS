@@ -112,6 +112,7 @@
 		AF437098539BBC524F7C86E9EF0CA5F0 /* Reader-Button-H@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5A1CE758A1D34CFEC65DC9550D016F /* Reader-Button-H@2x.png */; };
 		B2812748E5A40043402C2AF937A1612C /* AppIcon-114.png in Resources */ = {isa = PBXBuildFile; fileRef = 89208D0BE88208C40BE5CB135689E5FE /* AppIcon-114.png */; };
 		B59E3A5E9857C5CD91AE78AE38435363 /* TileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5FDAD67AFAB65E1AB6DBB57ECA30DE4 /* TileViewController.m */; };
+		BA3FFA78F8E5D37B5AA537FF8E92096F /* DICEExtractReportOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DB26861FD1BCE3D06B059090E40284A /* DICEExtractReportOperation.m */; };
 		BD010E315BB1D0A2501DB113E044C176 /* Reader-Thumbs@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 76296D1D02A987FDB352581A81BD358D /* Reader-Thumbs@2x.png */; };
 		C1980E6D70196770FF08377930765429 /* FileOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = B52DB2B934C3FDAC88D176B8144E074F /* FileOperations.m */; };
 		C8CE09E74342E3CD0744A2A2DE8215F2 /* JavaScriptAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0C73BC62F96725E56B4F7D4CF2DD5 /* JavaScriptAPI.m */; };
@@ -242,6 +243,7 @@
 		5CA65D8C712300A48AC48E4D620C274A /* HtmlReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HtmlReportType.m; sourceTree = "<group>"; };
 		5CCBB74C0C5CCF563469F4F08801C996 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		5D7DF856C2AFF3927424A1719E6A984A /* FileOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileOperations.h; sourceTree = "<group>"; };
+		5DB26861FD1BCE3D06B059090E40284A /* DICEExtractReportOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEExtractReportOperation.m; sourceTree = "<group>"; };
 		5DDB58360EE665749F0FA4578B145BCF /* ReaderThumbQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbQueue.m; sourceTree = "<group>"; };
 		5E4342FFD2C2132B3989BF7BCD77F626 /* SettingsViewController+SettingsViewController_iPhone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SettingsViewController+SettingsViewController_iPhone.m"; sourceTree = "<group>"; };
 		5EB4B2A5DD495893BD46603CBBB04C10 /* ReportResourceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportResourceViewController.h; sourceTree = "<group>"; };
@@ -343,6 +345,7 @@
 		C4AA91C552F83B1CC8C5DDDF10788FD9 /* ReaderThumbRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbRequest.m; sourceTree = "<group>"; };
 		C565C16CCF4E72BEFF614EECFDC7B86A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		C5C92DC52C2275901E63D7D521C6FE54 /* URLProtocolUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLProtocolUtils.m; sourceTree = "<group>"; };
+		C600E068D6F92B4C2A716D449656BE8C /* DICEExtractReportOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEExtractReportOperation.h; sourceTree = "<group>"; };
 		C6C935C9B16529C0DD8DC5884E66A622 /* MatchReportTypeToContentAtPathOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatchReportTypeToContentAtPathOperation.h; sourceTree = "<group>"; };
 		C7F636E7C2EC9B9D499E39EADBBDB901 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		C7FFC513EA4E22A3092C84B9EF911C8B /* PDFViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFViewController.h; sourceTree = "<group>"; };
@@ -759,6 +762,8 @@
 		B3BF4950F080E99B61F9DD85AECB164C /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				C600E068D6F92B4C2A716D449656BE8C /* DICEExtractReportOperation.h */,
+				5DB26861FD1BCE3D06B059090E40284A /* DICEExtractReportOperation.m */,
 				F1622EB77C38AF2B93DD7A71930F1728 /* ExplodedHtmlImportProcess.h */,
 				9C5B50A7E11E05CF24EE64B28D1DC051 /* ExplodedHtmlImportProcess.m */,
 				CE556F6AEF155A11F46A0B6435CDC4EC /* HtmlReportType.h */,
@@ -1081,6 +1086,7 @@
 				E52B5F7F205C75C6F759ABB9BC67F63E /* CGPDFDocument.m in Sources */,
 				92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */,
 				7979D5B4D4EE665AD23AA68D1EB360CA /* DICEDefaultArchiveFactory.m in Sources */,
+				BA3FFA78F8E5D37B5AA537FF8E92096F /* DICEExtractReportOperation.m in Sources */,
 				134E1F756D92A3337ADF441D9EDFEB6F /* DICENavigationController.m in Sources */,
 				6E01CF160BBA8CD6AA10E28EBB09FE46 /* DICEOZZipFileArchive.m in Sources */,
 				714FF5ECA4D7E03B52D9BF59966F0FDA /* DICEUtiExpert.m in Sources */,
