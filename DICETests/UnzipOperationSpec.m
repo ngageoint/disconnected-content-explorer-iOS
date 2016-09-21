@@ -419,7 +419,7 @@ describe(@"UnzipOperation", ^{
         expect(expectedContents.count).to.equal(0);
     });
 
-    it(@"reports unzip progress on the main thread for percentage changes", ^{
+    it(@"notifies the delegate on the operation thread", ^{
         NSFileManager *fm = [NSFileManager defaultManager];
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
@@ -444,17 +444,18 @@ describe(@"UnzipOperation", ^{
             return nil;
         }];
 
-        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [op start];
-        });
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperation:op];
 
-        assertWithTimeout(1.0, thatEventually(@(percentUpdates.count)), is(@20));
+        assertWithTimeout(1.0, thatEventually(@(op.isFinished)), isTrue());
 
-        expect(wasMainThread).to.equal(YES);
+        expect(wasMainThread).to.equal(NO);
         expect(percentUpdates.count).to.equal(20);
         [percentUpdates enumerateObjectsUsingBlock:^(NSNumber *percent, NSUInteger idx, BOOL *stop) {
             expect(percent.unsignedIntegerValue).to.equal((idx + 1) * 5);
         }];
+
+        [verify(unzipDelegate) unzipOperationDidFinish:sameInstance(op)];
     });
 
     it(@"is unsuccessful when the file for an entry cannot be created", ^{

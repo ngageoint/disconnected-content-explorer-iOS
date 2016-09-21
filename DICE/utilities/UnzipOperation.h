@@ -24,6 +24,7 @@
  @param percent the percentage of uncompressed bytes that the operation has written
  */
 - (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent;
+- (void)unzipOperationDidFinish:(UnzipOperation *)op;
 
 @end
 

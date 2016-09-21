@@ -71,6 +71,10 @@
         [_archive closeArchiveWithError:NULL];
         self.buffer.length = 0;
     }
+
+    if (self.delegate) {
+        [self.delegate unzipOperationDidFinish:self];
+    }
 }
 
 - (BOOL)isReady
@@ -153,7 +157,7 @@
         return;
     }
 
-    BOOL created = [self.fileManager createDirectoryAtPath:dir.path withIntermediateDirectories:YES attributes:nil error:nil];
+    BOOL created = [self.fileManager createDirectoryAtURL:dir withIntermediateDirectories:YES attributes:nil error:nil];
 
     if (!created) {
         [self cancel];
@@ -206,9 +210,7 @@
         return;
     }
     NSUInteger percent = _percentExtracted;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate unzipOperation:self didUpdatePercentComplete:percent];
-    });
+    [self.delegate unzipOperation:self didUpdatePercentComplete:percent];
 }
 
 @end
