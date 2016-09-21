@@ -471,9 +471,9 @@ describe(@"ReportStore", ^{
 
             Report *report = [store attemptToImportReportFromResource:archiveUrl];
 
-            assertWithTimeout(1.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
 
-            deswizzleAll();
+            [NSFileHandle deswizzleAllClassMethods];
         });
 
         it(@"creates a base dir if none in archive", ^{

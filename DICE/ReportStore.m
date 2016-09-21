@@ -7,21 +7,16 @@
 //
 
 #import <MobileCoreServices/MobileCoreServices.h>
-#import <objc/runtime.h>
 #import "ImportProcess.h"
 #import "ReportStore.h"
 #import "InspectReportArchiveOperation.h"
 #import "MatchReportTypeToContentAtPathOperation.h"
-#import "DICEOZZipFileArchive.h"
 #import "ImportProcess+Internal.h"
 #import "UnzipOperation.h"
 #import "DICEDefaultArchiveFactory.h"
-#import "DICEArchive.h"
 #import "Report.h"
 #import "ReportType.h"
 #import "DICEUtiExpert.h"
-#import "FileOperations.h"
-
 
 
 @implementation ReportNotification
@@ -308,6 +303,7 @@
     UnzipOperation *unzip = [[UnzipOperation alloc] initWithArchive:archive destDir:destDir fileManager:_fileManager];
     unzip.delegate = self;
     ImportProcess *process = [reportType createProcessToImportReport:report toDir:destDir];
+    process.delegate = self;
     for (NSOperation *step in process.steps) {
         [step addDependency:unzip];
     }
