@@ -127,7 +127,7 @@
         } else {
             [self writeFileForEntry:entry atUrl:entryUrl];
             NSDictionary *modDate = @{NSFileModificationDate: entry.archiveEntryDate};
-            [self.fileManager setAttributes:modDate ofItemAtPath:entryUrl.path error:nil];
+            [self.fileManager setAttributes:modDate ofItemAtPath:entryUrl.path error:NULL];
         }
     } error:NULL];
 
@@ -196,7 +196,7 @@
             [self sendPercentageUpdate];
         }
     }
-    [_archive closeCurrentArchiveEntryWithError:nil];
+    [_archive closeCurrentArchiveEntryWithError:NULL];
     [handle closeFile];
 }
 
