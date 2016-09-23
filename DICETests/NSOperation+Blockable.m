@@ -4,93 +4,61 @@
 //
 
 #import "NSOperation+Blockable.h"
-
+#import <JGMethodSwizzler/JGMethodSwizzler.h>
 #import <objc/runtime.h>
 #import <objc/message.h>
 
 
 @implementation NSOperation (Blockable)
 
-static char kBlocked;
-static char kBlockLock;
-
-static SEL blockableMainSel;
-static IMP blockableMainImp;
+static void *kBlocked;
+static void *kBlockLock;
 
 + (void)load
 {
-    NSLog(@"loading %@", self);
+    NSLog(@"loading Blockable NSOperation category %@", self);
 
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        SEL origInitSel = @selector(init);
-        SEL blockableInitSel =  @selector(init_Blockable);
-        Method origInit = class_getInstanceMethod(self, origInitSel);
-        Method blockableInit = class_getInstanceMethod(self, blockableInitSel);
-        BOOL added = class_addMethod([self class], origInitSel, method_getImplementation(blockableInit), method_getTypeEncoding(blockableInit));
-        if (added) {
-            class_replaceMethod([self class], blockableInitSel, method_getImplementation(origInit), method_getTypeEncoding(origInit));
-        }
-        else {
-            method_exchangeImplementations(origInit, blockableInit);
-        }
+    kBlocked = &kBlocked;
+    kBlockLock = &kBlockLock;
 
-        blockableMainSel = sel_registerName("Blockable_main");
-        blockableMainImp = imp_implementationWithBlock(^(__weak id self) {
-            [self waitUntilUnblocked];
-            ((void(*)(id, SEL))objc_msgSend)(self, blockableMainSel);
-        });
-    });
-}
-
-- (instancetype)init_Blockable
-{
-    self = [self init_Blockable];
-    objc_setAssociatedObject(self, &kBlockLock, [[NSCondition alloc] init], OBJC_ASSOCIATION_RETAIN);
-    [self swizzleMain_Blockable];
-    return self;
+    [self swizzleInstanceMethod:@selector(init) withReplacement:JGMethodReplacementProviderBlock {
+        return ^ NSOperation * (__unsafe_unretained NSOperation *self) {
+            self = JGOriginalImplementation(NSOperation *);
+            objc_setAssociatedObject(self, kBlockLock, [[NSCondition alloc] init], OBJC_ASSOCIATION_RETAIN);
+            [self setBlocked:NO];
+            [self swizzleMain_Blockable];
+            return self;
+        };
+    }];
 }
 
 - (void)swizzleMain_Blockable
 {
-    // TODO: probably need some thread synchronization here, but so far no problems, and it's just for test code ...
-    SEL origSel = @selector(main);
+    NSLog(@"swizzling main to blockable main for %@", self);
 
-    unsigned int methodCount = 0;
-    Method *methods = class_copyMethodList([self class], &methodCount);
-    for (int i = 0; i < methodCount; i++) {
-        Method m = *(methods + i);
-        SEL sel = method_getName(m);
-        if (sel_isEqual(sel, blockableMainSel)) {
-            return;
-        }
-    }
-    free(methods);
-
-    NSLog(@"swizzling main to blockable main for %@", [self class]);
-    Method main = class_getInstanceMethod([self class], origSel);
-
-    const char *enc = method_getTypeEncoding(main);
-    BOOL added = class_addMethod([self class], blockableMainSel, blockableMainImp, enc);
-    if (added) {
-        Method blockableMain = class_getInstanceMethod([self class], blockableMainSel);
-        method_exchangeImplementations(main, blockableMain);
-    }
+    [self swizzleMethod:@selector(main) withReplacement:JGMethodReplacementProviderBlock {
+        return JGMethodReplacement(void, NSOperation *) {
+            [self waitUntilUnblocked];
+            JGOriginalImplementation(void);
+        };
+    }];
 }
 
 - (BOOL)blocked
 {
-    return [objc_getAssociatedObject(self, &kBlocked) boolValue];
+    NSNumber *blocked = objc_getAssociatedObject(self, kBlocked);
+    BOOL blockedBool = [blocked boolValue];
+    return blockedBool;
 }
 
 - (void)setBlocked:(BOOL)blocked
 {
-    objc_setAssociatedObject(self, &kBlocked, @(blocked), OBJC_ASSOCIATION_COPY);
+    objc_setAssociatedObject(self, kBlocked, @(blocked), OBJC_ASSOCIATION_COPY);
 }
 
 - (NSCondition *)blockLock
 {
-    return objc_getAssociatedObject(self, &kBlockLock);
+    return objc_getAssociatedObject(self, kBlockLock);
 }
 
 - (instancetype)block {
