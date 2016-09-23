@@ -198,14 +198,14 @@
         id<DICEArchive> archive = [_archiveFactory createArchiveForResource:reportUrl withUti:reportUti];
         InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc]
             initWithReport:report reportArchive:archive candidateReportTypes:self.reportTypes utiExpert:_utiExpert];
-        [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:nil context:ARCHIVE_MATCH_CONTEXT];
+        [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:ARCHIVE_MATCH_CONTEXT];
         [_importQueue addOperation:op];
         return report;
     }
     else {
         MatchReportTypeToContentAtPathOperation *op =
             [[MatchReportTypeToContentAtPathOperation alloc] initWithReport:report candidateTypes:self.reportTypes];
-        [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:nil context:CONTENT_MATCH_CONTEXT];
+        [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:CONTENT_MATCH_CONTEXT];
         [_importQueue addOperation:op];
     }
 
@@ -225,6 +225,7 @@
         MatchReportTypeToContentAtPathOperation *op = object;
         id<ReportType> type = op.matchedReportType;
         if (type) {
+            NSLog(@"matched report type %@ to report %@", type, op.report);
             [_importQueue addOperationWithBlock:^{
                 ImportProcess *process = [type createProcessToImportReport:op.report toDir:_reportsDir];
                 process.delegate = self;
@@ -232,6 +233,7 @@
             }];
         }
         else {
+            NSLog(@"no report type found for report %@", op.report);
             op.report.error = @"Unkown content type";
         }
     }
@@ -239,11 +241,13 @@
         InspectReportArchiveOperation *op = object;
         id<ReportType> type = op.matchedReportType;
         if (type) {
+            NSLog(@"matched report type %@ to report archive %@", type, op.report);
             [_importQueue addOperationWithBlock:^{
                 [self extractReportArchive:op.reportArchive withBaseDir:op.archiveBaseDir forReport:op.report ofType:op.matchedReportType];
             }];
         }
         else {
+            NSLog(@"no report type found for report archive %@", op.report);
             op.report.error = @"Unkown content type";
         }
     }
@@ -291,6 +295,7 @@
 
 - (void)extractReportArchive:(id<DICEArchive>)archive withBaseDir:(NSString *)baseDir forReport:(Report *)report ofType:(id<ReportType>)reportType
 {
+    NSLog(@"extracting report archive %@", report);
     NSURL *extractToDir = _reportsDir;
     if (baseDir == nil) {
         // TODO: more robust check for possible conflicting base dirs?
@@ -328,7 +333,7 @@
     Report *report = extract.report;
     id<ReportType> reportType = extract.reportType;
     NSURL *baseDir = extract.extractedReportBaseDir;
-
+    NSLog(@"finished extracting contents of report archive %@", report);
     dispatch_async(dispatch_get_main_queue(), ^{
         if (!success) {
             report.error = @"Failed to extract archive content";
@@ -337,6 +342,7 @@
         report.url = baseDir;
         report.summary = @"Import report content ...";
         NSBlockOperation *creaateImportProcess = [NSBlockOperation blockOperationWithBlock:^{
+            NSLog(@"creating import process for report %@", report);
             ImportProcess *importProcess = [reportType createProcessToImportReport:report toDir:_reportsDir];
             // TODO: check nil importProcess
             importProcess.delegate = self;

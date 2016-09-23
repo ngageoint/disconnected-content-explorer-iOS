@@ -33,6 +33,7 @@
 		2EC7E9A398EA7AF6CBCC459E8ADE913E /* ReaderThumbView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8AE35FD54F4D22927C099C3869D2F96F /* ReaderThumbView.m */; };
 		2FCAC481388915F3834D783CE398D74A /* ReaderBookDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B7DA662AB518461840B91E0C433EDC62 /* ReaderBookDelegate.m */; };
 		30C79D703154C37FC88143AB403E0296 /* ReaderAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 082F3AF7E6E32F0F96AA471A45ABD900 /* ReaderAppDelegate.m */; };
+		34EC6AE4957E12CA5BAA4D9C3055FDC9 /* TestOperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E0A6175BE4F214F4AD42562F7CB4A9B /* TestOperationQueue.m */; };
 		3A051761E9981BCCC37E759120D17ACF /* ReaderContentPage.m in Sources */ = {isa = PBXBuildFile; fileRef = 724FB948F04530F70D6D08E7D98ECE0C /* ReaderContentPage.m */; };
 		3A250C3D06919AABD80B8ABF2159DFFF /* ResourceTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D3AEF0E9E67F338417CAF00EE25D57D1 /* ResourceTypes.m */; };
 		3A2C552C2DCA387367A7547B08653E90 /* ReportStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F0026AC90A9C746149CE6C45D5BCBE1 /* ReportStore.m */; };
@@ -86,7 +87,6 @@
 		877C66B0A847E541D0D97730504C8A43 /* ReaderThumbQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DDB58360EE665749F0FA4578B145BCF /* ReaderThumbQueue.m */; };
 		8B87E64315D24837CBFED19EBCA228D6 /* ReportAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */; };
 		8DE82581CDFD6A3B4F70D2EED01679CE /* libPods-DICE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */; };
-		8F9DA036F086CF997A65F0233F626610 /* ZippedHtmlImportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */; };
 		92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */; };
 		9487A2D2D324B045EFB5955C0B4BC53D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B509885B6330B98E360935E6572E0715 /* CoreData.framework */; };
 		94FF34B63D94FD5FF4F7C1939CA50348 /* FileOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */; };
@@ -225,6 +225,7 @@
 		3AC2F1F6790368EB8AFDDA24B79A6D42 /* ZippedHtmlImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZippedHtmlImportProcess.h; sourceTree = "<group>"; };
 		3C86416628DA967D2FABBF84724E30EF /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
 		3D27834265B35825A573282348A3AF46 /* ReaderThumbRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbRender.h; sourceTree = "<group>"; };
+		3E0A6175BE4F214F4AD42562F7CB4A9B /* TestOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestOperationQueue.m; sourceTree = "<group>"; };
 		3E219DBDDEAA3C807FFCAB1BD5FDDB9F /* ValidateHtmlLayoutOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValidateHtmlLayoutOperation.h; sourceTree = "<group>"; };
 		3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
 		408B5BAE51B0CCB8040EC7645517FE05 /* DICE-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DICE-Prefix.pch"; sourceTree = "<group>"; };
@@ -349,6 +350,7 @@
 		C6C935C9B16529C0DD8DC5884E66A622 /* MatchReportTypeToContentAtPathOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatchReportTypeToContentAtPathOperation.h; sourceTree = "<group>"; };
 		C7F636E7C2EC9B9D499E39EADBBDB901 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		C7FFC513EA4E22A3092C84B9EF911C8B /* PDFViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFViewController.h; sourceTree = "<group>"; };
+		CA1FCEFE8D94360C1C93C0D6DA69986C /* TestOperationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestOperationQueue.h; sourceTree = "<group>"; };
 		CA8BF985D3EC3EAD5B50ECD571BAA67C /* GeoPackageMapOverlays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapOverlays.h; sourceTree = "<group>"; };
 		CAB552427B765A65BC345281B35D8957 /* NotificationRecordingObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationRecordingObserver.h; sourceTree = "<group>"; };
 		CB25E4ECD46494ECBCEB24550840ED41 /* MapOverlayActiveSwitch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayActiveSwitch.m; sourceTree = "<group>"; };
@@ -656,6 +658,8 @@
 				3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */,
 				FC50C7FC6EEC908733FE1A59E8330444 /* TestDICEArchive.h */,
 				1C9139A2663CCAC0CD5F442EEA80498B /* TestDICEArchive.m */,
+				CA1FCEFE8D94360C1C93C0D6DA69986C /* TestOperationQueue.h */,
+				3E0A6175BE4F214F4AD42562F7CB4A9B /* TestOperationQueue.m */,
 				191EFF3FA422C46D6862F39A78455C14 /* TestParseJsonOperation.h */,
 				80650670209CE88AB03251350F2A6C5E /* TestParseJsonOperation.m */,
 				AE95FC42DECEC8146DEB15FCDA9DC15B /* TestReportType.h */,
@@ -1174,11 +1178,11 @@
 				609D8685B07AC8BD8EC3E8FFF7EF564C /* ReportStoreSpec.m in Sources */,
 				7850CC9236DA9EF5F2A6C026F107304A /* ResourceTypesTests.m in Sources */,
 				830D519069C792284EED586678F80BCB /* TestDICEArchive.m in Sources */,
+				34EC6AE4957E12CA5BAA4D9C3055FDC9 /* TestOperationQueue.m in Sources */,
 				E68E2E9936A8EC1888DA9FF9F711AF59 /* TestParseJsonOperation.m in Sources */,
 				D7592583957361831DA87F9B5FBA530F /* TestReportType.m in Sources */,
 				3D0B2D880F9D5CDEF27766D71AAF10E5 /* UnzipOperationSpec.m in Sources */,
 				FF016C9378AC2E59E369103F4D50CAB2 /* ValidateHtmlLayoutOperationSpec.m in Sources */,
-				8F9DA036F086CF997A65F0233F626610 /* ZippedHtmlImportProcessSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1249,6 +1253,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = A8EK924J35;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";
@@ -1368,6 +1373,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = A8EK924J35;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DICE/DICE-Prefix.pch";
 				INFOPLIST_FILE = "DICE/DICE-Info.plist";

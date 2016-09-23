@@ -8,11 +8,14 @@
 #import <JGMethodSwizzler/JGMethodSwizzler.h>
 
 #import "DICEArchive.h"
+#import "DICEExtractReportOperation.h"
 #import "ImportProcess+Internal.h"
 #import "NotificationRecordingObserver.h"
+#import "NSOperation+Blockable.h"
 #import "ReportStore.h"
 #import "ReportType.h"
 #import "TestDICEArchive.h"
+#import "TestOperationQueue.h"
 #import "TestReportType.h"
 #import "DICEUtiExpert.h"
 
@@ -136,7 +139,7 @@ describe(@"ReportStore", ^{
     __block TestReportType *blueType;
     __block ReportStoreSpec_FileManager *fileManager;
     __block id<DICEArchiveFactory> archiveFactory;
-    __block NSOperationQueue *importQueue;
+    __block TestOperationQueue *importQueue;
     __block ReportStore *store;
 
     NSURL *reportsDir = [NSURL fileURLWithPath:@"/dice/reports"];
@@ -148,7 +151,7 @@ describe(@"ReportStore", ^{
         fileManager = [[ReportStoreSpec_FileManager alloc] init];
         fileManager.reportsDir = reportsDir;
         archiveFactory = mockProtocol(@protocol(DICEArchiveFactory));
-        importQueue = [[NSOperationQueue alloc] init];
+        importQueue = [[TestOperationQueue alloc] init];
 
         redType = [[TestReportType alloc] initWithExtension:@"red"];
         blueType = [[TestReportType alloc] initWithExtension:@"blue"];
@@ -253,7 +256,7 @@ describe(@"ReportStore", ^{
 
             [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", nil];
 
-            TestImportProcess *redImport = [redType.enqueueImport block];
+            TestImportProcess *redImport = [[redType enqueueImport] block];
             TestImportProcess *blueImport = [blueType enqueueImport];
 
             NSArray<Report *> *reports = [store loadReports];
@@ -263,7 +266,7 @@ describe(@"ReportStore", ^{
             expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
             assertWithTimeout(1.0, thatEventually(@(blueImport.isFinished)), isTrue());
-
+            expect(redImport.isFinished).to.equal(NO);
             expect([reports[0] isEnabled]).to.equal(NO);
             expect([reports[1] isEnabled]).to.equal(YES);
 
@@ -573,7 +576,7 @@ describe(@"ReportStore", ^{
             [NSFileHandle deswizzleAllClassMethods];
         });
 
-        it(@"extracts the report before the import process begins", ^{
+        it(@"extracts the report contents before the import process begins", ^{
 
         });
 
@@ -586,7 +589,54 @@ describe(@"ReportStore", ^{
         });
 
         it(@"does not create multiple reports while the archive is extracting", ^{
+            [fileManager setContentsOfReportsDir:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
 
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dicex" isDirectory:YES];
+            NSFileHandle *handle = mock([NSFileHandle class]);
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return handle;
+                };
+            }];
+
+            __block DICEExtractReportOperation *extract;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
+                    if (extract != nil) {
+                        failure(@"multiple extract operations queued for the same report archive");
+                        return;
+                    }
+                    extract = (DICEExtractReportOperation *)op;
+                    NSLog(@"blocking extract operation");
+                    [extract block];
+                }
+            };
+
+            Report *report1 = [store attemptToImportReportFromResource:archiveUrl];
+
+            assertWithTimeout(1.0, thatEventually(@(extract && extract.isExecuting)), isTrue());
+
+            NSUInteger opCount = importQueue.operationCount;
+
+            Report *report2 = [store attemptToImportReportFromResource:archiveUrl];
+
+            expect(report2).to.beIdenticalTo(report1);
+            expect(store.reports.count).to.equal(1);
+            expect(importQueue.operationCount).to.equal(opCount);
+
+            TestImportProcess *blueImport = [blueType enqueueImport];
+            // [blueImport block];
+            NSLog(@"unblocking extract operation");
+            [extract unblock];
+
+            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+
+            [NSFileHandle deswizzleAllClassMethods];
         });
 
     });
