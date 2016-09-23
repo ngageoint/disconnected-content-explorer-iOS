@@ -223,7 +223,9 @@ describe(@"UnzipOperation", ^{
         id<DICEArchive> archive = mockProtocol(@protocol(DICEArchive));
         UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
         [op block];
-        [op performSelectorInBackground:@selector(start) withObject:nil];
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperation:op];
 
         assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
 
@@ -232,7 +234,8 @@ describe(@"UnzipOperation", ^{
         }).to.raiseWithReason(@"IllegalStateException", @"cannot change destDir after UnzipOperation has started");
 
         [op unblock];
-        [op waitUntilFinished];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isFinished)), isTrue());
 
         expect(op.destDir).to.equal([NSURL URLWithString:@"/tmp/"]);
 

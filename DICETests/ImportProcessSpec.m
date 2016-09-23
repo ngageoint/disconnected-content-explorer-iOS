@@ -99,16 +99,8 @@ describe(@"ImportProcess", ^{
     it(@"calls stepWillCancel but not stepWillFinish", ^{
 
         NSOperationQueue *ops = [[NSOperationQueue alloc] init];
-
-        __block BOOL blocked = YES;
-        NSCondition *blockedCondition = [[NSCondition alloc] init];
-
         NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{
-            [blockedCondition lock];
-            while (blocked) {
-                [blockedCondition wait];
-            }
-            [blockedCondition unlock];
+            failure(@"cancelled operation should not run");
         }];
 
         __block __strong NSNumber *finishBlockCalled = nil;
@@ -122,18 +114,15 @@ describe(@"ImportProcess", ^{
             cancelBlockCalled = @YES;
         };
 
-        [ops addOperation:op];
         [op cancel];
-
-        [blockedCondition lock];
-        blocked = NO;
-        [blockedCondition signal];
-        [blockedCondition unlock];
+        [ops addOperation:op];
 
         [ops waitUntilAllOperationsAreFinished];
 
         expect(cancelBlockCalled).to.equal(@YES);
         expect(finishBlockCalled).to.beNil();
+        expect(op.isCancelled).to.equal(YES);
+        expect(op.isFinished).to.equal(YES);
     });
 
     it(@"stops observing operations after they finish", ^{
