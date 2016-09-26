@@ -123,7 +123,7 @@
         // TODO: dispatch reports changed notification, or just wait till load is complete
     }
 
-    NSArray *files = [_fileManager contentsOfDirectoryAtURL:_reportsDir includingPropertiesForKeys:nil options:0 error:nil];
+    NSArray *files = [self.fileManager contentsOfDirectoryAtURL:self.reportsDir includingPropertiesForKeys:nil options:0 error:nil];
     for (NSURL *file in files) {
         NSLog(@"attempting to add report from file %@", file);
         /*
@@ -136,7 +136,7 @@
          * documentsDir NSURL object does not end up getting the /private prefix.
          */
         NSString *fileName = [file.lastPathComponent stringByRemovingPercentEncoding];
-        NSURL *reportUrl = [_reportsDir URLByAppendingPathComponent:fileName];
+        NSURL *reportUrl = [self.reportsDir URLByAppendingPathComponent:fileName];
 
         // TODO: suspend notifications while loading reports
         [self attemptToImportReportFromResource:reportUrl];
@@ -170,7 +170,7 @@
         return report;
     }
 
-    CFStringRef reportUti = [_utiExpert preferredUtiForExtension:reportUrl.pathExtension conformingToUti:NULL];
+    CFStringRef reportUti = [self.utiExpert preferredUtiForExtension:reportUrl.pathExtension conformingToUti:NULL];
     report = [[Report alloc] initWithTitle:reportUrl.path];
     report.isEnabled = NO;
     report.url = reportUrl;
@@ -187,21 +187,21 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
     });
 
-    if ([_utiExpert uti:reportUti conformsToUti:kUTTypeZipArchive]) {
+    if ([self.utiExpert uti:reportUti conformsToUti:kUTTypeZipArchive]) {
         // get zip file listing on background thread
         // find appropriate report type for archive contents
-        id<DICEArchive> archive = [_archiveFactory createArchiveForResource:reportUrl withUti:reportUti];
+        id<DICEArchive> archive = [self.archiveFactory createArchiveForResource:reportUrl withUti:reportUti];
         InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc]
-            initWithReport:report reportArchive:archive candidateReportTypes:self.reportTypes utiExpert:_utiExpert];
+            initWithReport:report reportArchive:archive candidateReportTypes:self.reportTypes utiExpert:self.utiExpert];
         [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:ARCHIVE_MATCH_CONTEXT];
-        [_importQueue addOperation:op];
+        [self.importQueue addOperation:op];
         return report;
     }
     else {
         MatchReportTypeToContentAtPathOperation *op =
             [[MatchReportTypeToContentAtPathOperation alloc] initWithReport:report candidateTypes:self.reportTypes];
         [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:CONTENT_MATCH_CONTEXT];
-        [_importQueue addOperation:op];
+        [self.importQueue addOperation:op];
     }
 
     return report;
@@ -221,10 +221,10 @@
         id<ReportType> type = op.matchedReportType;
         if (type) {
             NSLog(@"matched report type %@ to report %@", type, op.report);
-            [_importQueue addOperationWithBlock:^{
-                ImportProcess *process = [type createProcessToImportReport:op.report toDir:_reportsDir];
+            [self.importQueue addOperationWithBlock:^{
+                ImportProcess *process = [type createProcessToImportReport:op.report toDir:self.reportsDir];
                 process.delegate = self;
-                [_importQueue addOperations:process.steps waitUntilFinished:NO];
+                [self.importQueue addOperations:process.steps waitUntilFinished:NO];
             }];
         }
         else {
@@ -237,7 +237,7 @@
         id<ReportType> type = op.matchedReportType;
         if (type) {
             NSLog(@"matched report type %@ to report archive %@", type, op.report);
-            [_importQueue addOperationWithBlock:^{
+            [self.importQueue addOperationWithBlock:^{
                 [self extractReportArchive:op.reportArchive withBaseDir:op.archiveBaseDir forReport:op.report ofType:op.matchedReportType];
             }];
         }
@@ -291,23 +291,23 @@
 - (void)extractReportArchive:(id<DICEArchive>)archive withBaseDir:(NSString *)baseDir forReport:(Report *)report ofType:(id<ReportType>)reportType
 {
     NSLog(@"extracting report archive %@", report);
-    NSURL *extractToDir = _reportsDir;
+    NSURL *extractToDir = self.reportsDir;
     if (baseDir == nil) {
         // TODO: more robust check for possible conflicting base dirs?
         NSString *baseName = [NSString stringWithFormat:@"%@.dicex", report.url.path.lastPathComponent];
         extractToDir = [extractToDir URLByAppendingPathComponent:baseName isDirectory:YES];
         NSError *mkdirError;
-        if (![_fileManager createDirectoryAtURL:extractToDir withIntermediateDirectories:NO attributes:nil error:&mkdirError]) {
+        if (![self.fileManager createDirectoryAtURL:extractToDir withIntermediateDirectories:NO attributes:nil error:&mkdirError]) {
             report.error = [NSString stringWithFormat:@"Error creating base directory for package %@: %@", report.title, mkdirError.localizedDescription];
         }
         baseDir = baseName;
     }
-    NSURL *baseDirUrl = [_reportsDir URLByAppendingPathComponent:baseDir isDirectory:YES];
+    NSURL *baseDirUrl = [self.reportsDir URLByAppendingPathComponent:baseDir isDirectory:YES];
     DICEExtractReportOperation *extract = [[DICEExtractReportOperation alloc]
         initWithReport:report reportType:reportType extractedBaseDir:baseDirUrl
-        archive:archive extractToDir:extractToDir fileManager:_fileManager];
+        archive:archive extractToDir:extractToDir fileManager:self.fileManager];
     extract.delegate = self;
-    [_importQueue addOperation:extract];
+    [self.importQueue addOperation:extract];
 }
 
 - (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent
@@ -338,12 +338,12 @@
         report.summary = @"Import report content ...";
         NSBlockOperation *creaateImportProcess = [NSBlockOperation blockOperationWithBlock:^{
             NSLog(@"creating import process for report %@", report);
-            ImportProcess *importProcess = [reportType createProcessToImportReport:report toDir:_reportsDir];
+            ImportProcess *importProcess = [reportType createProcessToImportReport:report toDir:self.reportsDir];
             // TODO: check nil importProcess
             importProcess.delegate = self;
-            [_importQueue addOperations:importProcess.steps waitUntilFinished:NO];
+            [self.importQueue addOperations:importProcess.steps waitUntilFinished:NO];
         }];
-        [_importQueue addOperation:creaateImportProcess];
+        [self.importQueue addOperation:creaateImportProcess];
     });
 }
 
