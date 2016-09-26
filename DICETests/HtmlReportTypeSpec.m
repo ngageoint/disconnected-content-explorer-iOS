@@ -15,7 +15,6 @@
 #import "ResourceTypes.h"
 #import "HtmlReportType.h"
 #import "UnzipOperation.h"
-#import "ZippedHtmlImportProcess.h"
 #import "ExplodedHtmlImportProcess.h"
 
 
@@ -123,17 +122,6 @@ describe(@"HtmlReportType", ^{
         [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
         ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
         expect(import).to.beInstanceOf([ExplodedHtmlImportProcess class]);
-    });
-
-    it(@"creates a zipped html report import process for a zip file report url", ^{
-        NSBundle *bundle = [NSBundle bundleForClass:[HtmlReportTypeSpec class]];
-        NSString *path = [bundle pathForResource:@"test_base_dir" ofType:@"zip"];
-        NSURL *reportPath = [NSURL fileURLWithPath:path];
-        Report *report = [[Report alloc] init];
-        report.url = reportPath;
-        [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
-        ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
-        expect(import).to.beInstanceOf([ZippedHtmlImportProcess class]);
     });
 
 });

@@ -129,7 +129,6 @@
 		DA5F8301231C0E3710F5B875908E3FA1 /* AppIcon-072.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A9C25D39666109CB4144F843B809BAB /* AppIcon-072.png */; };
 		DAB549032D2C6FA0899105B2D5C89AED /* Report.m in Sources */ = {isa = PBXBuildFile; fileRef = 65DC78D879E03A1ABD81EE28AA7657F0 /* Report.m */; };
 		DDED2AAEA08CE7E8962E354975F1EC5B /* UnzipOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F6FFAFBAAC2370CE0A5F7ECAD000F85 /* UnzipOperation.m */; };
-		DE7809A9412F9FCD075BF618E1956647 /* ZippedHtmlImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = E7CCF3194FCDEFB90C1C77BE35BA448B /* ZippedHtmlImportProcess.m */; };
 		DEF92CAB7F363E401DD06E10DDD34956 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F34ADDB6D6329AE638CB9DB15F2E3E0 /* main.m */; };
 		DF83E9696475444F758EE2D733D8FC21 /* Reader-Mark-Y.png in Resources */ = {isa = PBXBuildFile; fileRef = 4DB43A9F47D07C4F78266505BCF6D971 /* Reader-Mark-Y.png */; };
 		E0E433008DBE2B82318442897FDC3011 /* MainStoryboard-iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F83C9245D0CDEDDFEDE3C74101A30567 /* MainStoryboard-iPhone.storyboard */; };
@@ -184,7 +183,6 @@
 		082F3AF7E6E32F0F96AA471A45ABD900 /* ReaderAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderAppDelegate.m; sourceTree = "<group>"; };
 		09E6FE836CCD624799154F5DD1F59271 /* ReportType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportType.h; sourceTree = "<group>"; };
 		0E23BD9603647226F154F0838A00A8DE /* ReaderConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderConstants.m; sourceTree = "<group>"; };
-		102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZippedHtmlImportProcessSpec.m; sourceTree = "<group>"; };
 		1231F813DFFCAA88FA0AF6A5400B8E2E /* DICE-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DICE-Info.plist"; sourceTree = "<group>"; };
 		136C41DAD43029A23E5852C8E91B020D /* KVOBlockObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KVOBlockObserver.h; sourceTree = "<group>"; };
 		14827AD6924AAD3526397C6E234F633E /* DICEDefaultArchiveFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEDefaultArchiveFactory.h; sourceTree = "<group>"; };
@@ -222,7 +220,6 @@
 		394B1DEF7E6D84DDFBE2B0E4F2F71B40 /* HTMLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLViewController.h; sourceTree = "<group>"; };
 		39D46E4251184064FF69409D758E04CE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = "<group>"; };
 		3A958A35B05C73766F95E6E7188B074B /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
-		3AC2F1F6790368EB8AFDDA24B79A6D42 /* ZippedHtmlImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZippedHtmlImportProcess.h; sourceTree = "<group>"; };
 		3C86416628DA967D2FABBF84724E30EF /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
 		3D27834265B35825A573282348A3AF46 /* ReaderThumbRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbRender.h; sourceTree = "<group>"; };
 		3E0A6175BE4F214F4AD42562F7CB4A9B /* TestOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestOperationQueue.m; sourceTree = "<group>"; };
@@ -379,7 +376,6 @@
 		E711D5FF5179CD2ED7CD057E34175B3A /* GeoPackageMapData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapData.h; sourceTree = "<group>"; };
 		E7449828F94774A7779D000A98DDA60C /* OfflineMapUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OfflineMapUtility.m; sourceTree = "<group>"; };
 		E76540F5865474CF839BFA5BA0A7D27F /* DICENavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICENavigationController.h; sourceTree = "<group>"; };
-		E7CCF3194FCDEFB90C1C77BE35BA448B /* ZippedHtmlImportProcess.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZippedHtmlImportProcess.m; sourceTree = "<group>"; };
 		E8877B8A88E1BEC0F7C607D754C2A185 /* ReaderThumbCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbCache.h; sourceTree = "<group>"; };
 		EAC7839FE90C5AC412D28D4093AFBA2C /* GeoPackageURLProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageURLProtocol.m; sourceTree = "<group>"; };
 		EB03EAA46D6AFBAEF7FE406C74638A71 /* DisclaimerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DisclaimerViewController.m; sourceTree = "<group>"; };
@@ -666,7 +662,6 @@
 				48360F509FDD7869FFF1DD0F573A3692 /* TestReportType.m */,
 				A31A615AB298DCFBC9CF3A36F72C5448 /* UnzipOperationSpec.m */,
 				4DC1D30FD900F88E1024E5A7212862D3 /* ValidateHtmlLayoutOperationSpec.m */,
-				102060C10A2C52CEF7EA958A2330B054 /* ZippedHtmlImportProcessSpec.m */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -788,8 +783,6 @@
 				09E6FE836CCD624799154F5DD1F59271 /* ReportType.h */,
 				3E219DBDDEAA3C807FFCAB1BD5FDDB9F /* ValidateHtmlLayoutOperation.h */,
 				82C7F74932A31C09F40260215E150384 /* ValidateHtmlLayoutOperation.m */,
-				3AC2F1F6790368EB8AFDDA24B79A6D42 /* ZippedHtmlImportProcess.h */,
-				E7CCF3194FCDEFB90C1C77BE35BA448B /* ZippedHtmlImportProcess.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -1156,7 +1149,6 @@
 				517D8096337C9E0790848C5D0858785F /* URLProtocolUtils.m in Sources */,
 				DDED2AAEA08CE7E8962E354975F1EC5B /* UnzipOperation.m in Sources */,
 				ACA7999F8D4CFC70DAE69D7693619D4F /* ValidateHtmlLayoutOperation.m in Sources */,
-				DE7809A9412F9FCD075BF618E1956647 /* ZippedHtmlImportProcess.m in Sources */,
 				DEF92CAB7F363E401DD06E10DDD34956 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
