@@ -596,7 +596,6 @@ describe(@"ReportStore", ^{
             ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
             [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
 
-            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dicex" isDirectory:YES];
             NSFileHandle *handle = mock([NSFileHandle class]);
             [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
                 return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
