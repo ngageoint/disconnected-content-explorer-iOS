@@ -51,11 +51,6 @@
 // TODO: thread safety for reports array
 @implementation ReportStore
 {
-    NSURL *_reportsDir;
-    NSFileManager *_fileManager;
-    DICEUtiExpert *_utiExpert;
-    id<DICEArchiveFactory> _archiveFactory;
-    NSOperationQueue *_importQueue;
     NSMutableArray<Report *> *_reports;
     NSMutableDictionary<NSURL *, Report *> *_pendingImports;
     void *ARCHIVE_MATCH_CONTEXT;

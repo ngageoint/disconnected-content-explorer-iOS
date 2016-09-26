@@ -10,11 +10,11 @@
 
 
 @protocol DICEArchiveFactory;
-@protocol ImportDelegate;
 @protocol ReportType;
 @class DICEUtiExpert;
-@class ImportProcess;
 @class Report;
+
+#import "ImportProcess.h"
 
 
 /**
@@ -81,16 +81,22 @@
 
 + (nullable instancetype)sharedInstance;
 
-/**
- The list of ReportType objects for handling report files
- */
-@property (nonnull) NSArray<id<ReportType>> *reportTypes;
 
 /**
  The list of Report objects
  */
-@property (readonly, nonnull) NSArray<Report *> *reports;
+@property (nonnull, readonly) NSArray<Report *> *reports;
 
+/**
+ The list of ReportType objects for handling report files
+ */
+@property (nonnull) NSArray<id<ReportType>> *reportTypes;
+@property (nonnull, readonly) NSURL *reportsDir;
+@property (nonnull, readonly) DICEUtiExpert *utiExpert;
+@property (nonnull, readonly) id<DICEArchiveFactory> archiveFactory;
+@property (nonnull, readonly) NSOperationQueue *importQueue;
+@property (nonnull, readonly) NSFileManager *fileManager;
+@property (weak, nullable, readonly) UIApplication *application;
 
 /**
  Initialize a ReportStore object with the given NSFileManager and reports directory.
