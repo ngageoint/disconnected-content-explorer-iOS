@@ -53,6 +53,7 @@
 {
     NSMutableArray<Report *> *_reports;
     NSMutableDictionary<NSURL *, Report *> *_pendingImports;
+    UIBackgroundTaskIdentifier _importBackgroundTaskId;
     void *ARCHIVE_MATCH_CONTEXT;
     void *CONTENT_MATCH_CONTEXT;
 }
@@ -72,14 +73,25 @@
 {
     NSURL *docsDir = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
     DICEUtiExpert *utiExpert = [[DICEUtiExpert alloc] init];
+    id<DICEArchiveFactory> archiveFactory = [[DICEDefaultArchiveFactory alloc] initWithUtiExpert:utiExpert];
+    NSOperationQueue *importQueue = [[NSOperationQueue alloc] init];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    UIApplication *app = [UIApplication sharedApplication];
+    
     return [self initWithReportsDir:docsDir
-        fileManager:[NSFileManager defaultManager]
-        archiveFactory:[[DICEDefaultArchiveFactory alloc] initWithUtiExpert:utiExpert]
         utiExpert:utiExpert
-        importQueue:[[NSOperationQueue alloc] init]];
+        archiveFactory:archiveFactory
+        importQueue:importQueue
+        fileManager:fm
+        application:app];
 }
 
-- (instancetype)initWithReportsDir:(NSURL *)reportsDir fileManager:(NSFileManager *)fileManager archiveFactory:(id<DICEArchiveFactory>)archiveFactory utiExpert:(DICEUtiExpert *)utiExpert importQueue:(NSOperationQueue *)importQueue
+- (instancetype)initWithReportsDir:(NSURL *)reportsDir
+    utiExpert:(DICEUtiExpert *)utiExpert
+    archiveFactory:(id<DICEArchiveFactory>)archiveFactory
+    importQueue:(NSOperationQueue *)importQueue
+    fileManager:(NSFileManager *)fileManager
+    application:(UIApplication *)application
 {
     self = [super init];
     if (!self) {
@@ -178,6 +190,14 @@
     report.title = reportUrl.lastPathComponent;
     report.summary = @"Importing...";
 
+    // TODO: identify the task name for the report, or just use one task for all pending imports?
+    if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
+        _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice import" expirationHandler:^{
+            [self suspendAndClearPendingImports];
+            [self finishBackgroundTaskIfImportsFinished];
+        }];
+    }
+
     // TODO: report is added here but might not be imported;
     // maybe update report to reflect status but leave in list so user can choose to delete it
     [_reports addObject:report];
@@ -263,6 +283,7 @@
         // import probably changed the report url, so remove by searching for the report itself
         NSArray *urls = [_pendingImports allKeysForObject:import.report];
         [_pendingImports removeObjectsForKeys:urls];
+        [self finishBackgroundTaskIfImportsFinished];
         import.report.isEnabled = YES;
         [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
     });
@@ -345,6 +366,20 @@
         }];
         [self.importQueue addOperation:creaateImportProcess];
     });
+}
+
+- (void)suspendAndClearPendingImports
+{
+    // TODO: make it so
+}
+
+- (void)finishBackgroundTaskIfImportsFinished
+{
+    if (_pendingImports.count > 0) {
+        return;
+    }
+    [self.application endBackgroundTask:_importBackgroundTaskId];
+    _importBackgroundTaskId = UIBackgroundTaskInvalid;
 }
 
 

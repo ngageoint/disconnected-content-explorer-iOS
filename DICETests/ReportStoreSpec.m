@@ -141,6 +141,7 @@ describe(@"ReportStore", ^{
     __block id<DICEArchiveFactory> archiveFactory;
     __block TestOperationQueue *importQueue;
     __block ReportStore *store;
+    __block UIApplication *app;
 
     NSURL *reportsDir = [NSURL fileURLWithPath:@"/dice/reports"];
 
@@ -152,12 +153,19 @@ describe(@"ReportStore", ^{
         fileManager.reportsDir = reportsDir;
         archiveFactory = mockProtocol(@protocol(DICEArchiveFactory));
         importQueue = [[TestOperationQueue alloc] init];
+        app = mockClass([UIApplication class]);
 
         redType = [[TestReportType alloc] initWithExtension:@"red"];
         blueType = [[TestReportType alloc] initWithExtension:@"blue"];
 
         // initialize a new ReportStore to ensure all tests are independent
-        store = [[ReportStore alloc] initWithReportsDir:reportsDir fileManager:fileManager archiveFactory:archiveFactory utiExpert:[[DICEUtiExpert alloc] init] importQueue:importQueue];
+        store = [[ReportStore alloc] initWithReportsDir:reportsDir
+            utiExpert:[[DICEUtiExpert alloc] init]
+            archiveFactory:archiveFactory
+            importQueue:importQueue
+            fileManager:fileManager
+            application:app];
+
         store.reportTypes = @[
             redType,
             blueType
@@ -367,7 +375,7 @@ describe(@"ReportStore", ^{
             NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
-            redType.enqueueImport;
+            [redType enqueueImport];
 
             Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
 
@@ -448,6 +456,22 @@ describe(@"ReportStore", ^{
 
             Report *notificationReport = observer.received.firstObject.notification.userInfo[@"report"];
             expect(notificationReport).to.beIdenticalTo(importReport);
+        });
+
+        it(@"starts a background task for importing reports", ^{
+            failure(@"do it");
+        });
+
+        it(@"does not start a background task when one was already strated", ^{
+            failure(@"do it");
+        });
+
+        it(@"stops the background task when all imports operations are finished", ^{
+            failure(@"do it");
+        });
+
+        it(@"saves the import state and stops the background task when the OS calls the expiration handler", ^{
+            failure(@"do it");
         });
 
     });

@@ -109,10 +109,12 @@
  @return the initialized ReportStore
  */
 - (nullable instancetype)initWithReportsDir:(nonnull NSURL *)reportsDir
-    fileManager:(nonnull NSFileManager *)fileManager
-    archiveFactory:(nonnull id<DICEArchiveFactory>)archiveFactory
     utiExpert:(nonnull DICEUtiExpert *)utiExpert
-    importQueue:(nonnull NSOperationQueue *)importQueue NS_DESIGNATED_INITIALIZER;
+    archiveFactory:(nonnull id<DICEArchiveFactory>)archiveFactory
+    importQueue:(nonnull NSOperationQueue *)importQueue
+    fileManager:(nonnull NSFileManager *)fileManager
+    application:(nonnull UIApplication *)application
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  Load/refresh the list of reports based on the contents of the app's file system.
