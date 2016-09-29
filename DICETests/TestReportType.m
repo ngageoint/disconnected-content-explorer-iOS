@@ -74,6 +74,8 @@
             [my.delegate importDidFinishForImportProcess:my];
         });
     }];
+    op1.name = @"TestImportProcess-1";
+    op2.name = @"TestImportProcess-2";
     [op2 addDependency:op1];
     self.steps = @[op1, op2];
 

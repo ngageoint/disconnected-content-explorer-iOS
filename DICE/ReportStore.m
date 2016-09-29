@@ -20,6 +20,74 @@
 #import "DICEExtractReportOperation.h"
 
 
+@interface PendingImport : NSObject
+
+@property NSURL *sourceUrl;
+@property Report *report;
+@property id<DICEArchive> archive;
+@property NSURL *extractedBaseDir;
+@property ImportProcess *importProcess;
+
+- (instancetype)initWithSourceUrl:(NSURL *)url Report:(Report *)report;
+
+@end
+
+
+@implementation PendingImport
+
+- (instancetype)initWithSourceUrl:(NSURL *)url Report:(Report *)report
+{
+    self = [super init];
+    self.sourceUrl = url;
+    self.report = report;
+    return self;
+}
+
+@end
+
+
+@interface NSMutableDictionary (PendingImport)
+
+- (PendingImport *)pendingImportWithReport:(Report *)report;
+- (PendingImport *)pendingImportForReportUrl:(NSURL *)reportUrl;
+- (NSArray *)allKeysForReport:(Report *)report;
+
+@end
+
+
+@implementation NSMutableDictionary (PendingImport)
+
+- (PendingImport *)pendingImportWithReport:(Report *)report
+{
+    for (PendingImport *pi in self.allValues) {
+        if (pi.report == report) {
+            return pi;
+        }
+    }
+    return nil;
+}
+
+- (PendingImport *)pendingImportForReportUrl:(NSURL *)reportUrl
+{
+    for (PendingImport *pi in self.allValues) {
+        if ([pi.report.url isEqual:reportUrl]) {
+            return pi;
+        }
+    }
+    return nil;
+}
+
+- (NSArray *)allKeysForReport:(Report *)report
+{
+    return [self.allKeys filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id _Nullable key, NSDictionary<NSString *,id> * _Nullable bindings) {
+        PendingImport *pi = self[key];
+        return pi.report == report;
+    }]];
+}
+
+@end
+
+
 @implementation ReportNotification
 
 + (NSString *)reportAdded {
@@ -52,7 +120,7 @@
 @implementation ReportStore
 {
     NSMutableArray<Report *> *_reports;
-    NSMutableDictionary<NSURL *, Report *> *_pendingImports;
+    NSMutableDictionary<NSURL *, PendingImport *> *_pendingImports;
     UIBackgroundTaskIdentifier _importBackgroundTaskId;
     void *ARCHIVE_MATCH_CONTEXT;
     void *CONTENT_MATCH_CONTEXT;
@@ -99,12 +167,14 @@
     }
 
     _reports = [NSMutableArray array];
-    _reportsDir = reportsDir;
-    _fileManager = fileManager;
-    _archiveFactory = archiveFactory;
-    _utiExpert = utiExpert;
-    _importQueue = importQueue;
     _pendingImports = [NSMutableDictionary dictionary];
+    _reportsDir = reportsDir;
+    _utiExpert = utiExpert;
+    _archiveFactory = archiveFactory;
+    _importQueue = importQueue;
+    _fileManager = fileManager;
+    _application = application;
+    _importBackgroundTaskId = UIBackgroundTaskInvalid;
     ARCHIVE_MATCH_CONTEXT = &ARCHIVE_MATCH_CONTEXT;
     CONTENT_MATCH_CONTEXT = &CONTENT_MATCH_CONTEXT;
 
@@ -125,7 +195,7 @@
         if (_pendingImports[report.url] != nil) {
             return NO;
         }
-        if ([_pendingImports.allValues containsObject:report]) {
+        if ([_pendingImports pendingImportWithReport:report]) {
             return NO;
         }
         return YES;
@@ -147,8 +217,14 @@
          * removes the /private component from the report URL, because the
          * documentsDir NSURL object does not end up getting the /private prefix.
          */
+        BOOL isDir = [file.absoluteString hasSuffix:@"/"];
+        if (!isDir) {
+            NSString *fileType;
+            [file getResourceValue:&fileType forKey:NSURLFileResourceTypeKey error:NULL];
+            [NSURLFileResourceTypeDirectory isEqualToString:fileType];
+        }
         NSString *fileName = [file.lastPathComponent stringByRemovingPercentEncoding];
-        NSURL *reportUrl = [self.reportsDir URLByAppendingPathComponent:fileName];
+        NSURL *reportUrl = [self.reportsDir URLByAppendingPathComponent:fileName isDirectory:isDir];
 
         // TODO: suspend notifications while loading reports
         [self attemptToImportReportFromResource:reportUrl];
@@ -201,7 +277,7 @@
     // TODO: report is added here but might not be imported;
     // maybe update report to reflect status but leave in list so user can choose to delete it
     [_reports addObject:report];
-    _pendingImports[reportUrl] = report;
+    _pendingImports[reportUrl] = [[PendingImport alloc] initWithSourceUrl:reportUrl Report:report];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
@@ -281,10 +357,10 @@
     // TODO: parse the json descriptor here?
     dispatch_async(dispatch_get_main_queue(), ^{
         // import probably changed the report url, so remove by searching for the report itself
-        NSArray *urls = [_pendingImports allKeysForObject:import.report];
+        NSArray *urls = [_pendingImports allKeysForReport:import.report];
         [_pendingImports removeObjectsForKeys:urls];
-        [self finishBackgroundTaskIfImportsFinished];
         import.report.isEnabled = YES;
+        [self finishBackgroundTaskIfImportsFinished];
         [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
     });
 }
@@ -293,10 +369,10 @@
 
 - (nullable Report *)reportAtPath:(NSURL *)path
 {
-    Report *report = _pendingImports[path];
+    PendingImport *pendingImport = _pendingImports[path];
 
-    if (report) {
-        return report;
+    if (pendingImport) {
+        return pendingImport.report;
     }
 
     // TODO: check if report url is child of reports directory as well
@@ -328,7 +404,11 @@
         initWithReport:report reportType:reportType extractedBaseDir:baseDirUrl
         archive:archive extractToDir:extractToDir fileManager:self.fileManager];
     extract.delegate = self;
-    [self.importQueue addOperation:extract];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PendingImport *pendingImport = [_pendingImports pendingImportWithReport:extract.report];
+        _pendingImports[extract.extractedReportBaseDir] = pendingImport;
+        [self.importQueue addOperation:extract];
+    });
 }
 
 - (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent
@@ -349,28 +429,61 @@
     Report *report = extract.report;
     id<ReportType> reportType = extract.reportType;
     NSURL *baseDir = extract.extractedReportBaseDir;
+
     NSLog(@"finished extracting contents of report archive %@", report);
+
+    NSError *error;
+    BOOL deleted = [self.fileManager removeItemAtURL:extract.archive.archiveUrl error:&error];
+    if (!deleted) {
+        // TODO: something
+    }
+
+    NSBlockOperation *createImportProcess = [NSBlockOperation blockOperationWithBlock:^{
+        [self startImportProcessForReport:report reportType:reportType];
+    }];
+
     dispatch_async(dispatch_get_main_queue(), ^{
         if (!success) {
             report.error = @"Failed to extract archive content";
             return;
         }
         report.url = baseDir;
-        report.summary = @"Import report content ...";
-        NSBlockOperation *creaateImportProcess = [NSBlockOperation blockOperationWithBlock:^{
-            NSLog(@"creating import process for report %@", report);
-            ImportProcess *importProcess = [reportType createProcessToImportReport:report toDir:self.reportsDir];
-            // TODO: check nil importProcess
-            importProcess.delegate = self;
-            [self.importQueue addOperations:importProcess.steps waitUntilFinished:NO];
-        }];
-        [self.importQueue addOperation:creaateImportProcess];
+        report.summary = @"Importing report content...";
+        [self.importQueue addOperation:createImportProcess];
+    });
+}
+
+- (void)startImportProcessForReport:(Report *)report reportType:(id<ReportType>)type
+{
+    NSLog(@"creating import process for report %@", report);
+    ImportProcess *importProcess = [type createProcessToImportReport:report toDir:self.reportsDir];
+    // TODO: check nil importProcess
+    importProcess.delegate = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PendingImport *pendingImport = [_pendingImports pendingImportWithReport:report];
+        pendingImport.importProcess = importProcess;
+        [self.importQueue addOperations:importProcess.steps waitUntilFinished:NO];
     });
 }
 
 - (void)suspendAndClearPendingImports
 {
-    // TODO: make it so
+    self.importQueue.suspended = YES;
+    NSArray<NSOperation *> *ops = self.importQueue.operations;
+    [self.importQueue cancelAllOperations];
+    for (NSOperation *op in ops) {
+        if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
+            DICEExtractReportOperation *extract = (DICEExtractReportOperation *)op;
+            // TODO: save extract progress instead of removing extracted content
+            BOOL removed = [self.fileManager removeItemAtURL:extract.extractedReportBaseDir error:NULL];
+            if (!removed) {
+                // TODO: something
+            }
+        }
+    }
+    // TODO: track import processes and tell them to suspend/cleanup
+//    [_pendingImports removeAllObjects];
+    self.importQueue.suspended = NO;
 }
 
 - (void)finishBackgroundTaskIfImportsFinished
