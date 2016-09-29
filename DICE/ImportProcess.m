@@ -110,6 +110,13 @@
     
 }
 
+- (void)cancel
+{
+    for (NSOperation *step in self.steps) {
+        [step cancel];
+    }
+}
+
 - (void)cancelStepsAfterStep:(NSOperation *)step
 {
     NSUInteger stepIndex = [self.steps indexOfObject:step];

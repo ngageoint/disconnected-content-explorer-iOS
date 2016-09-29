@@ -469,6 +469,16 @@
 - (void)suspendAndClearPendingImports
 {
     self.importQueue.suspended = YES;
+    NSArray *keys = _pendingImports.allKeys;
+    [keys enumerateObjectsUsingBlock:^(id _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
+        PendingImport *pi = _pendingImports[key];
+        [_pendingImports removeObjectForKey:key];
+        if (pi.importProcess == nil) {
+            return;
+        }
+        [pi.importProcess cancel];
+    }];
+
     NSArray<NSOperation *> *ops = self.importQueue.operations;
     [self.importQueue cancelAllOperations];
     for (NSOperation *op in ops) {
@@ -481,8 +491,7 @@
             }
         }
     }
-    // TODO: track import processes and tell them to suspend/cleanup
-//    [_pendingImports removeAllObjects];
+
     self.importQueue.suspended = NO;
 }
 

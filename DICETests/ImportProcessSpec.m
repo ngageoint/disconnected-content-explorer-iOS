@@ -164,6 +164,17 @@ describe(@"ImportProcess", ^{
         expect(^{[op2 removeObserver:import forKeyPath:@"isCancelled"];}).to.raiseAny();
     });
 
+    it(@"cancels all the operations", ^{
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+        [import cancel];
+        
+        expect(op1.isCancelled).to.equal(YES);
+        expect(op2.isCancelled).to.equal(YES);
+    });
+
 });
 
 SpecEnd

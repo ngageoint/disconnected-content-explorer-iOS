@@ -21,6 +21,13 @@
 
 - (nullable instancetype)initWithReport:(nonnull Report *)report NS_DESIGNATED_INITIALIZER;
 
+/**
+ * Cancel all the NSOperation steps for this ImportProcess.
+ * Subclasses should override and call this method to perform any cleanup associated
+ * with cancelling the import process, such as temporary files or saving state.
+ */
+- (void)cancel;
+
 @end
 
 
