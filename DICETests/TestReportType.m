@@ -103,8 +103,13 @@
 - (BOOL)isFinished
 {
     @synchronized (self) {
-        return self.report.isEnabled;
+        return super.isFinished && self.report.isEnabled;
     }
+}
+
+- (BOOL)wasSuccessful
+{
+    return !self.failed && super.wasSuccessful;
 }
 
 @end

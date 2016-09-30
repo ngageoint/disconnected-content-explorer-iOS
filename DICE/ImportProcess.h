@@ -17,6 +17,8 @@
 
 @property (readonly, nonnull) Report *report;
 @property (readonly, nonnull) NSArray<NSOperation *> *steps;
+@property (readonly) BOOL isFinished;
+@property (readonly) BOOL wasSuccessful;
 @property (weak, nullable) id<ImportDelegate> delegate;
 
 - (nullable instancetype)initWithReport:(nonnull Report *)report NS_DESIGNATED_INITIALIZER;
@@ -39,6 +41,5 @@
 
 // TODO:
 //- (void)importDidSucceedForImportProcess:(id<ImportProcess>)import;
-//- (void)importDidFailForImportProcess:(id<ImportProcess>)import;
 
 @end

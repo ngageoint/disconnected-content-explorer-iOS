@@ -175,6 +175,104 @@ describe(@"ImportProcess", ^{
         expect(op2.isCancelled).to.equal(YES);
     });
 
+    it(@"is finished when all steps are finished", ^{
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+
+        [op1 start];
+
+        expect(op1.isFinished).to.equal(YES);
+        expect(op2.isFinished).to.equal(NO);
+        expect(import.isFinished).to.equal(NO);
+
+        [op2 start];
+
+        expect(op2.isFinished).to.equal(YES);
+        expect(import.isFinished).to.equal(YES);
+
+    });
+
+    it(@"is finished but not successful when cancelled", ^{
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+
+        [op1 start];
+
+        expect(op1.isFinished).to.equal(YES);
+        expect(op2.isFinished).to.equal(NO);
+        expect(import.isFinished).to.equal(NO);
+
+        [import cancel];
+
+        expect(op2.isFinished).to.equal(NO);
+        expect(import.isFinished).to.equal(YES);
+        expect(import.wasSuccessful).to.equal(NO);
+    });
+
+    it(@"was successful when all steps finish normally", ^{
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+
+        [op1 start];
+
+        expect(op1.isFinished).to.equal(YES);
+        expect(op2.isFinished).to.equal(NO);
+        expect(import.isFinished).to.equal(NO);
+
+        [op2 start];
+
+        expect(op2.isFinished).to.equal(YES);
+        expect(import.wasSuccessful).to.equal(YES);
+    });
+
+    it(@"was not successful when a step was cancelled", ^{
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+
+        [op1 start];
+
+        expect(op1.isFinished).to.equal(YES);
+        expect(op2.isFinished).to.equal(NO);
+        expect(import.isFinished).to.equal(NO);
+        expect(import.wasSuccessful).to.equal(NO);
+
+        [op2 cancel];
+
+        expect(import.isFinished).to.equal(YES);
+        expect(import.wasSuccessful).to.equal(NO);
+    });
+
+    it(@"remains successful if cancelled after already completing successfully", ^{
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+
+        [op1 start];
+
+        expect(op1.isFinished).to.equal(YES);
+        expect(op2.isFinished).to.equal(NO);
+        expect(import.isFinished).to.equal(NO);
+        expect(import.wasSuccessful).to.equal(NO);
+
+        [op2 start];
+
+        expect(op2.isFinished).to.equal(YES);
+        expect(import.wasSuccessful).to.equal(YES);
+
+        [import cancel];
+
+        expect(import.wasSuccessful).to.equal(YES);
+    });
+
 });
 
 SpecEnd

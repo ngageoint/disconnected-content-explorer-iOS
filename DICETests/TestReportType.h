@@ -9,6 +9,7 @@
 @interface TestImportProcess : ImportProcess
 
 @property (readonly) BOOL isFinished;
+@property BOOL failed;
 
 - (instancetype)initWithReport:(Report *)report NS_DESIGNATED_INITIALIZER;
 - (instancetype)block;

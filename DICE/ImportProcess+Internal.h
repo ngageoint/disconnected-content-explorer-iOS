@@ -15,13 +15,13 @@
 
 @interface ImportProcess ()
 
-@property (readwrite) NSArray<NSOperation *> *steps;
-@property (readwrite) Report *report;
+@property (readwrite, nonnull) NSArray<NSOperation *> *steps;
+@property (readwrite, nullable) Report *report;
 
 - (nullable instancetype)initWithReport:(nullable Report *)report;
-- (void)stepWillFinish:(NSOperation *)step;
-- (void)stepWillCancel:(NSOperation *)step;
-- (void)cancelStepsAfterStep:(NSOperation *)step;
+- (void)stepWillFinish:(nonnull NSOperation *)step;
+- (void)stepWillCancel:(nonnull NSOperation *)step;
+- (void)cancelStepsAfterStep:(nonnull NSOperation *)step;
 
 @end
 

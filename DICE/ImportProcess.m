@@ -80,6 +80,30 @@
     }
 }
 
+- (BOOL)isFinished
+{
+    @synchronized (self) {
+        for (NSOperation *step in self.steps) {
+            if (!(step.isFinished || step.isCancelled)) {
+                return NO;
+            }
+        }
+        return YES;
+    }
+}
+
+- (BOOL)wasSuccessful
+{
+    @synchronized (self) {
+        for (NSOperation *step in self.steps) {
+            if (!step.isFinished || step.isCancelled) {
+                return NO;
+            }
+        }
+        return YES;
+    }
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if (context != OBSERVATION_CONTEXT) {
@@ -107,7 +131,7 @@
 
 - (void)stepWillCancel:(NSOperation *)step
 {
-    
+
 }
 
 - (void)cancel
