@@ -867,7 +867,44 @@ describe(@"ReportStore", ^{
         });
 
         it(@"does not start an import process if the extraction fails", ^{
-            failure(@"do it");
+            [fileManager setContentsOfReportsDir:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
+
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    *errOut = [[NSError alloc] initWithDomain:@"dice.test" code:1 userInfo:@{NSLocalizedDescriptionKey: @"error for test"}];
+                    return nil;
+                };
+            }];
+
+            NSOperation *failStep = [NSBlockOperation blockOperationWithBlock:^{
+                failure(@"erroneous import process started");
+            }];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+            blueImport.steps = @[failStep];
+
+            __block DICEExtractReportOperation *extract;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
+                    if (extract != nil) {
+                        failure(@"multiple extract operations queued for the same report archive");
+                        return;
+                    }
+                    extract = (DICEExtractReportOperation *)op;
+                    [fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"blue_base"] withIntermediateDirectories:YES attributes:nil error:NULL];
+                }
+            };
+
+            Report *report = [store attemptToImportReportFromResource:archiveUrl];
+            
+            assertWithTimeout(1.0, thatEventually(@(extract && extract.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(report.error), notNilValue());
+
+            expect(extract.wasSuccessful).to.equal(NO);
         });
 
     });
