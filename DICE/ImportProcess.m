@@ -84,7 +84,7 @@
 {
     @synchronized (self) {
         for (NSOperation *step in self.steps) {
-            if (!(step.isFinished || step.isCancelled)) {
+            if (step.isExecuting || !(step.isFinished || step.isCancelled)) {
                 return NO;
             }
         }
@@ -110,6 +110,7 @@
         return;
     }
 
+    NSOperation *op = (NSOperation *)object;
     BOOL isPrior = ((NSNumber *)change[NSKeyValueChangeNotificationIsPriorKey]).boolValue;
     if (isPrior) {
         if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
@@ -119,8 +120,11 @@
             [self stepWillCancel:object];
         }
     }
-    else if (![keyPath isEqualToString:NSStringFromSelector(@selector(isExecuting))]) {
-        [self stopObserving:object];
+    else {
+        if (!op.isExecuting) {
+            [self stopObserving:object];
+        }
+        [self notifyDelegateIfFinished];
     }
 }
 
@@ -147,6 +151,13 @@
     while (++stepIndex < self.steps.count) {
         NSOperation *pendingStep = self.steps[stepIndex];
         [pendingStep cancel];
+    }
+}
+
+- (void)notifyDelegateIfFinished
+{
+    if (self.isFinished && self.delegate) {
+        [self.delegate importDidFinishForImportProcess:self];
     }
 }
 

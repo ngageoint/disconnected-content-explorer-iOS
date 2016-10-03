@@ -22,6 +22,7 @@
 - (void)stepWillFinish:(nonnull NSOperation *)step;
 - (void)stepWillCancel:(nonnull NSOperation *)step;
 - (void)cancelStepsAfterStep:(nonnull NSOperation *)step;
+- (void)notifyDelegateIfFinished;
 
 @end
 

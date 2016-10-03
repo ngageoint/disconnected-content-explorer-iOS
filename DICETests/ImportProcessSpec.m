@@ -14,6 +14,7 @@
 #import <OCMockito/OCMockito.h>
 
 #import "ImportProcess+Internal.h"
+#import "NSOperation+Blockable.h"
 #import "Report.h"
 
 
@@ -271,6 +272,94 @@ describe(@"ImportProcess", ^{
         [import cancel];
 
         expect(import.wasSuccessful).to.equal(YES);
+    });
+
+    it(@"notifies the delegate when the import finishes", ^{
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+        id<ImportDelegate> delegate = mockProtocol(@protocol(ImportDelegate));
+        import.delegate = delegate;
+
+        [op1 start];
+        [op2 start];
+
+        [verify(delegate) importDidFinishForImportProcess:import];
+    });
+
+    it(@"notifies the delegate when the import fails and finishes", ^{
+        NSOperation *op1 = [[NSOperation alloc] init];
+        NSOperation *op2 = [[NSOperation alloc] init];
+
+        TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
+        id<ImportDelegate> delegate = mockProtocol(@protocol(ImportDelegate));
+        import.delegate = delegate;
+
+        [op1 start];
+        [op2 cancel];
+
+        [verify(delegate) importDidFinishForImportProcess:import];
+    });
+
+    it(@"notifies the delegate only once when a step is cancelled after starting", ^{
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{
+            NSLog(@"i'm executing!");
+        }];
+        ImportProcess *import = [[ImportProcess alloc] initWithReport:report];
+        import.steps = @[op];
+        id<ImportDelegate> delegate = mockProtocol(@protocol(ImportDelegate));
+        __block NSUInteger notifiedCount = 0;
+        [givenVoid([delegate importDidFinishForImportProcess:import]) willDo:^id(NSInvocation *invocation) {
+            @synchronized(delegate) {
+                notifiedCount++;
+            }
+            return nil;
+        }];
+        import.delegate = delegate;
+
+        [op block];
+        [ops addOperation:op];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
+
+        [op cancel];
+
+        [verifyCount(delegate, never()) importDidFinishForImportProcess:import];
+
+        [op unblock];
+
+        assertWithTimeout(1.0, thatEventually(@(notifiedCount)), equalToUnsignedInteger(1));
+        [verify(delegate) importDidFinishForImportProcess:import];
+    });
+
+    it(@"notifies the delegate only once about finishing", ^{
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{}];
+        ImportProcess *import = [[ImportProcess alloc] initWithReport:report];
+        import.steps = @[op];
+        id<ImportDelegate> delegate = mockProtocol(@protocol(ImportDelegate));
+        __block NSUInteger notifiedCount = 0;
+        [givenVoid([delegate importDidFinishForImportProcess:import]) willDo:^id(NSInvocation *invocation) {
+            @synchronized(delegate) {
+                notifiedCount++;
+            }
+            return nil;
+        }];
+        import.delegate = delegate;
+
+        [op block];
+        [ops addOperation:op];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
+
+        [verifyCount(delegate, never()) importDidFinishForImportProcess:import];
+
+        [op unblock];
+
+        assertWithTimeout(1.0, thatEventually(@(notifiedCount)), equalToUnsignedInteger(1));
+        [verify(delegate) importDidFinishForImportProcess:import];
     });
 
 });

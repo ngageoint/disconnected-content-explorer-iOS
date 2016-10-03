@@ -63,15 +63,14 @@
 
     TestImportProcess *my = self;
     NSBlockOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{
-        my.report.summary = @"op1:finished";
+        my.report.summary = [NSString stringWithFormat:@"op1 %@", self.report.url];
         [my.delegate reportWasUpdatedByImportProcess:my];
     }];
     NSBlockOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{
         dispatch_async(dispatch_get_main_queue(), ^{
-            my.report.title = @"finished";
-            my.report.summary = @"finished";
+            my.report.title = [NSString stringWithFormat:@"finished %@", self.report.url];
+            my.report.summary = [NSString stringWithFormat:@"finished %@", self.report.url];
             [my.delegate reportWasUpdatedByImportProcess:my];
-            [my.delegate importDidFinishForImportProcess:my];
         });
     }];
     op1.name = @"TestImportProcess-1";
@@ -98,13 +97,6 @@
 {
     [self.steps.firstObject unblock];
     return self;
-}
-
-- (BOOL)isFinished
-{
-    @synchronized (self) {
-        return super.isFinished && self.report.isEnabled;
-    }
 }
 
 - (BOOL)wasSuccessful

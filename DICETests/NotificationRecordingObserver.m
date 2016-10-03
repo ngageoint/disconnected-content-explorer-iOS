@@ -41,8 +41,8 @@
         return nil;
     }
 
-    _received = [[NSMutableArray alloc] init];
     _block = block;
+    _received = [[NSMutableArray alloc] init];
 
     return self;
 }
