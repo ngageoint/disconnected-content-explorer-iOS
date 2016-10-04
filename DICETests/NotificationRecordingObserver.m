@@ -15,7 +15,7 @@
     }
 
     _notification = notification;
-    _wasMainThread = [NSThread currentThread] == [NSThread mainThread];
+    _wasMainThread = NSThread.isMainThread;
 
     return self;
 }

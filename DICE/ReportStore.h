@@ -96,6 +96,7 @@
 @property (nonnull, readonly) id<DICEArchiveFactory> archiveFactory;
 @property (nonnull, readonly) NSOperationQueue *importQueue;
 @property (nonnull, readonly) NSFileManager *fileManager;
+@property (nonnull, readonly) NSNotificationCenter *notifications;
 @property (weak, nullable, readonly) UIApplication *application;
 
 /**
@@ -113,6 +114,7 @@
     archiveFactory:(nonnull id<DICEArchiveFactory>)archiveFactory
     importQueue:(nonnull NSOperationQueue *)importQueue
     fileManager:(nonnull NSFileManager *)fileManager
+    notifications:(nonnull NSNotificationCenter *)notifications
     application:(nonnull UIApplication *)application
     NS_DESIGNATED_INITIALIZER;
 

@@ -292,6 +292,7 @@ describe(@"ReportStore", ^{
     __block ReportStoreSpec_FileManager *fileManager;
     __block id<DICEArchiveFactory> archiveFactory;
     __block TestOperationQueue *importQueue;
+    __block NSNotificationCenter *notifications;
     __block ReportStore *store;
     __block UIApplication *app;
 
@@ -305,6 +306,7 @@ describe(@"ReportStore", ^{
         fileManager.reportsDir = reportsDir;
         archiveFactory = mockProtocol(@protocol(DICEArchiveFactory));
         importQueue = [[TestOperationQueue alloc] init];
+        notifications = [[NSNotificationCenter alloc] init];
         app = mock([UIApplication class]);
 
         redType = [[TestReportType alloc] initWithExtension:@"red"];
@@ -316,6 +318,7 @@ describe(@"ReportStore", ^{
             archiveFactory:archiveFactory
             importQueue:importQueue
             fileManager:fileManager
+            notifications:notifications
             application:app];
 
         store.reportTypes = @[
@@ -327,6 +330,7 @@ describe(@"ReportStore", ^{
     afterEach(^{
         [importQueue waitUntilAllOperationsAreFinished];
         stopMocking(archiveFactory);
+        stopMocking(app);
         fileManager = nil;
     });
 
@@ -363,7 +367,7 @@ describe(@"ReportStore", ^{
 
             NSArray *reports = [store loadReports];
 
-            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished && blueImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled && blueImport.report.isEnabled)), isTrue());
 
             expect(reports.count).to.equal(2);
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
@@ -409,7 +413,7 @@ describe(@"ReportStore", ^{
 
             [blueImport unblock];
 
-            assertWithTimeout(1.0, thatEventually(@(redImport1.isFinished && blueImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(redImport1.isFinished && blueImport.report.isEnabled)), isTrue());
         });
 
         it(@"leaves reports whose path may not exist but are still importing", ^{
@@ -425,7 +429,8 @@ describe(@"ReportStore", ^{
             expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
             expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
-            assertWithTimeout(1.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
+
             expect(redImport.isFinished).to.equal(NO);
             expect([reports[0] isEnabled]).to.equal(NO);
             expect([reports[1] isEnabled]).to.equal(YES);
@@ -443,7 +448,7 @@ describe(@"ReportStore", ^{
 
             [redImport unblock];
 
-            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled)), isTrue());
 
             expect(store.reports.count).to.equal(1);
             expect(((Report *)store.reports.firstObject).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.transformed"]);
@@ -452,7 +457,7 @@ describe(@"ReportStore", ^{
 
         it(@"sends notifications about added reports", ^{
 
-            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+            NSNotificationCenter *notifications = store.notifications;
 
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
@@ -486,7 +491,7 @@ describe(@"ReportStore", ^{
 
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
-            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled)), isTrue());
             expect(redImport).toNot.beNil;
         });
 
@@ -524,7 +529,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"sends a notification about adding the report", ^{
-            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+            NSNotificationCenter *notifications = store.notifications;
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
             [redType enqueueImport];
@@ -547,7 +552,7 @@ describe(@"ReportStore", ^{
         it(@"does not start an import for a report file it is already importing", ^{
             TestImportProcess *import = [redType.enqueueImport block];
 
-            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+            NSNotificationCenter *notifications = store.notifications;
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
             NSURL *reportUrl = [reportsDir URLByAppendingPathComponent:@"report1.red"];
@@ -579,6 +584,8 @@ describe(@"ReportStore", ^{
         it(@"enables the report when the import finishes", ^{
             Report *report = mock([Report class]);
             TestImportProcess *import = [[TestImportProcess alloc] initWithReport:report];
+            import.steps = @[[[NSOperation alloc] init]];
+            [import.steps.firstObject start];
 
             __block BOOL enabledOnMainThread = NO;
             [givenVoid([report setIsEnabled:YES]) willDo:^id(NSInvocation *invocation) {
@@ -595,19 +602,19 @@ describe(@"ReportStore", ^{
 
         it(@"sends a notification when the import finishes", ^{
 
-            NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
+            NSNotificationCenter *notifications = store.notifications;
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportImportFinished] on:notifications from:store withBlock:nil];
 
             TestImportProcess *redImport = [redType enqueueImport];
             Report *importReport = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"test.red"]];
 
-            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled)), isTrue());
             assertWithTimeout(1.0, thatEventually(@(observer.received.count)), equalToInteger(1));
-
-            [notifications removeObserver:observer];
 
             Report *notificationReport = observer.received.firstObject.notification.userInfo[@"report"];
             expect(notificationReport).to.beIdenticalTo(importReport);
+
+            [notifications removeObserver:observer];
         });
 
         it(@"does not create multiple reports while the archive is extracting", ^{
@@ -657,7 +664,7 @@ describe(@"ReportStore", ^{
             NSLog(@"unblocking extract operation");
             [extract unblock];
             
-            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
             
             [NSFileHandle deswizzleAllClassMethods];
         });
@@ -693,7 +700,7 @@ describe(@"ReportStore", ^{
 
             [store attemptToImportReportFromResource:archiveUrl];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
             [NSFileHandle deswizzleAllClassMethods];
         });
@@ -726,7 +733,7 @@ describe(@"ReportStore", ^{
 
             [store attemptToImportReportFromResource:archiveUrl];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
             [NSFileHandle deswizzleAllClassMethods];
         });
@@ -751,7 +758,7 @@ describe(@"ReportStore", ^{
 
             [store attemptToImportReportFromResource:archiveUrl];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
             expect(blueImport.report.url).to.equal(baseDir);
 
@@ -777,7 +784,7 @@ describe(@"ReportStore", ^{
 
             [store attemptToImportReportFromResource:archiveUrl];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
             expect(blueImport.report.url).to.equal(baseDir);
 
@@ -804,7 +811,7 @@ describe(@"ReportStore", ^{
 
             [store attemptToImportReportFromResource:archiveUrl];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
             
             expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.equal(NO);
             
@@ -861,7 +868,7 @@ describe(@"ReportStore", ^{
             NSLog(@"unblocking extract operation");
             [extract unblock];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
             [NSFileHandle deswizzleAllClassMethods];
         });
@@ -918,7 +925,7 @@ describe(@"ReportStore", ^{
 
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"test.red"]];
 
-            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled)), isTrue());
 
             [verify(app) beginBackgroundTaskWithName:notNilValue() expirationHandler:notNilValue()];
             [verify(app) endBackgroundTask:999];
@@ -936,14 +943,14 @@ describe(@"ReportStore", ^{
 
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"test.blue"]];
 
-            assertWithTimeout(1.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
             [verifyCount(app, never()) beginBackgroundTaskWithName:notNilValue() expirationHandler:notNilValue()];
             [[verifyCount(app, never()) withMatcher:anything()] endBackgroundTask:999];
 
             [redImport unblock];
 
-            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled)), isTrue());
 
             [verifyCount(app, times(1)) endBackgroundTask:999];
         });
@@ -956,14 +963,14 @@ describe(@"ReportStore", ^{
 
             [store loadReports];
 
-            assertWithTimeout(1.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
             [verifyCount(app, times(1)) beginBackgroundTaskWithName:notNilValue() expirationHandler:notNilValue()];
             [[verifyCount(app, never()) withMatcher:anything()] endBackgroundTask:999];
 
             [redImport unblock];
 
-            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled)), isTrue());
 
             [verifyCount(app, never()) beginBackgroundTaskWithName:notNilValue() expirationHandler:notNilValue()];
             [verifyCount(app, times(1)) endBackgroundTask:999];
@@ -974,26 +981,87 @@ describe(@"ReportStore", ^{
             // TODO: verify the archive extract points get saved when that's implemented
 
             [fileManager setContentsOfReportsDir:@"test.red", nil];
-            TestImportProcess *redImport = [[redType enqueueImport] block];
+            TestImportProcess *redImport = [redType enqueueImport];
+            NSOperation *step = [[NSBlockOperation blockOperationWithBlock:^{}] block];
+            redImport.steps = @[step];
             HCArgumentCaptor *expirationBlockCaptor = [[HCArgumentCaptor alloc] init];
             [[[given([app beginBackgroundTaskWithName:@"" expirationHandler:^{}]) withMatcher:notNilValue() forArgument:0] withMatcher:expirationBlockCaptor forArgument:1] willReturnUnsignedInteger:999];
 
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"test.red"]];
 
-            assertWithTimeout(1.0, thatEventually(@(importQueue.operations.count)), equalTo(@(redImport.steps.count)));
+            assertWithTimeout(1.0, thatEventually(@(redImport.steps.firstObject.isExecuting)), isTrue());
 
             void (^expirationBlock)() = expirationBlockCaptor.value;
             expirationBlock();
 
-            [redImport unblock];
+            [redImport.steps.firstObject unblock];
 
-            assertWithTimeout(1.0, thatEventually(redImport.steps), everyItem(hasProperty(@"isCancelled", isTrue())));
+            assertWithTimeout(1.0, thatEventually(@(!step.isExecuting && step.isCancelled)), isTrue());
 
             [verify(app) endBackgroundTask:999];
         });
 
         it(@"ends the background task when the last import fails", ^{
-            failure(@"do it");
+
+            [fileManager setContentsOfReportsDir:@"test.red", @"test.blue", nil];
+            TestImportProcess *redImport = [redType enqueueImport];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+            blueImport.steps = @[[[NSBlockOperation blockOperationWithBlock:^{}] block]];
+
+            [[[given([app beginBackgroundTaskWithName:@"" expirationHandler:^{}]) withMatcher:notNilValue() forArgument:0] withMatcher:anything() forArgument:1] willDo:^id(NSInvocation *invoc) {
+                return @999;
+            }];
+
+            [[givenVoid([app endBackgroundTask:0]) withMatcher:anything()] willDo:^id(NSInvocation *invoc) {
+                NSNumber *taskIdArg = invoc.mkt_arguments[0];
+                if (taskIdArg.unsignedIntegerValue != 999) {
+                    failure(@"ended wrong task id");
+                }
+                return nil;
+            }];
+
+            NSNotificationCenter *notifications = store.notifications;
+            __block Report *finishedReport;
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver
+                observe:[ReportNotification reportImportFinished] on:notifications from:store withBlock:^(NSNotification *notification) {
+                    finishedReport = notification.userInfo[@"report"];
+                }];
+
+            [store loadReports];
+
+            assertWithTimeout(1.0, thatEventually(blueImport.report), notNilValue());
+            assertWithTimeout(1.0, thatEventually(redImport.report), notNilValue());
+            assertWithTimeout(1.0, thatEventually(finishedReport), sameInstance(redImport.report));
+
+            [blueImport cancel];
+            [blueImport.steps.firstObject unblock];
+
+            assertWithTimeout(1.0, thatEventually(finishedReport), sameInstance(blueImport.report));
+
+            expect(observer.received.count).to.equal(2);
+            [verify(app) endBackgroundTask:999];
+
+            [notifications removeObserver:observer];
+        });
+
+    });
+
+    describe(@"notifications", ^{
+
+        it(@"works as expected", ^{
+            NSMutableArray<NSNotification *> *notes = [NSMutableArray array];
+            NSNotificationCenter *notifications = [[NSNotificationCenter alloc] init];
+            [notifications addObserverForName:@"test.notification" object:self queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+                [notes addObject:note];
+            }];
+            NotificationRecordingObserver *recorder = [NotificationRecordingObserver observe:@"test.notification" on:notifications from:self withBlock:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [notifications postNotificationName:@"test.notification" object:self];
+            });
+            
+            assertWithTimeout(1.0, thatEventually(@(notes.count)), equalToUnsignedInteger(1));
+
+            assertWithTimeout(1.0, thatEventually(@(recorder.received.count)), equalToUnsignedInteger(1));
         });
 
     });

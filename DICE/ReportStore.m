@@ -151,6 +151,7 @@
         archiveFactory:archiveFactory
         importQueue:importQueue
         fileManager:fm
+        notifications:NSNotificationCenter.defaultCenter
         application:app];
 }
 
@@ -159,6 +160,7 @@
     archiveFactory:(id<DICEArchiveFactory>)archiveFactory
     importQueue:(NSOperationQueue *)importQueue
     fileManager:(NSFileManager *)fileManager
+    notifications:(NSNotificationCenter *)notifications
     application:(UIApplication *)application
 {
     self = [super init];
@@ -173,6 +175,7 @@
     _archiveFactory = archiveFactory;
     _importQueue = importQueue;
     _fileManager = fileManager;
+    _notifications = notifications;
     _application = application;
     _importBackgroundTaskId = UIBackgroundTaskInvalid;
     ARCHIVE_MATCH_CONTEXT = &ARCHIVE_MATCH_CONTEXT;
@@ -187,7 +190,6 @@
     // TODO: ensure this does not get called more than twice concurrently - main thread only
     // TODO: remove deleted reports from list
     // TODO: establish reserved/exclude paths in docs dir
-
     NSIndexSet *defunctReports = [_reports indexesOfObjectsPassingTest:^BOOL(Report *report, NSUInteger idx, BOOL *stop) {
         if ([_fileManager fileExistsAtPath:report.url.path]) {
             return NO;
@@ -239,7 +241,7 @@
 
     // TODO: probably not necessary
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter]
+        [self.notifications
             postNotificationName:[ReportNotification reportsLoaded]
             object:self
             userInfo:nil];
@@ -280,7 +282,7 @@
     _pendingImports[reportUrl] = [[PendingImport alloc] initWithSourceUrl:reportUrl Report:report];
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
+        [self.notifications postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
     });
 
     if ([self.utiExpert uti:reportUti conformsToUti:kUTTypeZipArchive]) {
@@ -314,32 +316,32 @@
     // extract archive or get matched report type
     if (context == CONTENT_MATCH_CONTEXT) {
         MatchReportTypeToContentAtPathOperation *op = object;
+        Report *report = op.report;
         id<ReportType> type = op.matchedReportType;
         if (type) {
-            NSLog(@"matched report type %@ to report %@", type, op.report);
+            NSLog(@"matched report type %@ to report %@", type, report);
             [self.importQueue addOperationWithBlock:^{
-                ImportProcess *process = [type createProcessToImportReport:op.report toDir:self.reportsDir];
-                process.delegate = self;
-                [self.importQueue addOperations:process.steps waitUntilFinished:NO];
+                [self startImportProcessForReport:report reportType:type];
             }];
         }
         else {
             NSLog(@"no report type found for report %@", op.report);
-            op.report.error = @"Unkown content type";
+            report.error = @"Unkown content type";
         }
     }
     else if (context == ARCHIVE_MATCH_CONTEXT) {
         InspectReportArchiveOperation *op = object;
+        Report *report = op.report;
         id<ReportType> type = op.matchedReportType;
         if (type) {
-            NSLog(@"matched report type %@ to report archive %@", type, op.report);
+            NSLog(@"matched report type %@ to report archive %@", type, report);
             [self.importQueue addOperationWithBlock:^{
-                [self extractReportArchive:op.reportArchive withBaseDir:op.archiveBaseDir forReport:op.report ofType:op.matchedReportType];
+                [self extractReportArchive:op.reportArchive withBaseDir:op.archiveBaseDir forReport:op.report ofType:type];
             }];
         }
         else {
-            NSLog(@"no report type found for report archive %@", op.report);
-            op.report.error = @"Unkown content type";
+            NSLog(@"no report type found for report archive %@", report);
+            report.error = @"Unkown content type";
         }
     }
 }
@@ -357,11 +359,12 @@
     // TODO: parse the json descriptor here?
     dispatch_async(dispatch_get_main_queue(), ^{
         // import probably changed the report url, so remove by searching for the report itself
-        NSArray *urls = [_pendingImports allKeysForReport:import.report];
-        [_pendingImports removeObjectsForKeys:urls];
-        import.report.isEnabled = YES;
-        [self finishBackgroundTaskIfImportsFinished];
-        [[NSNotificationCenter defaultCenter] postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
+        [self clearPendingImportProcess:import];
+        import.report.isEnabled = import.wasSuccessful;
+        if (!import.wasSuccessful) {
+            import.report.error = @"Failed to import content";
+        }
+        [self.notifications postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
     });
 }
 
@@ -416,7 +419,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         Report *report = [self reportAtPath:op.archive.archiveUrl];
         report.summary = [NSString stringWithFormat:@"Extracting - %@%%", @(percent)];
-        [[NSNotificationCenter defaultCenter]
+        [self.notifications
             postNotificationName:[ReportNotification reportExtractProgress]
             object:self userInfo:@{@"report": report, @"percentExtracted": @(percent)}];
     });
@@ -466,6 +469,13 @@
     });
 }
 
+- (void)clearPendingImportProcess:(ImportProcess *)import
+{
+    NSArray *urls = [_pendingImports allKeysForReport:import.report];
+    [_pendingImports removeObjectsForKeys:urls];
+    [self finishBackgroundTaskIfImportsFinished];
+}
+
 - (void)suspendAndClearPendingImports
 {
     self.importQueue.suspended = YES;
@@ -503,6 +513,5 @@
     [self.application endBackgroundTask:_importBackgroundTaskId];
     _importBackgroundTaskId = UIBackgroundTaskInvalid;
 }
-
 
 @end
