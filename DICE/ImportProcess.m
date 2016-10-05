@@ -17,6 +17,10 @@
     void *OBSERVATION_CONTEXT;
     NSArray<NSOperation *> *_steps;
     Report *_report;
+    NSUInteger _finishedStepCount;
+
+@protected
+    dispatch_queue_t _mutexQueue;
 }
 
 - (instancetype)initWithReport:(Report *)report
@@ -30,6 +34,8 @@
     OBSERVATION_CONTEXT = &OBSERVATION_CONTEXT;
 
     _report = report;
+    _finishedStepCount = 0;
+    _mutexQueue = dispatch_queue_create("dice.ImportProcess", DISPATCH_QUEUE_SERIAL);
 
     return self;
 }
@@ -44,64 +50,58 @@
 
 - (NSArray<NSOperation *> *)steps
 {
-    @synchronized (self) {
-        return _steps;
-    }
+    return _steps;
 }
 
 - (void)setSteps:(NSArray<NSOperation *> *)steps
 {
-    @synchronized (self) {
-        if (_steps != nil) {
-            for (NSOperation *step in _steps) {
-                [self stopObserving:step];
-            }
+    if (self.steps != nil) {
+        for (NSOperation *step in self.steps) {
+            [self stopObserving:step];
         }
-        _steps = steps;
-        if (_steps != nil) {
-            for (NSOperation *step in _steps) {
-                [self observeStep:step];
-            }
+    }
+    _steps = steps;
+    if (self.steps != nil) {
+        for (NSOperation *step in self.steps) {
+            [self observeStep:step];
         }
     }
 }
 
 - (Report *)report
 {
-    @synchronized (self) {
-        return _report;
-    }
+    return _report;
 }
 
 - (void)setReport:(Report *)report
 {
-    @synchronized (self) {
-        _report = report;
-    }
+    _report = report;
 }
 
 - (BOOL)isFinished
 {
-    @synchronized (self) {
-        for (NSOperation *step in self.steps) {
-            if (step.isExecuting || !(step.isFinished || step.isCancelled)) {
-                return NO;
-            }
-        }
-        return YES;
-    }
+    __block BOOL finished = NO;
+    dispatch_sync(_mutexQueue, ^{
+        finished = _finishedStepCount == self.steps.count;
+    });
+    return finished;
 }
 
 - (BOOL)wasSuccessful
 {
-    @synchronized (self) {
+    __block BOOL success = NO;
+    dispatch_sync(_mutexQueue, ^{
+        if (_finishedStepCount != self.steps.count) {
+            return;
+        }
         for (NSOperation *step in self.steps) {
-            if (!step.isFinished || step.isCancelled) {
-                return NO;
+            if (step.isCancelled) {
+                return;
             }
         }
-        return YES;
-    }
+        success = YES;
+    });
+    return success;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -113,17 +113,18 @@
     NSOperation *op = (NSOperation *)object;
     BOOL isPrior = ((NSNumber *)change[NSKeyValueChangeNotificationIsPriorKey]).boolValue;
     if (isPrior) {
-        if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
+        if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))] && !op.isFinished) {
             [self stepWillFinish:object];
         }
-        else if ([keyPath isEqualToString:NSStringFromSelector(@selector(isCancelled))]) {
+        else if ([keyPath isEqualToString:NSStringFromSelector(@selector(isCancelled))] && !op.isCancelled) {
             [self stepWillCancel:object];
         }
     }
-    else {
-        if (!op.isExecuting) {
-            [self stopObserving:object];
-        }
+    else if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))] && op.isFinished) {
+        dispatch_sync(_mutexQueue, ^{
+            _finishedStepCount += 1;
+        });
+        [self stopObserving:object];
         [self notifyDelegateIfFinished];
     }
 }
@@ -156,16 +157,16 @@
 
 - (void)notifyDelegateIfFinished
 {
-    if (self.isFinished && self.delegate) {
+    if (self.isFinished) {
         [self.delegate importDidFinishForImportProcess:self];
     }
 }
 
 - (void)observeStep:(NSOperation *)step
 {
-    [step addObserver:self forKeyPath:NSStringFromSelector(@selector(isExecuting)) options:NSKeyValueObservingOptionPrior context:OBSERVATION_CONTEXT];
-    [step addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:NSKeyValueObservingOptionPrior context:OBSERVATION_CONTEXT];
-    [step addObserver:self forKeyPath:NSStringFromSelector(@selector(isCancelled)) options:NSKeyValueObservingOptionPrior context:OBSERVATION_CONTEXT];
+    [step addObserver:self forKeyPath:NSStringFromSelector(@selector(isExecuting)) options:(NSKeyValueObservingOptionPrior|NSKeyValueObservingOptionNew) context:OBSERVATION_CONTEXT];
+    [step addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:(NSKeyValueObservingOptionPrior|NSKeyValueObservingOptionNew) context:OBSERVATION_CONTEXT];
+    [step addObserver:self forKeyPath:NSStringFromSelector(@selector(isCancelled)) options:(NSKeyValueObservingOptionPrior|NSKeyValueObservingOptionNew) context:OBSERVATION_CONTEXT];
 }
 
 - (void)stopObserving:(NSOperation *)step

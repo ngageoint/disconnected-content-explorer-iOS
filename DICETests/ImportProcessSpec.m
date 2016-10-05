@@ -14,6 +14,7 @@
 #import <OCMockito/OCMockito.h>
 
 #import "ImportProcess+Internal.h"
+#import "KVOBlockObserver.h"
 #import "NSOperation+Blockable.h"
 #import "Report.h"
 
@@ -97,7 +98,7 @@ describe(@"ImportProcess", ^{
         expect(op2WasReady).to.equal(@NO);
     });
 
-    it(@"calls stepWillCancel but not stepWillFinish", ^{
+    it(@"calls stepWillCancel and stepWillFinish", ^{
 
         NSOperationQueue *ops = [[NSOperationQueue alloc] init];
         NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{
@@ -121,7 +122,7 @@ describe(@"ImportProcess", ^{
         [ops waitUntilAllOperationsAreFinished];
 
         expect(cancelBlockCalled).to.equal(@YES);
-        expect(finishBlockCalled).to.beNil();
+        expect(finishBlockCalled).to.equal(@YES);
         expect(op.isCancelled).to.equal(YES);
         expect(op.isFinished).to.equal(YES);
     });
@@ -152,8 +153,11 @@ describe(@"ImportProcess", ^{
 
         TestBaseImportProcess *import = [[TestBaseImportProcess alloc] initWithReport:report steps:@[op1, op2]];
 
+        // must call start to make the op move to finished state
         [op1 cancel];
+        [op1 start];
         [op2 cancel];
+        [op2 start];
 
         assertWithTimeout(1.0, thatEventually(@(op1.isCancelled && op2.isCancelled)), isTrue());
 
@@ -208,8 +212,9 @@ describe(@"ImportProcess", ^{
         expect(import.isFinished).to.equal(NO);
 
         [import cancel];
+        [op2 start];
 
-        expect(op2.isFinished).to.equal(NO);
+        expect(op2.isFinished).to.equal(YES);
         expect(import.isFinished).to.equal(YES);
         expect(import.wasSuccessful).to.equal(NO);
     });
@@ -246,7 +251,9 @@ describe(@"ImportProcess", ^{
         expect(import.wasSuccessful).to.equal(NO);
 
         [op2 cancel];
+        [op2 start];
 
+        expect(op2.isFinished).to.equal(YES);
         expect(import.isFinished).to.equal(YES);
         expect(import.wasSuccessful).to.equal(NO);
     });
@@ -298,6 +305,7 @@ describe(@"ImportProcess", ^{
 
         [op1 start];
         [op2 cancel];
+        [op2 start];
 
         [verify(delegate) importDidFinishForImportProcess:import];
     });
@@ -336,9 +344,12 @@ describe(@"ImportProcess", ^{
 
     it(@"notifies the delegate only once about finishing", ^{
         NSOperationQueue *ops = [[NSOperationQueue alloc] init];
-        NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{}];
+        NSOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{}];
+        op1.name = @"op1";
+        NSOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{}];
+        op2.name = @"op2";
         ImportProcess *import = [[ImportProcess alloc] initWithReport:report];
-        import.steps = @[op];
+        import.steps = @[op1, op2];
         id<ImportDelegate> delegate = mockProtocol(@protocol(ImportDelegate));
         __block NSUInteger notifiedCount = 0;
         [givenVoid([delegate importDidFinishForImportProcess:import]) willDo:^id(NSInvocation *invocation) {
@@ -349,17 +360,124 @@ describe(@"ImportProcess", ^{
         }];
         import.delegate = delegate;
 
-        [op block];
-        [ops addOperation:op];
+//        [op block];
+        [ops addOperations:import.steps waitUntilFinished:YES];
 
-        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
+//        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
+//
+//        [verifyCount(delegate, never()) importDidFinishForImportProcess:import];
 
-        [verifyCount(delegate, never()) importDidFinishForImportProcess:import];
+        assertWithTimeout(1.0, thatEventually(@(notifiedCount)), greaterThanOrEqualTo(@1));
+        [verify(delegate) importDidFinishForImportProcess:import];
+    });
+
+});
+
+describe(@"NSOperation key-value observing behavior", ^{
+
+    void *KVO_CONTEXT = &KVO_CONTEXT;
+
+    it(@"is not finished when cancelled before executing", ^{
+        __block BOOL opExecuted = NO;
+        NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{opExecuted = YES;}];
+        KVOBlockObserver *observer = [[[[[KVOBlockObserver alloc] initWithBlock:nil]
+            observeKeyPath:@"isFinished" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld]
+            observeKeyPath:@"isCancelled" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld]
+            observeKeyPath:@"isExecuting" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld];
+
+        [op cancel];
+
+        expect(op.isFinished).to.equal(NO);
+        expect(op.isCancelled).to.equal(YES);
+        expect(observer.observations.count).to.equal(1);
+        expect(observer.observations.firstObject.keyPath).to.equal(@"isCancelled");
+
+        [op start];
+
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(YES);
+        expect(op.isExecuting).to.equal(NO);
+        expect(observer.observations.count).to.equal(2);
+        expect(observer.observations.lastObject.keyPath).to.equal(@"isFinished");
+        expect(opExecuted).to.equal(NO);
+    });
+
+    it(@"observes isExecuting before isFinished", ^{
+        __block BOOL opExecuted = NO;
+        NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{opExecuted = YES;}];
+        KVOBlockObserver *observer = [[[[[KVOBlockObserver alloc] initWithBlock:nil]
+            observeKeyPath:@"isFinished" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld]
+            observeKeyPath:@"isCancelled" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld]
+            observeKeyPath:@"isExecuting" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld];
+
+        [op start];
+
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(NO);
+        expect(op.isExecuting).to.equal(NO);
+        expect(observer.observations.count).to.equal(3);
+        expect(observer.observations[0].keyPath).to.equal(@"isExecuting");
+        expect(observer.observations[1].keyPath).to.equal(@"isExecuting");
+        expect(observer.observations[2].keyPath).to.equal(@"isFinished");
+        expect(opExecuted).to.equal(YES);
+    });
+
+    it(@"observes isExecuting then isCancelled, then isExecuting, then isFinished", ^{
+        __block BOOL opExecuted = NO;
+        NSOperation *op = [NSBlockOperation blockOperationWithBlock:^{opExecuted = YES;}];
+        KVOBlockObserver *observer = [[[[[KVOBlockObserver alloc] initWithBlock:nil]
+            observeKeyPath:@"isFinished" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld]
+            observeKeyPath:@"isCancelled" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld]
+            observeKeyPath:@"isExecuting" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld];
+
+        NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+        [queue addOperation:[op block]];
+
+        assertWithTimeout(1.0, thatEventually(@(observer.observations.count)), equalToUnsignedInteger(1));
+
+        expect(observer.observations.count).to.equal(1);
+        expect(observer.observations.lastObject.keyPath).to.equal(@"isExecuting");
+        expect(observer.observations.lastObject.newValue).to.equal(@YES);
+        expect(op.isExecuting).to.equal(YES);
+
+        [op cancel];
+
+        expect(observer.observations.lastObject.keyPath).to.equal(@"isCancelled");
 
         [op unblock];
 
-        assertWithTimeout(1.0, thatEventually(@(notifiedCount)), equalToUnsignedInteger(1));
-        [verify(delegate) importDidFinishForImportProcess:import];
+        assertWithTimeout(1.0, thatEventually(observer.observations.lastObject.keyPath), equalTo(@"isFinished"));
+
+        expect(observer.observations.count).to.equal(4);
+        expect(observer.observations[2].keyPath).to.equal(@"isExecuting");
+        expect(observer.observations[2].change[NSKeyValueChangeKindKey]).to.equal(NSKeyValueChangeSetting);
+        expect(observer.observations[2].oldValue).to.equal(@YES);
+        expect(observer.observations[2].newValue).to.equal(@NO);
+        expect(observer.observations[3].keyPath).to.equal(@"isFinished");
+        expect(observer.observations[3].newValue).to.equal(@YES);
+        expect(op.isFinished).to.equal(YES);
+        expect(op.isCancelled).to.equal(YES);
+        expect(op.isExecuting).to.equal(NO);
+    });
+
+    it(@"observes expected changes for isExecuting", ^{
+        __block BOOL opExecuted = NO;
+        NSOperation *op = [[NSOperation alloc] init];
+        KVOBlockObserver *observer = [[[[[KVOBlockObserver alloc] initWithBlock:nil]
+            observeKeyPath:@"isFinished" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld]
+            observeKeyPath:@"isCancelled" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld]
+            observeKeyPath:@"isExecuting" ofObject:op inContext:KVO_CONTEXT options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld];
+
+        [op start];
+
+        expect(observer.observations.count).to.equal(3);
+        expect(observer.observations[0].keyPath).to.equal(@"isExecuting");
+        expect(observer.observations[0].newValue).to.equal(YES);
+        expect(observer.observations[1].keyPath).to.equal(@"isExecuting");
+        expect(observer.observations[1].newValue).to.equal(NO);
+        expect(op.isExecuting).to.equal(NO);
+        expect(observer.observations[2].keyPath).to.equal(@"isFinished");
+        
     });
 
 });

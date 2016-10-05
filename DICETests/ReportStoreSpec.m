@@ -1036,7 +1036,7 @@ describe(@"ReportStore", ^{
             [blueImport cancel];
             [blueImport.steps.firstObject unblock];
 
-            assertWithTimeout(1.0, thatEventually(finishedReport), sameInstance(blueImport.report));
+            assertWithTimeout(1.0, thatEventually(@(finishedReport == blueImport.report)), isTrue());
 
             expect(observer.received.count).to.equal(2);
             [verify(app) endBackgroundTask:999];

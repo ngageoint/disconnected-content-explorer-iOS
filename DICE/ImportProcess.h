@@ -1,5 +1,5 @@
 //
-//  ImportOperation.h
+//  ImportProcess.h
 //  DICE
 //
 //  Created by Robert St. John on 6/7/15.
@@ -15,11 +15,11 @@
 
 @interface ImportProcess : NSObject
 
-@property (readonly, nonnull) Report *report;
-@property (readonly, nonnull) NSArray<NSOperation *> *steps;
+@property (readonly, nonatomic, nonnull) Report *report;
+@property (readonly, nonatomic, nonnull) NSArray<NSOperation *> *steps;
 @property (readonly) BOOL isFinished;
 @property (readonly) BOOL wasSuccessful;
-@property (weak, nullable) id<ImportDelegate> delegate;
+@property (weak, nonatomic, nullable) id<ImportDelegate> delegate;
 
 - (nullable instancetype)initWithReport:(nonnull Report *)report NS_DESIGNATED_INITIALIZER;
 
