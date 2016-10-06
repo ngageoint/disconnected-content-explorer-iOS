@@ -912,6 +912,8 @@ describe(@"ReportStore", ^{
             assertWithTimeout(1.0, thatEventually(report.error), notNilValue());
 
             expect(extract.wasSuccessful).to.equal(NO);
+
+            [NSFileHandle deswizzleAllClassMethods];
         });
 
     });
