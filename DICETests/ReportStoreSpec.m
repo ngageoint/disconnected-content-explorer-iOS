@@ -819,7 +819,36 @@ describe(@"ReportStore", ^{
         });
 
         it(@"posts notifications about extract progress", ^{
-            failure(@"do it");
+            [fileManager setContentsOfReportsDir:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:(1 << 20)]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
+            [blueType enqueueImport];
+            NSFileHandle *handle = mock([NSFileHandle class]);
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return handle;
+                };
+            }];
+            NSMutableArray<NSNotification *> *extractUpdates = [NSMutableArray array];
+            __block NSNotification *finished = nil;
+            [store.notifications addObserverForName:ReportNotification.reportExtractProgress object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+                [extractUpdates addObject:note];
+            }];
+            [store.notifications addObserverForName:ReportNotification.reportImportFinished object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+                finished = note;
+            }];
+
+            [store attemptToImportReportFromResource:archiveUrl];
+
+            assertWithTimeout(2.0, thatEventually(finished), notNilValue());
+
+            expect(extractUpdates.count).to.beGreaterThan(10);
+            expect(extractUpdates.lastObject.userInfo[@"percentExtracted"]).to.equal(@100);
+
+            [NSFileHandle deswizzleAllClassMethods];
         });
 
         it(@"does not create multiple reports while the archive is extracting", ^{
