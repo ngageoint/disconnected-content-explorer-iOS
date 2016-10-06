@@ -10,6 +10,7 @@
 		0697BB828B9EB48268DC1244BE6C8749 /* ne_50m-110m_land.geojson in Resources */ = {isa = PBXBuildFile; fileRef = A92CB380D2DA9CAE7A7D693B6B739F28 /* ne_50m-110m_land.geojson */; };
 		09F8DB2D7CB1DCB81BF6CE816B20174A /* Reader-Button-N.png in Resources */ = {isa = PBXBuildFile; fileRef = 354233DD845B9B0674BDA0F04D324721 /* Reader-Button-N.png */; };
 		0A69A4C5B190C6B0CD9322977D9181B2 /* GeoPackageMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */; };
+		0E2554673255336FE0E9EC6CD10B8E01 /* TestNSOperationKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 36248EB120561F10DE3C298B717EC769 /* TestNSOperationKVO.m */; };
 		0E68EF113ED610CAAAC46546A93960D3 /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E4342FFD2C2132B3989BF7BCD77F626 /* SettingsViewController+SettingsViewController_iPhone.m */; };
 		11F2EAD30DEB1368384C9B0EF9EF2194 /* Reader-Thumbs.png in Resources */ = {isa = PBXBuildFile; fileRef = EEB4E28AC03C2CA43C6B4FEBA09029BB /* Reader-Thumbs.png */; };
 		134E1F756D92A3337ADF441D9EDFEB6F /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7325570DB6549C485CB4A9C18216BDDF /* DICENavigationController.m */; };
@@ -216,6 +217,7 @@
 		3413AF6F908E2D8F5B48AF0F147B690A /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		34758BE951714F91CC3722A7EBD544A6 /* Reader-Email@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Email@2x.png"; sourceTree = "<group>"; };
 		354233DD845B9B0674BDA0F04D324721 /* Reader-Button-N.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Button-N.png"; sourceTree = "<group>"; };
+		36248EB120561F10DE3C298B717EC769 /* TestNSOperationKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestNSOperationKVO.m; sourceTree = "<group>"; };
 		3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
 		394B1DEF7E6D84DDFBE2B0E4F2F71B40 /* HTMLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLViewController.h; sourceTree = "<group>"; };
 		39D46E4251184064FF69409D758E04CE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = "<group>"; };
@@ -654,6 +656,7 @@
 				3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */,
 				FC50C7FC6EEC908733FE1A59E8330444 /* TestDICEArchive.h */,
 				1C9139A2663CCAC0CD5F442EEA80498B /* TestDICEArchive.m */,
+				36248EB120561F10DE3C298B717EC769 /* TestNSOperationKVO.m */,
 				CA1FCEFE8D94360C1C93C0D6DA69986C /* TestOperationQueue.h */,
 				3E0A6175BE4F214F4AD42562F7CB4A9B /* TestOperationQueue.m */,
 				191EFF3FA422C46D6862F39A78455C14 /* TestParseJsonOperation.h */,
@@ -1170,6 +1173,7 @@
 				609D8685B07AC8BD8EC3E8FFF7EF564C /* ReportStoreSpec.m in Sources */,
 				7850CC9236DA9EF5F2A6C026F107304A /* ResourceTypesTests.m in Sources */,
 				830D519069C792284EED586678F80BCB /* TestDICEArchive.m in Sources */,
+				0E2554673255336FE0E9EC6CD10B8E01 /* TestNSOperationKVO.m in Sources */,
 				34EC6AE4957E12CA5BAA4D9C3055FDC9 /* TestOperationQueue.m in Sources */,
 				E68E2E9936A8EC1888DA9FF9F711AF59 /* TestParseJsonOperation.m in Sources */,
 				D7592583957361831DA87F9B5FBA530F /* TestReportType.m in Sources */,
