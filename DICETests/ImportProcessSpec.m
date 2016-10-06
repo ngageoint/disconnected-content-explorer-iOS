@@ -393,28 +393,14 @@ describe(@"ImportProcess", ^{
         op2.name = @"op2";
         ImportProcess *import = [[ImportProcess alloc] initWithReport:report];
         import.steps = @[op1, op2];
-//        id<ImportDelegate> delegate = mockProtocol(@protocol(ImportDelegate));
-//        __block NSUInteger notifiedCount = 0;
-//        [givenVoid([delegate importDidFinishForImportProcess:import]) willDo:^id(NSInvocation *invocation) {
-//            @synchronized(delegate) {
-//                notifiedCount++;
-//            }
-//            return nil;
-//        }];
+
         ImportProcessSpec_Delegate *delegate = [[ImportProcessSpec_Delegate alloc] init];
         import.delegate = delegate;
-
-//        [op block];
         [ops addOperations:import.steps waitUntilFinished:YES];
-
-//        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
-//
-//        [verifyCount(delegate, never()) importDidFinishForImportProcess:import];
 
         assertWithTimeout(1.0, thatEventually(@(delegate.finishCount)), greaterThanOrEqualTo(@1));
 
         expect(delegate.finishCount).to.equal(1);
-//        [verify(delegate) importDidFinishForImportProcess:import];
     });
 
 });
