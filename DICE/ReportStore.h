@@ -32,7 +32,7 @@
      @"index": (NSString*) integral index of the report in the reports array
  }
  */
-+ (nonnull NSString *)reportAdded;
+@property (class, nonatomic, nonnull, readonly) NSString *reportAdded;
 /**
  This notification indicates that the app has started importing
  a given report.
@@ -42,7 +42,7 @@
      @"index": (NSString*) integral index of the report in the reports array
  }
  */
-+ (nonnull NSString *)reportImportBegan;
+@property (class, nonatomic, nonnull, readonly) NSString *reportImportBegan;
 /**
  This notification indicates progress on importing a given report.
  The NSNotification object userInfo dictionary contains
@@ -51,7 +51,7 @@
      @"percentExtracted": (NSNumber*) integral percentage of report content extracted from archive
  }
  */
-+ (nonnull NSString *)reportExtractProgress;
+@property (class, nonatomic, nonnull, readonly) NSString *reportExtractProgress;
 /**
  This notification indicates that a report was fully
  imported and is ready to view.
@@ -61,7 +61,7 @@
      @"index": (NSString*) integral index of the report in the reports array
  }
  */
-+ (nonnull NSString *)reportImportFinished;
+@property (class, nonatomic, nonnull, readonly) NSString *reportImportFinished;
 /**
  This notification indicates that ReportStore has finished scanning for report files
  in the Documents directory and has populated the report list with its findings.
@@ -69,7 +69,7 @@
  may not yet be ready to view.
  The NSNotification object has a nil userInfo dictionary.
  */
-+ (nonnull NSString *)reportsLoaded;
+@property (class, nonatomic, nonnull, readonly) NSString *reportsLoaded;
 
 @end
 
