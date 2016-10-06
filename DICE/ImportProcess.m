@@ -121,10 +121,13 @@
         }
     }
     else if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))] && op.isFinished) {
+        [self stopObserving:op];
         dispatch_sync(_mutexQueue, ^{
+            if (_finishedStepCount >= self.steps.count) {
+                @throw @"finished step count exceeded step count";
+            }
             _finishedStepCount += 1;
         });
-        [self stopObserving:object];
         [self notifyDelegateIfFinished];
     }
 }
