@@ -72,7 +72,6 @@
 - (void)main
 {
     @autoreleasepool {
-        [NSData dataWithContentsOfFile:@""];
         NSData *jsonData = [self.fileManager contentsAtPath:self.jsonUrl.path];
         if (jsonData == nil) {
             return;
