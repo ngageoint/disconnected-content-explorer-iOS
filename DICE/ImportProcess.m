@@ -18,6 +18,7 @@
     NSArray<NSOperation *> *_steps;
     Report *_report;
     NSUInteger _finishedStepCount;
+    BOOL _isDelegateFinished;
 
 @protected
     dispatch_queue_t _mutexQueue;
@@ -80,20 +81,32 @@
 
 - (BOOL)isFinished
 {
+    return self.isDelegateFinished;
+}
+
+- (BOOL)isDelegateFinished
+{
     __block BOOL finished = NO;
     dispatch_sync(_mutexQueue, ^{
-        finished = _finishedStepCount == self.steps.count;
+        finished = _isDelegateFinished;
     });
     return finished;
 }
 
+- (void)setIsDelegateFinished:(BOOL)isDelegateFinished
+{
+    dispatch_sync(_mutexQueue, ^{
+        _isDelegateFinished = isDelegateFinished;
+    });
+}
+
 - (BOOL)wasSuccessful
 {
+    if (!self.isFinished) {
+        return NO;
+    }
     __block BOOL success = NO;
     dispatch_sync(_mutexQueue, ^{
-        if (_finishedStepCount != self.steps.count) {
-            return;
-        }
         for (NSOperation *step in self.steps) {
             if (step.isCancelled) {
                 return;
@@ -122,13 +135,21 @@
     }
     else if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))] && op.isFinished) {
         [self stopObserving:op];
+        __block BOOL notifyDelegate = NO;
         dispatch_sync(_mutexQueue, ^{
             if (_finishedStepCount >= self.steps.count) {
                 @throw @"finished step count exceeded step count";
             }
             _finishedStepCount += 1;
+            notifyDelegate = _finishedStepCount == self.steps.count;
         });
-        [self notifyDelegateIfFinished];
+        if (!notifyDelegate) {
+            return;
+        }
+        if (self.delegate) {
+            [self.delegate importDidFinishForImportProcess:self];
+        }
+        self.isDelegateFinished = YES;
     }
 }
 
@@ -155,13 +176,6 @@
     while (++stepIndex < self.steps.count) {
         NSOperation *pendingStep = self.steps[stepIndex];
         [pendingStep cancel];
-    }
-}
-
-- (void)notifyDelegateIfFinished
-{
-    if (self.isFinished) {
-        [self.delegate importDidFinishForImportProcess:self];
     }
 }
 

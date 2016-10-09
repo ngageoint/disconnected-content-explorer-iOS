@@ -403,6 +403,47 @@ describe(@"ImportProcess", ^{
         expect(delegate.finishCount).to.equal(1);
     });
 
+    it(@"is not finished until the delegate was notified", ^{
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        NSOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{}];
+        op1.name = @"op1";
+        NSOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{}];
+        op2.name = @"op2";
+        ImportProcess *import = [[ImportProcess alloc] initWithReport:report];
+        import.steps = @[op1, op2];
+
+        __block BOOL delegateFinished = NO;
+        __block BOOL delegateBlocked = NO;
+        NSCondition *delegateBlockedCondition = [[NSCondition alloc] init];
+        id<ImportDelegate> delegate = mockProtocol(@protocol(ImportDelegate));
+        [givenVoid([delegate importDidFinishForImportProcess:import]) willDo:^id(NSInvocation *call) {
+            [delegateBlockedCondition lock];
+            delegateBlocked = YES;
+            while (delegateBlocked) {
+                [delegateBlockedCondition wait];
+            }
+            [delegateBlockedCondition unlock];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                delegateFinished = YES;
+            });
+            return nil;
+        }];
+
+        import.delegate = delegate;
+        [ops addOperations:import.steps waitUntilFinished:NO];
+
+        assertWithTimeout(1.0, thatEventually(@(op1.isFinished && op2.isFinished && delegateBlocked)), isTrue());
+
+        expect(import.isFinished).to.equal(NO);
+
+        [delegateBlockedCondition lock];
+        delegateBlocked = NO;
+        [delegateBlockedCondition signal];
+        [delegateBlockedCondition unlock];
+
+        assertWithTimeout(1.0, thatEventually(@(import.isFinished)), isTrue());
+    });
+
 });
 
 describe(@"NSOperation key-value observing behavior", ^{

@@ -17,7 +17,15 @@
 
 @property (readonly, nonatomic, nonnull) Report *report;
 @property (readonly, nonatomic, nonnull) NSArray<NSOperation *> *steps;
+/**
+ * This property will be YES only after the isFinished property of every
+ * step is YES and after this process calls the delegate's importDidFinishForImportProcess:
+ * method.
+ */
 @property (readonly) BOOL isFinished;
+/**
+ * This property returns YES if all steps finished normally and were not cancelled.
+ */
 @property (readonly) BOOL wasSuccessful;
 @property (weak, nonatomic, nullable) id<ImportDelegate> delegate;
 

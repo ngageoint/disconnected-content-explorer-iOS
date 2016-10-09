@@ -17,6 +17,11 @@
 
 @property (readwrite, nonatomic, nonnull) NSArray<NSOperation *> *steps;
 @property (readwrite, nonatomic, nullable) Report *report;
+/**
+ * This property is NO until after this ImportProcess has called the delegate's
+ * importDidFinishForImportProcess: method.
+ */
+@property BOOL isDelegateFinished;
 
 - (nullable instancetype)initWithReport:(nullable Report *)report;
 - (void)stepWillFinish:(nonnull NSOperation *)step;
