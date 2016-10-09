@@ -12,6 +12,7 @@
 #import "InspectReportArchiveOperation.h"
 #import "MatchReportTypeToContentAtPathOperation.h"
 #import "ImportProcess+Internal.h"
+#import "NSString+PathUtils.h"
 #import "UnzipOperation.h"
 #import "DICEDefaultArchiveFactory.h"
 #import "Report.h"
@@ -326,7 +327,7 @@
         }
         else {
             NSLog(@"no report type found for report %@", op.report);
-            report.error = @"Unkown content type";
+            report.summary = report.error = @"Unkown content type";
         }
     }
     else if (context == ARCHIVE_MATCH_CONTEXT) {
@@ -341,7 +342,7 @@
         }
         else {
             NSLog(@"no report type found for report archive %@", report);
-            report.error = @"Unkown content type";
+            report.summary = report.error = @"Unkown content type";
         }
     }
 }
@@ -355,6 +356,7 @@
 
 - (void)importDidFinishForImportProcess:(ImportProcess *)import
 {
+    NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:import.report];
     // TODO: assign reportID if nil
     // TODO: parse the json descriptor here?
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -363,6 +365,9 @@
         import.report.isEnabled = import.wasSuccessful;
         if (!import.wasSuccessful) {
             import.report.error = @"Failed to import content";
+        }
+        else if (descriptor) {
+            [import.report setPropertiesFromJsonDescriptor:descriptor];
         }
         [self.notifications postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
     });
@@ -512,6 +517,23 @@
     }
     [self.application endBackgroundTask:_importBackgroundTaskId];
     _importBackgroundTaskId = UIBackgroundTaskInvalid;
+}
+
+- (NSDictionary *)parseJsonDescriptorIfAvailableForReport:(Report *)report
+{
+    NSString *baseDir = [report.url.path pathRelativeToPath:self.reportsDir.path];
+    if (baseDir == nil) {
+        return nil;
+    }
+    baseDir = baseDir.pathComponents.firstObject;
+    NSString *descriptorPath = [baseDir stringByAppendingPathComponent:@"metadata.json"];
+    descriptorPath = [_reportsDir.path stringByAppendingPathComponent:descriptorPath];
+    NSData *jsonData = [self.fileManager contentsAtPath:descriptorPath];
+    if (jsonData == nil || jsonData.length == 0) {
+        return nil;
+    }
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    return json;
 }
 
 @end

@@ -45,6 +45,10 @@
 @protocol ImportDelegate <NSObject>
 
 - (void)reportWasUpdatedByImportProcess:(nonnull ImportProcess *)import;
+/**
+ * The ImportProcess should not make any further changes to its Report object
+ * after calling this method on the delegate.
+ */
 - (void)importDidFinishForImportProcess:(nonnull ImportProcess *)import;
 
 // TODO:

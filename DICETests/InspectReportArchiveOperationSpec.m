@@ -30,6 +30,7 @@ describe(@"InspectReportArchiveOperation", ^{
 
     __block Report *report;
     __block DICEUtiExpert *utiExpert;
+    __block NSFileManager *fileManager;
     __block id<ReportType> redType;
     __block id<ReportType> blueType;
 
@@ -39,11 +40,13 @@ describe(@"InspectReportArchiveOperation", ^{
     beforeEach(^{
         report = [[Report alloc] init];
         utiExpert = [[DICEUtiExpert alloc] init];
-        redType = [[TestReportType alloc] initWithExtension:@"red"];
-        blueType = [[TestReportType alloc] initWithExtension:@"blue"];
+        fileManager = mock([NSFileManager class]);
+        redType = [[TestReportType alloc] initWithExtension:@"red" fileManager:fileManager];
+        blueType = [[TestReportType alloc] initWithExtension:@"blue" fileManager:fileManager];
     });
 
     afterEach(^{
+        stopMocking(fileManager);
     });
 
     afterAll(^{
@@ -56,7 +59,7 @@ describe(@"InspectReportArchiveOperation", ^{
             entry(@"index.blue", 1, 1),
             entry(@"icon.png", 10, 40)
         ] archiveUrl:url archiveUti:kUTTypeZipArchive];
-        id<ReportType> otherRedType = [[TestReportType alloc] initWithExtension:@"red"];
+        id<ReportType> otherRedType = [[TestReportType alloc] initWithExtension:@"red" fileManager:fileManager];
         NSMutableArray *reportTypes = [@[redType, blueType, otherRedType] mutableCopy];
         InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc]
             initWithReport:report reportArchive:archive candidateReportTypes:reportTypes utiExpert:utiExpert];

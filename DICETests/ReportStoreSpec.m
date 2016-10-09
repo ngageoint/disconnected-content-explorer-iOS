@@ -12,6 +12,7 @@
 #import "ImportProcess+Internal.h"
 #import "NotificationRecordingObserver.h"
 #import "NSOperation+Blockable.h"
+#import "NSString+PathUtils.h"
 #import "ReportStore.h"
 #import "ReportType.h"
 #import "TestDICEArchive.h"
@@ -27,6 +28,7 @@
 @property NSMutableDictionary *pathAttrs;
 @property BOOL (^createFileAtPathBlock)(NSString *path);
 @property BOOL (^createDirectoryAtUrlBlock)(NSURL *path, BOOL createIntermediates, NSError **error);
+@property NSMutableDictionary<NSString *, NSData *> *contentsAtPath;
 
 - (void)setContentsOfReportsDir:(NSString *)relPath, ... NS_REQUIRES_NIL_TERMINATION;
 
@@ -39,19 +41,13 @@
     self = [super init];
     self.pathsInReportsDir = [NSMutableArray array];
     self.pathAttrs = [NSMutableDictionary dictionary];
+    self.contentsAtPath = [NSMutableDictionary dictionary];
     return self;
 }
 
 - (NSString *)pathRelativeToReportsDirOfPath:(NSString *)absolutePath
 {
-    NSArray *reportsDirParts = self.reportsDir.pathComponents;
-    NSArray *pathParts = absolutePath.pathComponents;
-    NSArray *pathReportsDirParts = [pathParts subarrayWithRange:NSMakeRange(0, reportsDirParts.count)];
-    NSArray *pathRelativeParts = [pathParts subarrayWithRange:NSMakeRange(reportsDirParts.count, pathParts.count - reportsDirParts.count)];
-    if ([pathReportsDirParts isEqualToArray:reportsDirParts]) {
-        return [pathRelativeParts componentsJoinedByString:@"/"];
-    }
-    return nil;
+    return [absolutePath pathRelativeToPath:self.reportsDir.path];
 }
 
 - (BOOL)fileExistsAtPath:(NSString *)path
@@ -186,6 +182,11 @@
     }
 }
 
+- (NSData *)contentsAtPath:(NSString *)path
+{
+    return self.contentsAtPath[path];
+}
+
 @end
 
 /**
@@ -309,8 +310,8 @@ describe(@"ReportStore", ^{
         notifications = [[NSNotificationCenter alloc] init];
         app = mock([UIApplication class]);
 
-        redType = [[TestReportType alloc] initWithExtension:@"red"];
-        blueType = [[TestReportType alloc] initWithExtension:@"blue"];
+        redType = [[TestReportType alloc] initWithExtension:@"red" fileManager:fileManager];
+        blueType = [[TestReportType alloc] initWithExtension:@"blue" fileManager:fileManager];
 
         // initialize a new ReportStore to ensure all tests are independent
         store = [[ReportStore alloc] initWithReportsDir:reportsDir
@@ -667,6 +668,29 @@ describe(@"ReportStore", ^{
             assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
             
             [NSFileHandle deswizzleAllClassMethods];
+        });
+
+        it(@"parses the report descriptor if present in base dir as metadata.json", ^{
+            [fileManager setContentsOfReportsDir:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", nil];
+            fileManager.contentsAtPath[[reportsDir.path stringByAppendingPathComponent:@"blue_base/metadata.json"]] =
+                [@"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}"
+                    dataUsingEncoding:NSUTF8StringEncoding];
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
+            [blueType enqueueImport];
+            Report *report = [store attemptToImportReportFromResource:baseDir];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
+
+            expect(report.title).to.equal(@"Title From Descriptor");
+            expect(report.summary).to.equal(@"Summary from descriptor");
+        });
+
+        it(@"parses the report descriptor if present in base dir as dice.json", ^{
+            failure(@"do it");
+        });
+
+        it(@"prefers dice.json to metadata.json", ^{
+            failure(@"do it");
         });
 
     });

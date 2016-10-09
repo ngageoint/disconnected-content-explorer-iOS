@@ -21,9 +21,10 @@
 @interface TestReportType : NSObject <ReportType>
 
 @property (readonly) NSString *extension;
+@property (readonly) NSFileManager *fileManager;
 @property NSMutableArray<TestImportProcess *> *importProcessQueue;
 
-- (instancetype)initWithExtension:(NSString *)ext NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithExtension:(NSString *)ext fileManager:(NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
 - (TestImportProcess *)enqueueImport;
 
 @end

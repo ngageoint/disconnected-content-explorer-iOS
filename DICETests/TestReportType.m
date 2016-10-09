@@ -67,11 +67,9 @@
         [my.delegate reportWasUpdatedByImportProcess:my];
     }];
     NSBlockOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            my.report.title = [NSString stringWithFormat:@"finished %@", self.report.url];
-            my.report.summary = [NSString stringWithFormat:@"finished %@", self.report.url];
-            [my.delegate reportWasUpdatedByImportProcess:my];
-        });
+        my.report.title = [NSString stringWithFormat:@"finished %@", self.report.url];
+        my.report.summary = [NSString stringWithFormat:@"finished %@", self.report.url];
+        [my.delegate reportWasUpdatedByImportProcess:my];
     }];
     op1.name = @"TestImportProcess-1";
     op2.name = @"TestImportProcess-2";
@@ -112,16 +110,17 @@
 
 - (instancetype)init
 {
-    return [self initWithExtension:nil];
+    return [self initWithExtension:nil fileManager:nil];
 }
 
-- (instancetype)initWithExtension:(NSString *)ext
+- (instancetype)initWithExtension:(NSString *)ext fileManager:(NSFileManager *)fileManager
 {
     if (!ext) {
         [NSException raise:NSInvalidArgumentException format:@"ext is nil"];
     }
     self = [super init];
     _extension = ext;
+    _fileManager = fileManager;
     _importProcessQueue = [NSMutableArray array];
     return self;
 }
@@ -137,6 +136,10 @@
 
 - (BOOL)couldImportFromPath:(NSURL *)path
 {
+    if ([path.absoluteString hasSuffix:@"/"]) {
+        NSString *index = [NSString stringWithFormat:@"index.%@", self.extension];
+        return [self.fileManager fileExistsAtPath:[path.path stringByAppendingPathComponent:index]];
+    }
     return [path.pathExtension isEqualToString:self.extension];
 }
 
