@@ -686,11 +686,36 @@ describe(@"ReportStore", ^{
         });
 
         it(@"parses the report descriptor if present in base dir as dice.json", ^{
-            failure(@"do it");
+            [fileManager setContentsOfReportsDir:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", nil];
+            fileManager.contentsAtPath[[reportsDir.path stringByAppendingPathComponent:@"blue_base/dice.json"]] =
+                [@"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}"
+                    dataUsingEncoding:NSUTF8StringEncoding];
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
+            [blueType enqueueImport];
+            Report *report = [store attemptToImportReportFromResource:baseDir];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
+
+            expect(report.title).to.equal(@"Title From Descriptor");
+            expect(report.summary).to.equal(@"Summary from descriptor");
         });
 
         it(@"prefers dice.json to metadata.json", ^{
-            failure(@"do it");
+            [fileManager setContentsOfReportsDir:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", @"blue_base/dice.json", nil];
+            fileManager.contentsAtPath[[reportsDir.path stringByAppendingPathComponent:@"blue_base/dice.json"]] =
+                [@"{\"title\": \"Title From dice.json\", \"description\": \"Summary from dice.json\"}"
+                    dataUsingEncoding:NSUTF8StringEncoding];
+            fileManager.contentsAtPath[[reportsDir.path stringByAppendingPathComponent:@"blue_base/metadata.json"]] =
+                [@"{\"title\": \"Title From metadata.json\", \"description\": \"Summary from metadata.json\"}"
+                    dataUsingEncoding:NSUTF8StringEncoding];
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
+            [blueType enqueueImport];
+            Report *report = [store attemptToImportReportFromResource:baseDir];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
+
+            expect(report.title).to.equal(@"Title From dice.json");
+            expect(report.summary).to.equal(@"Summary from dice.json");
         });
 
     });

@@ -526,9 +526,14 @@
         return nil;
     }
     baseDir = baseDir.pathComponents.firstObject;
-    NSString *descriptorPath = [baseDir stringByAppendingPathComponent:@"metadata.json"];
-    descriptorPath = [_reportsDir.path stringByAppendingPathComponent:descriptorPath];
+    NSString *descriptorPath = [baseDir stringByAppendingPathComponent:@"dice.json"];
+    descriptorPath = [self.reportsDir.path stringByAppendingPathComponent:descriptorPath];
     NSData *jsonData = [self.fileManager contentsAtPath:descriptorPath];
+    if (jsonData == nil) {
+        descriptorPath = [baseDir stringByAppendingPathComponent:@"metadata.json"];
+        descriptorPath = [self.reportsDir.path stringByAppendingPathComponent:descriptorPath];
+        jsonData = [self.fileManager contentsAtPath:descriptorPath];
+    }
     if (jsonData == nil || jsonData.length == 0) {
         return nil;
     }
