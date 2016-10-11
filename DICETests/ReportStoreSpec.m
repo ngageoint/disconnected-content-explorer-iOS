@@ -718,6 +718,52 @@ describe(@"ReportStore", ^{
             expect(report.summary).to.equal(@"Summary from dice.json");
         });
 
+        it(@"works if the import process changes the report url", ^{
+            [fileManager setContentsOfReportsDir:@"blue_base/", @"blue_base/index.blue", nil];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+            blueImport.steps = @[
+                [NSBlockOperation blockOperationWithBlock:^{
+                    blueImport.report.url = [reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"];
+                }],
+                [[NSBlockOperation blockOperationWithBlock:^{}] block]
+            ];
+
+            Report *report1 = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
+
+            assertWithTimeout(1.0, thatEventually(report1.url), equalTo([reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"]));
+
+            Report *report2 = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
+
+            expect(report2).to.beIdenticalTo(report1);
+            expect(store.reports.count).to.equal(1);
+            expect(store.reports.firstObject).to.beIdenticalTo(report1);
+
+            [blueImport.steps[1] unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(report1.isEnabled)), isTrue());
+
+            expect(store.reports.count).to.equal(1);
+            expect(store.reports.firstObject).to.beIdenticalTo(report1);
+
+            report2 = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
+
+            expect(report2).to.beIdenticalTo(report1);
+            expect(report2.isEnabled).to.equal(YES);
+        });
+
+        it(@"works if the content match predicate changes the report url", ^{
+            /*
+             TODO: allow the ReportContentMatchPredicate to pass information to
+             the ImportProcess about what was found in the archive.  this will
+             help support alternatives to the standard index.html assumption.
+             also the HtmlReportType should do a breadth first search for html
+             files, or at least in the base dir.  also maybe restore the fail-
+             fast element of the ReportTypeMatchPredicate, e.g., if index.html
+             exists at the root, stop immediately.
+             */
+            failure(@"do it");
+        });
+
     });
 
     describe(@"importing report archives", ^{

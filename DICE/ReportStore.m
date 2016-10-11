@@ -385,7 +385,7 @@
 
     // TODO: check if report url is child of reports directory as well
     for (Report *candidate in self.reports) {
-        if ([candidate.url isEqual:path]) {
+        if ([candidate.url isEqual:path] || [candidate.url.path descendsFromPath:path.path]) {
             return candidate;
         }
     }

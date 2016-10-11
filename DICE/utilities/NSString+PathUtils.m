@@ -25,4 +25,10 @@
     return [pathRelativeParts componentsJoinedByString:@"/"];
 }
 
+- (BOOL)descendsFromPath:(NSString *)ancestor
+{
+    NSString *relPath = [self pathRelativeToPath:ancestor];
+    return relPath != nil;
+}
+
 @end

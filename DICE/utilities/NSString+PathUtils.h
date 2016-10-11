@@ -16,5 +16,6 @@
  * a child of the given parent path, return nil.
  */
 - (NSString *)pathRelativeToPath:(NSString *)parent;
+- (BOOL)descendsFromPath:(NSString *)ancestor;
 
 @end
