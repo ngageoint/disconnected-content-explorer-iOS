@@ -27,6 +27,7 @@ describe(@"HtmlReportType", ^{
 
     __block NSFileManager *fileManager;
     __block HtmlReportType *htmlReportType;
+    __block ContentEnumerationInfo *contentInfo;
 
     beforeAll(^{
 
@@ -35,6 +36,7 @@ describe(@"HtmlReportType", ^{
     beforeEach(^{
         fileManager = mock([NSFileManager class]);
         htmlReportType = [[HtmlReportType alloc] initWithFileManager:fileManager];
+        contentInfo = [[ContentEnumerationInfo alloc] init];
     });
 
     afterEach(^{
@@ -122,6 +124,106 @@ describe(@"HtmlReportType", ^{
         [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
         ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
         expect(import).to.beInstanceOf([ExplodedHtmlImportProcess class]);
+    });
+
+    describe(@"content matching predicate", ^{
+
+        it(@"matches content with index.html at the root", ^{
+            id<ReportTypeMatchPredicate> predicate = [htmlReportType createContentMatchingPredicate];
+
+            expect(predicate.contentCouldMatch).to.equal(NO);
+
+            [contentInfo addInfoForEntryPath:@"index.html" size:100];
+            [predicate considerContentEntryWithName:@"index.html" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"something.else" size:100];
+            [predicate considerContentEntryWithName:@"something.else" probableUti:NULL contentInfo:contentInfo];
+
+            expect(predicate.contentCouldMatch).to.equal(YES);
+        });
+
+        it(@"matches content with index.html in a base dir", ^{
+            id<ReportTypeMatchPredicate> predicate = [htmlReportType createContentMatchingPredicate];
+
+            expect(predicate.contentCouldMatch).to.equal(NO);
+
+            [contentInfo addInfoForEntryPath:@"base/" size:0];
+            [predicate considerContentEntryWithName:@"base/" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"base/index.html" size:100];
+            [predicate considerContentEntryWithName:@"base/index.html" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"base/something.else" size:100];
+            [predicate considerContentEntryWithName:@"base/something.else" probableUti:NULL contentInfo:contentInfo];
+
+            expect(predicate.contentCouldMatch).to.equal(YES);
+        });
+
+        it(@"matches content with index.html in a base dir", ^{
+            id<ReportTypeMatchPredicate> predicate = [htmlReportType createContentMatchingPredicate];
+
+            expect(predicate.contentCouldMatch).to.equal(NO);
+
+            [contentInfo addInfoForEntryPath:@"base/" size:0];
+            [predicate considerContentEntryWithName:@"base/" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"base/index.html" size:0];
+            [predicate considerContentEntryWithName:@"base/index.html" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"base/something.else" size:0];
+            [predicate considerContentEntryWithName:@"base/something.else" probableUti:NULL contentInfo:contentInfo];
+
+            expect(predicate.contentCouldMatch).to.equal(YES);
+        });
+
+        it(@"does not match content with other html", ^{
+            id<ReportTypeMatchPredicate> predicate = [htmlReportType createContentMatchingPredicate];
+
+            expect(predicate.contentCouldMatch).to.equal(NO);
+
+            [contentInfo addInfoForEntryPath:@"base/" size:0];
+            [predicate considerContentEntryWithName:@"base/" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"base/other.html" size:100];
+            [predicate considerContentEntryWithName:@"base/other.html" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"base/something.else" size:100];
+            [predicate considerContentEntryWithName:@"base/something.else" probableUti:NULL contentInfo:contentInfo];
+
+            expect(predicate.contentCouldMatch).to.equal(NO);
+        });
+
+        it(@"matches a single index.html file", ^{
+            id<ReportTypeMatchPredicate> predicate = [htmlReportType createContentMatchingPredicate];
+
+            expect(predicate.contentCouldMatch).to.equal(NO);
+
+            [contentInfo addInfoForEntryPath:@"index.html" size:100];
+            [predicate considerContentEntryWithName:@"index.html" probableUti:NULL contentInfo:contentInfo];
+
+            expect(predicate.contentCouldMatch).to.equal(YES);
+        });
+
+        it(@"matches a single index.html file in a base dir", ^{
+            id<ReportTypeMatchPredicate> predicate = [htmlReportType createContentMatchingPredicate];
+
+            expect(predicate.contentCouldMatch).to.equal(NO);
+
+            [contentInfo addInfoForEntryPath:@"base/" size:0];
+            [predicate considerContentEntryWithName:@"base/" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"base/index.html" size:100];
+            [predicate considerContentEntryWithName:@"base/index.html" probableUti:NULL contentInfo:contentInfo];
+
+            expect(predicate.contentCouldMatch).to.equal(YES);
+        });
+
+        it(@"matches index.html with other html", ^{
+            id<ReportTypeMatchPredicate> predicate = [htmlReportType createContentMatchingPredicate];
+
+            expect(predicate.contentCouldMatch).to.equal(NO);
+
+            [contentInfo addInfoForEntryPath:@"base/" size:0];
+            [predicate considerContentEntryWithName:@"base/" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"base/index.html" size:100];
+            [predicate considerContentEntryWithName:@"base/index.html" probableUti:NULL contentInfo:contentInfo];
+            [contentInfo addInfoForEntryPath:@"base/other.html" size:100];
+            [predicate considerContentEntryWithName:@"base/other.html" probableUti:NULL contentInfo:contentInfo];
+
+            expect(predicate.contentCouldMatch).to.equal(YES);
+        });
     });
 
 });

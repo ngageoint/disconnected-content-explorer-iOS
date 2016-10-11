@@ -27,46 +27,48 @@
 
 
 @implementation HtmlReportTypeMatchPredicate {
-    NSString *_baseDir;
     NSArray *_indexEntry;
-    NSMutableSet *_rootEntries;
+    ContentEnumerationInfo *_contentInfo;
 }
 
 - (instancetype)initWithReportType:(HtmlReportType *)reportType
 {
+    if (!(self = [super init])) {
+        return nil;
+    }
+
     _reportType = reportType;
-    _rootEntries = [NSMutableSet set];
+
+    return self;
 }
 
-- (void)considerContentWithName:(NSString *)name probableUti:(CFStringRef)uti
+- (void)considerContentEntryWithName:(NSString *)name probableUti:(CFStringRef)uti contentInfo:(ContentEnumerationInfo *)info
 {
+    _contentInfo = info;
     NSArray<NSString *> *nameParts = name.pathComponents;
-    NSString *entryRoot = nameParts.firstObject;
-    if ([entryRoot hasSuffix:@"/"]) {
-        if (_baseDir == nil) {
-            _baseDir = entryRoot;
-        }
-        else if (![entryRoot isEqualToString:_baseDir]) {
-            _baseDir = @"";
-        }
-    }
-
-    if (nameParts.count == 1) {
-        [_rootEntries addObject:name];
-    }
-
     NSString *baseName = nameParts.lastObject;
     if ([@"index.html" isEqualToString:baseName] && nameParts.count <= 2) {
-        if (_indexEntry == nil) {
+        if (_indexEntry == nil || nameParts.count < _indexEntry.count) {
             _indexEntry = nameParts;
-        }
-        else if (nameParts.count < _indexEntry.count) {
-            _indexEntry = nameParts;
-        }
-        else if (nameParts.count == _indexEntry.count) {
-            // hmm - oh well
         }
     }
+}
+
+- (BOOL)contentCouldMatch
+{
+    if (!_indexEntry) {
+        return NO;
+    }
+    if (!_contentInfo.hasBaseDir) {
+        // index in the root
+        return _indexEntry.count == 1;
+    }
+    if (_contentInfo.entryCount < 2) {
+        // only one entry - index.html
+        return _indexEntry.count <= 2;
+    }
+    // index.html in a base dir
+    return _indexEntry.count == 2;
 }
 
 @end
@@ -103,7 +105,7 @@
 
 - (id<ReportTypeMatchPredicate>)createContentMatchingPredicate
 {
-
+    return [[HtmlReportTypeMatchPredicate alloc] initWithReportType:self];
 }
 
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir

@@ -13,6 +13,8 @@
 
 @implementation InspectReportArchiveOperation {
     DICEUtiExpert *_utiExpert;
+    NSMutableArray<id<ReportTypeMatchPredicate>> *_predicates;
+    ContentEnumerationInfo *_contentInfo;
 }
 
 - (instancetype)initWithReport:(Report *)report reportArchive:(id<DICEArchive>)archive candidateReportTypes:(NSArray<id<ReportType>> *)types utiExpert:(DICEUtiExpert *)utiExpert
@@ -25,54 +27,44 @@
     _reportArchive = archive;
     _candidates = types;
     _utiExpert = utiExpert;
-    _totalExtractedSize = 0;
+    _predicates = [NSMutableArray arrayWithCapacity:_candidates.count];
+    _contentInfo = [[ContentEnumerationInfo alloc] init];
 
     return self;
 }
 
+- (NSString *)archiveBaseDir
+{
+    if (_contentInfo.hasBaseDir) {
+        return _contentInfo.baseDir;
+    }
+    return nil;
+}
+
+- (uint64_t)totalExtractedSize
+{
+    return _contentInfo.totalContentSize;
+}
 
 - (void)main
 {
     @autoreleasepool {
-        NSMutableArray *predicates = [NSMutableArray arrayWithCapacity:self.candidates.count];
         for (id<ReportType> candidate in self.candidates) {
-            [predicates addObject:[candidate createContentMatchingPredicate]];
+            [_predicates addObject:[candidate createContentMatchingPredicate]];
         }
         [self.reportArchive enumerateEntriesUsingBlock:^void(id<DICEArchiveEntry> entry) {
-            _totalExtractedSize += [entry archiveEntrySizeExtracted];
-            [self checkForBaseDirFromEntry:entry];
+            [_contentInfo addInfoForEntryPath:entry.archiveEntryPath size:entry.archiveEntrySizeExtracted];
             CFStringRef uti = [_utiExpert probableUtiForPathName:[entry archiveEntryPath] conformingToUti:NULL];
-            for (id<ReportTypeMatchPredicate> predicate in predicates) {
-                [predicate considerContentWithName:entry.archiveEntryPath probableUti:uti];
+            for (id<ReportTypeMatchPredicate> predicate in _predicates) {
+                [predicate considerContentEntryWithName:entry.archiveEntryPath probableUti:uti contentInfo:_contentInfo];
             }
         } error:NULL];
-        if (self.archiveBaseDir && self.archiveBaseDir.length == 0) {
-            _archiveBaseDir = nil;
-        }
-        for (id<ReportTypeMatchPredicate> predicate in predicates) {
+        for (id<ReportTypeMatchPredicate> predicate in _predicates) {
             if (predicate.contentCouldMatch) {
-                _matchedReportType = predicate.reportType;
+                _matchedReportType = predicate;
                 return;
             }
         }
-    }
-}
-
-- (void)checkForBaseDirFromEntry:(id<DICEArchiveEntry>)entry
-{
-    if (self.archiveBaseDir && self.archiveBaseDir.length == 0) {
-        return;
-    }
-    NSString *entryRoot = @"";
-    NSArray *pathParts = entry.archiveEntryPath.pathComponents;
-    if (pathParts.count > 1 || (pathParts.count == 1 && [entry.archiveEntryPath hasSuffix:@"/"])) {
-        entryRoot = pathParts.firstObject;
-    }
-    if (self.archiveBaseDir == nil) {
-        _archiveBaseDir = entryRoot;
-    }
-    else if (![self.archiveBaseDir isEqualToString:entryRoot]) {
-        _archiveBaseDir = @"";
     }
 }
 

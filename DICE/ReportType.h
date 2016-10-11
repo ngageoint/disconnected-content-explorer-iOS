@@ -7,6 +7,34 @@
 @class ImportProcess;
 @class Report;
 
+
+
+/**
+ * This is a content enumeration visitor that aggregates information about the content entries
+ * during the enumeration.  An instance of this class should be used as the first visitor of
+ * each content entry then passed to the predicates so they can use the information as the
+ * enumeration proceeds.
+ */
+@interface ContentEnumerationInfo : NSObject
+
+/**
+ * This will be nil until a base directory is found.  After a base directory is found, this
+ * value may still change as the enumeration Once multiple unique root entries are
+ * discovered, this value will become the empty string, @"".
+ */
+@property (readonly, nullable, nonatomic) NSString *baseDir;
+/**
+ * This is a convenience accessor that returns YES if baseDir is non-nil and non-zero length.
+ */
+@property (readonly, nonatomic) BOOL hasBaseDir;
+@property (readonly, nonatomic) NSUInteger entryCount;
+@property (readonly, nonatomic) uint64_t totalContentSize;
+
+- (void)addInfoForEntryPath:(nonnull NSString *)path size:(uint64_t)contentSize;
+
+@end
+
+
 @protocol ReportType <NSObject>
 
 - (BOOL)couldImportFromPath:(nonnull NSURL *)path;
@@ -68,8 +96,9 @@
  * @param name (NSString *) the name, usually including a file path, of a content file entry
  * @param uti (CFStringRef) the most probable uniform type identifier fo the content entry
  */
-- (void)considerContentWithName:(nonnull NSString *)name probableUti:(nullable CFStringRef)uti;
+- (void)considerContentEntryWithName:(nonnull NSString *)name probableUti:(nullable CFStringRef)uti contentInfo:(nonnull ContentEnumerationInfo *)info;
 
 @end
+
 
 #endif

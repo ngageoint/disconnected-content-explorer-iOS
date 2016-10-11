@@ -11,13 +11,6 @@
 #import "Report.h"
 
 
-@interface TestReportTypeMatchPredicate : NSObject <ReportTypeMatchPredicate>
-
-- (instancetype)initWithType:(TestReportType *)type;
-
-@end
-
-
 @implementation TestReportTypeMatchPredicate {
     TestReportType *_type;
     BOOL _foundContentWithTypeExt;
@@ -41,8 +34,11 @@
     return _foundContentWithTypeExt;
 }
 
-- (void)considerContentWithName:(NSString *)name probableUti:(CFStringRef)uti
+- (void)considerContentEntryWithName:(NSString *)name probableUti:(CFStringRef)uti contentInfo:(ContentEnumerationInfo *)info
 {
+    if (info.baseDir && info.baseDir.length == 0) {
+        _hasMultipleRootEntries = YES;
+    }
     _foundContentWithTypeExt = _foundContentWithTypeExt || [name.pathExtension isEqualToString:_type.extension];
 }
 

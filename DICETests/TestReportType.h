@@ -28,3 +28,12 @@
 - (TestImportProcess *)enqueueImport;
 
 @end
+
+
+@interface TestReportTypeMatchPredicate : NSObject <ReportTypeMatchPredicate>
+
+@property (readonly) BOOL hasMultipleRootEntries;
+
+- (instancetype)initWithType:(TestReportType *)type;
+
+@end

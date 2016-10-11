@@ -333,7 +333,7 @@
     else if (context == ARCHIVE_MATCH_CONTEXT) {
         InspectReportArchiveOperation *op = object;
         Report *report = op.report;
-        id<ReportType> type = op.matchedReportType;
+        id<ReportType> type = op.matchedReportType.reportType;
         if (type) {
             NSLog(@"matched report type %@ to report archive %@", type, report);
             [self.importQueue addOperationWithBlock:^{

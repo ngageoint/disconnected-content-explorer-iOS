@@ -27,6 +27,7 @@
 		203ED09568AA183BEC126773956CA8E4 /* InspectReportArchiveOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0625CBAEB5560B095E5D02ED4AABEA57 /* InspectReportArchiveOperation.m */; };
 		20E79152C620B933E54CFC24351E8549 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3A78AF3F3B493A33AAAFD751F7AA5E2 /* OpenGLES.framework */; };
 		21F9E490BC3F8CB7D22904DDCDEB2145 /* ReaderThumbRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = C4AA91C552F83B1CC8C5DDDF10788FD9 /* ReaderThumbRequest.m */; };
+		2508CED09B53B213385B138F4B40F133 /* ContentEnumerationInfoSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A54F3B11871E6420FC51D7AAE5B94ED /* ContentEnumerationInfoSpec.m */; };
 		252EBD190BA1BB850F22D4A606590DC6 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 46940E01625BD7F3E945302A0F301589 /* NoteViewController.m */; };
 		27648773A51FC0E27DE75CD843BD7132 /* Reader-Email.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CF4C914C808A66FE4A7B38A18FA7DB9 /* Reader-Email.png */; };
 		27648BC3D1EF1D6D7F4C3EF078653502 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD3667F5C2726FBC8085CA9717C10A87 /* Foundation.framework */; };
@@ -130,6 +131,7 @@
 		DA4C6EC60F421AD71FAB20FCBC4AAB27 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 589C5DBD98FFACA45AFE14F68ECA0EB8 /* InfoPlist.strings */; };
 		DA5F8301231C0E3710F5B875908E3FA1 /* AppIcon-072.png in Resources */ = {isa = PBXBuildFile; fileRef = 1A9C25D39666109CB4144F843B809BAB /* AppIcon-072.png */; };
 		DAB549032D2C6FA0899105B2D5C89AED /* Report.m in Sources */ = {isa = PBXBuildFile; fileRef = 65DC78D879E03A1ABD81EE28AA7657F0 /* Report.m */; };
+		DABC01706281F348119A687D2F85BFEC /* ContentEnumerationInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = BBAFD92BE2F0CA1ABC6DFD12704C622A /* ContentEnumerationInfo.m */; };
 		DDED2AAEA08CE7E8962E354975F1EC5B /* UnzipOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F6FFAFBAAC2370CE0A5F7ECAD000F85 /* UnzipOperation.m */; };
 		DEF92CAB7F363E401DD06E10DDD34956 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F34ADDB6D6329AE638CB9DB15F2E3E0 /* main.m */; };
 		DF83E9696475444F758EE2D733D8FC21 /* Reader-Mark-Y.png in Resources */ = {isa = PBXBuildFile; fileRef = 4DB43A9F47D07C4F78266505BCF6D971 /* Reader-Mark-Y.png */; };
@@ -222,6 +224,7 @@
 		3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypesTests.m; sourceTree = "<group>"; };
 		394B1DEF7E6D84DDFBE2B0E4F2F71B40 /* HTMLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLViewController.h; sourceTree = "<group>"; };
 		39D46E4251184064FF69409D758E04CE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = resources/Images.xcassets; sourceTree = "<group>"; };
+		3A54F3B11871E6420FC51D7AAE5B94ED /* ContentEnumerationInfoSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContentEnumerationInfoSpec.m; sourceTree = "<group>"; };
 		3A958A35B05C73766F95E6E7188B074B /* ReportResourceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportResourceViewController.m; sourceTree = "<group>"; };
 		3C86416628DA967D2FABBF84724E30EF /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
 		3D27834265B35825A573282348A3AF46 /* ReaderThumbRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbRender.h; sourceTree = "<group>"; };
@@ -339,6 +342,7 @@
 		B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileOperationsSpec.m; sourceTree = "<group>"; };
 		B82E56AF6DA2F8F3E59CE6516AADBC4C /* ReaderMainToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderMainToolbar.m; sourceTree = "<group>"; };
 		B9C35A40AE5863438AA58DCADCB138E2 /* DICEOZZipFileArchive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEOZZipFileArchive.m; sourceTree = "<group>"; };
+		BBAFD92BE2F0CA1ABC6DFD12704C622A /* ContentEnumerationInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContentEnumerationInfo.m; sourceTree = "<group>"; };
 		BD723636131FA5D07A079A929250A05B /* MainStoryboard-iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "MainStoryboard-iPad.storyboard"; sourceTree = "<group>"; };
 		BECAB6B3462EA46C5D9FF8F58762BA6F /* ImportProcessSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImportProcessSpec.m; sourceTree = "<group>"; };
 		BF35EAF75F0FD255B0D7DFB25B4ECEC7 /* AppIcon-057.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-057.png"; sourceTree = "<group>"; };
@@ -643,6 +647,7 @@
 			children = (
 				0B89054DB1A7852C56A43ADAAC1ED3B8 /* Supporting Files */,
 				929910FE4FA114751847631B92EF367B /* resources */,
+				3A54F3B11871E6420FC51D7AAE5B94ED /* ContentEnumerationInfoSpec.m */,
 				FA3F782234B6FACC010EAF55B75AF41A /* ExplodedHtmlImportProcessSpec.m */,
 				B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */,
 				D1A346D07FF62AB077E3017306809DCB /* HtmlReportTypeSpec.m */,
@@ -810,6 +815,7 @@
 				6BBA2B10A125454E01932934FC16B786 /* utilities */,
 				5CCBB74C0C5CCF563469F4F08801C996 /* AppDelegate.h */,
 				827175300533ADBEA03FB1E8434D23C8 /* AppDelegate.m */,
+				BBAFD92BE2F0CA1ABC6DFD12704C622A /* ContentEnumerationInfo.m */,
 				CFAEF44650A2B12F30A02E488950C708 /* DICEConstants.h */,
 				3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */,
 				E76540F5865474CF839BFA5BA0A7D27F /* DICENavigationController.h */,
@@ -1089,6 +1095,7 @@
 			files = (
 				CF9E3904A5B856BD7AB3949ADF350A2E /* AppDelegate.m in Sources */,
 				E52B5F7F205C75C6F759ABB9BC67F63E /* CGPDFDocument.m in Sources */,
+				DABC01706281F348119A687D2F85BFEC /* ContentEnumerationInfo.m in Sources */,
 				92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */,
 				7979D5B4D4EE665AD23AA68D1EB360CA /* DICEDefaultArchiveFactory.m in Sources */,
 				BA3FFA78F8E5D37B5AA537FF8E92096F /* DICEExtractReportOperation.m in Sources */,
@@ -1166,6 +1173,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2508CED09B53B213385B138F4B40F133 /* ContentEnumerationInfoSpec.m in Sources */,
 				54CD2EBF057765169A258000DD4FE36C /* ExplodedHtmlImportProcessSpec.m in Sources */,
 				94FF34B63D94FD5FF4F7C1939CA50348 /* FileOperationsSpec.m in Sources */,
 				78F25D17D6F1DEBDA8B1E312D25AB76D /* HtmlReportTypeSpec.m in Sources */,
