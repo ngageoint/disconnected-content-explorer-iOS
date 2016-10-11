@@ -751,15 +751,18 @@ describe(@"ReportStore", ^{
             expect(report2.isEnabled).to.equal(YES);
         });
 
-        it(@"works if the content match predicate changes the report url", ^{
+        xit(@"passees the content match predicate to the import process", ^{
             /*
-             TODO: allow the ReportContentMatchPredicate to pass information to
+             TODO: Allow the ReportContentMatchPredicate to pass information to
              the ImportProcess about what was found in the archive.  this will
-             help support alternatives to the standard index.html assumption.
-             also the HtmlReportType should do a breadth first search for html
+             help support alternatives to the standard index.html assumption by
+             potentially allowing the ImportProcess to rename or symlink html
+             resources found during the archive entry enumeration.
+             Also the HtmlReportType should do a breadth first search for html
              files, or at least in the base dir.  also maybe restore the fail-
              fast element of the ReportTypeMatchPredicate, e.g., if index.html
-             exists at the root, stop immediately.
+             exists at the root, stop immediately.  Possibly reuse the ReportContentMatchPredicate
+             for enumerating file system contents.
              */
             failure(@"do it");
         });
