@@ -110,7 +110,6 @@
 		A96A3B51FEE64B98DB201AA19E59C82F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B19B00891A831A7486BBD22865C6E31 /* CoreLocation.framework */; };
 		AAF1E73109248B0F9096F7C3426880C5 /* MapOverlayChildTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FBD36723EBEEC7934F06C6EA35B301CD /* MapOverlayChildTableCell.m */; };
 		AB35C836E02302FCFEAF39762C456B6E /* KVOBlockObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = B5BD13DE114EB92FBCFB57F58719152C /* KVOBlockObserver.m */; };
-		ACA7999F8D4CFC70DAE69D7693619D4F /* ValidateHtmlLayoutOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 82C7F74932A31C09F40260215E150384 /* ValidateHtmlLayoutOperation.m */; };
 		ADA1790D0166B639D32097ACAD3A7788 /* Icon-76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6511801B374B9E7EB4E92B8048A968DB /* Icon-76@2x.png */; };
 		AF437098539BBC524F7C86E9EF0CA5F0 /* Reader-Button-H@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5A1CE758A1D34CFEC65DC9550D016F /* Reader-Button-H@2x.png */; };
 		B2812748E5A40043402C2AF937A1612C /* AppIcon-114.png in Resources */ = {isa = PBXBuildFile; fileRef = 89208D0BE88208C40BE5CB135689E5FE /* AppIcon-114.png */; };
@@ -149,7 +148,6 @@
 		F68280B7651D94C7D9B4D69851B2E27D /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A89200515E985EB893EAD6BE26DBC8 /* ImageIO.framework */; };
 		FADA448804A3748C17929AA6CEE984C8 /* ReaderThumbsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D96811406AAC834C785E138B886954C /* ReaderThumbsView.m */; };
 		FD512C231F0C58B3DB3D6C636F130FF0 /* Reader-Email@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 34758BE951714F91CC3722A7EBD544A6 /* Reader-Email@2x.png */; };
-		FF016C9378AC2E59E369103F4D50CAB2 /* ValidateHtmlLayoutOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC1D30FD900F88E1024E5A7212862D3 /* ValidateHtmlLayoutOperationSpec.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -229,7 +227,6 @@
 		3C86416628DA967D2FABBF84724E30EF /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
 		3D27834265B35825A573282348A3AF46 /* ReaderThumbRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbRender.h; sourceTree = "<group>"; };
 		3E0A6175BE4F214F4AD42562F7CB4A9B /* TestOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestOperationQueue.m; sourceTree = "<group>"; };
-		3E219DBDDEAA3C807FFCAB1BD5FDDB9F /* ValidateHtmlLayoutOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValidateHtmlLayoutOperation.h; sourceTree = "<group>"; };
 		3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
 		408B5BAE51B0CCB8040EC7645517FE05 /* DICE-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DICE-Prefix.pch"; sourceTree = "<group>"; };
 		42DC8D0E9D67A6011F44FA39BA1D229F /* Reader-Export@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Export@2x.png"; sourceTree = "<group>"; };
@@ -240,7 +237,6 @@
 		4D164ACC176BC15EB043506E393B0950 /* DisclaimerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DisclaimerViewController.h; sourceTree = "<group>"; };
 		4D96811406AAC834C785E138B886954C /* ReaderThumbsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbsView.m; sourceTree = "<group>"; };
 		4DB43A9F47D07C4F78266505BCF6D971 /* Reader-Mark-Y.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Mark-Y.png"; sourceTree = "<group>"; };
-		4DC1D30FD900F88E1024E5A7212862D3 /* ValidateHtmlLayoutOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValidateHtmlLayoutOperationSpec.m; sourceTree = "<group>"; };
 		4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayCellItem.m; sourceTree = "<group>"; };
 		5524AC7208550B2A19BD012B83BE1DC7 /* ReaderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderViewController.h; sourceTree = "<group>"; };
 		58045F29EBE5FB763E34A831161BBA60 /* GeoPackageURLProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageURLProtocol.h; sourceTree = "<group>"; };
@@ -287,7 +283,6 @@
 		82700369A95E41424285EB966DE4C6C4 /* Reader-Mark-N@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Mark-N@2x.png"; sourceTree = "<group>"; };
 		827175300533ADBEA03FB1E8434D23C8 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		82A1A46E07D06362815975EF26E309B5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		82C7F74932A31C09F40260215E150384 /* ValidateHtmlLayoutOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValidateHtmlLayoutOperation.m; sourceTree = "<group>"; };
 		82CB38757E1DFC9C82E980937E0FB6AC /* ReaderMainToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderMainToolbar.h; sourceTree = "<group>"; };
 		8421CFBD24D0F3BD7C11B46CF0AF8944 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		849E0BBF1F6726B37F8FFBE586B73C1F /* ReportViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportViewCell.m; sourceTree = "<group>"; };
@@ -674,7 +669,6 @@
 				AE95FC42DECEC8146DEB15FCDA9DC15B /* TestReportType.h */,
 				48360F509FDD7869FFF1DD0F573A3692 /* TestReportType.m */,
 				A31A615AB298DCFBC9CF3A36F72C5448 /* UnzipOperationSpec.m */,
-				4DC1D30FD900F88E1024E5A7212862D3 /* ValidateHtmlLayoutOperationSpec.m */,
 			);
 			path = DICETests;
 			sourceTree = "<group>";
@@ -794,8 +788,6 @@
 				BFAF15129409439A2C6C6E59611CC4A3 /* ReportStore.h */,
 				9F0026AC90A9C746149CE6C45D5BCBE1 /* ReportStore.m */,
 				09E6FE836CCD624799154F5DD1F59271 /* ReportType.h */,
-				3E219DBDDEAA3C807FFCAB1BD5FDDB9F /* ValidateHtmlLayoutOperation.h */,
-				82C7F74932A31C09F40260215E150384 /* ValidateHtmlLayoutOperation.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -1164,7 +1156,6 @@
 				171A3C7DABA275D903BE54A7E5BA3EE0 /* UIXToolbarView.m in Sources */,
 				517D8096337C9E0790848C5D0858785F /* URLProtocolUtils.m in Sources */,
 				DDED2AAEA08CE7E8962E354975F1EC5B /* UnzipOperation.m in Sources */,
-				ACA7999F8D4CFC70DAE69D7693619D4F /* ValidateHtmlLayoutOperation.m in Sources */,
 				DEF92CAB7F363E401DD06E10DDD34956 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1192,7 +1183,6 @@
 				E68E2E9936A8EC1888DA9FF9F711AF59 /* TestParseJsonOperation.m in Sources */,
 				D7592583957361831DA87F9B5FBA530F /* TestReportType.m in Sources */,
 				3D0B2D880F9D5CDEF27766D71AAF10E5 /* UnzipOperationSpec.m in Sources */,
-				FF016C9378AC2E59E369103F4D50CAB2 /* ValidateHtmlLayoutOperationSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
