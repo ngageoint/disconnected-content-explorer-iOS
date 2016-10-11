@@ -8,14 +8,12 @@
 
 @protocol DICEArchive;
 
-typedef unsigned long long int archive_size_t;
-
 
 @protocol DICEArchiveEntry <NSObject>
 
 - (nonnull NSString *)archiveEntryPath;
-- (archive_size_t)archiveEntrySizeExtracted;
-- (archive_size_t)archiveEntrySizeInArchive;
+- (uint64_t)archiveEntrySizeExtracted;
+- (uint64_t)archiveEntrySizeInArchive;
 - (NSDate *)archiveEntryDate;
 
 @end
@@ -26,7 +24,7 @@ typedef unsigned long long int archive_size_t;
 - (nonnull NSURL *)archiveUrl;
 - (nonnull CFStringRef)archiveUTType;
 
-- (archive_size_t)calculateArchiveSizeExtractedWithError:(NSError **)error;
+- (uint64_t)calculateArchiveSizeExtractedWithError:(NSError **)error;
 
 - (void)enumerateEntriesUsingBlock:(void (^)(id<DICEArchiveEntry>))block error:(NSError **)error;
 

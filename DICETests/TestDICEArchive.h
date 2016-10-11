@@ -23,6 +23,6 @@
 
 @interface TestDICEArchiveEntry : NSObject <DICEArchiveEntry>
 
-+ (instancetype)entryWithName:(NSString *)name sizeInArchive:(archive_size_t)inArchive sizeExtracted:(archive_size_t)extracted;
++ (instancetype)entryWithName:(NSString *)name sizeInArchive:(uint64_t)inArchive sizeExtracted:(uint64_t)extracted;
 
 @end

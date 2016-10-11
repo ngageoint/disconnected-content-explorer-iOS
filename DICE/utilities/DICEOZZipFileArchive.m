@@ -12,7 +12,7 @@
 @implementation DICEOZZipFileArchive {
     NSURL *_url;
     CFStringRef _uti;
-    archive_size_t _sizeExtracted;
+    uint64_t _sizeExtracted;
     BOOL _sizeExtractedReady;
     OZZipReadStream *_currentReadStream;
 }
@@ -40,7 +40,7 @@
     return _uti;
 }
 
-- (archive_size_t)calculateArchiveSizeExtractedWithError:(NSError **)error
+- (uint64_t)calculateArchiveSizeExtractedWithError:(NSError **)error
 {
     if (!_sizeExtractedReady) {
         [self enumerateEntriesUsingBlock:^(id<DICEArchiveEntry> entry) {} error:error];
@@ -84,17 +84,17 @@
     return (NSUInteger)byteCount;
 }
 
-- (void)closeCurrentArchiveEntryWithError:(NSError **)error
+- (BOOL)closeCurrentArchiveEntryWithError:(NSError **)error
 {
     if (_currentReadStream == nil) {
-        return;
+        return YES;
     }
-    [_currentReadStream finishedReadingWithError:error];
+    return [_currentReadStream finishedReadingWithError:error];
 }
 
-- (void)closeArchiveWithError:(NSError **)error
+- (BOOL)closeArchiveWithError:(NSError **)error
 {
-    [self closeWithError:error];
+    return [self closeWithError:error];
 }
 
 
@@ -108,12 +108,12 @@
     return self.name;
 }
 
-- (archive_size_t)archiveEntrySizeExtracted
+- (uint64_t)archiveEntrySizeExtracted
 {
     return self.length;
 }
 
-- (archive_size_t)archiveEntrySizeInArchive
+- (uint64_t)archiveEntrySizeInArchive
 {
     return self.size;
 }

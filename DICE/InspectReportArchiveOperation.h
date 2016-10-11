@@ -18,7 +18,7 @@
 @property (readonly) id<DICEArchive> reportArchive;
 @property (readonly) NSArray<id<ReportType>> *candidates;
 @property (readonly) id<ReportType> matchedReportType;
-@property (readonly) archive_size_t totalExtractedSize;
+@property (readonly) uint64_t totalExtractedSize;
 @property (readonly) NSString *archiveBaseDir;
 
 - (instancetype)initWithReport:(Report *)report reportArchive:(id<DICEArchive>)archive candidateReportTypes:(NSArray<id<ReportType>> *)types utiExpert:(DICEUtiExpert *)utiExpert;

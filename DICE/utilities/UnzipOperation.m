@@ -12,7 +12,7 @@
 
 @implementation UnzipOperation
 {
-    archive_size_t _totalUncompressedSize;
+    uint64_t _totalUncompressedSize;
     NSUInteger _percentExtracted;
     NSUInteger _bytesExtracted;
 }

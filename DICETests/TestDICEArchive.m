@@ -19,9 +19,9 @@ return YES
     NSURL *_url;
     CFStringRef _uti;
     NSArray *_entries;
-    archive_size_t _sizeExtracted;
+    uint64_t _sizeExtracted;
     id<DICEArchiveEntry> _currentEntry;
-    archive_size_t _currentEntryPos;
+    uint64_t _currentEntryPos;
 }
 
 + (instancetype)archiveWithEntries:(NSArray<id<DICEArchiveEntry>> *)entries archiveUrl:(NSURL *)url archiveUti:(CFStringRef)uti
@@ -68,7 +68,7 @@ return YES
     return _uti;
 }
 
-- (archive_size_t)calculateArchiveSizeExtractedWithError:(NSError **)error
+- (uint64_t)calculateArchiveSizeExtractedWithError:(NSError **)error
 {
     if (self.errorQueue.firstObject) {
         if (error) {
@@ -106,7 +106,7 @@ return YES
         return 0;
     }
 
-    archive_size_t entrySize = _currentEntry.archiveEntrySizeExtracted;
+    uint64_t entrySize = _currentEntry.archiveEntrySizeExtracted;
     if (entrySize <= _currentEntryPos) {
         return 0;
     }
@@ -153,16 +153,16 @@ return YES
 
 @implementation TestDICEArchiveEntry {
     NSString *_name;
-    archive_size_t _sizeInArchive;
-    archive_size_t _sizeExtracted;
+    uint64_t _sizeInArchive;
+    uint64_t _sizeExtracted;
 }
 
-+ (instancetype)entryWithName:(NSString *)name sizeInArchive:(archive_size_t)inArchive sizeExtracted:(archive_size_t)extracted
++ (instancetype)entryWithName:(NSString *)name sizeInArchive:(uint64_t)inArchive sizeExtracted:(uint64_t)extracted
 {
     return [[self alloc] initWithName:name sizeInArchive:inArchive sizeExtracted:extracted];
 }
 
-- (instancetype)initWithName:(NSString *)name sizeInArchive:(archive_size_t)inArchive sizeExtracted:(archive_size_t)extracted
+- (instancetype)initWithName:(NSString *)name sizeInArchive:(uint64_t)inArchive sizeExtracted:(uint64_t)extracted
 {
     self = [super init];
 
@@ -178,12 +178,12 @@ return YES
     return _name;
 }
 
-- (archive_size_t)archiveEntrySizeExtracted
+- (uint64_t)archiveEntrySizeExtracted
 {
     return _sizeExtracted;
 }
 
-- (archive_size_t)archiveEntrySizeInArchive
+- (uint64_t)archiveEntrySizeInArchive
 {
     return _sizeInArchive;
 }
