@@ -61,7 +61,7 @@
         } error:NULL];
         for (id<ReportTypeMatchPredicate> predicate in _predicates) {
             if (predicate.contentCouldMatch) {
-                _matchedReportType = predicate;
+                _matchedPredicate = predicate;
                 return;
             }
         }

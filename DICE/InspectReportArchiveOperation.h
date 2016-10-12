@@ -24,7 +24,7 @@
  * down the chain to the import process so that it would not have to redundantly inspect the extracted
  * archive contents.  This might not be necessary but the thought is captured here nonetheless.
  */
-@property (readonly) id<ReportTypeMatchPredicate> matchedReportType;
+@property (readonly) id<ReportTypeMatchPredicate> matchedPredicate;
 @property (readonly) uint64_t totalExtractedSize;
 @property (readonly) NSString *archiveBaseDir;
 

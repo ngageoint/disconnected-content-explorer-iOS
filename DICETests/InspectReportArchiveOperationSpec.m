@@ -65,21 +65,21 @@ describe(@"InspectReportArchiveOperation", ^{
             initWithReport:report reportArchive:archive candidateReportTypes:reportTypes utiExpert:utiExpert];
         [op start];
 
-        expect(op.matchedReportType.reportType).to.beIdenticalTo(redType);
+        expect(op.matchedPredicate.reportType).to.beIdenticalTo(redType);
 
         [reportTypes exchangeObjectAtIndex:0 withObjectAtIndex:2];
         op = [[InspectReportArchiveOperation alloc]
             initWithReport:report reportArchive:archive candidateReportTypes:reportTypes utiExpert:utiExpert];
         [op start];
 
-        expect(op.matchedReportType.reportType).to.beIdenticalTo(otherRedType);
+        expect(op.matchedPredicate.reportType).to.beIdenticalTo(otherRedType);
 
         [reportTypes exchangeObjectAtIndex:0 withObjectAtIndex:1];
         op = [[InspectReportArchiveOperation alloc]
             initWithReport:report reportArchive:archive candidateReportTypes:reportTypes utiExpert:utiExpert];
         [op start];
 
-        expect(op.matchedReportType.reportType).to.beIdenticalTo(blueType);
+        expect(op.matchedPredicate.reportType).to.beIdenticalTo(blueType);
     });
 
     it(@"assigns the base directory when the archive has one", ^{
@@ -93,7 +93,7 @@ describe(@"InspectReportArchiveOperation", ^{
         [op start];
 
         expect(op.archiveBaseDir).to.equal(@"test_base");
-        expect(op.matchedReportType.reportType).to.beIdenticalTo(redType);
+        expect(op.matchedPredicate.reportType).to.beIdenticalTo(redType);
 
         archive = [TestDICEArchive archiveWithEntries:@[
             entry(@"test_base/", 0, 0),
@@ -107,7 +107,7 @@ describe(@"InspectReportArchiveOperation", ^{
         [op start];
 
         expect(op.archiveBaseDir).to.equal(@"test_base");
-        expect(op.matchedReportType.reportType).to.beIdenticalTo(redType);
+        expect(op.matchedPredicate.reportType).to.beIdenticalTo(redType);
 
         archive = [TestDICEArchive archiveWithEntries:@[
             entry(@"test_base/extra/", 0, 0),
@@ -121,7 +121,7 @@ describe(@"InspectReportArchiveOperation", ^{
         [op start];
 
         expect(op.archiveBaseDir).to.equal(@"test_base");
-        expect(op.matchedReportType.reportType).to.beIdenticalTo(redType);
+        expect(op.matchedPredicate.reportType).to.beIdenticalTo(redType);
     });
 
     it(@"has a nil base directory when the archive more than one root entry", ^{
@@ -136,7 +136,7 @@ describe(@"InspectReportArchiveOperation", ^{
         [op start];
 
         expect(op.archiveBaseDir).to.beNil();
-        expect(op.matchedReportType.reportType).to.beIdenticalTo(redType);
+        expect(op.matchedPredicate.reportType).to.beIdenticalTo(redType);
     });
 
     it(@"has a nil base directory when the archive has a single file entry", ^{
@@ -148,7 +148,7 @@ describe(@"InspectReportArchiveOperation", ^{
             initWithReport:report reportArchive:archive candidateReportTypes:@[blueType, redType] utiExpert:utiExpert];
         [op start];
 
-        expect(op.matchedReportType.reportType).to.beIdenticalTo(redType);
+        expect(op.matchedPredicate.reportType).to.beIdenticalTo(redType);
         expect(op.archiveBaseDir).to.beNil();
     });
 
@@ -160,7 +160,7 @@ describe(@"InspectReportArchiveOperation", ^{
         InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc] initWithReport:report reportArchive:archive candidateReportTypes:@[redType] utiExpert:utiExpert];
         [op start];
 
-        TestReportTypeMatchPredicate *predicate = (TestReportTypeMatchPredicate *)op.matchedReportType;
+        TestReportTypeMatchPredicate *predicate = (TestReportTypeMatchPredicate *)op.matchedPredicate;
         expect(predicate.hasMultipleRootEntries).to.equal(YES);
     });
 
