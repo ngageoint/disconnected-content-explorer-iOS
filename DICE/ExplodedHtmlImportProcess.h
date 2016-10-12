@@ -9,6 +9,4 @@
 
 @interface ExplodedHtmlImportProcess : ImportProcess
 
-- (instancetype)initWithReport:(Report *)report fileManager:(NSFileManager *)fileManager;
-
 @end

@@ -110,8 +110,7 @@
 
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
-    ExplodedHtmlImportProcess *process = [[ExplodedHtmlImportProcess alloc]
-        initWithReport:report fileManager:self.fileManager];
+    ExplodedHtmlImportProcess *process = [[ExplodedHtmlImportProcess alloc] initWithReport:report];
     return process;
 }
 

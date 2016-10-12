@@ -12,31 +12,21 @@
 
 }
 
-- (instancetype)initWithReport:(Report *)report fileManager:(NSFileManager *)fileManager
+- (instancetype)initWithReport:(Report *)report
 {
     if (!(self = [super initWithReport:report])) {
         return nil;
     }
 
-    ParseJsonOperation *parseDescriptor = [[ParseJsonOperation alloc] initWithFileManager:fileManager];
-    NSString *descriptorPath = [report.url.path stringByAppendingPathComponent:@"metadata.json"];
-    parseDescriptor.jsonUrl = [NSURL fileURLWithPath:descriptorPath isDirectory:NO];
-    self.steps = @[parseDescriptor];
+    NSBlockOperation *setIndexUrl = [NSBlockOperation blockOperationWithBlock:^{
+        NSURL *indexUrl = [self.report.url URLByAppendingPathComponent:@"index.html"];
+        [report performSelectorOnMainThread:@selector(setUrl:) withObject:indexUrl waitUntilDone:YES];
+        [self.delegate reportWasUpdatedByImportProcess:self];
+    }];
+
+    self.steps = @[setIndexUrl];
 
     return self;
-}
-
-- (void)stepWillFinish:(NSOperation *)step
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        ParseJsonOperation *parseDescriptor = (ParseJsonOperation *) self.steps.firstObject;
-        if (parseDescriptor.parsedJsonDictionary) {
-            [self.report setPropertiesFromJsonDescriptor:parseDescriptor.parsedJsonDictionary];
-        }
-        if (self.delegate) {
-            [self.delegate importDidFinishForImportProcess:self];
-        }
-    });
 }
 
 @end

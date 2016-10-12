@@ -408,6 +408,7 @@
         baseDir = baseName;
     }
     NSURL *baseDirUrl = [self.reportsDir URLByAppendingPathComponent:baseDir isDirectory:YES];
+    // TODO: initialize with already calculated total extracted size
     DICEExtractReportOperation *extract = [[DICEExtractReportOperation alloc]
         initWithReport:report reportType:reportType extractedBaseDir:baseDirUrl
         archive:archive extractToDir:extractToDir fileManager:self.fileManager];

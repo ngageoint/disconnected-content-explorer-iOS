@@ -17,6 +17,7 @@ typedef void (^KVOBlock)(NSString * _Nonnull keyPath, id _Nonnull target, NSDict
 @property (nonnull, readonly) NSDictionary<NSString *, id> *change;
 @property (nullable, readonly) id oldValue;
 @property (nullable, readonly) id newValue;
+@property (readonly) BOOL wasMainThread;
 
 - (nullable instancetype)initWithTarget:(nonnull id)target keyPath:(nonnull NSString *)keyPath context:(nullable void *)context change:(nullable NSDictionary<NSString *, id> *)change;
 

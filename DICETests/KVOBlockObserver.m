@@ -16,7 +16,8 @@
     _keyPath = keyPath;
     _context = context;
     _change = change;
-
+    _wasMainThread = NSThread.isMainThread;
+    
     return self;
 }
 
