@@ -101,8 +101,16 @@
     else {
         cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     }
-    
-    if ([report.thumbnail isKindOfClass:[NSString class]]) {
+
+    cell.textLabel.text = report.title;
+    cell.detailTextLabel.text = report.summary;
+    cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = report.isEnabled;
+
+    if (report.importStatus == ReportImportStatusFailed) {
+        cell.imageView.image = [UIImage imageNamed:@"dice-error"];
+    }
+    else if ([report.tileThumbnail isKindOfClass:[NSString class]]) {
+        // TODO: this will not work when the url is file under the base directory
         NSURL *thumbnailUrl = [NSURL URLWithString:report.thumbnail relativeToURL:report.url];
         UIImage *image = [UIImage imageWithContentsOfFile:thumbnailUrl.path];
         CGSize itemSize = CGSizeMake(70, 70);
@@ -115,28 +123,7 @@
     else {
         cell.imageView.image = [UIImage imageNamed:@"dice-default"];
     }
-    
-    if (report.isEnabled) {
-        cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = YES;
-        cell.detailTextLabel.text = report.summary;
-    }
-    else if (report.error != nil) {
-        cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = NO;
-        cell.detailTextLabel.text = report.error;
-        cell.imageView.image = [UIImage imageNamed:@"dice-error"];
-    }
-    else {
-        cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = NO;
-        if (report.totalNumberOfFiles > 0 && report.progress > 0) {
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"%d of %d files unzipped", report.progress, report.totalNumberOfFiles ];
-        } else if (report.downloadSize > 0 && report.downloadProgress > 0) {
-            float progress = ((float)report.downloadProgress) / report.downloadSize;
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"%d %% downloaded", (int)(progress *100)];
-        }
-    }
-    
-    cell.textLabel.text = report.title;
-    
+
     return cell;
 }
 

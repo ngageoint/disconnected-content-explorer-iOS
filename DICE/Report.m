@@ -17,12 +17,10 @@
         self.uti = NULL;
         self.reportID = nil;
         self.isEnabled = NO;
-        self.error = nil;
-        self.totalNumberOfFiles = 0;
-        self.progress = 0;
         self.downloadSize = 0;
-        self.cacheFiles = [[NSMutableArray alloc] init];
         self.downloadProgress = 0;
+        self.cacheFiles = [[NSMutableArray alloc] init];
+        self.importStatus = ReportImportStatusNew;
     }
     
     return self;
@@ -34,6 +32,10 @@
     return [NSURL URLWithString:self.thumbnail];
 }
 
+- (BOOL)isImportFinished
+{
+    return self.importStatus == ReportImportStatusSuccess || self.importStatus == ReportImportStatusFailed;
+}
 
 - (instancetype)setPropertiesFromJsonDescriptor:(NSDictionary *)descriptor
 {

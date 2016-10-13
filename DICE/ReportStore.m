@@ -103,9 +103,6 @@
 + (NSString *)reportImportFinished {
     return @"DICE.ReportImportFinished";
 }
-+ (NSString *)reportImportFail {
-    return @"DICE.ReportImportFail";
-}
 + (NSString *)reportsLoaded {
     return @"DICE.ReportsLoaded";
 }
@@ -267,7 +264,7 @@
     report.url = reportUrl;
     report.uti = reportUti;
     report.title = reportUrl.lastPathComponent;
-    report.summary = @"Importing...";
+    report.summary = @"";
 
     // TODO: identify the task name for the report, or just use one task for all pending imports?
     if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
@@ -294,7 +291,6 @@
             initWithReport:report reportArchive:archive candidateReportTypes:self.reportTypes utiExpert:self.utiExpert];
         [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:ARCHIVE_MATCH_CONTEXT];
         [self.importQueue addOperation:op];
-        return report;
     }
     else {
         MatchReportTypeToContentAtPathOperation *op =
@@ -315,59 +311,66 @@
 {
     [object removeObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) context:context];
     // extract archive or get matched report type
+    Report *report;
     if (context == CONTENT_MATCH_CONTEXT) {
         MatchReportTypeToContentAtPathOperation *op = object;
-        Report *report = op.report;
+        report = op.report;
         id<ReportType> type = op.matchedReportType;
         if (type) {
             NSLog(@"matched report type %@ to report %@", type, report);
             [self.importQueue addOperationWithBlock:^{
                 [self startImportProcessForReport:report reportType:type];
             }];
-        }
-        else {
-            NSLog(@"no report type found for report %@", op.report);
-            report.summary = report.error = @"Unkown content type";
+            return;
         }
     }
     else if (context == ARCHIVE_MATCH_CONTEXT) {
         InspectReportArchiveOperation *op = object;
-        Report *report = op.report;
+        report = op.report;
         id<ReportType> type = op.matchedPredicate.reportType;
         if (type) {
             NSLog(@"matched report type %@ to report archive %@", type, report);
             [self.importQueue addOperationWithBlock:^{
                 [self extractReportArchive:op.reportArchive withBaseDir:op.archiveBaseDir forReport:op.report ofType:type];
             }];
-        }
-        else {
-            NSLog(@"no report type found for report archive %@", report);
-            report.summary = report.error = @"Unkown content type";
+            return;
         }
     }
+
+    NSLog(@"no report type found for report archive %@", report);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        report.summary = @"Unkown content type";
+        report.importStatus = ReportImportStatusFailed;
+        // TODO: notification
+    });
 }
 
 #pragma mark - ImportDelegate methods
 
 - (void)reportWasUpdatedByImportProcess:(ImportProcess *)import
 {
-    // TODO: dispatch notifications
+    // TODO: notifications
 }
 
 - (void)importDidFinishForImportProcess:(ImportProcess *)import
 {
     NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:import.report];
     // TODO: assign reportID if nil
-    // TODO: parse the json descriptor here?
     dispatch_async(dispatch_get_main_queue(), ^{
         // import probably changed the report url, so remove by searching for the report itself
         [self clearPendingImportProcess:import];
         import.report.isEnabled = import.wasSuccessful;
-        if (!import.wasSuccessful) {
-            import.report.error = @"Failed to import content";
+        if (import.wasSuccessful) {
+            if (descriptor) {
+                [import.report setPropertiesFromJsonDescriptor:descriptor];
+            }
+            import.report.isEnabled = YES;
+            import.report.importStatus = ReportImportStatusSuccess;
         }
-        else if (descriptor) {
-            [import.report setPropertiesFromJsonDescriptor:descriptor];
+        else {
+            import.report.isEnabled = NO;
+            import.report.importStatus = ReportImportStatusFailed;
+            import.report.summary = @"Failed to import content";
         }
         [self.notifications postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
     });
@@ -383,7 +386,6 @@
         return pendingImport.report;
     }
 
-    // TODO: check if report url is child of reports directory as well
     for (Report *candidate in self.reports) {
         if ([candidate.url isEqual:path] || [candidate.url.path descendsFromPath:path.path]) {
             return candidate;
@@ -403,7 +405,7 @@
         extractToDir = [extractToDir URLByAppendingPathComponent:baseName isDirectory:YES];
         NSError *mkdirError;
         if (![self.fileManager createDirectoryAtURL:extractToDir withIntermediateDirectories:NO attributes:nil error:&mkdirError]) {
-            report.error = [NSString stringWithFormat:@"Error creating base directory for package %@: %@", report.title, mkdirError.localizedDescription];
+            report.summary = [NSString stringWithFormat:@"Error creating base directory for package %@: %@", report.title, mkdirError.localizedDescription];
         }
         baseDir = baseName;
     }
@@ -417,6 +419,8 @@
         PendingImport *pendingImport = [_pendingImports pendingImportWithReport:extract.report];
         _pendingImports[extract.extractedReportBaseDir] = pendingImport;
         [self.importQueue addOperation:extract];
+        report.importStatus = ReportImportStatusExtracting;
+        [self.notifications postNotificationName:ReportNotification.reportExtractProgress object:self userInfo:@{@"report": report, @"percentExtracted": @(0)}];
     });
 }
 
@@ -426,7 +430,7 @@
         Report *report = [self reportAtPath:op.archive.archiveUrl];
         report.summary = [NSString stringWithFormat:@"Extracting - %@%%", @(percent)];
         [self.notifications
-            postNotificationName:[ReportNotification reportExtractProgress]
+            postNotificationName:ReportNotification.reportExtractProgress
             object:self userInfo:@{@"report": report, @"percentExtracted": @(percent)}];
     });
 }
@@ -453,11 +457,12 @@
 
     dispatch_async(dispatch_get_main_queue(), ^{
         if (!success) {
-            report.error = @"Failed to extract archive content";
+            report.summary = @"Failed to extract archive contents";
+            report.importStatus = ReportImportStatusFailed;
+            [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
             return;
         }
         report.url = baseDir;
-        report.summary = @"Importing report content...";
         [self.importQueue addOperation:createImportProcess];
     });
 }
@@ -471,6 +476,9 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         PendingImport *pendingImport = [_pendingImports pendingImportWithReport:report];
         pendingImport.importProcess = importProcess;
+        report.importStatus = ReportImportStatusImporting;
+        report.summary = @"Importing content...";
+        [self.notifications postNotificationName:ReportNotification.reportImportBegan object:self userInfo:@{@"report": report}];
         [self.importQueue addOperations:importProcess.steps waitUntilFinished:NO];
     });
 }

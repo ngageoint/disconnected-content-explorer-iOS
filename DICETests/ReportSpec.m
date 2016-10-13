@@ -46,6 +46,8 @@ describe(@"Report", ^{
         expect(report.lon).to.equal(@-104.8);
         expect(report.thumbnail).to.equal(@"images/test.png");
         expect(report.tileThumbnail).to.equal(@"images/test-tile.png");
+        expect(report.importStatus).to.equal(ReportImportStatusNew);
+        expect(report.isImportFinished).to.equal(NO);
     });
 
     it(@"leaves properties not in the descriptor intact", ^{
@@ -71,6 +73,30 @@ describe(@"Report", ^{
         expect(report.lon).to.beNil();
         expect(report.thumbnail).to.equal(@"default.png");
         expect(report.tileThumbnail).to.equal(@"my_tile.png");
+        expect(report.importStatus).to.equal(ReportImportStatusNew);
+        expect(report.isImportFinished).to.equal(NO);
+    });
+
+    it(@"indicates import finished when status is success or failed", ^{
+        Report *report = [[Report alloc] init];
+
+        expect(report.importStatus).to.equal(ReportImportStatusNew);
+        expect(report.isImportFinished).to.equal(NO);
+
+        report.importStatus = ReportImportStatusDownloading;
+        expect(report.isImportFinished).to.equal(NO);
+
+        report.importStatus = ReportImportStatusExtracting;
+        expect(report.isImportFinished).to.equal(NO);
+
+        report.importStatus = ReportImportStatusImporting;
+        expect(report.isImportFinished).to.equal(NO);
+
+        report.importStatus = ReportImportStatusFailed;
+        expect(report.isImportFinished).to.equal(YES);
+
+        report.importStatus = ReportImportStatusSuccess;
+        expect(report.isImportFinished).to.equal(YES);
     });
     
     afterEach(^{

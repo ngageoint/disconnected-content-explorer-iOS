@@ -80,8 +80,26 @@
     cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
     
     Report *report = self.reports[indexPath.item];
-    
+
+    cell.userInteractionEnabled = report.isEnabled;
+    cell.reportTitle.text = report.title;
+    cell.reportTitle.editable = NO;
+    cell.reportTitle.userInteractionEnabled = NO;
+    cell.reportDescription.text = report.summary;
+    cell.reportDescription.editable = NO;
+    cell.reportDescription.userInteractionEnabled = NO;
+
+    if (!report.isImportFinished) {
+        return cell;
+    }
+
+    if (report.importStatus == ReportImportStatusFailed) {
+        cell.reportImage.image = [UIImage imageNamed:@"dice-error"];
+        return cell;
+    }
+
     if ([report.tileThumbnail isKindOfClass:[NSString class]]) {
+        // TODO: this will not work when the url is file under the base directory
         NSURL *thumbnailUrl = [NSURL URLWithString:report.tileThumbnail relativeToURL:report.url];
         UIImage *image = [UIImage imageWithContentsOfFile:thumbnailUrl.path];
         cell.reportImage.image = image;
@@ -89,31 +107,7 @@
     else {
         cell.reportImage.image = [UIImage imageNamed:@"dice-default"];
     }
-    
-    if (report.isEnabled) {
-        cell.userInteractionEnabled = YES;
-        cell.reportDescription.text = report.summary;
-        [cell.reportDescription setEditable:NO];
-        [cell.reportDescription setUserInteractionEnabled:NO];
-    }
-    else if (report.error != nil) {
-        cell.userInteractionEnabled = NO;
-        cell.reportDescription.text = report.error;
-        cell.reportImage.image = [UIImage imageNamed:@"dice-error"];
-    }
-    else {
-        cell.userInteractionEnabled = NO;
-        if (report.totalNumberOfFiles > 0 && report.progress > 0) {
-            cell.reportDescription.text = [NSString stringWithFormat:@"%d of %d files unzipped", report.progress, report.totalNumberOfFiles];
-        } else if (report.downloadSize > 0 && report.downloadProgress > 0) {
-            float progress = ((float)report.downloadProgress) / report.downloadSize;
-            cell.reportDescription.text = [NSString stringWithFormat:@"%d %% downloaded", (int)(progress * 100) ];
-        }
-    }
-    
-    cell.reportTitle.text = report.title;
-    [cell.reportTitle setEditable:NO];
-    [cell.reportTitle setUserInteractionEnabled:NO];
+
     return cell;
 }
 
