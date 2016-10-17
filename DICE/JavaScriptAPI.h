@@ -16,7 +16,7 @@
  This class provides static methods that return strings for notification names that
  JavascriptAPI can produce.
  */
-@interface JavaScriptNotification
+@interface JavaScriptNotification : NSObject 
 /**
  This notification indicates that the geoJSON the user 
  wanted to export the JavaScript bridge is ready to be

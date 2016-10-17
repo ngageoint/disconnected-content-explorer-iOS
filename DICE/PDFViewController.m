@@ -57,7 +57,7 @@
     self.report = report;
     self.resource = resource;
     if (!self.resource) {
-        self.resource = report.url;
+        self.resource = report.rootResource;
     }
 }
 

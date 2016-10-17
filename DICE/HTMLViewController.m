@@ -5,7 +5,7 @@
 
 #import "HTMLViewController.h"
 
-#import "ReportAPI.h"
+#import "ReportStore.h"
 #import "NoteViewController.h"
 #import "ReportResourceViewController.h"
 #import "ResourceTypes.h"
@@ -40,7 +40,7 @@
     [super viewDidLoad];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportImportFinished:) name:[ReportNotification reportImportFinished] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:[ReportNotification reportExtractProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(emailDataExport:) name:[JavaScriptNotification geoJSONExported] object:nil];
     
     _unzipStatusLabel = [[UILabel alloc] init];
@@ -149,7 +149,7 @@
 
 - (void)updateUnzipProgress:(NSNotification *)notification
 {
-    [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:[NSString stringWithFormat:@"%@ of %@ unzipped", notification.userInfo[@"progress"], notification.userInfo[@"totalNumberOfFiles"]] waitUntilDone:NO];
+    [_unzipStatusLabel performSelectorOnMainThread:@selector(setText:) withObject:[NSString stringWithFormat:@"%@%% extracted", notification.userInfo[@"percentExtracted"]] waitUntilDone:NO];
 }
 
 
@@ -158,7 +158,7 @@
     if (navigationType == UIWebViewNavigationTypeLinkClicked && request.URL.isFileURL) {
         if ([ResourceTypes canOpenResource:request.URL]) {
             // TODO: better api for url handling, e.g., dice://reports/{reportID}/relative_resource?options
-            NSString *base = self.report.url.baseURL.absoluteString;
+            NSString *base = self.report.rootResource.baseURL.absoluteString;
             NSString *relativeResource = [request.URL.absoluteString substringFromIndex:base.length];
             NSURL *diceURL = [NSURL URLWithString:[NSString stringWithFormat:@"dice://?reportID=%@&resource=%@", self.report.reportID, relativeResource]];
             [[UIApplication sharedApplication] openURL:diceURL];

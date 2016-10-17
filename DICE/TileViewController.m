@@ -4,7 +4,7 @@
 //
 
 #import "TileViewController.h"
-#import "ReportAPI.h"
+#import "ReportStore.h"
 
 @interface TileViewController ()
 
@@ -23,7 +23,7 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportExtractProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportImportFinished] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportsLoaded] object:nil];
     
@@ -57,7 +57,7 @@
 
 - (void)refreshControlValueChanged
 {
-    [[ReportAPI sharedInstance] loadReports];
+    [[ReportStore sharedInstance] loadReports];
 }
 
 
@@ -80,40 +80,42 @@
     cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
     
     Report *report = self.reports[indexPath.item];
-    
-    if ([report.tileThumbnail isKindOfClass:[NSString class]]) {
-        NSURL *thumbnailUrl = [NSURL URLWithString:report.tileThumbnail relativeToURL:report.url];
-        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailUrl.path];
+
+    cell.userInteractionEnabled = report.isEnabled;
+    cell.reportTitle.text = report.title;
+    cell.reportTitle.editable = NO;
+    cell.reportTitle.userInteractionEnabled = NO;
+    cell.reportDescription.text = report.summary;
+    cell.reportDescription.editable = NO;
+    cell.reportDescription.userInteractionEnabled = NO;
+
+    if (!report.isImportFinished) {
+        return cell;
+    }
+
+    if (report.importStatus == ReportImportStatusFailed) {
+        cell.reportImage.image = [UIImage imageNamed:@"dice-error"];
+        return cell;
+    }
+
+    NSString *thumbnailPath = nil;
+    if (report.baseDir) {
+        if (report.tileThumbnail.length > 0) {
+            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.tileThumbnail];
+        }
+        else if (report.thumbnail.length > 0) {
+            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.thumbnail];
+        }
+    }
+
+    if (thumbnailPath) {
+        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailPath];
         cell.reportImage.image = image;
     }
     else {
         cell.reportImage.image = [UIImage imageNamed:@"dice-default"];
     }
-    
-    if (report.isEnabled) {
-        cell.userInteractionEnabled = YES;
-        cell.reportDescription.text = report.summary;
-        [cell.reportDescription setEditable:NO];
-        [cell.reportDescription setUserInteractionEnabled:NO];
-    }
-    else if (report.error != nil) {
-        cell.userInteractionEnabled = NO;
-        cell.reportDescription.text = report.error;
-        cell.reportImage.image = [UIImage imageNamed:@"dice-error"];
-    }
-    else {
-        cell.userInteractionEnabled = NO;
-        if (report.totalNumberOfFiles > 0 && report.progress > 0) {
-            cell.reportDescription.text = [NSString stringWithFormat:@"%d of %d files unzipped", report.progress, report.totalNumberOfFiles];
-        } else if (report.downloadSize > 0 && report.downloadProgress > 0) {
-            float progress = ((float)report.downloadProgress) / report.downloadSize;
-            cell.reportDescription.text = [NSString stringWithFormat:@"%d %% downloaded", (int)(progress * 100) ];
-        }
-    }
-    
-    cell.reportTitle.text = report.title;
-    [cell.reportTitle setEditable:NO];
-    [cell.reportTitle setUserInteractionEnabled:NO];
+
     return cell;
 }
 
@@ -187,13 +189,9 @@
 
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    NSLog(@"The %@ button was tapped.", [actionSheet buttonTitleAtIndex:buttonIndex]);
-    
     if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Delete"]) {
-        NSLog(@"Delete tapped");
-        // make the call to the ReportAPI
-
-        [[ReportAPI sharedInstance] deleteReportAtIndexPath:self.indexToDelete];
+        // TODO: restore
+//        [[ReportStore sharedInstance] deleteReportAtIndexPath:self.indexToDelete];
     }
 }
 

@@ -6,7 +6,6 @@
 #import <UIKit/UIKit.h>
 
 #import "Report.h"
-#import "ReportAPI.h"
 #import "ReportCollectionView.h"
 
 

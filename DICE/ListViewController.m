@@ -3,7 +3,7 @@
 //  InteractiveReports
 //
 
-#import "ReportAPI.h"
+#import "ReportStore.h"
 #import "ListViewController.h"
 
 @interface ListViewController ()
@@ -24,7 +24,7 @@
     [super viewDidLoad];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportFinished] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportProgress] object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportExtractProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportsLoaded] object:nil];
     
     self.title = @"Disconnected Interactive Content Explorer";
@@ -43,7 +43,7 @@
 
 - (void)refreshControlValueChanged
 {
-    [[ReportAPI sharedInstance] loadReports];
+    [[ReportStore sharedInstance] loadReports];
 }
 
 
@@ -95,48 +95,45 @@
     Report *report = self.reports[indexPath.row];
     UITableViewCell *cell;
     
-    if ([report.fileExtension isEqualToString:@"pdf"]) {
+    if ([report.rootResource.pathExtension isEqualToString:@"pdf"]) {
         cell = [self.tableView dequeueReusableCellWithIdentifier:@"pdfCell" forIndexPath:indexPath];
     }
     else {
         cell = [self.tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     }
-    
-    if ([report.thumbnail isKindOfClass:[NSString class]]) {
-        NSURL *thumbnailUrl = [NSURL URLWithString:report.thumbnail relativeToURL:report.url];
-        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailUrl.path];
-        CGSize itemSize = CGSizeMake(70, 70);
-        UIGraphicsBeginImageContext(itemSize);
-        CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
-        [image drawInRect:imageRect];
-        cell.imageView.image = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-    }
-    else {
-        cell.imageView.image = [UIImage imageNamed:@"dice-default"];
-    }
-    
-    if (report.isEnabled) {
-        cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = YES;
-        cell.detailTextLabel.text = report.summary;
-    }
-    else if (report.error != nil) {
-        cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = NO;
-        cell.detailTextLabel.text = report.error;
+
+    cell.textLabel.text = report.title;
+    cell.detailTextLabel.text = report.summary;
+    cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = report.isEnabled;
+
+    if (report.importStatus == ReportImportStatusFailed) {
         cell.imageView.image = [UIImage imageNamed:@"dice-error"];
+        return cell;
     }
-    else {
-        cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = NO;
-        if (report.totalNumberOfFiles > 0 && report.progress > 0) {
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"%d of %d files unzipped", report.progress, report.totalNumberOfFiles ];
-        } else if (report.downloadSize > 0 && report.downloadProgress > 0) {
-            float progress = ((float)report.downloadProgress) / report.downloadSize;
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"%d %% downloaded", (int)(progress *100)];
+
+    NSString *thumbnailPath = nil;
+    if (report.baseDir) {
+        if (report.tileThumbnail.length > 0) {
+            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.tileThumbnail];
+        }
+        else if (report.thumbnail.length > 0) {
+            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.thumbnail];
         }
     }
-    
-    cell.textLabel.text = report.title;
-    
+
+    if (thumbnailPath == nil) {
+        cell.imageView.image = [UIImage imageNamed:@"dice-default"];
+        return cell;
+    }
+
+    UIImage *image = [UIImage imageWithContentsOfFile:thumbnailPath];
+    CGSize itemSize = CGSizeMake(70, 70);
+    UIGraphicsBeginImageContext(itemSize);
+    CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
+    [image drawInRect:imageRect];
+    cell.imageView.image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
     return cell;
 }
 
@@ -166,7 +163,8 @@
 -(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [[ReportAPI sharedInstance] deleteReportAtIndexPath:indexPath];
+        // TODO: delete reports
+//        [[ReportStore sharedInstance] deleteReportAtIndexPath:indexPath];
     }
 }
 

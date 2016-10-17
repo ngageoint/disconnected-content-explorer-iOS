@@ -23,8 +23,9 @@ UIStoryboard *activeStoryboard;
 
 + (void) initialize
 {
+    // TODO: remove these and add uti definitons
     supportedFileExtensions = @[
-        @"zip",
+        @"html",
         @"pdf",
         @"doc",
         @"docx",
@@ -36,8 +37,8 @@ UIStoryboard *activeStoryboard;
     
     resourceViewers = @{
         @"default": @"storyboard:htmlViewController",
+        @"public.folder": @"storyboard:htmlViewController",
         @"public.html": @"storyboard:htmlViewController",
-        @"public.zip-archive": @"storyboard:htmlViewController",
         @"com.adobe.pdf": @"class:PDFViewController"
         // TODO: add office types
     };
@@ -53,6 +54,11 @@ UIStoryboard *activeStoryboard;
 
 + (NSString *)typeUtiOf:(NSURL *)resource
 {
+    /*
+     * TODO: handle dyn.<random_string> dynamic type identifiers - apparently UTTypeEqual() should handle that.
+     * also, make sure custom exported UTIs in app plist conform to public.data in addition to other types.  that
+     * seems to avoid the dynamic type identifiers all together.
+     */
     NSString *uti = nil;
     [resource getResourceValue:&uti forKey:NSURLTypeIdentifierKey error:nil];
     if (!uti) {
@@ -67,13 +73,14 @@ UIStoryboard *activeStoryboard;
 
 + (BOOL)canOpenResource:(NSURL *)resource
 {
+    // TODO: need to use UTTypeEqual() instead of dictionary key string comparison
     NSString *uti = [ResourceTypes typeUtiOf:resource];
     if ([resourceViewers valueForKey:uti]) {
         return YES;
     }
     NSArray *docTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDocumentTypes"];
     docTypes = [docTypes filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary *docType, NSDictionary *bindings) {
-        NSArray *utiList = [docType objectForKey:@"LSItemContentTypes"];
+        NSArray *utiList = docType[@"LSItemContentTypes"];
         return [utiList containsObject:uti];
     }]];
     return docTypes.count > 0 || [supportedFileExtensions containsObject:resource.pathExtension.lowercaseString];

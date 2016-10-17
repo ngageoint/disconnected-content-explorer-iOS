@@ -9,9 +9,9 @@
 
 #import "DICENavigationController.h"
 
-#import "ReportAPI.h"
 #import "ReportResourceViewController.h"
 #import "ResourceTypes.h"
+#import "ReportStore.h"
 
 @interface DICENavigationController ()
 
@@ -64,7 +64,7 @@
         return;
     }
     
-    Report *report = [[ReportAPI sharedInstance] reportForID:reportID];
+    Report *report = [[ReportStore sharedInstance] reportForID:reportID];
     
     if (!report) {
         return;
@@ -93,10 +93,10 @@
     ReportResourceViewController *reportView = [self.storyboard instantiateViewControllerWithIdentifier:@"reportResourceViewController"];
     reportView.report = report;
     if (!resourceName) {
-        reportView.resource = report.url;
+        reportView.resource = report.rootResource;
     }
     else {
-        NSURL *resource = [report.url.baseURL URLByAppendingPathComponent:resourceName];
+        NSURL *resource = [report.rootResource.baseURL URLByAppendingPathComponent:resourceName];
         reportView.resource = resource;
     }
     [self pushViewController:reportView animated:animated];

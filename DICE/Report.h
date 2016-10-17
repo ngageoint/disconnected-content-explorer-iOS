@@ -6,26 +6,52 @@
 #import <Foundation/Foundation.h>
 #import "ReportCache.h"
 
+
+typedef NS_ENUM(NSUInteger, ReportImportStatus) {
+    ReportImportStatusNew,
+    ReportImportStatusDownloading,
+    ReportImportStatusExtracting,
+    ReportImportStatusImporting,
+    ReportImportStatusSuccess,
+    ReportImportStatusFailed
+};
+
+
 @interface Report : NSObject
 
-@property (nonatomic, strong) NSString *reportID;
-@property (nonatomic, strong) NSString *title;
-@property (nonatomic, strong) NSString *summary;
-@property (nonatomic, strong) NSString *thumbnail;
-@property (nonatomic, strong) NSString *tileThumbnail;
-@property (nonatomic, strong) NSString *fileExtension;
-@property (nonatomic, strong) NSString *error;
-@property (nonatomic, strong) NSURL *url;
-@property (nonatomic, strong) NSURL *sourceFile;
-@property (nonatomic) double lat;
-@property (nonatomic) double lon;
-@property (nonatomic) int totalNumberOfFiles;
-@property (nonatomic) int progress;
-@property (nonatomic) long downloadSize;
-@property (nonatomic) long downloadProgress;
+@property (nonatomic) NSString *reportID;
+@property (nonatomic) NSString *title;
+@property (nonatomic) NSString *summary;
+@property (nonatomic) NSString *thumbnail;
+@property (nonatomic) NSString *tileThumbnail;
+/** the url of the resource that a client should load first when viewing this report */
+@property (nonatomic) NSURL *rootResource;
+/**
+ * the url of the base directory for this report's content;
+ * nil if the content is a single resource in the reports directory,
+ * e.g., a PDF or MS Office file
+ */
+@property (nonatomic) NSURL *baseDir;
+/** the uniform type identifier of the report's root resource */
+@property (nonatomic) CFStringRef uti;
+@property (nonatomic) NSNumber *lat;
+@property (nonatomic) NSNumber *lon;
+@property (nonatomic) NSUInteger downloadSize;
+@property (nonatomic) NSUInteger downloadProgress;
 @property (nonatomic) BOOL isEnabled;
+@property (nonatomic) ReportImportStatus importStatus;
+/** convenience method that returns YES if the import status is success or failed */
+@property (readonly, nonatomic) BOOL isImportFinished;
 @property (nonatomic) NSMutableArray<ReportCache *> * cacheFiles;
 
-- (instancetype) initWithTitle:(NSString *)title;
+- (instancetype)initWithTitle:(NSString *)title;
+
+/**
+ Set the properties of this report from key-value pairs in the given
+ JSON descriptor dictionary.
+
+ @return self
+ */
+- (instancetype)setPropertiesFromJsonDescriptor:(NSDictionary *)descriptor;
 
 @end
