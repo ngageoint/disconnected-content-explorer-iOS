@@ -71,7 +71,7 @@
 - (PendingImport *)pendingImportForReportUrl:(NSURL *)reportUrl
 {
     for (PendingImport *pi in self.allValues) {
-        if ([pi.report.url isEqual:reportUrl]) {
+        if ([pi.report.rootResource isEqual:reportUrl]) {
             return pi;
         }
     }
@@ -189,10 +189,10 @@
     // TODO: remove deleted reports from list
     // TODO: establish reserved/exclude paths in docs dir
     NSIndexSet *defunctReports = [_reports indexesOfObjectsPassingTest:^BOOL(Report *report, NSUInteger idx, BOOL *stop) {
-        if ([_fileManager fileExistsAtPath:report.url.path]) {
+        if ([_fileManager fileExistsAtPath:report.rootResource.path]) {
             return NO;
         }
-        if (_pendingImports[report.url] != nil) {
+        if (_pendingImports[report.rootResource] != nil) {
             return NO;
         }
         if ([_pendingImports pendingImportWithReport:report]) {
@@ -205,7 +205,7 @@
         // TODO: dispatch reports changed notification, or just wait till load is complete
     }
 
-    NSArray *files = [self.fileManager contentsOfDirectoryAtURL:self.reportsDir includingPropertiesForKeys:nil options:0 error:nil];
+    NSArray *files = [self.fileManager contentsOfDirectoryAtURL:self.reportsDir includingPropertiesForKeys:@[NSURLFileResourceTypeKey] options:0 error:nil];
     for (NSURL *file in files) {
         NSLog(@"attempting to add report from file %@", file);
         /*
@@ -221,7 +221,7 @@
         if (!isDir) {
             NSString *fileType;
             [file getResourceValue:&fileType forKey:NSURLFileResourceTypeKey error:NULL];
-            [NSURLFileResourceTypeDirectory isEqualToString:fileType];
+            isDir = [NSURLFileResourceTypeDirectory isEqualToString:fileType];
         }
         NSString *fileName = [file.lastPathComponent stringByRemovingPercentEncoding];
         NSURL *reportUrl = [self.reportsDir URLByAppendingPathComponent:fileName isDirectory:isDir];
@@ -261,11 +261,18 @@
     CFStringRef reportUti = [self.utiExpert preferredUtiForExtension:reportUrl.pathExtension conformingToUti:NULL];
     report = [[Report alloc] initWithTitle:reportUrl.path];
     report.isEnabled = NO;
-    report.url = reportUrl;
+    report.rootResource = reportUrl;
     report.uti = reportUti;
     report.title = reportUrl.lastPathComponent;
     report.summary = @"";
 
+    // TODO: do this in background for FS access; move after creating and adding report
+    NSDictionary<NSFileAttributeKey, id> *attrs = [self.fileManager attributesOfItemAtPath:reportUrl.path error:nil];
+    NSString *fileType = attrs.fileType;
+    if ([NSFileTypeDirectory isEqualToString:fileType]) {
+        report.baseDir = reportUrl;
+    }
+    
     // TODO: identify the task name for the report, or just use one task for all pending imports?
     if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
         _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice import" expirationHandler:^{
@@ -339,7 +346,7 @@
 
     NSLog(@"no report type found for report archive %@", report);
     dispatch_async(dispatch_get_main_queue(), ^{
-        report.summary = @"Unkown content type";
+        report.summary = @"Unknown content type";
         report.importStatus = ReportImportStatusFailed;
         // TODO: notification
     });
@@ -378,16 +385,18 @@
 
 #pragma mark - private_methods
 
-- (nullable Report *)reportAtPath:(NSURL *)path
+- (nullable Report *)reportAtPath:(NSURL *)pathUrl
 {
-    PendingImport *pendingImport = _pendingImports[path];
+    PendingImport *pendingImport = _pendingImports[pathUrl];
 
     if (pendingImport) {
         return pendingImport.report;
     }
 
     for (Report *candidate in self.reports) {
-        if ([candidate.url isEqual:path] || [candidate.url.path descendsFromPath:path.path]) {
+        if ([pathUrl.path isEqualToString:candidate.rootResource.path] ||
+            [pathUrl.path isEqualToString:candidate.baseDir.path] ||
+            [candidate.rootResource.path descendsFromPath:pathUrl.path]) {
             return candidate;
         }
     }
@@ -401,7 +410,7 @@
     NSURL *extractToDir = self.reportsDir;
     if (baseDir == nil) {
         // TODO: more robust check for possible conflicting base dirs?
-        NSString *baseName = [NSString stringWithFormat:@"%@.dicex", report.url.path.lastPathComponent];
+        NSString *baseName = [NSString stringWithFormat:@"%@.dicex", report.rootResource.path.lastPathComponent];
         extractToDir = [extractToDir URLByAppendingPathComponent:baseName isDirectory:YES];
         NSError *mkdirError;
         if (![self.fileManager createDirectoryAtURL:extractToDir withIntermediateDirectories:NO attributes:nil error:&mkdirError]) {
@@ -418,6 +427,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         PendingImport *pendingImport = [_pendingImports pendingImportWithReport:extract.report];
         _pendingImports[extract.extractedReportBaseDir] = pendingImport;
+        report.baseDir = baseDirUrl;
         [self.importQueue addOperation:extract];
         report.importStatus = ReportImportStatusExtracting;
         [self.notifications postNotificationName:ReportNotification.reportExtractProgress object:self userInfo:@{@"report": report, @"percentExtracted": @(0)}];
@@ -462,7 +472,7 @@
             [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
             return;
         }
-        report.url = baseDir;
+        report.rootResource = baseDir;
         [self.importQueue addOperation:createImportProcess];
     });
 }
@@ -530,7 +540,7 @@
 
 - (NSDictionary *)parseJsonDescriptorIfAvailableForReport:(Report *)report
 {
-    NSString *baseDir = [report.url.path pathRelativeToPath:self.reportsDir.path];
+    NSString *baseDir = [report.rootResource.path pathRelativeToPath:self.reportsDir.path];
     if (baseDir == nil) {
         return nil;
     }

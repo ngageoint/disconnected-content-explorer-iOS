@@ -187,6 +187,12 @@
     return self.contentsAtPath[path];
 }
 
+- (NSDictionary<NSFileAttributeKey, id> *)attributesOfItemAtPath:(NSString *)path error:(NSError * _Nullable __autoreleasing *)error
+{
+    NSString *relPath = [self pathRelativeToReportsDirOfPath:path];
+    return self.pathAttrs[relPath];
+}
+
 @end
 
 /**
@@ -353,14 +359,15 @@ describe(@"ReportStore", ^{
             NSArray *reports = [store loadReports];
 
             expect(reports.count).to.equal(3);
-            expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
-            expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
-            expect(((Report *)reports[2]).url).to.equal([reportsDir URLByAppendingPathComponent:@"something.else"]);
+            expect(((Report *)reports[0]).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(((Report *)reports[1]).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(((Report *)reports[2]).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"something.else"]);
 
             assertWithTimeout(1.0, thatEventually(@([redImport isFinished] && [blueImport isFinished])), isTrue());
         });
 
         it(@"removes reports with path that does not exist and are not importing", ^{
+            
             [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", nil];
 
             TestImportProcess *redImport = redType.enqueueImport;
@@ -371,15 +378,15 @@ describe(@"ReportStore", ^{
             assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled && blueImport.report.isEnabled)), isTrue());
 
             expect(reports.count).to.equal(2);
-            expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
-            expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(((Report *)reports[0]).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(((Report *)reports[1]).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
             [fileManager setContentsOfReportsDir:@"report2.blue", nil];
 
             reports = [store loadReports];
 
             expect(reports.count).to.equal(1);
-            expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(((Report *)reports[0]).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
         });
 
         it(@"leaves imported and importing reports in order of discovery", ^{
@@ -393,9 +400,9 @@ describe(@"ReportStore", ^{
             NSArray<Report *> *reports1 = [NSArray arrayWithArray:[store loadReports]];
 
             expect(reports1.count).to.equal(3);
-            expect(reports1[0].url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
-            expect(reports1[1].url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
-            expect(reports1[2].url).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
+            expect(reports1[0].rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(reports1[1].rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(reports1[2].rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
 
             assertWithTimeout(1.0, thatEventually(@(redImport1.isFinished && redImport2.isFinished)), isTrue());
 
@@ -405,11 +412,11 @@ describe(@"ReportStore", ^{
             NSArray<Report *> *reports2 = [NSArray arrayWithArray:[store loadReports]];
 
             expect(reports2.count).to.equal(3);
-            expect(reports2[0].url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(reports2[0].rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
             expect(reports2[0]).to.beIdenticalTo(reports1[1]);
-            expect(reports2[1].url).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
+            expect(reports2[1].rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
             expect(reports2[1]).to.beIdenticalTo(reports1[2]);
-            expect(reports2[2].url).to.equal([reportsDir URLByAppendingPathComponent:@"report11.red"]);
+            expect(reports2[2].rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report11.red"]);
             expect(reports2[2]).notTo.beIdenticalTo(reports1[0]);
 
             [blueImport unblock];
@@ -427,8 +434,8 @@ describe(@"ReportStore", ^{
             NSArray<Report *> *reports = [store loadReports];
 
             expect(reports.count).to.equal(2);
-            expect(((Report *)reports[0]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
-            expect(((Report *)reports[1]).url).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(((Report *)reports[0]).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(((Report *)reports[1]).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
             assertWithTimeout(1.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
@@ -437,14 +444,14 @@ describe(@"ReportStore", ^{
             expect([reports[1] isEnabled]).to.equal(YES);
 
             Report *redReport = redImport.report;
-            redReport.url = [reportsDir URLByAppendingPathComponent:@"report1.transformed"];
+            redReport.rootResource = [reportsDir URLByAppendingPathComponent:@"report1.transformed"];
 
             [fileManager setContentsOfReportsDir:@"report1.transformed", nil];
 
             reports = [store loadReports];
 
             expect(reports.count).to.equal(1);
-            expect(((Report *)reports.firstObject).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.transformed"]);
+            expect(((Report *)reports.firstObject).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report1.transformed"]);
             expect(((Report *)reports.firstObject).isEnabled).to.equal(NO);
 
             [redImport unblock];
@@ -452,7 +459,7 @@ describe(@"ReportStore", ^{
             assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled)), isTrue());
 
             expect(store.reports.count).to.equal(1);
-            expect(((Report *)store.reports.firstObject).url).to.equal([reportsDir URLByAppendingPathComponent:@"report1.transformed"]);
+            expect(((Report *)store.reports.firstObject).rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"report1.transformed"]);
             expect(((Report *)store.reports.firstObject).isEnabled).to.equal(YES);
         });
 
@@ -554,7 +561,7 @@ describe(@"ReportStore", ^{
             Report *report = [store attemptToImportReportFromResource:url];
 
             expect(report).notTo.beNil();
-            expect(report.url).to.equal(url);
+            expect(report.rootResource).to.equal(url);
         });
 
         it(@"assigns an error message if the report type was unknown", ^{
@@ -563,11 +570,11 @@ describe(@"ReportStore", ^{
 
             assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusFailed));
 
-            expect(report.summary).toNot.beNil();
+            expect(report.summary).to.equal(@"Unknown content type");
         });
 
         it(@"adds the initial report to the report list", ^{
-            TestImportProcess *import = [redType.enqueueImport block];
+            TestImportProcess *import = [[redType enqueueImport] block];
 
             NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.red"];
             Report *report = [store attemptToImportReportFromResource:url];
@@ -576,13 +583,13 @@ describe(@"ReportStore", ^{
 
             expect(store.reports).to.contain(report);
             expect(report.reportID).to.beNil();
-            expect(report.title).to.equal(report.url.lastPathComponent);
+            expect(report.title).to.equal(report.rootResource.lastPathComponent);
             expect(report.summary).to.equal(@"Importing content...");
             expect(report.isEnabled).to.equal(NO);
             
             [import unblock];
 
-            [importQueue waitUntilAllOperationsAreFinished];
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
         });
 
         it(@"sends a notification about adding the report", ^{
@@ -779,14 +786,14 @@ describe(@"ReportStore", ^{
             TestImportProcess *blueImport = [blueType enqueueImport];
             blueImport.steps = @[
                 [NSBlockOperation blockOperationWithBlock:^{
-                    blueImport.report.url = [reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"];
+                    blueImport.report.rootResource = [reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"];
                 }],
                 [[NSBlockOperation blockOperationWithBlock:^{}] block]
             ];
 
             Report *report1 = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
 
-            assertWithTimeout(1.0, thatEventually(report1.url), equalTo([reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"]));
+            assertWithTimeout(1.0, thatEventually(report1.rootResource), equalTo([reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"]));
 
             Report *report2 = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
 
@@ -805,6 +812,42 @@ describe(@"ReportStore", ^{
 
             expect(report2).to.beIdenticalTo(report1);
             expect(report2.isEnabled).to.equal(YES);
+        });
+
+        it(@"sets the base dir when there is one", ^{
+
+            [fileManager setContentsOfReportsDir:@"blue_base/", @"blue_base/index.blue", nil];
+            TestImportProcess *blueImport = [[blueType enqueueImport] block];
+
+            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
+
+            expect(report.baseDir).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]);
+            expect(report.rootResource).to.equal(report.baseDir);
+
+            [blueImport unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(report.baseDir).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]);
+            expect(report.rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"]);
+        });
+
+        it(@"does not set the base dir for a single file", ^{
+
+            [fileManager setContentsOfReportsDir:@"dingle.blue", nil];
+            TestImportProcess *blueImport = [[blueType enqueueImport] block];
+
+            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"dingle.blue"]];
+
+            expect(report.baseDir).to.beNil();
+            expect(report.rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"dingle.blue"]);
+
+            [blueImport unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(report.baseDir).to.beNil();
+            expect(report.rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"dingle.blue"]);
         });
 
         xit(@"passees the content match predicate to the import process", ^{
@@ -892,7 +935,89 @@ describe(@"ReportStore", ^{
             [NSFileHandle deswizzleAllClassMethods];
         });
 
-        it(@"changes the report url to the extracted base dir", ^{
+        it(@"changes the base dir to the extracted base dir before extracting", ^{
+            [fileManager setContentsOfReportsDir:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"blue_base/" sizeInArchive:0 sizeExtracted:0],
+                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
+
+            NSFileHandle *handle = mock([NSFileHandle class]);
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return handle;
+                };
+            }];
+
+            __block NSURL *baseDirBeforeExtracting = nil;
+            __block DICEExtractReportOperation *extract = nil;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
+                    if (extract != nil) {
+                        failure(@"multiple extract operations queued for the same report archive");
+                        return;
+                    }
+                    extract = (DICEExtractReportOperation *)op;
+                    baseDirBeforeExtracting = extract.report.baseDir;
+                    [fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"blue_base"] withIntermediateDirectories:YES attributes:nil error:NULL];
+                }
+            };
+
+            [store attemptToImportReportFromResource:archiveUrl];
+
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
+
+            expect(blueImport.report.baseDir).to.equal(baseDir);
+            expect(baseDirBeforeExtracting).to.equal(baseDir);
+            
+            [NSFileHandle deswizzleAllClassMethods];
+        });
+
+        it(@"changes the base dir to the created base dir before extracting", ^{
+            [fileManager setContentsOfReportsDir:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dicex" isDirectory:YES];
+            NSFileHandle *handle = mock([NSFileHandle class]);
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return handle;
+                };
+            }];
+
+            __block NSURL *baseDirBeforeExtracting = nil;
+            __block DICEExtractReportOperation *extract = nil;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
+                    if (extract != nil) {
+                        failure(@"multiple extract operations queued for the same report archive");
+                        return;
+                    }
+                    extract = (DICEExtractReportOperation *)op;
+                    baseDirBeforeExtracting = extract.report.baseDir;
+                }
+            };
+
+            [store attemptToImportReportFromResource:archiveUrl];
+
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
+
+            expect(blueImport.report.baseDir).to.equal(baseDir);
+            expect(baseDirBeforeExtracting).to.equal(baseDir);
+            
+            [NSFileHandle deswizzleAllClassMethods];
+        });
+
+        it(@"changes the report url and base dir to the extracted base dir", ^{
             [fileManager setContentsOfReportsDir:@"blue.zip", nil];
             NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
             TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
@@ -914,12 +1039,12 @@ describe(@"ReportStore", ^{
 
             assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
-            expect(blueImport.report.url).to.equal(baseDir);
+            expect(blueImport.report.baseDir).to.equal(baseDir);
 
             [NSFileHandle deswizzleAllClassMethods];
         });
 
-        it(@"changes the report url to the created base dir", ^{
+        it(@"changes the report url and base dir to the created base dir", ^{
             [fileManager setContentsOfReportsDir:@"blue.zip", nil];
             NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
             TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
@@ -940,7 +1065,7 @@ describe(@"ReportStore", ^{
 
             assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
 
-            expect(blueImport.report.url).to.equal(baseDir);
+            expect(blueImport.report.baseDir).to.equal(baseDir);
 
             [NSFileHandle deswizzleAllClassMethods];
         });

@@ -98,10 +98,18 @@
         return cell;
     }
 
-    if ([report.tileThumbnail isKindOfClass:[NSString class]]) {
-        // TODO: this will not work when the url is file under the base directory
-        NSURL *thumbnailUrl = [NSURL URLWithString:report.tileThumbnail relativeToURL:report.url];
-        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailUrl.path];
+    NSString *thumbnailPath = nil;
+    if (report.baseDir) {
+        if (report.tileThumbnail.length > 0) {
+            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.tileThumbnail];
+        }
+        else if (report.thumbnail.length > 0) {
+            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.thumbnail];
+        }
+    }
+
+    if (thumbnailPath) {
+        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailPath];
         cell.reportImage.image = image;
     }
     else {

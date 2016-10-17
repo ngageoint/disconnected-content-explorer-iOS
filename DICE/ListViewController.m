@@ -95,7 +95,7 @@
     Report *report = self.reports[indexPath.row];
     UITableViewCell *cell;
     
-    if ([report.url.pathExtension isEqualToString:@"pdf"]) {
+    if ([report.rootResource.pathExtension isEqualToString:@"pdf"]) {
         cell = [self.tableView dequeueReusableCellWithIdentifier:@"pdfCell" forIndexPath:indexPath];
     }
     else {
@@ -108,21 +108,31 @@
 
     if (report.importStatus == ReportImportStatusFailed) {
         cell.imageView.image = [UIImage imageNamed:@"dice-error"];
+        return cell;
     }
-    else if ([report.tileThumbnail isKindOfClass:[NSString class]]) {
-        // TODO: this will not work when the url is file under the base directory
-        NSURL *thumbnailUrl = [NSURL URLWithString:report.thumbnail relativeToURL:report.url];
-        UIImage *image = [UIImage imageWithContentsOfFile:thumbnailUrl.path];
-        CGSize itemSize = CGSizeMake(70, 70);
-        UIGraphicsBeginImageContext(itemSize);
-        CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
-        [image drawInRect:imageRect];
-        cell.imageView.image = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
+
+    NSString *thumbnailPath = nil;
+    if (report.baseDir) {
+        if (report.tileThumbnail.length > 0) {
+            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.tileThumbnail];
+        }
+        else if (report.thumbnail.length > 0) {
+            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.thumbnail];
+        }
     }
-    else {
+
+    if (thumbnailPath == nil) {
         cell.imageView.image = [UIImage imageNamed:@"dice-default"];
+        return cell;
     }
+
+    UIImage *image = [UIImage imageWithContentsOfFile:thumbnailPath];
+    CGSize itemSize = CGSizeMake(70, 70);
+    UIGraphicsBeginImageContext(itemSize);
+    CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
+    [image drawInRect:imageRect];
+    cell.imageView.image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
 
     return cell;
 }

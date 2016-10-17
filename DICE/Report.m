@@ -72,7 +72,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"Report: %@ @%@", self.title, self.url];
+    return [NSString stringWithFormat:@"Report: %@ @%@", self.title, self.rootResource];
 }
 
 @end

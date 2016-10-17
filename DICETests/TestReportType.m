@@ -47,25 +47,37 @@
 
 @implementation TestImportProcess
 
-- (instancetype)init
+- (instancetype)initWithReport:(Report *)report
 {
-    self = [self initWithReport:nil];
-    return self;
+    return [self initWithTypeExtension:nil report:report];
 }
 
-- (instancetype)initWithReport:(Report *)report
+- (instancetype)initWithTypeExtension:(NSString *)ext
+{
+    return [self initWithTypeExtension:ext report:nil];
+}
+
+- (instancetype)initWithTypeExtension:(NSString *)ext report:(Report *)report
 {
     self = [super initWithReport:report];
 
+    self.typeExtension = ext;
+
     TestImportProcess *my = self;
     NSBlockOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{
-        my.report.summary = [NSString stringWithFormat:@"op1 %@", self.report.url];
+        my.report.summary = [NSString stringWithFormat:@"op1 %@", self.report.rootResource];
         [my.delegate reportWasUpdatedByImportProcess:my];
     }];
     NSBlockOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{
-        my.report.title = [NSString stringWithFormat:@"finished %@", self.report.url];
-        my.report.summary = [NSString stringWithFormat:@"finished %@", self.report.url];
-        [my.delegate reportWasUpdatedByImportProcess:my];
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            if (my.report.baseDir) {
+                NSString *indexName = [NSString stringWithFormat:@"index.%@", self.typeExtension];
+                my.report.rootResource = [my.report.baseDir URLByAppendingPathComponent:indexName];
+            }
+            my.report.title = [NSString stringWithFormat:@"finished %@", self.report.rootResource];
+            my.report.summary = [NSString stringWithFormat:@"finished %@", self.report.rootResource];
+            [my.delegate reportWasUpdatedByImportProcess:my];
+        });
     }];
     op1.name = @"TestImportProcess-1";
     op2.name = @"TestImportProcess-2";
@@ -124,7 +136,7 @@
 - (TestImportProcess *)enqueueImport
 {
     @synchronized (self) {
-        TestImportProcess *proc = [[TestImportProcess alloc] init];
+        TestImportProcess *proc = [[TestImportProcess alloc] initWithTypeExtension:self.extension];
         [self.importProcessQueue addObject:proc];
         return proc;
     }

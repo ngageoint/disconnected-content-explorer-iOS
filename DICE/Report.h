@@ -25,7 +25,13 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 @property (nonatomic) NSString *thumbnail;
 @property (nonatomic) NSString *tileThumbnail;
 /** the url of the resource that a client should load first when viewing this report */
-@property (nonatomic) NSURL *url;
+@property (nonatomic) NSURL *rootResource;
+/**
+ * the url of the base directory for this report's content;
+ * nil if the content is a single resource in the reports directory,
+ * e.g., a PDF or MS Office file
+ */
+@property (nonatomic) NSURL *baseDir;
 /** the uniform type identifier of the report's root resource */
 @property (nonatomic) CFStringRef uti;
 @property (nonatomic) NSNumber *lat;
@@ -33,10 +39,10 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 @property (nonatomic) NSUInteger downloadSize;
 @property (nonatomic) NSUInteger downloadProgress;
 @property (nonatomic) BOOL isEnabled;
-@property (nonatomic) NSMutableArray<ReportCache *> * cacheFiles;
 @property (nonatomic) ReportImportStatus importStatus;
-/** return YES if the import status is success or failed */
+/** convenience method that returns YES if the import status is success or failed */
 @property (readonly, nonatomic) BOOL isImportFinished;
+@property (nonatomic) NSMutableArray<ReportCache *> * cacheFiles;
 
 - (instancetype)initWithTitle:(NSString *)title;
 

@@ -8,9 +8,10 @@
 
 @interface TestImportProcess : ImportProcess
 
+@property NSString *typeExtension;
 @property BOOL failed;
 
-- (instancetype)initWithReport:(Report *)report NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithTypeExtension:(NSString *)ext report:(Report *)report NS_DESIGNATED_INITIALIZER;
 - (instancetype)block;
 - (instancetype)unblock;
 - (instancetype)cancelAll;

@@ -90,7 +90,7 @@
     if ([segue.identifier isEqualToString:@"showReport"]) {
         ReportResourceViewController *reportViewController = (ReportResourceViewController *)segue.destinationViewController;
         reportViewController.report = selectedReport;
-        reportViewController.resource = selectedReport.url;
+        reportViewController.resource = selectedReport.rootResource;
     }
 }
 

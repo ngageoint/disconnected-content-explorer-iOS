@@ -38,10 +38,10 @@ describe(@"ExplodedHtmlImportProcess", ^{
 
         NSURL *baseDirUrl = [reportsDir URLByAppendingPathComponent:@"ehip_spec" isDirectory:YES];
         NSURL *indexUrl = [baseDirUrl URLByAppendingPathComponent:@"index.html"];
-        report.url = baseDirUrl;
+        report.rootResource = baseDirUrl;
         ExplodedHtmlImportProcess *import = [[ExplodedHtmlImportProcess alloc] initWithReport:report];
         KVOBlockObserver *observer = [[KVOBlockObserver alloc] initWithBlock:nil];
-        [observer observeKeyPath:@"url" ofObject:report inContext:NULL options:NSKeyValueObservingOptionNew];
+        [observer observeKeyPath:NSStringFromSelector(@selector(rootResource)) ofObject:report inContext:NULL options:NSKeyValueObservingOptionNew];
 
         NSOperationQueue *ops = [[NSOperationQueue alloc] init];
         [ops addOperations:import.steps waitUntilFinished:NO];
@@ -53,7 +53,7 @@ describe(@"ExplodedHtmlImportProcess", ^{
         KVOObservation *observation = observer.observations.firstObject;
         expect(observation.wasMainThread).to.equal(YES);
         expect(observation.newValue).to.equal(indexUrl);
-        expect(report.url).to.equal(indexUrl);
+        expect(report.rootResource).to.equal(indexUrl);
     });
 
     afterEach(^{
