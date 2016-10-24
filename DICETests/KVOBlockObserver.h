@@ -17,6 +17,7 @@ typedef void (^KVOBlock)(NSString * _Nonnull keyPath, id _Nonnull target, NSDict
 @property (nonnull, readonly) NSDictionary<NSString *, id> *change;
 @property (nullable, readonly) id oldValue;
 @property (nullable, readonly) id newValue;
+@property (readonly) BOOL isPrior;
 @property (readonly) BOOL wasMainThread;
 
 - (nullable instancetype)initWithTarget:(nonnull id)target keyPath:(nonnull NSString *)keyPath context:(nullable void *)context change:(nullable NSDictionary<NSString *, id> *)change;
@@ -25,6 +26,8 @@ typedef void (^KVOBlock)(NSString * _Nonnull keyPath, id _Nonnull target, NSDict
 
 
 @interface KVOBlockObserver : NSObject
+
++ (nullable instancetype)recordObservationsOfKeyPath:(nonnull NSString *)keyPath ofObject:(nonnull id)target options:(NSKeyValueObservingOptions)options;
 
 @property (copy, nullable, readonly) KVOBlock observingBlock;
 @property (nonnull, readonly) NSMutableArray<KVOObservation *> *observations;

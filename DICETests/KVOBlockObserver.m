@@ -31,10 +31,21 @@
     return self.change[NSKeyValueChangeNewKey];
 }
 
+- (BOOL)isPrior
+{
+    NSNumber *isPrior = self.change[NSKeyValueChangeNotificationIsPriorKey];
+    return isPrior && isPrior.boolValue;
+}
+
 @end
 
 @implementation KVOBlockObserver {
 
+}
+
++ (instancetype)recordObservationsOfKeyPath:(NSString *)keyPath ofObject:(id)target options:(NSKeyValueObservingOptions)options
+{
+    return [[[KVOBlockObserver alloc] initWithBlock:nil] observeKeyPath:keyPath ofObject:target inContext:NULL options:options];
 }
 
 - (instancetype)observeKeyPath:(NSString *)keyPath ofObject:(id)target inContext:(void *)context options:(NSKeyValueObservingOptions)options

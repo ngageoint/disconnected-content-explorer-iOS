@@ -27,7 +27,6 @@
 
 
 
-
 @implementation MkdirOperation
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
@@ -111,6 +110,93 @@
 @end
 
 
+@implementation MoveFileOperation
+
++ (BOOL)automaticallyNotifiesObserversForKey:(NSString *)key
+{
+    if ([key isEqualToString:NSStringFromSelector(@selector(isReady))]) {
+        return NO;
+    }
+    if ([key isEqualToString:NSStringFromSelector(@selector(sourceUrl))]) {
+        return NO;
+    }
+    if ([key isEqualToString:NSStringFromSelector(@selector(destUrl))]) {
+        return NO;
+    }
+    return [super automaticallyNotifiesObserversForKey:key];
+}
+
+- (instancetype)initWithSourceUrl:(NSURL *)sourceUrl destUrl:(NSURL *)destUrl fileManager:(NSFileManager *)fileManager
+{
+    if (!(self = [super initWithFileMananger:fileManager])) {
+        return nil;
+    }
+
+    _sourceUrl = sourceUrl;
+    _destUrl = destUrl;
+
+    return self;
+}
+
+- (void)setSourceUrl:(NSURL *)sourceUrl
+{
+    if (self.isExecuting || self.isFinished) {
+        [NSException raise:NSInternalInconsistencyException format:@"cannot set sourceUrl while or after executing"];
+    }
+
+    if ([sourceUrl isEqual:self.sourceUrl]) {
+        return;
+    }
+
+    [self willChangeValueForKey:NSStringFromSelector(@selector(sourceUrl))];
+    if (self.destUrl) {
+        [self willChangeValueForKey:NSStringFromSelector(@selector(isReady))];
+    }
+
+    _sourceUrl = sourceUrl;
+
+    if (self.destUrl) {
+        [self didChangeValueForKey:NSStringFromSelector(@selector(isReady))];
+    }
+    [self didChangeValueForKey:NSStringFromSelector(@selector(sourceUrl))];
+}
+
+- (void)setDestUrl:(NSURL *)destUrl
+{
+    if (self.isExecuting || self.isFinished) {
+        [NSException raise:NSInternalInconsistencyException format:@"cannot set destUrl while or after executing"];
+    }
+
+    if ([destUrl isEqual:self.destUrl]) {
+        return;
+    }
+
+    [self willChangeValueForKey:NSStringFromSelector(@selector(destUrl))];
+    if (self.sourceUrl) {
+        [self willChangeValueForKey:NSStringFromSelector(@selector(isReady))];
+    }
+
+    _destUrl = destUrl;
+
+    if (self.sourceUrl) {
+        [self didChangeValueForKey:NSStringFromSelector(@selector(isReady))];
+    }
+    [self didChangeValueForKey:NSStringFromSelector(@selector(destUrl))];
+}
+
+- (BOOL)isReady
+{
+    return super.isReady && (self.isCancelled || (self.sourceUrl != nil && self.destUrl != nil));
+}
+
+- (void)main
+{
+    @autoreleasepool {
+        _fileWasMoved = [self.fileManager moveItemAtURL:self.sourceUrl toURL:self.destUrl error:NULL];
+    }
+}
+
+@end
 
 
 @implementation DeleteFileOperation

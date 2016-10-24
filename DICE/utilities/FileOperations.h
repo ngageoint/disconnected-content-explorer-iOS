@@ -15,13 +15,11 @@
 
 @interface FileOperation : NSOperation
 
-@property (readonly) NSFileManager *fileManager;
+@property (readonly, nonnull) NSFileManager *fileManager;
 
-- (instancetype)initWithFileMananger:(NSFileManager *)fileManager;
+- (nullable instancetype)initWithFileMananger:(nonnull NSFileManager *)fileManager;
 
 @end
-
-
 
 
 @interface MkdirOperation : FileOperation
@@ -30,23 +28,32 @@
  the URL of the directory to create; the operation will not be ready until
  this property is non-nil
  */
-@property (nonatomic) NSURL *dirUrl;
+@property (nullable, nonatomic) NSURL *dirUrl;
 @property (readonly) BOOL dirWasCreated;
 @property (readonly) BOOL dirExisted;
 
-- (instancetype)initWithDirUrl:(NSURL *)dirUrl fileManager:(NSFileManager *)fileManager;
+- (nullable instancetype)initWithDirUrl:(nullable NSURL *)dirUrl fileManager:(nonnull NSFileManager *)fileManager;
 
 @end
 
 
+@interface MoveFileOperation : FileOperation
+
+@property (nullable, nonatomic) NSURL *sourceUrl;
+@property (nullable, nonatomic) NSURL *destUrl;
+@property (readonly) BOOL fileWasMoved;
+
+- (nullable instancetype)initWithSourceUrl:(nullable NSURL *)sourceUrl destUrl:(nullable NSURL *)destUrl fileManager:(nonnull NSFileManager *)fileManager;
+
+@end
 
 
 @interface DeleteFileOperation : FileOperation
 
-@property (readonly) NSURL *fileUrl;
+@property (readonly, nullable) NSURL *fileUrl;
 @property (readonly) BOOL fileWasDeleted;
 
-- (instancetype)initWithFileUrl:(NSURL *)fileUrl fileManager:(NSFileManager *)fileManager;
+- (nullable instancetype)initWithFileUrl:(nullable NSURL *)fileUrl fileManager:(nonnull NSFileManager *)fileManager;
 
 @end
 

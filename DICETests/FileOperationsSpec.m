@@ -14,6 +14,7 @@
 
 #import "FileOperations.h"
 #import "NSOperation+Blockable.h"
+#import "KVOBlockObserver.h"
 
 
 SpecBegin(FileOperations)
@@ -149,6 +150,195 @@ describe(@"MkdirOperation", ^{
 
     afterAll(^{
     });
+});
+
+#define observeIsReadyOn(operation) [[[KVOBlockObserver alloc] initWithBlock:nil] observeKeyPath:@"isReady" ofObject:op inContext:NULL options:NSKeyValueObservingOptionPrior|NSKeyValueObservingOptionNew];
+
+describe(@"MoveFileOperation", ^{
+
+    __block NSFileManager *fileManager;
+    __block NSURL *source;
+    __block NSURL *dest;
+
+    beforeAll(^{
+    });
+
+    beforeEach(^{
+        fileManager = mock([NSFileManager class]);
+        source = [NSURL fileURLWithPath:@"/source/file.txt"];
+        dest = [NSURL fileURLWithPath:@"/dest/file.txt"];
+    });
+
+    afterEach(^{
+        stopMocking(fileManager);
+    });
+
+    afterAll(^{
+    });
+
+    it(@"is not ready until source and dest are set", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+
+        expect(op.isReady).to.beTruthy();
+
+        op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:nil fileManager:fileManager];
+        KVOBlockObserver *obs = observeIsReadyOn(op);
+
+        expect(op.isReady).to.beFalsy();
+        expect(obs.observations).to.beEmpty();
+
+        op.destUrl = dest;
+
+        expect(op.isReady).to.beTruthy();
+        expect(obs.observations).to.haveCountOf(2);
+        expect(obs.observations[0].isPrior).to.beTruthy();
+        expect(obs.observations[1].isPrior).to.beFalsy();
+
+        [op removeObserver:obs forKeyPath:@"isReady"];
+
+        op = [[MoveFileOperation alloc] initWithSourceUrl:nil destUrl:dest fileManager:fileManager];
+        obs = observeIsReadyOn(op);
+
+        expect(op.isReady).to.beFalsy();
+        expect(obs.observations).to.beEmpty();
+
+        op.sourceUrl = source;
+
+        expect(op.isReady).to.beTruthy();
+        expect(obs.observations).to.haveCountOf(2);
+        expect(obs.observations[0].isPrior).to.beTruthy();
+        expect(obs.observations[1].isPrior).to.beFalsy();
+
+        [op removeObserver:obs forKeyPath:@"isReady"];
+
+        op = [[MoveFileOperation alloc] initWithSourceUrl:nil destUrl:nil fileManager:fileManager];
+        obs = observeIsReadyOn(op);
+
+        expect(op.isReady).to.beFalsy();
+        expect(obs.observations).to.beEmpty();
+
+        op.sourceUrl = source;
+
+        expect(op.isReady).to.beFalsy();
+        expect(obs.observations).to.beEmpty();
+
+        op.destUrl = dest;
+
+        expect(obs.observations).to.haveCountOf(2);
+        expect(obs.observations[0].isPrior).to.beTruthy();
+        expect(obs.observations[1].isPrior).to.beFalsy();
+
+        [op removeObserver:obs forKeyPath:@"isReady"];
+    });
+
+    it(@"does not generate kvo notifications when values are equal", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+        KVOBlockObserver *obs = [[[[[KVOBlockObserver alloc] initWithBlock:nil]
+            observeKeyPath:@"sourceUrl" ofObject:op inContext:NULL options:0]
+            observeKeyPath:@"destUrl" ofObject:op inContext:NULL options:0]
+            observeKeyPath:@"isReady" ofObject:op inContext:NULL options:0];
+
+        op.sourceUrl = [NSURL fileURLWithPath:source.path];
+        op.destUrl = [NSURL fileURLWithPath:dest.path];
+
+        expect(obs.observations).to.beEmpty();
+    });
+
+    it(@"raises an exception when setting urls while executing", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+        [op block];
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperation:op];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
+
+        expect(^{ op.sourceUrl = [NSURL fileURLWithPath:@"/new/source.txt"]; }).to.raise(NSInternalInconsistencyException);
+        expect(^{ op.destUrl = [NSURL fileURLWithPath:@"/new/dest.txt"]; }).to.raise(NSInternalInconsistencyException);
+
+        [op unblock];
+
+        [ops waitUntilAllOperationsAreFinished];
+    });
+
+    it(@"raises an exception when setting urls after finished", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+
+        [op start];
+
+        expect(op.isFinished).to.beTruthy();
+        expect(^{ op.sourceUrl = [NSURL fileURLWithPath:@"/new/source.txt"]; }).to.raise(NSInternalInconsistencyException);
+        expect(^{ op.destUrl = [NSURL fileURLWithPath:@"/new/dest.txt"]; }).to.raise(NSInternalInconsistencyException);
+    });
+
+    it(@"moves the file", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+
+        [given([fileManager moveItemAtURL:anything() toURL:anything() error:NULL]) willReturnBool:YES];
+
+        [op start];
+
+        [[verify(fileManager) withMatcher:anything() forArgument:2] moveItemAtURL:source toURL:dest error:NULL];
+        expect(op.fileWasMoved).to.beTruthy();
+    });
+
+    it(@"inidicates when the move was not successful", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+
+        [given([fileManager moveItemAtURL:anything() toURL:anything() error:NULL]) willReturnBool:NO];
+
+        [op start];
+
+        [[verify(fileManager) withMatcher:anything() forArgument:2] moveItemAtURL:source toURL:dest error:NULL];
+        expect(op.fileWasMoved).to.beFalsy();
+    });
+
+    it(@"gets dequeued if cancelled before becoming ready", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:nil destUrl:nil fileManager:fileManager];
+
+        expect(op.isReady).to.beFalsy();
+
+        [op cancel];
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperation:op];
+
+        [ops waitUntilAllOperationsAreFinished];
+
+        [[verifyCount(fileManager, never()) withMatcher:anything() forArgument:2] moveItemAtURL:anything() toURL:anything() error:NULL];
+    });
+
+    it(@"gets dequeued and does not move file if enqueued then cancelled before executing", ^{
+
+        MoveFileOperation *move = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+        NSBlockOperation *cancelMove = [NSBlockOperation blockOperationWithBlock:^{
+            [move cancel];
+        }];
+        [move addDependency:cancelMove];
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperations:@[cancelMove, move] waitUntilFinished:YES];
+
+        [[verifyCount(fileManager, never()) withMatcher:anything() forArgument:2] moveItemAtURL:source toURL:dest error:NULL];
+    });
+
+    it(@"does not move the file if cancelled before executing", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+
+        [op cancel];
+        [op start];
+
+        [[verifyCount(fileManager, never()) withMatcher:anything() forArgument:2] moveItemAtURL:anything() toURL:anything() error:NULL];
+    });
+
 });
 
 
