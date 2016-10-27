@@ -345,12 +345,14 @@ describe(@"MoveFileOperation", ^{
 describe(@"DeleteFileOperation", ^{
 
     __block NSFileManager *fileManager;
+    __block NSURL *doomed;
 
     beforeAll(^{
     });
 
     beforeEach(^{
         fileManager = mock([NSFileManager class]);
+        doomed = [NSURL fileURLWithPath:@"/delete/me.txt"];
     });
 
     afterEach(^{
@@ -358,7 +360,7 @@ describe(@"DeleteFileOperation", ^{
     });
 
     it(@"deletes the file", ^{
-        NSURL *doomed = [NSURL URLWithString:@"file:///var/dice/foo.txt"];
+
         DeleteFileOperation *op = [[DeleteFileOperation alloc] initWithFileUrl:doomed fileManager:fileManager];
 
         [[given([fileManager removeItemAtURL:doomed error:NULL]) withMatcher:anything() forArgument:1] willReturnBool:YES];
@@ -372,7 +374,7 @@ describe(@"DeleteFileOperation", ^{
     });
 
     it(@"inidicates the file was not deleted", ^{
-        NSURL *doomed = [NSURL URLWithString:@"file:///var/dice/foo.txt"];
+
         DeleteFileOperation *op = [[DeleteFileOperation alloc] initWithFileUrl:doomed fileManager:fileManager];
 
         [[given([fileManager removeItemAtURL:doomed error:NULL]) withMatcher:anything() forArgument:1] willReturnBool:NO];
@@ -383,6 +385,94 @@ describe(@"DeleteFileOperation", ^{
 
         [verify(fileManager) removeItemAtURL:doomed error:NULL];
         expect(op.fileWasDeleted).to.equal(NO);
+    });
+
+    it(@"is not ready until the dir url is set", ^{
+
+        DeleteFileOperation *op = [[DeleteFileOperation alloc] initWithFileUrl:nil fileManager:fileManager];
+
+        expect(op.isReady).to.beFalsy();
+
+        op.fileUrl = doomed;
+
+        expect(op.isReady).to.beTruthy();
+    });
+
+    it(@"raises an exception when setting the file url while executing", ^{
+
+        DeleteFileOperation *op = [[DeleteFileOperation alloc] initWithFileUrl:doomed fileManager:fileManager];
+        [op block];
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperation:op];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
+
+        expect(^{ op.fileUrl = [NSURL fileURLWithPath:@"/some/other.txt"]; }).to.raise(NSInternalInconsistencyException);
+
+        [op unblock];
+
+        [ops waitUntilAllOperationsAreFinished];
+    });
+
+    it(@"raises an exception when setting the file url after finished", ^{
+
+        DeleteFileOperation *op = [[DeleteFileOperation alloc] initWithFileUrl:doomed fileManager:fileManager];
+
+        [op start];
+
+        expect(op.isFinished).to.beTruthy();
+        expect(^{ op.fileUrl = [NSURL fileURLWithPath:@"/some/other.txt"]; }).to.raise(NSInternalInconsistencyException);
+    });
+
+    describe(@"key-value observing", ^{
+
+        it(@"notifies about fileUrl when the value changes", ^{
+
+            DeleteFileOperation *op = [[DeleteFileOperation alloc] initWithFileUrl:nil fileManager:fileManager];
+            KVOBlockObserver *obs = [KVOBlockObserver recordObservationsOfKeyPath:@"fileUrl" ofObject:op options:NSKeyValueObservingOptionPrior];
+
+            op.fileUrl = nil;
+
+            expect(obs.observations).to.beEmpty();
+
+            op.fileUrl = doomed;
+
+            expect(obs.observations).to.haveCountOf(2);
+            expect(obs.observations.firstObject.isPrior).to.beTruthy();
+
+            op.fileUrl = doomed;
+
+            expect(obs.observations).to.haveCountOf(2);
+
+            op.fileUrl = [NSURL fileURLWithPath:doomed.path];
+
+            expect(obs.observations).to.haveCountOf(2);
+        });
+
+        it(@"notifies about isReady when fileUrl is set", ^{
+
+            DeleteFileOperation *op = [[DeleteFileOperation alloc] initWithFileUrl:nil fileManager:fileManager];
+            KVOBlockObserver *obs = [KVOBlockObserver recordObservationsOfKeyPath:@"isReady" ofObject:op options:NSKeyValueObservingOptionPrior];
+
+            op.fileUrl = nil;
+
+            expect(obs.observations).to.beEmpty();
+
+            op.fileUrl = doomed;
+
+            expect(obs.observations).to.haveCountOf(2);
+            expect(obs.observations.firstObject.isPrior).to.beTruthy();
+
+            op.fileUrl = doomed;
+
+            expect(obs.observations).to.haveCountOf(2);
+
+            op.fileUrl = [NSURL fileURLWithPath:doomed.path];
+            
+            expect(obs.observations).to.haveCountOf(2);
+        });
+
     });
 
 });
