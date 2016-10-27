@@ -21,25 +21,102 @@
 #import "DICEUtiExpert.h"
 
 
+@class ReportStoreSpec_FileManager;
+
+
+@interface ReportStoreSpec_DirectoryEnumerator : NSDirectoryEnumerator
+
+- (instancetype)initWithRootDir:(NSString *)rootDir descendants:(NSOrderedSet<NSString *> *)descendants fileManager:(NSFileManager *)fileManager;
+
+@end
+
+
+
 @interface ReportStoreSpec_FileManager : NSFileManager
 
 @property NSURL *reportsDir;
-@property NSMutableArray<NSString *> *pathsInReportsDir;
+@property NSMutableOrderedSet<NSString *> *pathsInReportsDir;
 @property NSMutableDictionary *pathAttrs;
-@property BOOL (^createFileAtPathBlock)(NSString *path);
-@property BOOL (^createDirectoryAtUrlBlock)(NSURL *path, BOOL createIntermediates, NSError **error);
+@property BOOL (^onCreateFileAtPath)(NSString *path);
+@property BOOL (^onCreateDirectoryAtURL)(NSURL *path, BOOL createIntermediates, NSError **error);
 @property NSMutableDictionary<NSString *, NSData *> *contentsAtPath;
 
 - (void)setContentsOfReportsDir:(NSString *)relPath, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end
 
+
+@implementation ReportStoreSpec_DirectoryEnumerator {
+    NSString *_rootDir;
+    NSOrderedSet<NSString *> *_descendants;
+    NSFileManager *_fileManager;
+    NSUInteger _cursor;
+}
+
+- (instancetype)initWithRootDir:(NSString *)rootDir descendants:(NSOrderedSet<NSString *> *)descendants fileManager:(NSFileManager *)fileManager
+{
+    self = [super init];
+
+    _rootDir = rootDir;
+    _descendants = descendants;
+    _fileManager = fileManager;
+    _cursor = 0;
+
+    return self;
+}
+
+- (NSString *)lastReturnedPath
+{
+    if (_cursor == 0) {
+        return nil;
+    }
+    NSString *relPath = [_descendants objectAtIndex:_cursor - 1];
+    return [_rootDir stringByAppendingPathComponent:relPath];
+}
+
+- (id)nextObject
+{
+    if (_cursor == _descendants.count) {
+        return nil;
+    }
+    NSString *current = [_descendants objectAtIndex:_cursor];
+    _cursor += 1;
+    return current;
+}
+
+- (NSDictionary<NSFileAttributeKey,id> *)directoryAttributes
+{
+    return [_fileManager attributesOfItemAtPath:_rootDir error:NULL];
+}
+
+- (NSDictionary<NSFileAttributeKey,id> *)fileAttributes
+{
+    NSString *absPath = self.lastReturnedPath;
+    return [_fileManager attributesOfItemAtPath:absPath error:NULL];
+}
+
+- (void)skipDescendants
+{
+
+}
+
+- (NSUInteger)level
+{
+    if (self.lastReturnedPath == nil) {
+        return 0;
+    }
+    return self.lastReturnedPath.pathComponents.count - _rootDir.pathComponents.count - 1;
+}
+
+@end
+
+
 @implementation ReportStoreSpec_FileManager
 
 - (instancetype)init
 {
     self = [super init];
-    self.pathsInReportsDir = [NSMutableArray array];
+    self.pathsInReportsDir = [NSMutableOrderedSet orderedSet];
     self.pathAttrs = [NSMutableDictionary dictionary];
     self.contentsAtPath = [NSMutableDictionary dictionary];
     return self;
@@ -54,7 +131,7 @@
 {
     @synchronized (self) {
         NSString *relPath = [self pathRelativeToReportsDirOfPath:path];
-        return relPath != nil && [self.pathsInReportsDir containsObject:relPath];
+        return relPath != nil && (relPath.length == 0 || [self.pathsInReportsDir containsObject:relPath]);
     }
 }
 
@@ -66,7 +143,7 @@
             return NO;
         }
         NSString *relPath = [self pathRelativeToReportsDirOfPath:path];
-        *isDirectory = self.pathAttrs[relPath] && [self.pathAttrs[relPath][NSFileType] isEqualToString:NSFileTypeDirectory];
+        *isDirectory = relPath.length == 0 || (self.pathAttrs[relPath] && [self.pathAttrs[relPath][NSFileType] isEqualToString:NSFileTypeDirectory]);
         return YES;
     }
 }
@@ -83,6 +160,48 @@
             }
         }
         return paths;
+    }
+}
+
+- (NSDirectoryEnumerator<NSString *> *)enumeratorAtPath:(NSString *)path
+{
+    @synchronized (self) {
+        BOOL isDir;
+        if (![self fileExistsAtPath:path isDirectory:&isDir] || !isDir) {
+            return nil;
+        }
+        NSOrderedSet<NSString *> *descendants = [self descendantRelativePathsOfDir:path];
+        ReportStoreSpec_DirectoryEnumerator *enumerator = [[ReportStoreSpec_DirectoryEnumerator alloc] initWithRootDir:path descendants:descendants fileManager:self];
+        return enumerator;
+    }
+}
+
+- (NSOrderedSet<NSString *> *)descendantRelativePathsOfDir:(NSString *)rootDir
+{
+    @synchronized (self) {
+        NSString *relRootDir = [self pathRelativeToReportsDirOfPath:rootDir];
+        if (relRootDir == nil) {
+            return nil;
+        }
+        NSUInteger pos = [self.pathsInReportsDir indexOfObject:relRootDir];
+        if (pos == self.pathsInReportsDir.count - 1) {
+            return [NSOrderedSet orderedSet];
+        }
+        pos += 1;
+        relRootDir = [relRootDir stringByAppendingString:@"/"];
+        NSMutableOrderedSet *descendants = [NSMutableOrderedSet orderedSetWithCapacity:self.pathsInReportsDir.count - pos];
+        while (pos < self.pathsInReportsDir.count) {
+            NSString *descendant = [self.pathsInReportsDir objectAtIndex:pos];
+            if ([descendant hasPrefix:relRootDir]) {
+                descendant = [descendant pathRelativeToPath:relRootDir];
+                [descendants addObject:descendant];
+                pos += 1;
+            }
+            else {
+                pos = self.pathsInReportsDir.count;
+            }
+        }
+        return descendants;
     }
 }
 
@@ -116,12 +235,13 @@
                 mutableAttrs[NSFileType] = NSFileTypeDirectory;
             }
         }
-        else {
-            if (!mutableAttrs[NSFileType]) {
-                mutableAttrs[NSFileType] = NSFileTypeRegular;
-            }
+        else if (!mutableAttrs[NSFileType]) {
+            mutableAttrs[NSFileType] = NSFileTypeRegular;
         }
-        [self.pathsInReportsDir addObject:relPath];
+        NSUInteger pos = [self.pathsInReportsDir indexOfObject:relPath inSortedRange:NSMakeRange(0, self.pathsInReportsDir.count) options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(NSString * _Nonnull obj1, NSString * _Nonnull obj2) {
+            return [obj1 localizedStandardCompare:obj2];
+        }];
+        [self.pathsInReportsDir insertObject:relPath atIndex:pos];
         self.pathAttrs[relPath] = [NSDictionary dictionaryWithDictionary:mutableAttrs];
     }
 }
@@ -129,8 +249,10 @@
 - (BOOL)createFileAtPath:(NSString *)path contents:(NSData *)data attributes:(NSDictionary<NSString *, id> *)attr
 {
     @synchronized (self) {
-        if (self.createFileAtPathBlock) {
-            return self.createFileAtPathBlock(path);
+        if (self.onCreateFileAtPath) {
+            if (!self.onCreateFileAtPath(path)) {
+                return NO;
+            }
         }
         BOOL isDir;
         if ([self fileExistsAtPath:path isDirectory:&isDir]) {
@@ -153,23 +275,60 @@
 - (BOOL)createDirectoryAtURL:(NSURL *)url withIntermediateDirectories:(BOOL)createIntermediates attributes:(NSDictionary<NSString *, id> *)attributes error:(NSError **)error
 {
     @synchronized (self) {
-        if (self.createDirectoryAtUrlBlock) {
-            return self.createDirectoryAtUrlBlock(url, createIntermediates, error);
+        if (self.onCreateDirectoryAtURL) {
+            if (!self.onCreateDirectoryAtURL(url, createIntermediates, error)) {
+                return NO;
+            }
         }
         BOOL isDir;
         if ([self fileExistsAtPath:url.path isDirectory:&isDir]) {
             return isDir && createIntermediates;
         }
         NSString *relPath = [self pathRelativeToReportsDirOfPath:url.path];
-        [self addPathInReportsDir:relPath withAttributes:@{NSFileType: NSFileTypeDirectory}];
+        NSMutableArray<NSString *> *relPathParts = [relPath.pathComponents mutableCopy];
+        relPath = @"";
+        while (relPathParts.count > 0) {
+            NSString *part = relPathParts.firstObject;
+            [relPathParts removeObjectAtIndex:0];
+            relPath = [relPath stringByAppendingPathComponent:part];
+            NSString *absPath = [self.reportsDir.path stringByAppendingPathComponent:relPath];
+            BOOL isDir;
+            if ([self fileExistsAtPath:absPath isDirectory:&isDir]) {
+                if (!isDir) {
+                    if (error) {
+                        NSString *reason = [NSString stringWithFormat:@"non-directory already exists at path %@", absPath];
+                        *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:0 userInfo:@{NSLocalizedFailureReasonErrorKey: reason}];
+                    }
+                    return NO;
+                }
+            }
+            else if (createIntermediates) {
+                [self addPathInReportsDir:relPath withAttributes:@{NSFileType: NSFileTypeDirectory}];
+            }
+            else {
+                if (error) {
+                    NSString *reason = [NSString stringWithFormat:@"intermediate directory %@ does not exist path", absPath];
+                    *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:0 userInfo:@{NSLocalizedFailureReasonErrorKey: reason}];
+                }
+                return NO;
+            }
+        }
         return YES;
     }
 }
 
-- (BOOL)removeItemAtURL:(NSURL *)URL error:(NSError * _Nullable __autoreleasing *)error
+- (BOOL)removeItemAtPath:(NSString *)path error:(NSError * _Nullable __autoreleasing *)error
 {
     @synchronized (self) {
-        NSString *relativePath = [self pathRelativeToReportsDirOfPath:URL.path];
+        BOOL isDir;
+        if (![self fileExistsAtPath:path isDirectory:&isDir]) {
+            NSString *reason = [NSString stringWithFormat:@"the path %@ does not exist", path];
+            if (error) {
+                *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:0 userInfo:@{NSLocalizedFailureReasonErrorKey: reason, NSLocalizedDescriptionKey: reason}];
+            }
+            return NO;
+        }
+        NSString *relativePath = [self pathRelativeToReportsDirOfPath:path];
         if (relativePath == nil) {
             return NO;
         }
@@ -177,9 +336,26 @@
         if (index == NSNotFound) {
             return NO;
         }
+        if (!isDir) {
+            [self.pathsInReportsDir removeObjectAtIndex:index];
+            return YES;
+        }
+
+        NSOrderedSet *descendants = [self descendantRelativePathsOfDir:path];
+        for (NSString *descendant in descendants) {
+            NSString *descendantAbsPath = [path stringByAppendingPathComponent:descendant];
+            NSString *descendantRelPath = [self pathRelativeToReportsDirOfPath:descendantAbsPath];
+            [self.pathsInReportsDir removeObject:descendantRelPath];
+        }
         [self.pathsInReportsDir removeObjectAtIndex:index];
+
         return YES;
     }
+}
+
+- (BOOL)removeItemAtURL:(NSURL *)URL error:(NSError * _Nullable __autoreleasing *)error
+{
+    return [self removeItemAtPath:URL.path error:error];
 }
 
 - (NSData *)contentsAtPath:(NSString *)path
@@ -191,6 +367,65 @@
 {
     NSString *relPath = [self pathRelativeToReportsDirOfPath:path];
     return self.pathAttrs[relPath];
+}
+
+- (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError * _Nullable __autoreleasing *)error
+{
+    if ([srcPath isEqualToString:dstPath]) {
+        return YES;
+    }
+
+    @synchronized (self) {
+        BOOL isDir;
+        if (![self fileExistsAtPath:srcPath isDirectory:&isDir]) {
+            if (error != NULL) {
+                NSString *reason = [NSString stringWithFormat:@"the source path %@ does not exist", srcPath];
+                *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:0 userInfo:@{NSLocalizedFailureReasonErrorKey: reason}];
+            }
+            return NO;
+        }
+
+        if ([self fileExistsAtPath:dstPath]) {
+            if (error != NULL) {
+                NSString *reason = [NSString stringWithFormat:@"the destination path %@ already exists", dstPath];
+                *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:0 userInfo:@{NSLocalizedFailureReasonErrorKey: reason}];
+            }
+            return NO;
+        }
+
+        NSString *destParent = [dstPath stringByDeletingLastPathComponent];
+        BOOL destParentIsDir = NO;
+        if (![self fileExistsAtPath:destParent isDirectory:&destParentIsDir] || !destParentIsDir) {
+            if (error != NULL) {
+                NSString *reason = [NSString stringWithFormat:@"the parent of destination path %@ does not exist or is not a directory", dstPath];
+                *error = [NSError errorWithDomain:NSStringFromClass([self class]) code:0 userInfo:@{NSLocalizedFailureReasonErrorKey: reason}];
+            }
+            return NO;
+        }
+
+        NSDictionary *srcAttrs = [self attributesOfItemAtPath:srcPath error:NULL];
+        NSString *destRelPath = [self pathRelativeToReportsDirOfPath:dstPath];
+        [self addPathInReportsDir:destRelPath withAttributes:srcAttrs];
+        NSDirectoryEnumerator *descendants = [self enumeratorAtPath:srcPath];
+        if (descendants) {
+            NSString *srcRelPath = descendants.nextObject;
+            while (srcRelPath != nil) {
+                NSString *destRelPath = [dstPath stringByAppendingPathComponent:srcRelPath];
+                destRelPath = [self pathRelativeToReportsDirOfPath:destRelPath];
+                [self addPathInReportsDir:destRelPath withAttributes:descendants.fileAttributes];
+                srcRelPath = descendants.nextObject;
+            }
+        }
+
+        [self removeItemAtPath:srcPath error:error];
+
+        return YES;
+    }
+}
+
+- (BOOL)moveItemAtURL:(NSURL *)srcURL toURL:(NSURL *)dstURL error:(NSError * _Nullable __autoreleasing *)error
+{
+    return [self moveItemAtPath:srcURL.path toPath:dstURL.path error:error];
 }
 
 @end
@@ -233,6 +468,9 @@ describe(@"ReportStore_FileManager", ^{
         BOOL isDir;
         BOOL *isDirOut = &isDir;
 
+        expect([fileManager fileExistsAtPath:reportsDir.path isDirectory:isDirOut]).to.beTruthy();
+        expect(isDir).to.beTruthy();
+
         expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"hello.txt"].path isDirectory:isDirOut]).to.equal(YES);
         expect(isDir).to.equal(NO);
         expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"dir" isDirectory:YES].path isDirectory:isDirOut]).to.equal(YES);
@@ -263,9 +501,110 @@ describe(@"ReportStore_FileManager", ^{
         expect([fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:NO attributes:nil error:NULL]).to.equal(NO);
         expect(fileManager.pathsInReportsDir.count).to.equal(pathCount);
 
+        NSString *intermediates = [reportsDir.path stringByAppendingPathComponent:@"dir1/dir2/dir3"];
+        expect([fileManager createDirectoryAtPath:intermediates withIntermediateDirectories:NO attributes:nil error:NULL]).to.beFalsy();
+        expect([fileManager fileExistsAtPath:intermediates]).to.beFalsy();
+        expect([fileManager fileExistsAtPath:intermediates.stringByDeletingLastPathComponent]).to.beFalsy();
+        expect([fileManager fileExistsAtPath:intermediates.stringByDeletingLastPathComponent.stringByDeletingLastPathComponent]).to.beFalsy();
+        expect([fileManager createDirectoryAtPath:intermediates withIntermediateDirectories:YES attributes:nil error:NULL]).to.beTruthy();
+        expect([fileManager fileExistsAtPath:intermediates]).to.beTruthy();
+        expect([fileManager fileExistsAtPath:intermediates.stringByDeletingLastPathComponent]).to.beTruthy();
+        expect([fileManager fileExistsAtPath:intermediates.stringByDeletingLastPathComponent.stringByDeletingLastPathComponent]).to.beTruthy();
+
+
         expect([fileManager createFileAtPath:@"/not/in/reportsDir.txt" contents:nil attributes:nil]).to.equal(NO);
         expect([fileManager fileExistsAtPath:@"/not/in/reportsDir.txt" isDirectory:isDirOut]).to.equal(NO);
         expect(isDir).to.equal(NO);
+
+        describe(@"removing files", ^{
+
+            beforeEach(^{
+                [fileManager setContentsOfReportsDir:@"dir/", @"dir/file.txt", @"dir/dir/", @"dir/dir/file.txt", @"file.txt", nil];
+            });
+
+            it(@"removes a single file", ^{
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beTruthy();
+                expect([fileManager removeItemAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"] error:NULL]).to.beTruthy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beFalsy();
+            });
+
+            it(@"removes a file from a subdirectory", ^{
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beTruthy();
+                expect([fileManager removeItemAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"] error:NULL]).to.beTruthy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beFalsy();
+            });
+
+            it(@"removes a directory and its descendants", ^{
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir"]]).to.beTruthy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beTruthy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/dir"]]).to.beTruthy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/dir/file.txt"]]).to.beTruthy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beTruthy();
+
+                expect([fileManager removeItemAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/"] error:NULL]).to.beTruthy();
+
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/"]]).to.beFalsy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beFalsy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/dir"]]).to.beFalsy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/dir/file.txt"]]).to.beFalsy();
+                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beFalsy();
+            });
+
+        });
+
+        describe(@"moving files", ^{
+
+            BOOL isDir;
+            BOOL *isDirOut = &isDir;
+            __block NSError *error;
+            NSString *source = [reportsDir.path stringByAppendingPathComponent:@"move_src.txt"];
+            NSString *dest = [reportsDir.path stringByAppendingPathComponent:@"move_dest.txt"];
+            [fileManager createFileAtPath:source contents:nil attributes:nil];
+            expect([fileManager moveItemAtPath:source toPath:dest error:&error]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:source isDirectory:isDirOut]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:dest isDirectory:isDirOut]).to.beTruthy();
+            expect(isDir).to.beFalsy();
+            expect(error).to.beNil();
+
+            source = [reportsDir.path stringByAppendingPathComponent:@"src_base"];
+            dest = [reportsDir.path stringByAppendingPathComponent:@"dest_base"];
+            [fileManager setContentsOfReportsDir:
+                @"src_base/",
+                @"src_base/child1.txt",
+                @"src_base/child2/",
+                @"src_base/child2/grand_child.txt",
+                nil];
+            expect([fileManager fileExistsAtPath:source isDirectory:isDirOut]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child1.txt"] isDirectory:isDirOut]).to.beTruthy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child2/"] isDirectory:isDirOut]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child2/grand_child.txt"] isDirectory:isDirOut]).to.beTruthy();
+            expect(isDir).to.beFalsy();
+
+            expect([fileManager moveItemAtPath:source toPath:dest error:&error]).to.beTruthy();
+
+            expect([fileManager fileExistsAtPath:dest isDirectory:isDirOut]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child1.txt"] isDirectory:isDirOut]).to.beTruthy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child2/"] isDirectory:isDirOut]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child2/grand_child.txt"] isDirectory:isDirOut]).to.beTruthy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:source isDirectory:isDirOut]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"chi1d1.txt"] isDirectory:isDirOut]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"chi1d2/"] isDirectory:isDirOut]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"chi1d2/grand_child.txt"] isDirectory:isDirOut]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+
+        });
+
     });
 
 });
