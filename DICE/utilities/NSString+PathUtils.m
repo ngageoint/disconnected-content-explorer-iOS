@@ -12,6 +12,7 @@
 
 - (NSString *)pathRelativeToPath:(NSString *)parent
 {
+    parent = [parent stringByStandardizingPath];
     NSArray *parentParts = parent.pathComponents;
     NSArray *pathParts = self.pathComponents;
     if (pathParts.count < parentParts.count) {
