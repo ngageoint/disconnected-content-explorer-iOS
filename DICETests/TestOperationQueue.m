@@ -18,4 +18,14 @@
     [super addOperation:op];
 }
 
+- (void)addOperations:(NSArray<NSOperation *> *)ops waitUntilFinished:(BOOL)wait
+{
+    if (self.onAddOperation) {
+        for (NSOperation *op in ops) {
+            self.onAddOperation(op);
+        }
+    }
+    [super addOperations:ops waitUntilFinished:wait];
+}
+
 @end
