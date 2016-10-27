@@ -201,6 +201,26 @@
 
 @implementation DeleteFileOperation
 
++ (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
+{
+    NSSet *keys = [super keyPathsForValuesAffectingValueForKey:key];
+
+    NSString *isReadyKey = NSStringFromSelector(@selector(isReady));
+    if ([isReadyKey isEqualToString:key]) {
+        keys = [keys setByAddingObject:NSStringFromSelector(@selector(fileUrl))];
+    }
+
+    return keys;
+}
+
++ (BOOL)automaticallyNotifiesObserversForKey:(NSString *)key
+{
+    if ([key isEqualToString:NSStringFromSelector(@selector(fileUrl))]) {
+        return NO;
+    }
+    return [super automaticallyNotifiesObserversForKey:key];
+}
+
 - (instancetype)initWithFileUrl:(NSURL *)fileUrl fileManager:(NSFileManager *)fileManager
 {
     self = [super initWithFileMananger:fileManager];
@@ -212,6 +232,27 @@
     _fileUrl = fileUrl;
 
     return self;
+}
+
+- (void)setFileUrl:(NSURL *)fileUrl
+{
+    if (self.isExecuting || self.isFinished) {
+        [NSException raise:NSInternalInconsistencyException format:@"cannot change file url while or after executing"];
+    }
+
+    if (fileUrl == self.fileUrl || [fileUrl isEqual:self.fileUrl]) {
+        return;
+    }
+
+    NSString *fileUrlKey = NSStringFromSelector(@selector(fileUrl));
+    [self willChangeValueForKey:fileUrlKey];
+    _fileUrl = fileUrl;
+    [self didChangeValueForKey:fileUrlKey];
+}
+
+- (BOOL)isReady
+{
+    return super.isReady && (self.isCancelled || self.fileUrl != nil);
 }
 
 - (void)main

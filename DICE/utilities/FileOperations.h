@@ -50,7 +50,7 @@
 
 @interface DeleteFileOperation : FileOperation
 
-@property (readonly, nullable) NSURL *fileUrl;
+@property (nullable, nonatomic) NSURL *fileUrl;
 @property (readonly) BOOL fileWasDeleted;
 
 - (nullable instancetype)initWithFileUrl:(nullable NSURL *)fileUrl fileManager:(nonnull NSFileManager *)fileManager;
