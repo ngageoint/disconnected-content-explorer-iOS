@@ -139,13 +139,13 @@
 		E52B5F7F205C75C6F759ABB9BC67F63E /* CGPDFDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 4499ED5CC81FA279C1A21B2E2D9303EF /* CGPDFDocument.m */; };
 		E5E36A1026B51BC927A57B4D8DDB710A /* MapOverlayCellItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */; };
 		E68E2E9936A8EC1888DA9FF9F711AF59 /* TestParseJsonOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 80650670209CE88AB03251350F2A6C5E /* TestParseJsonOperation.m */; };
-		E6CFF16244A86E2CC7D7F15E6B2A96A8 /* resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = 929910FE4FA114751847631B92EF367B /* resources */; };
 		EAD14095635E7CD022DE7F949EDBF464 /* Reader-Print.png in Resources */ = {isa = PBXBuildFile; fileRef = 799083837BE434E792107B5329AA2A52 /* Reader-Print.png */; };
 		EDC811DF2395C9B5E0BE59C70AF06F5A /* AppIcon-180.png in Resources */ = {isa = PBXBuildFile; fileRef = 2E816633A0F9664041FA4F640E048518 /* AppIcon-180.png */; };
 		EF3E35357D0EC3E3E93D41897814552C /* MapOverlayActiveSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = CB25E4ECD46494ECBCEB24550840ED41 /* MapOverlayActiveSwitch.m */; };
 		F14AA5A359E19CBD321B29698681E701 /* ReaderContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = D59F27657D7CECA9CDC6B5FFA71D07A7 /* ReaderContentView.m */; };
 		F2B7294F935F4F1FCFD32D5B0DF0FE38 /* ExplodedHtmlImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C5B50A7E11E05CF24EE64B28D1DC051 /* ExplodedHtmlImportProcess.m */; };
 		F68280B7651D94C7D9B4D69851B2E27D /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A89200515E985EB893EAD6BE26DBC8 /* ImageIO.framework */; };
+		F70E35377E1E4F0DF52FDE0987B5F17D /* resources in Resources */ = {isa = PBXBuildFile; fileRef = 929910FE4FA114751847631B92EF367B /* resources */; };
 		FADA448804A3748C17929AA6CEE984C8 /* ReaderThumbsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D96811406AAC834C785E138B886954C /* ReaderThumbsView.m */; };
 		FD512C231F0C58B3DB3D6C636F130FF0 /* Reader-Email@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 34758BE951714F91CC3722A7EBD544A6 /* Reader-Email@2x.png */; };
 /* End PBXBuildFile section */
@@ -159,19 +159,6 @@
 			remoteInfo = DICE;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		EF3550294D4392707BB15E9221D0BC36 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-				E6CFF16244A86E2CC7D7F15E6B2A96A8 /* resources in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		01CA6D3FC492D4E132C554B7F99E08BC /* MatchReportTypeToContentAtPathOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MatchReportTypeToContentAtPathOperation.m; sourceTree = "<group>"; };
@@ -887,7 +874,6 @@
 				7286E2689E35060931D5838E16F6C8B1 /* Resources */,
 				45EB590DF4295665C5365970DAFC8ED0 /* [CP] Embed Pods Frameworks */,
 				D8BFA1BD7F6EDD3EB5F06DFA7D7FB73E /* [CP] Copy Pods Resources */,
-				EF3550294D4392707BB15E9221D0BC36 /* CopyFiles */,
 				45EB590DF4295665C5365970DAFC8ED0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
@@ -914,7 +900,8 @@
 					};
 					F66BB28A094EBEF76D8DDA48F19801D5 = {
 						CreatedOnToolsVersion = 6.1;
-						DevelopmentTeam = PDRAS7XQ3Y;
+						DevelopmentTeam = A8EK924J35;
+						ProvisioningStyle = Automatic;
 						TestTargetID = C30AAB62D1044B085EF8ED77996FBF85;
 					};
 				};
@@ -982,6 +969,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F70E35377E1E4F0DF52FDE0987B5F17D /* resources in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1279,6 +1267,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = A8EK924J35;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1340,6 +1330,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = A8EK924J35;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
