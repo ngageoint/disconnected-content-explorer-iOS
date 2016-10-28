@@ -13,7 +13,9 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
     ReportImportStatusExtracting,
     ReportImportStatusImporting,
     ReportImportStatusSuccess,
-    ReportImportStatusFailed
+    ReportImportStatusFailed,
+    ReportImportStatusDeleting,
+    ReportImportStatusDeleted
 };
 
 

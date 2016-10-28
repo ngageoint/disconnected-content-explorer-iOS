@@ -19,6 +19,7 @@
 #import "ReportType.h"
 #import "DICEUtiExpert.h"
 #import "DICEExtractReportOperation.h"
+#import "FileOperations.h"
 
 
 @interface PendingImport : NSObject
@@ -103,6 +104,9 @@
 + (NSString *)reportImportFinished {
     return @"DICE.ReportImportFinished";
 }
++ (NSString *)reportChanged {
+    return @"DICE.ReportChanged";
+}
 + (NSString *)reportsLoaded {
     return @"DICE.ReportsLoaded";
 }
@@ -120,6 +124,7 @@
     NSMutableArray<Report *> *_reports;
     NSMutableDictionary<NSURL *, PendingImport *> *_pendingImports;
     UIBackgroundTaskIdentifier _importBackgroundTaskId;
+    NSURL *_trashDir;
     void *ARCHIVE_MATCH_CONTEXT;
     void *CONTENT_MATCH_CONTEXT;
 }
@@ -141,10 +146,12 @@
     DICEUtiExpert *utiExpert = [[DICEUtiExpert alloc] init];
     id<DICEArchiveFactory> archiveFactory = [[DICEDefaultArchiveFactory alloc] initWithUtiExpert:utiExpert];
     NSOperationQueue *importQueue = [[NSOperationQueue alloc] init];
+    importQueue.qualityOfService = NSQualityOfServiceUtility;
     NSFileManager *fm = [NSFileManager defaultManager];
     UIApplication *app = [UIApplication sharedApplication];
-    
+
     return [self initWithReportsDir:docsDir
+        exclusions:nil
         utiExpert:utiExpert
         archiveFactory:archiveFactory
         importQueue:importQueue
@@ -154,6 +161,7 @@
 }
 
 - (instancetype)initWithReportsDir:(NSURL *)reportsDir
+    exclusions:(NSArray *)exclusions
     utiExpert:(DICEUtiExpert *)utiExpert
     archiveFactory:(id<DICEArchiveFactory>)archiveFactory
     importQueue:(NSOperationQueue *)importQueue
@@ -176,6 +184,17 @@
     _notifications = notifications;
     _application = application;
     _importBackgroundTaskId = UIBackgroundTaskInvalid;
+    _trashDir = [_reportsDir URLByAppendingPathComponent:@".dice.trash" isDirectory:YES];
+
+    if (exclusions == nil) {
+        exclusions = [NSMutableArray array];
+    }
+    NSPredicate *excludeTrashDir = [NSPredicate predicateWithFormat:@"%K LIKE %@", @"lastPathComponent", _trashDir.lastPathComponent];
+    NSMutableArray *predicates = [NSMutableArray arrayWithCapacity:exclusions.count + 1];
+    [predicates addObject:excludeTrashDir];
+    [predicates addObjectsFromArray:exclusions];
+    _reportsDirExclusions = [NSCompoundPredicate orPredicateWithSubpredicates:predicates];
+
     ARCHIVE_MATCH_CONTEXT = &ARCHIVE_MATCH_CONTEXT;
     CONTENT_MATCH_CONTEXT = &CONTENT_MATCH_CONTEXT;
 
@@ -251,7 +270,11 @@
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
     // TODO: run on background thread to avoid synchronization around report list and pending imports
-    // TODO: add excluded path checking, e.g., for geopackage folder
+
+    if ([self.reportsDirExclusions evaluateWithObject:reportUrl]) {
+        return nil;
+    }
+
     Report *report = [self reportAtPath:reportUrl];
 
     if (report) {
@@ -312,6 +335,20 @@
 - (Report *)reportForID:(NSString *)reportID
 {
     return [self.reports filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"reportID == %@", reportID]].firstObject;
+}
+
+- (void)deleteReport:(Report *)report
+{
+    if (![self.reports containsObject:report]) {
+        return;
+    }
+    if (!report.isImportFinished) {
+        return;
+    }
+    report.isEnabled = NO;
+    report.importStatus = ReportImportStatusDeleting;
+    [self.notifications postNotificationName:ReportNotification.reportChanged object:self userInfo:@{@"report": report}];
+    [self scheduleDeleteContentsOfReport:report];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
@@ -558,6 +595,52 @@
     }
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     return json;
+}
+
+- (void)scheduleDeleteContentsOfReport:(Report *)report
+{
+    NSURL *contentUrl = report.baseDir;
+    if (contentUrl == nil) {
+        contentUrl = report.rootResource;
+    }
+    NSString *trashName = [NSUUID UUID].UUIDString;
+    NSURL *trashUrl = [_trashDir URLByAppendingPathComponent:trashName isDirectory:contentUrl];
+    NSString *contentRelName = [contentUrl.path pathRelativeToPath:self.reportsDir.path];
+    NSURL *trashContentUrl = [trashUrl URLByAppendingPathComponent:contentRelName];
+
+    MkdirOperation *makeTrashDir = [[MkdirOperation alloc] initWithDirUrl:trashUrl fileManager:self.fileManager];
+    makeTrashDir.queuePriority = NSOperationQueuePriorityHigh;
+    makeTrashDir.qualityOfService = NSQualityOfServiceUserInitiated;
+
+    MoveFileOperation *moveToTrash = [[MoveFileOperation alloc] initWithSourceUrl:contentUrl destUrl:trashContentUrl fileManager:self.fileManager];
+    moveToTrash.queuePriority = NSOperationQueuePriorityHigh;
+    moveToTrash.qualityOfService = NSQualityOfServiceUserInitiated;
+    [moveToTrash addDependency:makeTrashDir];
+
+    DeleteFileOperation *deleteFromTrash = [[DeleteFileOperation alloc] initWithFileUrl:nil fileManager:self.fileManager];
+    deleteFromTrash.queuePriority = NSOperationQueuePriorityLow;
+    deleteFromTrash.qualityOfService = NSQualityOfServiceBackground;
+    [deleteFromTrash addDependency:moveToTrash];
+    
+    __weak MoveFileOperation *moveToTrashCompleted = moveToTrash;
+    moveToTrash.completionBlock = ^{
+        if (!moveToTrashCompleted.fileWasMoved) {
+            [deleteFromTrash cancel];
+            return;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_reports removeObject:report];
+            deleteFromTrash.fileUrl = trashUrl;
+        });
+    };
+
+    deleteFromTrash.completionBlock = ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            report.importStatus = ReportImportStatusDeleted;
+        });
+    };
+
+    [self.importQueue addOperations:@[makeTrashDir, moveToTrash, deleteFromTrash] waitUntilFinished:NO];
 }
 
 @end

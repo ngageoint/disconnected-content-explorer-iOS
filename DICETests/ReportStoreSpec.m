@@ -9,6 +9,7 @@
 
 #import "DICEArchive.h"
 #import "DICEExtractReportOperation.h"
+#import "FileOperations.h"
 #import "ImportProcess+Internal.h"
 #import "NotificationRecordingObserver.h"
 #import "NSOperation+Blockable.h"
@@ -660,6 +661,7 @@ describe(@"ReportStore", ^{
 
         // initialize a new ReportStore to ensure all tests are independent
         store = [[ReportStore alloc] initWithReportsDir:reportsDir
+            exclusions:nil
             utiExpert:[[DICEUtiExpert alloc] init]
             archiveFactory:archiveFactory
             importQueue:importQueue
@@ -1219,11 +1221,11 @@ describe(@"ReportStore", ^{
             TestImportProcess *blueImport = [blueType enqueueImport];
 
             NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dicex" isDirectory:YES];
-            [fileManager setCreateDirectoryAtUrlBlock:^BOOL(NSURL *url, BOOL intermediates, NSError **error) {
+            [fileManager setOnCreateDirectoryAtURL:^BOOL(NSURL *url, BOOL intermediates, NSError **error) {
                 expect(url).to.equal(baseDir);
                 return [url isEqual:baseDir];
             }];
-            [fileManager setCreateFileAtPathBlock:^BOOL(NSString *path) {
+            [fileManager setOnCreateFileAtPath:^BOOL(NSString *path) {
                 expect(path).to.equal([baseDir.path stringByAppendingPathComponent:@"index.blue"]);
                 return [path isEqualToString:[baseDir.path stringByAppendingPathComponent:@"index.blue"]];
             }];
@@ -1252,11 +1254,11 @@ describe(@"ReportStore", ^{
             TestImportProcess *blueImport = [blueType enqueueImport];
             NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
 
-            [fileManager setCreateDirectoryAtUrlBlock:^BOOL(NSURL *path, BOOL intermediates, NSError **error) {
+            [fileManager setOnCreateDirectoryAtURL:^BOOL(NSURL *path, BOOL intermediates, NSError **error) {
                 expect(path).to.equal(baseDir);
                 return [path isEqual:baseDir];
             }];
-            [fileManager setCreateFileAtPathBlock:^BOOL(NSString *path) {
+            [fileManager setOnCreateFileAtPath:^BOOL(NSString *path) {
                 expect(path).to.equal([baseDir.path stringByAppendingPathComponent:@"index.blue"]);
                 return [path isEqualToString:[baseDir.path stringByAppendingPathComponent:@"index.blue"]];
             }];
@@ -1788,6 +1790,230 @@ describe(@"ReportStore", ^{
 
             [notifications removeObserver:observer];
         });
+
+    });
+
+    describe(@"ignoring reserved files in reports dir", ^{
+
+        it(@"is tested", ^{
+            failure(@"nope");
+        });
+
+    });
+
+    describe(@"deleting reports", ^{
+
+        __block NSURL *trashDir;
+        __block Report *singleResourceReport;
+        __block Report *baseDirReport;
+
+        beforeEach(^{
+            trashDir = [reportsDir URLByAppendingPathComponent:@".dice.trash" isDirectory:YES];
+            [fileManager setContentsOfReportsDir:@"standalone.red", @"blue_base/", @"blue_base/index.blue", @"blue_base/icon.png", nil];
+            ImportProcess *redImport = [redType enqueueImport];
+            ImportProcess *blueImport = [blueType enqueueImport];
+            NSArray<Report *> *reports = [store loadReports];
+
+            assertWithTimeout(1.0, thatEventually(reports), everyItem(hasProperty(@"isImportFinished", isTrue())));
+
+            singleResourceReport = redImport.report;
+            baseDirReport = blueImport.report;
+        });
+
+        it(@"performs delete operations at a lower priority and quality of service", ^{
+
+            __block MoveFileOperation *moveToTrash;
+            __block DeleteFileOperation *deleteFromTrash;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[MoveFileOperation class]]) {
+                    moveToTrash = (MoveFileOperation *)op;
+                }
+                else if ([op isKindOfClass:[DeleteFileOperation class]]) {
+                    deleteFromTrash = (DeleteFileOperation *)op;
+                }
+            };
+
+            [store deleteReport:singleResourceReport];
+
+            assertWithTimeout(1.0, thatEventually(@(moveToTrash != nil && deleteFromTrash != nil)), isTrue());
+
+            expect(moveToTrash.queuePriority).to.equal(NSOperationQueuePriorityHigh);
+            expect(moveToTrash.qualityOfService).to.equal(NSQualityOfServiceUserInitiated);
+            expect(deleteFromTrash.queuePriority).to.equal(NSOperationQueuePriorityLow);
+            expect(deleteFromTrash.qualityOfService).to.equal(NSQualityOfServiceBackground);
+
+            assertWithTimeout(1.0, thatEventually(@(singleResourceReport.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
+        });
+
+        it(@"immediately disables the report, sets its summary, status, and sends change notification", ^{
+
+            expect(store.reports).to.contain(singleResourceReport);
+            expect(singleResourceReport.isEnabled).to.equal(YES);
+
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportChanged on:notifications from:store withBlock:nil];
+            importQueue.suspended = YES;
+
+            [store deleteReport:singleResourceReport];
+
+            expect(singleResourceReport.isEnabled).to.equal(NO);
+            expect(singleResourceReport.importStatus).to.equal(ReportImportStatusDeleting);
+            expect(singleResourceReport.summary).to.equal(@"Deleting content...");
+            expect(observer.received.count).to.equal(1);
+            expect(observer.received.firstObject.notification.userInfo[@"report"]).to.beIdenticalTo(singleResourceReport);
+
+            importQueue.suspended = NO;
+
+            assertWithTimeout(1.0, thatEventually(store.reports), isNot(hasItem(singleResourceReport)));
+        });
+
+        it(@"removes the report from the list after moving to the trash dir", ^{
+
+            __block MoveFileOperation *moveOp;
+            __block DeleteFileOperation *deleteOp;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[MoveFileOperation class]]) {
+                    moveOp = (MoveFileOperation *)[op block];
+                }
+                else if ([op isKindOfClass:[DeleteFileOperation class]]) {
+                    deleteOp = (DeleteFileOperation *)[op block];
+                }
+            };
+
+            [store deleteReport:singleResourceReport];
+
+            assertWithTimeout(1.0, thatEventually(moveOp), isNot(nilValue()));
+
+            [moveOp unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(moveOp.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(store.reports), isNot(hasItem(singleResourceReport)));
+
+            [deleteOp unblock];
+        });
+
+        it(@"sets the report status when finished deleting", ^{
+
+            [store deleteReport:singleResourceReport];
+
+            assertWithTimeout(1.0, thatEventually(@(singleResourceReport.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
+        });
+
+        it(@"creates the trash dir if it does not exist", ^{
+
+            BOOL isDir;
+            expect([fileManager fileExistsAtPath:trashDir.path isDirectory:(BOOL * _Nullable)&isDir]).to.equal(NO);
+            expect(isDir).to.equal(NO);
+
+            __block BOOL createdOnBackgroundThread = NO;
+            fileManager.onCreateDirectoryAtURL = ^BOOL(NSURL *dir, BOOL createIntermediates, NSError *__autoreleasing *err) {
+                if ([dir.path hasPrefix:trashDir.path]) {
+                    createdOnBackgroundThread = !NSThread.isMainThread;
+                }
+                return YES;
+            };
+
+            __block DeleteFileOperation *deleteOp;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[DeleteFileOperation class]]) {
+                    deleteOp = (DeleteFileOperation *)op;
+                }
+            };
+
+            [store deleteReport:singleResourceReport];
+
+            assertWithTimeout(1.0, thatEventually(@([fileManager fileExistsAtPath:trashDir.path isDirectory:(BOOL * _Nullable)&isDir] && isDir)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(deleteOp.isFinished)), isTrue());
+
+            expect(createdOnBackgroundThread).to.beTruthy();
+        });
+
+        it(@"does not load a report for the trash dir", ^{
+
+            [fileManager createDirectoryAtURL:trashDir withIntermediateDirectories:YES attributes:nil error:NULL];
+
+            NSArray *reports = [store loadReports];
+
+            expect(reports).to.haveCountOf(2);
+
+            assertWithTimeout(1.0, thatEventually(reports), everyItem(hasProperty(@"isImportFinished", @YES)));
+        });
+
+        it(@"moves the base dir to a unique trash dir", ^{
+
+            __block MoveFileOperation *moveToTrash;
+            __block DeleteFileOperation *deleteFromTrash;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[MoveFileOperation class]]) {
+                    moveToTrash = (MoveFileOperation *)op;
+                }
+                else if ([op isKindOfClass:[DeleteFileOperation class]]) {
+                    deleteFromTrash = (DeleteFileOperation *)op;
+                }
+            };
+
+            [store deleteReport:baseDirReport];
+
+            assertWithTimeout(1.0, thatEventually(@([fileManager fileExistsAtPath:baseDirReport.baseDir.path])), isFalse());
+
+            expect(moveToTrash).toNot.beNil();
+            expect(moveToTrash.sourceUrl).to.equal(baseDirReport.baseDir);
+            expect(moveToTrash.destUrl.path).to.beginWith(trashDir.path);
+
+            NSString *reportRelPath = [baseDirReport.baseDir.path pathRelativeToPath:reportsDir.path];
+            NSString *reportParentInTrash = [moveToTrash.destUrl.path pathRelativeToPath:trashDir.path];
+            reportParentInTrash = reportParentInTrash.pathComponents.firstObject;
+            NSUUID *uniqueTrashDirName = [[NSUUID alloc] initWithUUIDString:reportParentInTrash];
+
+            expect(moveToTrash.destUrl.path).to.endWith(reportRelPath);
+            expect(uniqueTrashDirName).toNot.beNil();
+
+            assertWithTimeout(1.0, thatEventually(@(deleteFromTrash.isFinished)), isTrue());
+        });
+
+        it(@"moves the root resource to a unique trash dir when there is no base dir", ^{
+
+            __block MoveFileOperation *moveToTrash;
+            __block DeleteFileOperation *deleteFromTrash;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[MoveFileOperation class]]) {
+                    moveToTrash = (MoveFileOperation *)op;
+                }
+                else if ([op isKindOfClass:[DeleteFileOperation class]]) {
+                    deleteFromTrash = (DeleteFileOperation *)op;
+                }
+            };
+
+            [store deleteReport:singleResourceReport];
+
+            assertWithTimeout(1.0, thatEventually(@([fileManager fileExistsAtPath:singleResourceReport.rootResource.path])), isFalse());
+
+            expect(moveToTrash).toNot.beNil();
+            expect(moveToTrash.sourceUrl).to.equal(singleResourceReport.rootResource);
+            expect(moveToTrash.destUrl.path).to.beginWith(trashDir.path);
+
+            NSString *reportRelPath = [singleResourceReport.rootResource.path pathRelativeToPath:reportsDir.path];
+            NSString *reportParentInTrash = [moveToTrash.destUrl.path pathRelativeToPath:trashDir.path];
+            reportParentInTrash = reportParentInTrash.pathComponents.firstObject;
+            NSUUID *uniqueTrashDirName = [[NSUUID alloc] initWithUUIDString:reportParentInTrash];
+
+            expect(moveToTrash.destUrl.path).to.endWith(reportRelPath);
+            expect(uniqueTrashDirName).toNot.beNil();
+
+            assertWithTimeout(1.0, thatEventually(@(deleteFromTrash.isFinished)), isTrue());
+        });
+
+        it(@"removes the report from the list after moving to trash", ^{
+
+        });
+
+        it(@"deletes the report root resource when there is no base dir", ^{
+
+        });
+
+        it(@"cannot delete a report while importing", ^{
+
+        });
+
 
     });
 

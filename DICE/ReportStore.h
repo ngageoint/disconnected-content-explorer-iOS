@@ -63,6 +63,14 @@
  */
 @property (class, nonatomic, nonnull, readonly) NSString *reportImportFinished;
 /**
+ This notification indicates that a report object  changed.
+ The NSNotificatoin object userInfo dictionary contains
+ {
+     @"report": (Report*) the report that was imported,
+ }
+ */
+@property (class, nonatomic, nonnull, readonly) NSString *reportChanged;
+/**
  This notification indicates that ReportStore has finished scanning for report files
  in the Documents directory and has populated the report list with its findings.
  The reports in the list may still be pending the import process, however, so
@@ -92,6 +100,7 @@
  */
 @property (nonnull) NSArray<id<ReportType>> *reportTypes;
 @property (nonnull, readonly) NSURL *reportsDir;
+@property (nonnull, readonly) NSCompoundPredicate *reportsDirExclusions;
 @property (nonnull, readonly) DICEUtiExpert *utiExpert;
 @property (nonnull, readonly) id<DICEArchiveFactory> archiveFactory;
 @property (nonnull, readonly) NSOperationQueue *importQueue;
@@ -110,6 +119,7 @@
  @return the initialized ReportStore
  */
 - (nullable instancetype)initWithReportsDir:(nonnull NSURL *)reportsDir
+    exclusions:(nullable NSArray<NSPredicate *> *)exclusions
     utiExpert:(nonnull DICEUtiExpert *)utiExpert
     archiveFactory:(nonnull id<DICEArchiveFactory>)archiveFactory
     importQueue:(nonnull NSOperationQueue *)importQueue
@@ -143,5 +153,7 @@
 - (nullable Report *)attemptToImportReportFromResource:(nonnull NSURL *)reportUrl;
 
 - (nullable Report *)reportForID:(nonnull NSString *)reportID;
+
+- (void)deleteReport:(nonnull Report *)report;
 
 @end
