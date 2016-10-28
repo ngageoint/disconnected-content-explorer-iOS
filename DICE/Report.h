@@ -42,6 +42,8 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 @property (nonatomic) NSUInteger downloadProgress;
 @property (nonatomic) BOOL isEnabled;
 @property (nonatomic) ReportImportStatus importStatus;
+// TODO: use status message to display information instead of summary
+@property (nonatomic) NSString *statusMessage;
 /** convenience method that returns YES if the import status is success or failed */
 @property (readonly, nonatomic) BOOL isImportFinished;
 @property (nonatomic) NSMutableArray<ReportCache *> * cacheFiles;

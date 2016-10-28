@@ -347,6 +347,7 @@
     }
     report.isEnabled = NO;
     report.importStatus = ReportImportStatusDeleting;
+    report.statusMessage = @"Deleting content...";
     [self.notifications postNotificationName:ReportNotification.reportChanged object:self userInfo:@{@"report": report}];
     [self scheduleDeleteContentsOfReport:report];
 }
@@ -604,7 +605,7 @@
         contentUrl = report.rootResource;
     }
     NSString *trashName = [NSUUID UUID].UUIDString;
-    NSURL *trashUrl = [_trashDir URLByAppendingPathComponent:trashName isDirectory:contentUrl];
+    NSURL *trashUrl = [_trashDir URLByAppendingPathComponent:trashName isDirectory:YES];
     NSString *contentRelName = [contentUrl.path pathRelativeToPath:self.reportsDir.path];
     NSURL *trashContentUrl = [trashUrl URLByAppendingPathComponent:contentRelName];
 

@@ -1857,7 +1857,7 @@ describe(@"ReportStore", ^{
 
             expect(singleResourceReport.isEnabled).to.equal(NO);
             expect(singleResourceReport.importStatus).to.equal(ReportImportStatusDeleting);
-            expect(singleResourceReport.summary).to.equal(@"Deleting content...");
+            expect(singleResourceReport.statusMessage).to.equal(@"Deleting content...");
             expect(observer.received.count).to.equal(1);
             expect(observer.received.firstObject.notification.userInfo[@"report"]).to.beIdenticalTo(singleResourceReport);
 
@@ -1968,6 +1968,8 @@ describe(@"ReportStore", ^{
             expect(uniqueTrashDirName).toNot.beNil();
 
             assertWithTimeout(1.0, thatEventually(@(deleteFromTrash.isFinished)), isTrue());
+
+            expect(deleteFromTrash.fileUrl).to.equal([trashDir URLByAppendingPathComponent:reportParentInTrash isDirectory:YES]);
         });
 
         it(@"moves the root resource to a unique trash dir when there is no base dir", ^{
@@ -2000,18 +2002,29 @@ describe(@"ReportStore", ^{
             expect(uniqueTrashDirName).toNot.beNil();
 
             assertWithTimeout(1.0, thatEventually(@(deleteFromTrash.isFinished)), isTrue());
-        });
 
-        it(@"removes the report from the list after moving to trash", ^{
-
-        });
-
-        it(@"deletes the report root resource when there is no base dir", ^{
-
+            expect(deleteFromTrash.fileUrl).to.equal([trashDir URLByAppendingPathComponent:reportParentInTrash isDirectory:YES]);
         });
 
         it(@"cannot delete a report while importing", ^{
 
+            NSURL *importingReportUrl = [reportsDir URLByAppendingPathComponent:@"importing.red"];
+            [fileManager createFileAtPath:importingReportUrl.path contents:nil attributes:@{NSFileType: NSFileTypeRegular}];
+            TestImportProcess *process = [[redType enqueueImport] block];
+
+            Report *importingReport = [store attemptToImportReportFromResource:importingReportUrl];
+
+            assertWithTimeout(1.0, thatEventually(@(importingReport.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+
+            expect(importingReport.importStatus).to.equal(ReportImportStatusImporting);
+
+            [store deleteReport:importingReport];
+
+            expect(importingReport.importStatus).to.equal(ReportImportStatusImporting);
+
+            [process unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(importingReport.isImportFinished)), isTrue());
         });
 
 
