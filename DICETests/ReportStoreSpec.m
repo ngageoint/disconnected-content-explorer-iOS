@@ -692,6 +692,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"creates reports for each file in reports directory", ^{
+
             [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", @"something.else", nil];
 
             id redImport = [redType enqueueImport];
@@ -1795,8 +1796,23 @@ describe(@"ReportStore", ^{
 
     describe(@"ignoring reserved files in reports dir", ^{
 
-        it(@"is tested", ^{
-            failure(@"nope");
+        it(@"can add exclusions", ^{
+
+            [blueType enqueueImport];
+            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"not-excluded.blue"]];
+
+            expect(report).toNot.beNil();
+            expect(store.reports).to.contain(report);
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            [store addReportsDirExclusion:[NSPredicate predicateWithFormat:@"self.lastPathComponent like %@", @"excluded.blue"]];
+
+            [blueType enqueueImport];
+            report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"excluded.blue"]];
+
+            expect(report).to.beNil();
+            expect(store.reports).to.haveCountOf(1);
         });
 
     });

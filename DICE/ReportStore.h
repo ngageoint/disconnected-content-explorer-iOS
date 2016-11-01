@@ -86,8 +86,7 @@
 
 @interface ReportStore : NSObject <ImportDelegate>
 
-
-+ (nullable instancetype)sharedInstance;
+@property (class, nonnull, readonly) ReportStore *sharedInstance;
 
 
 /**
@@ -155,5 +154,7 @@
 - (nullable Report *)reportForID:(nonnull NSString *)reportID;
 
 - (void)deleteReport:(nonnull Report *)report;
+
+- (void)addReportsDirExclusion:(NSPredicate *)rule;
 
 @end

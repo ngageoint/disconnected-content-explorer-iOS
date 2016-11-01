@@ -118,6 +118,7 @@
 @end
 
 
+
 // TODO: thread safety for reports array
 @implementation ReportStore
 {
@@ -131,13 +132,12 @@
 
 + (instancetype)sharedInstance
 {
-    // TODO: initialize singleton with actual dependency injection; then how to get the instance into view controllers?
-    static ReportStore *_sharedInstance = nil;
-    static dispatch_once_t oncePredicate;
-    dispatch_once(&oncePredicate, ^{
-        _sharedInstance = [[ReportStore alloc] init];
+    static dispatch_once_t once;
+    static ReportStore *shared;
+    dispatch_once(&once, ^{
+        shared = [[ReportStore alloc] init];
     });
-    return _sharedInstance;
+    return shared;
 }
 
 - (instancetype)init
@@ -201,6 +201,11 @@
     return self;
 }
 
+- (void)addReportsDirExclusion:(NSPredicate *)rule
+{
+    NSArray *subpredicates = [self.reportsDirExclusions.subpredicates arrayByAddingObject:rule];
+    _reportsDirExclusions = [NSCompoundPredicate orPredicateWithSubpredicates:subpredicates];
+}
 
 - (NSArray *)loadReports
 {
@@ -339,6 +344,7 @@
 
 - (void)deleteReport:(Report *)report
 {
+    // TODO: update status message if report cannot be deleted
     if (![self.reports containsObject:report]) {
         return;
     }
@@ -630,6 +636,7 @@
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
+            // TODO: deleted notification
             [_reports removeObject:report];
             deleteFromTrash.fileUrl = trashUrl;
         });
