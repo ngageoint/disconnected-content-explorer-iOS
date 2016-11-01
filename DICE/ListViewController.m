@@ -23,9 +23,10 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportImportFinished] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportExtractProgress] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportList:) name:[ReportNotification reportsLoaded] object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportImportFinished object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportExtractProgress object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportsLoaded object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportRemoved object:nil];
     
     self.title = @"Disconnected Interactive Content Explorer";
     
@@ -105,6 +106,7 @@
     cell.textLabel.text = report.title;
     cell.detailTextLabel.text = report.summary;
     cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = report.isEnabled;
+    cell.imageView.image = [UIImage imageNamed:@"dice-default"];
 
     if (report.importStatus == ReportImportStatusFailed) {
         cell.imageView.image = [UIImage imageNamed:@"dice-error"];
@@ -113,16 +115,15 @@
 
     NSString *thumbnailPath = nil;
     if (report.baseDir) {
-        if (report.tileThumbnail.length > 0) {
-            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.tileThumbnail];
-        }
-        else if (report.thumbnail.length > 0) {
+        if (report.thumbnail.length > 0) {
             thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.thumbnail];
+        }
+        else if (report.tileThumbnail.length > 0) {
+            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.tileThumbnail];
         }
     }
 
     if (thumbnailPath == nil) {
-        cell.imageView.image = [UIImage imageNamed:@"dice-default"];
         return cell;
     }
 
