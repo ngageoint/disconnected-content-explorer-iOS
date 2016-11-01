@@ -37,6 +37,9 @@
         // TODO: expose fileManager from ReportStore and use that with HtmlReportType
         [[HtmlReportType alloc] initWithFileManager:[NSFileManager defaultManager]]
     ];
+
+    NSPredicate *excludeGeopackageDir = [NSPredicate predicateWithFormat:@"self.lastPathComponent like %@", @"geopackage"];
+    [[ReportStore sharedInstance] addReportsDirExclusion:excludeGeopackageDir];
     
     // initialize offline map polygons
     // TODO: potentially thread this
