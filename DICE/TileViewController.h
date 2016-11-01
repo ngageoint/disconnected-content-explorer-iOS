@@ -16,6 +16,6 @@
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @property (strong, nonatomic) IBOutlet UICollectionView *tileView;
 @property (strong, nonatomic) UIRefreshControl *refreshControl;
-@property (strong, nonatomic) NSIndexPath *indexToDelete;
+@property (nullable, nonatomic) Report *actionReport;
 
 @end

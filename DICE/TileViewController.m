@@ -175,23 +175,21 @@
     NSIndexPath *indexPath = [self.tileView indexPathForItemAtPoint:[gestureRecognizer locationInView:self.tileView]];
     
     if (indexPath == nil) {
-        NSLog(@"Cant find index path.");
-    } else {
-        self.indexToDelete = indexPath;
-        Report *longPressedReport = self.reports[self.indexToDelete.item];
-        NSLog(@"Long pressed on %@",  longPressedReport.title);
-        
-        NSString *title = [NSString stringWithFormat:@"Delete %@?", longPressedReport.title];
-        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Delete", nil];
-        [actionSheet showInView:self.view];
+        return;
     }
+
+    Report *report = self.reports[indexPath.item];
+    self.actionReport = report;
+    NSString *title = [NSString stringWithFormat:@"Delete %@?", self.actionReport.title];
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Delete", nil];
+
+    [actionSheet showInView:self.view];
 }
 
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Delete"]) {
-        // TODO: restore
-//        [[ReportStore sharedInstance] deleteReportAtIndexPath:self.indexToDelete];
+        [[ReportStore sharedInstance] deleteReport:self.actionReport];
     }
 }
 
