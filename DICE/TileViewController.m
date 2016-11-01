@@ -109,6 +109,7 @@
             thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.thumbnail];
         }
     }
+    
     if (thumbnailPath) {
         UIImage *image = [UIImage imageWithContentsOfFile:thumbnailPath];
         cell.reportImage.image = image;

@@ -34,12 +34,10 @@
     NSString *recentPasteboardURLKey;
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-
-    NSLog(@"ReportCollectionViewController: loading report collection views");
-
-    NSLog(@"%@", [UIDevice currentDevice].model);
+    
     if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         views = @[
             [self.storyboard instantiateViewControllerWithIdentifier: @"listCollectionView"],
@@ -72,13 +70,15 @@
 }
 
 
-- (void)viewDidAppear:(BOOL)animated {
+- (void)viewDidAppear:(BOOL)animated
+{
     [super viewDidAppear:animated];
     [self checkPasteboardForReport];
 }
 
 
-- (void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning
+{
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
@@ -86,7 +86,8 @@
 
 #pragma mark - Navigation
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
     if ([segue.identifier isEqualToString:@"showReport"]) {
         ReportResourceViewController *reportViewController = (ReportResourceViewController *)segue.destinationViewController;
         reportViewController.report = selectedReport;
@@ -95,7 +96,8 @@
 }
 
 
-- (IBAction)viewChanged:(UISegmentedControl *)sender {
+- (IBAction)viewChanged:(UISegmentedControl *)sender
+{
     UIViewController *current = views[currentViewIndex];
     UIViewController *target = views[sender.selectedSegmentIndex];
     CGRect currentFrame = self.collectionSubview.bounds;
@@ -124,7 +126,8 @@
             }];
 }
 
-- (void)reportSelectedToView:(Report *)report {
+- (void)reportSelectedToView:(Report *)report
+{
     selectedReport = report;
 //    if ([selectedReport.reportID isEqualToString:[ReportStore userGuideReportID]]) {
 //        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/DICEUserGuide.zip"]];
@@ -135,7 +138,8 @@
 }
 
 
--(void)checkPasteboardForReport {
+-(void)checkPasteboardForReport
+{
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     if (pasteboard.string) {
         NSLog(@"Checking pasteboard contents... %@", pasteboard.string);
@@ -186,7 +190,8 @@
 }
 
 
-- (void)dealloc {
+- (void)dealloc
+{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
