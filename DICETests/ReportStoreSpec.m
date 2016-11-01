@@ -2043,6 +2043,19 @@ describe(@"ReportStore", ^{
             assertWithTimeout(1.0, thatEventually(@(importingReport.isImportFinished)), isTrue());
         });
 
+        it(@"sends a notification when a report is removed from the reports list", ^{
+
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportRemoved on:store.notifications from:store withBlock:^(NSNotification *notification) {
+                expect(store.reports).notTo.contain(singleResourceReport);
+            }];
+            [store deleteReport:singleResourceReport];
+
+            assertWithTimeout(1.0, thatEventually(observer.received), hasCountOf(1));
+
+            ReceivedNotification *removed = observer.received.firstObject;
+
+            expect(removed.notification.userInfo[@"report"]).to.beIdenticalTo(singleResourceReport);
+        });
 
     });
 

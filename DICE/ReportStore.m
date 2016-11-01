@@ -107,6 +107,9 @@
 + (NSString *)reportChanged {
     return @"DICE.ReportChanged";
 }
++ (NSString *)reportRemoved {
+    return @"DICE.ReportRemoved";
+}
 + (NSString *)reportsLoaded {
     return @"DICE.ReportsLoaded";
 }
@@ -639,6 +642,7 @@
             // TODO: deleted notification
             [_reports removeObject:report];
             deleteFromTrash.fileUrl = trashUrl;
+            [self.notifications postNotificationName:ReportNotification.reportRemoved object:self userInfo:@{@"report": report}];
         });
     };
 

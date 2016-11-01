@@ -23,9 +23,10 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateReportImportProgress:) name:[ReportNotification reportExtractProgress] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportImportFinished] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshReportTiles:) name:[ReportNotification reportsLoaded] object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportExtractProgress object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportImportFinished object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportsLoaded object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportRemoved object:nil];
     
     [self.tileView setDataSource:self];
     [self.tileView setDelegate:self];
@@ -88,6 +89,7 @@
     cell.reportDescription.text = report.summary;
     cell.reportDescription.editable = NO;
     cell.reportDescription.userInteractionEnabled = NO;
+    cell.reportImage.image = [UIImage imageNamed:@"dice-default"];
 
     if (!report.isImportFinished) {
         return cell;
@@ -107,13 +109,9 @@
             thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.thumbnail];
         }
     }
-
     if (thumbnailPath) {
         UIImage *image = [UIImage imageWithContentsOfFile:thumbnailPath];
         cell.reportImage.image = image;
-    }
-    else {
-        cell.reportImage.image = [UIImage imageNamed:@"dice-default"];
     }
 
     return cell;

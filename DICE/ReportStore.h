@@ -70,6 +70,8 @@
  }
  */
 @property (class, nonatomic, nonnull, readonly) NSString *reportChanged;
+
+@property (class, nonatomic, nonnull, readonly) NSString *reportRemoved;
 /**
  This notification indicates that ReportStore has finished scanning for report files
  in the Documents directory and has populated the report list with its findings.
