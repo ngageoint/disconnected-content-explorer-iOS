@@ -8,8 +8,8 @@
 
 
 @implementation DICEUtiExpert {
-
 }
+
 - (CFStringRef)preferredUtiForExtension:(NSString *)ext conformingToUti:(nullable CFStringRef)constraint
 {
     return UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)ext, constraint);

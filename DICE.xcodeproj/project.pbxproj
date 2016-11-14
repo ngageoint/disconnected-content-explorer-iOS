@@ -58,7 +58,6 @@
 		5A10C2A656323C47CAD1014E6BBA238A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A2E59E8B8D1D159052EAC3E8D8C68 /* CoreGraphics.framework */; };
 		5A7BA54D9A9A0DD276E8F6C93F03B7A9 /* ReportViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 849E0BBF1F6726B37F8FFBE586B73C1F /* ReportViewCell.m */; };
 		5C7C5728A1CAFD246CB491D5AD90BE69 /* attributions in Resources */ = {isa = PBXBuildFile; fileRef = F9E4DD32E0AF153096B398713F46C688 /* attributions */; };
-		5FBB3584DBD81D3FD8CC8E6A0AA64075 /* ParseJsonOperationSpec.json in Resources */ = {isa = PBXBuildFile; fileRef = F330494B17E7979470CAB3441261E4BA /* ParseJsonOperationSpec.json */; };
 		608476143B2077DE8B270F34811E077C /* libPods-DICETests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1072CDB13E3DBEE9ADA1DE8BEDF4A2F /* libPods-DICETests.a */; };
 		609D8685B07AC8BD8EC3E8FFF7EF564C /* ReportStoreSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = E3637EAEA07D8BC7F6668D1B445DAA0D /* ReportStoreSpec.m */; };
 		60DDD53859DBF6DCE518EC6268C2E9E2 /* ReaderThumbCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 2574220607BC22FE54717F0A6D04A9B8 /* ReaderThumbCache.m */; };
@@ -122,9 +121,11 @@
 		CA3B31A09256ED4DCE1229A67ECEC3B6 /* Reader-Mark-Y@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6BF14F118D72B56EF987C2114C9FD1CD /* Reader-Mark-Y@2x.png */; };
 		CAC8574DF427351D95E6FF0BCE584D37 /* AppIcon-152.png in Resources */ = {isa = PBXBuildFile; fileRef = DB1ED221E8C584B883688790327A0290 /* AppIcon-152.png */; };
 		CD027DF1228E4D8AEE0E0B1DD754875D /* Reader-Mark-N.png in Resources */ = {isa = PBXBuildFile; fileRef = DAFB4B2B1891634942C1B60F768902DC /* Reader-Mark-N.png */; };
+		CF83E5C5346DC95A01A7C3A7D8C87652 /* ParseJsonOperationSpec.json in Resources */ = {isa = PBXBuildFile; fileRef = F330494B17E7979470CAB3441261E4BA /* ParseJsonOperationSpec.json */; };
 		CF9E3904A5B856BD7AB3949ADF350A2E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 827175300533ADBEA03FB1E8434D23C8 /* AppDelegate.m */; };
 		CFB1445E7EB1843757DB28BC2F24BB1A /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F26681C4422F0A2DEDB0A8755D002EA8 /* MobileCoreServices.framework */; };
 		D507839B475687808740F8A631EBA5B6 /* ReportMapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = A988B0EB4B1AB1AD0BAC74A739EC0580 /* ReportMapAnnotation.m */; };
+		D6FCD6BB15C4D71404447BC30218BBB0 /* etc in Resources */ = {isa = PBXBuildFile; fileRef = 56B924E8E9DBF049A0D06981BD6C3DAE /* etc */; };
 		D7592583957361831DA87F9B5FBA530F /* TestReportType.m in Sources */ = {isa = PBXBuildFile; fileRef = 48360F509FDD7869FFF1DD0F573A3692 /* TestReportType.m */; };
 		D7AA7690B65595D77ACED53132F5BE19 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AD397A407B5A60A02D3DAFE659B8E191 /* SettingsViewController.m */; };
 		DA4C6EC60F421AD71FAB20FCBC4AAB27 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 589C5DBD98FFACA45AFE14F68ECA0EB8 /* InfoPlist.strings */; };
@@ -145,7 +146,6 @@
 		F14AA5A359E19CBD321B29698681E701 /* ReaderContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = D59F27657D7CECA9CDC6B5FFA71D07A7 /* ReaderContentView.m */; };
 		F2B7294F935F4F1FCFD32D5B0DF0FE38 /* ExplodedHtmlImportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C5B50A7E11E05CF24EE64B28D1DC051 /* ExplodedHtmlImportProcess.m */; };
 		F68280B7651D94C7D9B4D69851B2E27D /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A89200515E985EB893EAD6BE26DBC8 /* ImageIO.framework */; };
-		F70E35377E1E4F0DF52FDE0987B5F17D /* resources in Resources */ = {isa = PBXBuildFile; fileRef = 929910FE4FA114751847631B92EF367B /* resources */; };
 		FADA448804A3748C17929AA6CEE984C8 /* ReaderThumbsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D96811406AAC834C785E138B886954C /* ReaderThumbsView.m */; };
 		FD512C231F0C58B3DB3D6C636F130FF0 /* Reader-Email@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 34758BE951714F91CC3722A7EBD544A6 /* Reader-Email@2x.png */; };
 /* End PBXBuildFile section */
@@ -226,6 +226,7 @@
 		4DB43A9F47D07C4F78266505BCF6D971 /* Reader-Mark-Y.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Mark-Y.png"; sourceTree = "<group>"; };
 		4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayCellItem.m; sourceTree = "<group>"; };
 		5524AC7208550B2A19BD012B83BE1DC7 /* ReaderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderViewController.h; sourceTree = "<group>"; };
+		56B924E8E9DBF049A0D06981BD6C3DAE /* etc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = etc; sourceTree = "<group>"; };
 		58045F29EBE5FB763E34A831161BBA60 /* GeoPackageURLProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageURLProtocol.h; sourceTree = "<group>"; };
 		5B7025562094188329E060AC80535BBB /* ReaderBookDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderBookDelegate.h; sourceTree = "<group>"; };
 		5CA65D8C712300A48AC48E4D620C274A /* HtmlReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HtmlReportType.m; sourceTree = "<group>"; };
@@ -286,7 +287,6 @@
 		91DE9AADF066A41E4737F8A176CC9B3F /* CGPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPDFDocument.h; sourceTree = "<group>"; };
 		9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseJsonOperation.h; path = ../ParseJsonOperation.h; sourceTree = "<group>"; };
 		926F8CF6FAD526952A067E62D3AFEAFF /* ReaderThumbFetch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbFetch.m; sourceTree = "<group>"; };
-		929910FE4FA114751847631B92EF367B /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resources; sourceTree = "<group>"; };
 		964C827CDF701E097D1EE25DC8811CD4 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportAPI.m; sourceTree = "<group>"; };
 		979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapData.m; sourceTree = "<group>"; };
@@ -376,7 +376,7 @@
 		EEB4E28AC03C2CA43C6B4FEBA09029BB /* Reader-Thumbs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Thumbs.png"; sourceTree = "<group>"; };
 		F1622EB77C38AF2B93DD7A71930F1728 /* ExplodedHtmlImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExplodedHtmlImportProcess.h; sourceTree = "<group>"; };
 		F26681C4422F0A2DEDB0A8755D002EA8 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
-		F330494B17E7979470CAB3441261E4BA /* ParseJsonOperationSpec.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = ParseJsonOperationSpec.json; path = resources/ParseJsonOperationSpec.json; sourceTree = "<group>"; };
+		F330494B17E7979470CAB3441261E4BA /* ParseJsonOperationSpec.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = ParseJsonOperationSpec.json; path = etc/ParseJsonOperationSpec.json; sourceTree = "<group>"; };
 		F530BFE6974FF442323BB54913D174DB /* Pods-DICETests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DICETests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DICETests/Pods-DICETests.release.xcconfig"; sourceTree = "<group>"; };
 		F59406197DBC66DBF559B299DE776F17 /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
 		F6143BB585606C5DDAA3501A9D714679 /* ReaderThumbsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbsView.h; sourceTree = "<group>"; };
@@ -628,7 +628,7 @@
 			isa = PBXGroup;
 			children = (
 				0B89054DB1A7852C56A43ADAAC1ED3B8 /* Supporting Files */,
-				929910FE4FA114751847631B92EF367B /* resources */,
+				56B924E8E9DBF049A0D06981BD6C3DAE /* etc */,
 				3A54F3B11871E6420FC51D7AAE5B94ED /* ContentEnumerationInfoSpec.m */,
 				FA3F782234B6FACC010EAF55B75AF41A /* ExplodedHtmlImportProcessSpec.m */,
 				B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */,
@@ -943,7 +943,6 @@
 				DA4C6EC60F421AD71FAB20FCBC4AAB27 /* InfoPlist.strings in Resources */,
 				E3ACD3E45E5E5A49AB1196A026520BA4 /* MainStoryboard-iPad.storyboard in Resources */,
 				E0E433008DBE2B82318442897FDC3011 /* MainStoryboard-iPhone.storyboard in Resources */,
-				5FBB3584DBD81D3FD8CC8E6A0AA64075 /* ParseJsonOperationSpec.json in Resources */,
 				7F46F9EB31C4F825879401EA8004376D /* Reader-Button-H.png in Resources */,
 				AF437098539BBC524F7C86E9EF0CA5F0 /* Reader-Button-H@2x.png in Resources */,
 				09F8DB2D7CB1DCB81BF6CE816B20174A /* Reader-Button-N.png in Resources */,
@@ -969,7 +968,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F70E35377E1E4F0DF52FDE0987B5F17D /* resources in Resources */,
+				CF83E5C5346DC95A01A7C3A7D8C87652 /* ParseJsonOperationSpec.json in Resources */,
+				D6FCD6BB15C4D71404447BC30218BBB0 /* etc in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

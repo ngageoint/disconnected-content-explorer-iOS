@@ -246,7 +246,7 @@ describe(@"UnzipOperation", ^{
         NSFileManager *fm = [NSFileManager defaultManager];
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
-        NSURL *zipFilePath = [bundle URLForResource:@"test_base_dir" withExtension:@"zip"];
+        NSURL *zipFilePath = [bundle URLForResource:@"etc/test_base_dir" withExtension:@"zip"];
         DICEOZZipFileArchive *archive = [[DICEOZZipFileArchive alloc] initWithArchivePath:zipFilePath archiveUti:NULL];
         NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
@@ -337,7 +337,7 @@ describe(@"UnzipOperation", ^{
         NSFileManager *fm = [NSFileManager defaultManager];
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
-        NSURL *zipFilePath = [bundle URLForResource:@"test_no_base_dir" withExtension:@"zip"];
+        NSURL *zipFilePath = [bundle URLForResource:@"etc/test_no_base_dir" withExtension:@"zip"];
         DICEOZZipFileArchive *zipFile = [[DICEOZZipFileArchive alloc] initWithArchivePath:zipFilePath archiveUti:NULL];
         NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
@@ -426,7 +426,7 @@ describe(@"UnzipOperation", ^{
         NSFileManager *fm = [NSFileManager defaultManager];
 
         NSBundle *bundle = [NSBundle bundleForClass:[UnzipOperationSpec class]];
-        NSURL *zipFilePath = [bundle URLForResource:@"10x128_bytes" withExtension:@"zip"];
+        NSURL *zipFilePath = [bundle URLForResource:@"etc/10x128_bytes" withExtension:@"zip"];
         DICEOZZipFileArchive *zipFile = [[DICEOZZipFileArchive alloc] initWithArchivePath:zipFilePath archiveUti:NULL];
         NSURL *destDir = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
