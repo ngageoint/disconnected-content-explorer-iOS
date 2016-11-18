@@ -1751,7 +1751,7 @@ describe(@"ReportStore", ^{
             expect(report.downloadProgress).to.equal(100);
         });
 
-        xit(@"does not post a progress notification if the percent complete did not change", ^{
+        it(@"does not post a progress notification if the percent complete did not change", ^{
             __block NSInteger lastProgress = 0;
             NotificationRecordingObserver *obs = [[NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:^(NSNotification *notification) {
                 if (![ReportNotification.reportDownloadProgress isEqualToString:notification.name]) {
@@ -1782,6 +1782,7 @@ describe(@"ReportStore", ^{
 
             download.downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
             [store downloadManager:downloadManager willFinishDownload:download movingToFile:download.downloadedFile];
+            download.wasSuccessful = YES;
             [store downloadManager:downloadManager didFinishDownload:download];
 
             assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
