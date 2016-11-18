@@ -407,10 +407,16 @@ ReportStore *_sharedInstance;
 
 - (void)downloadManager:(DICEDownloadManager *)downloadManager didFinishDownload:(DICEDownload *)download
 {
+    Report *report = [self reportAtPath:download.url];
     if (!download.wasSuccessful || download.downloadedFile == nil) {
-        // TODO: updated report status appropriately
+        // TODO: mechanism to retry
+        report.isEnabled = NO;
+        report.importStatus = ReportImportStatusFailed;
+        report.statusMessage = @"Download failed";
+        [self clearPendingImportProcess:report];
+        [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
+        return;
     }
-    Report *report = [self reportAtPath:download.downloadedFile];
     report.downloadProgress = 100;
     [self.notifications postNotificationName:ReportNotification.reportDownloadComplete object:self userInfo:@{@"report": report}];
     [self beginImportOfReport:report withUti:NULL];
@@ -488,7 +494,7 @@ ReportStore *_sharedInstance;
     // TODO: assign reportID if nil
     dispatch_async(dispatch_get_main_queue(), ^{
         // import probably changed the report url, so remove by searching for the report itself
-        [self clearPendingImportProcess:import];
+        [self clearPendingImportProcess:import.report];
         import.report.isEnabled = import.wasSuccessful;
         if (import.wasSuccessful) {
             if (descriptor) {
@@ -616,9 +622,9 @@ ReportStore *_sharedInstance;
     });
 }
 
-- (void)clearPendingImportProcess:(ImportProcess *)import
+- (void)clearPendingImportProcess:(Report *)report
 {
-    NSArray *urls = [_pendingImports allKeysForReport:import.report];
+    NSArray *urls = [_pendingImports allKeysForReport:report];
     [_pendingImports removeObjectsForKeys:urls];
     [self finishBackgroundTaskIfImportsFinished];
 }

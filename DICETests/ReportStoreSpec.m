@@ -1737,6 +1737,7 @@ describe(@"ReportStore", ^{
             Report *report = [store attemptToImportReportFromResource:url];
 
             [store downloadManager:store.downloadManager willFinishDownload:download movingToFile:download.downloadedFile];
+            download.wasSuccessful = YES;
             [store downloadManager:store.downloadManager didFinishDownload:download];
 
             assertWithTimeout(1.0, thatEventually(@(import.isFinished)), isTrue());
@@ -1824,6 +1825,7 @@ describe(@"ReportStore", ^{
             url = [reportsDir URLByAppendingPathComponent:@"report.blue"];
             [store downloadManager:store.downloadManager willFinishDownload:download movingToFile:url];
             [fileManager createFileAtPath:url.path contents:nil attributes:@{NSFileType: NSFileTypeRegular}];
+            download.wasSuccessful = YES;
             download.downloadedFile = url;
             [store downloadManager:store.downloadManager didFinishDownload:download];
 
@@ -1839,7 +1841,11 @@ describe(@"ReportStore", ^{
         it(@"responds to failed downloads", ^{
 
             TestImportProcess *import = [blueType enqueueImport];
+            import.steps = @[[NSBlockOperation blockOperationWithBlock:^{
+                failure(@"erroneously started import process for failed download");
+            }]];
             NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:store.notifications from:store withBlock:nil];
+            [obs observe:ReportNotification.reportDownloadComplete on:store.notifications from:store];
             NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
             DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
             download.bytesExpected = 999999;
@@ -1852,9 +1858,12 @@ describe(@"ReportStore", ^{
 
             [store downloadManager:store.downloadManager didFinishDownload:download];
 
-            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(1));
+            assertWithTimeout(1.0, thatEventually(obs.received.lastObject.notification.name), equalTo(ReportNotification.reportImportFinished));
 
+            expect(obs.received).to.haveCountOf(1);
+            expect(obs.received.lastObject.notification.name).to.equal(ReportNotification.reportImportFinished);
             expect(report.importStatus).to.equal(ReportImportStatusFailed);
+            expect(report.isEnabled).to.beFalsy();
         });
 
     });
