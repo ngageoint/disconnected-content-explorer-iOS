@@ -20,6 +20,7 @@
 #import "TestOperationQueue.h"
 #import "TestReportType.h"
 #import "DICEUtiExpert.h"
+#import "DICEDownloadManager.h"
 
 
 @class ReportStoreSpec_FileManager;
@@ -613,7 +614,7 @@ describe(@"ReportStore_FileManager", ^{
 describe(@"NSFileManager", ^{
 
     it(@"returns directory url with trailing slash", ^{
-        NSURL *resources = [[[NSBundle bundleForClass:[self class]] bundleURL] URLByAppendingPathComponent:@"resources" isDirectory:YES];
+        NSURL *resources = [[[NSBundle bundleForClass:[self class]] bundleURL] URLByAppendingPathComponent:@"etc" isDirectory:YES];
         NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:resources includingPropertiesForKeys:nil options:0 error:NULL];
         NSURL *dirUrl;
         for (NSURL *url in contents) {
@@ -638,6 +639,7 @@ describe(@"ReportStore", ^{
     __block TestReportType *blueType;
     __block ReportStoreSpec_FileManager *fileManager;
     __block id<DICEArchiveFactory> archiveFactory;
+    __block DICEDownloadManager *downloadManager;
     __block TestOperationQueue *importQueue;
     __block NSNotificationCenter *notifications;
     __block ReportStore *store;
@@ -652,6 +654,7 @@ describe(@"ReportStore", ^{
         fileManager = [[ReportStoreSpec_FileManager alloc] init];
         fileManager.reportsDir = reportsDir;
         archiveFactory = mockProtocol(@protocol(DICEArchiveFactory));
+        downloadManager = mock([DICEDownloadManager class]);
         importQueue = [[TestOperationQueue alloc] init];
         notifications = [[NSNotificationCenter alloc] init];
         app = mock([UIApplication class]);
@@ -668,6 +671,7 @@ describe(@"ReportStore", ^{
             fileManager:fileManager
             notifications:notifications
             application:app];
+        store.downloadManager = downloadManager;
 
         store.reportTypes = @[
             redType,
@@ -807,8 +811,6 @@ describe(@"ReportStore", ^{
 
         it(@"sends notifications about added reports", ^{
 
-            NSNotificationCenter *notifications = store.notifications;
-
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
             [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", nil];
@@ -935,7 +937,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"sends a notification about adding the report", ^{
-            NSNotificationCenter *notifications = store.notifications;
+
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
             [redType enqueueImport];
@@ -956,9 +958,9 @@ describe(@"ReportStore", ^{
         });
 
         it(@"does not start an import for a report file it is already importing", ^{
+
             TestImportProcess *import = [redType.enqueueImport block];
 
-            NSNotificationCenter *notifications = store.notifications;
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
 
             NSURL *reportUrl = [reportsDir URLByAppendingPathComponent:@"report1.red"];
@@ -1008,7 +1010,6 @@ describe(@"ReportStore", ^{
 
         it(@"sends a notification when the import finishes", ^{
 
-            NSNotificationCenter *notifications = store.notifications;
             NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportImportFinished] on:notifications from:store withBlock:nil];
 
             TestImportProcess *redImport = [redType enqueueImport];
@@ -1664,6 +1665,200 @@ describe(@"ReportStore", ^{
 
     });
 
+#pragma mark downloading
+
+    describe(@"downloading content", ^{
+
+        it(@"starts a download when importing from an http url", ^{
+        
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/report"];
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            [verify(downloadManager) downloadUrl:url];
+            expect(report.importStatus).to.equal(ReportImportStatusDownloading);
+            expect(store.reports).to.contain(report);
+        });
+
+        it(@"starts a download when importing from an https url", ^{
+
+            NSURL *url = [NSURL URLWithString:@"https://dice.com/report"];
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            [verify(downloadManager) downloadUrl:url];
+            expect(report.importStatus).to.equal(ReportImportStatusDownloading);
+            expect(store.reports).to.contain(report);
+        });
+
+        it(@"posts a report added notification before the download begins", ^{
+
+            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportAdded on:store.notifications from:store withBlock:nil];
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(1));
+
+            ReceivedNotification *received = obs.received.firstObject;
+            NSNotification *note = received.notification;
+            NSDictionary *userInfo = note.userInfo;
+
+            expect(userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(report.importStatus).to.equal(ReportImportStatusDownloading);
+        });
+
+        it(@"posts download progress notifications", ^{
+
+            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:nil];
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
+            download.bytesExpected = 999999;
+            download.bytesReceived = 12345;
+            Report *report = [store attemptToImportReportFromResource:url];
+            [store downloadManager:store.downloadManager didReceiveDataForDownload:download];
+
+            expect(obs.received).to.haveCountOf(1);
+
+            ReceivedNotification *received = obs.received.firstObject;
+            NSNotification *note = received.notification;
+            NSDictionary *userInfo = note.userInfo;
+
+            expect(userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(report.downloadProgress).to.equal(1);
+        });
+
+        it(@"posts download finished notification", ^{
+
+            TestImportProcess *import = [blueType enqueueImport];
+            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportDownloadComplete on:store.notifications from:store withBlock:nil];
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
+            download.bytesExpected = 999999;
+            download.bytesReceived = 999999;
+            download.downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            [store downloadManager:store.downloadManager willFinishDownload:download movingToFile:download.downloadedFile];
+            [store downloadManager:store.downloadManager didFinishDownload:download];
+
+            assertWithTimeout(1.0, thatEventually(@(import.isFinished)), isTrue());
+
+            ReceivedNotification *received = obs.received.firstObject;
+            NSNotification *note = received.notification;
+            NSDictionary *userInfo = note.userInfo;
+
+            expect(obs.received).to.haveCountOf(1);
+            expect(userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(report.downloadProgress).to.equal(100);
+        });
+
+        xit(@"does not post a progress notification if the percent complete did not change", ^{
+            __block NSInteger lastProgress = 0;
+            NotificationRecordingObserver *obs = [[NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:^(NSNotification *notification) {
+                if (![ReportNotification.reportDownloadProgress isEqualToString:notification.name]) {
+                    return;
+                }
+                Report *report = notification.userInfo[@"report"];
+                if (lastProgress == report.downloadProgress) {
+                    failure([NSString stringWithFormat:@"duplicate progress notifications: %@", @(lastProgress)]);
+                }
+                lastProgress = report.downloadProgress;
+            }] observe:ReportNotification.reportDownloadComplete on:store.notifications from:store];
+
+            TestImportProcess *import = [blueType enqueueImport];
+            import.steps = @[[NSBlockOperation blockOperationWithBlock:^{}]];
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
+            download.bytesExpected = 999999;
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            download.bytesReceived = 12345;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+            download.bytesReceived = 12500;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+            download.bytesReceived = 99999;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+            download.bytesReceived = 999999;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            download.downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
+            [store downloadManager:downloadManager willFinishDownload:download movingToFile:download.downloadedFile];
+            [store downloadManager:downloadManager didFinishDownload:download];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            ReceivedNotification *received = obs.received.lastObject;
+            NSNotification *note = received.notification;
+            NSDictionary *userInfo = note.userInfo;
+
+            expect(obs.received).to.haveCountOf(4);
+            expect(obs.received.lastObject.notification.name).to.equal(ReportNotification.reportDownloadComplete);
+            expect(userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(report.downloadProgress).to.equal(100);
+        });
+
+        it(@"does not post a progress notification about a url it is not importing", ^{
+
+            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:nil];
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
+            download.bytesExpected = 999999;
+            download.bytesReceived = 999999;
+            [store attemptToImportReportFromResource:url];
+            DICEDownload *foreignDownload = [[DICEDownload alloc] initWithUrl:[NSURL URLWithString:@"http://not.a.report/i/know/about.blue"]];
+
+            [store downloadManager:store.downloadManager didReceiveDataForDownload:foreignDownload];
+            [store downloadManager:store.downloadManager didReceiveDataForDownload:download];
+
+            expect(obs.received).to.haveCountOf(1);
+        });
+
+        it(@"begins an import for the same report after the download is complete", ^{
+
+            TestImportProcess *blueImport = [[blueType enqueueImport] block];
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
+            download.bytesExpected = 999999;
+            Report *report = [store attemptToImportReportFromResource:url];
+            download.bytesReceived = 555555;
+            [store downloadManager:store.downloadManager didReceiveDataForDownload:download];
+            download.bytesReceived = 999999;
+            url = [reportsDir URLByAppendingPathComponent:@"report.blue"];
+            [store downloadManager:store.downloadManager willFinishDownload:download movingToFile:url];
+            [fileManager createFileAtPath:url.path contents:nil attributes:@{NSFileType: NSFileTypeRegular}];
+            download.downloadedFile = url;
+            [store downloadManager:store.downloadManager didFinishDownload:download];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToInteger(ReportImportStatusImporting));
+
+            expect(blueImport.report).to.beIdenticalTo(report);
+
+            [blueImport unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(blueImport.isFinished)), isTrue());
+        });
+
+        it(@"responds to failed downloads", ^{
+
+            TestImportProcess *import = [blueType enqueueImport];
+            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:store.notifications from:store withBlock:nil];
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
+            download.bytesExpected = 999999;
+            download.bytesReceived = 0;
+            download.downloadedFile = nil;
+            download.wasSuccessful = NO;
+            download.httpResponseCode = 503;
+
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            [store downloadManager:store.downloadManager didFinishDownload:download];
+
+            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(1));
+
+            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+        });
+
+    });
+
     describe(@"background task handling", ^{
 
         it(@"starts and ends background task for importing reports", ^{
@@ -1768,7 +1963,6 @@ describe(@"ReportStore", ^{
                 return nil;
             }];
 
-            NSNotificationCenter *notifications = store.notifications;
             __block Report *finishedReport;
             NotificationRecordingObserver *observer = [NotificationRecordingObserver
                 observe:[ReportNotification reportImportFinished] on:notifications from:store withBlock:^(NSNotification *notification) {

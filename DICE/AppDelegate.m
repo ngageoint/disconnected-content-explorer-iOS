@@ -11,12 +11,16 @@
 #import "GPKGGeoPackageValidate.h"
 #import "GPKGGeoPackageFactory.h"
 #import "DICEConstants.h"
+#import "DICEDefaultArchiveFactory.h"
+#import "DICEDownloadManager.h"
+#import "DICEUtiExpert.h"
 #import "GeoPackageURLProtocol.h"
 #import "HtmlReportType.h"
 
 @interface AppDelegate ()
 
 @property (readonly, weak, nonatomic) DICENavigationController *navigation;
+@property (readonly, nonatomic) DICEDownloadManager *downloadManager;
 
 @end
 
@@ -33,14 +37,27 @@
 {
     NSLog(@"DICE finished launching with options:\n%@", launchOptions);
 
-    [ReportStore sharedInstance].reportTypes = @[
+    NSPredicate *excludeGeopackageDir = [NSPredicate predicateWithFormat:@"self.lastPathComponent like %@", @"geopackage"];
+    NSArray *exclusions = @[excludeGeopackageDir];
+
+    DICEUtiExpert *utiExpert = [[DICEUtiExpert alloc] init];
+    id<DICEArchiveFactory> archiveFactory = [[DICEDefaultArchiveFactory alloc] initWithUtiExpert:utiExpert];
+    NSOperationQueue *importQueue = [[NSOperationQueue alloc] init];
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
+    NSURL *reportsDir = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:NULL];
+
+    ReportStore *store = [[ReportStore alloc] initWithReportsDir:reportsDir exclusions:exclusions utiExpert:utiExpert archiveFactory:archiveFactory importQueue:importQueue fileManager:fileManager notifications:notificationCenter application:application];
+    ReportStore.sharedInstance = store;
+
+    _downloadManager = [[DICEDownloadManager alloc] initWithDownloadDir:reportsDir queue:importQueue fileManager:fileManager delegate:store];
+    store.downloadManager = _downloadManager;
+
+    store.reportTypes = @[
         // TODO: expose fileManager from ReportStore and use that with HtmlReportType
         [[HtmlReportType alloc] initWithFileManager:[NSFileManager defaultManager]]
     ];
 
-    NSPredicate *excludeGeopackageDir = [NSPredicate predicateWithFormat:@"self.lastPathComponent like %@", @"geopackage"];
-    [[ReportStore sharedInstance] addReportsDirExclusion:excludeGeopackageDir];
-    
     // initialize offline map polygons
     // TODO: potentially thread this
     NSDictionary *geojson = [OfflineMapUtility dictionaryWithContentsOfJSONString:@"ne_50m-110m_land"];
@@ -51,7 +68,6 @@
     
     return YES;
 }
-
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
@@ -76,10 +92,10 @@
         NSString * fileUrl = [url path];
         
         // Handle GeoPackage files
-        if([GPKGGeoPackageValidate hasGeoPackageExtension:fileUrl]){
+        if ([GPKGGeoPackageValidate hasGeoPackageExtension:fileUrl]) {
             // Import the GeoPackage file
             NSString * name = [[fileUrl lastPathComponent] stringByDeletingPathExtension];
-            if([self importGeoPackageFile:fileUrl withName:name]){
+            if ([self importGeoPackageFile:fileUrl withName:name]) {
                 // Set the new GeoPackage as active
                 NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
                 NSMutableDictionary * selectedCaches = [[defaults objectForKey:DICE_SELECTED_CACHES] mutableCopy];
@@ -91,7 +107,8 @@
                 [defaults setObject:nil forKey:DICE_SELECTED_CACHES_UPDATED];
                 [defaults synchronize];
             }
-        }else{
+        }
+        else {
             // TODO: figure if/how to restore this functionality
             // another app's UIDocumentInteractionController wants to use DICE to open a file
 //            [[ReportStore sharedInstance] attemptToImportReportFromResource:url afterImport:^(Report *report) {
@@ -110,7 +127,13 @@
     return YES;
 }
 
--(BOOL) importGeoPackageFile: (NSString *) path withName: (NSString *) name{
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+{
+    [_downloadManager handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
+}
+
+- (BOOL)importGeoPackageFile:(NSString *)path withName:(NSString *)name
+{
     // Import the GeoPackage file
     BOOL imported = false;
     GPKGGeoPackageManager * manager = [GPKGGeoPackageFactory getManager];

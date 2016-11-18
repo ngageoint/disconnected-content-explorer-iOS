@@ -23,6 +23,7 @@
 @property (readonly) NSMutableArray<ReceivedNotification *> *received;
 
 - (instancetype)initWithBlock:(void(^)(NSNotification *))block;
+- (instancetype)observe:(NSString *)name on:(NSNotificationCenter *)center from:(id)sender;
 - (void)notify:(NSNotification *)notification;
 
 @end

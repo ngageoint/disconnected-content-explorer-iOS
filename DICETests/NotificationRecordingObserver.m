@@ -30,9 +30,7 @@
 
 + (instancetype)observe:(NSString *)name on:(NSNotificationCenter *)center from:(id)sender withBlock:(void (^)(NSNotification *))block
 {
-    NotificationRecordingObserver *observer = [[NotificationRecordingObserver alloc] initWithBlock:block];
-    [center addObserver:observer selector:@selector(notify:) name:name object:sender];
-    return observer;
+    return [[[NotificationRecordingObserver alloc] initWithBlock:block] observe:name on:center from:sender];
 }
 
 - (instancetype)initWithBlock:(void (^)(NSNotification *))block
@@ -46,6 +44,13 @@
 
     return self;
 }
+
+- (instancetype)observe:(NSString *)name on:(NSNotificationCenter *)center from:(id)sender
+{
+    [center addObserver:self selector:@selector(notify:) name:name object:sender];
+    return self;
+}
+
 
 - (void)notify:(NSNotification *)notification
 {

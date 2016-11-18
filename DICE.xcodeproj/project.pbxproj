@@ -112,6 +112,7 @@
 		ADA1790D0166B639D32097ACAD3A7788 /* Icon-76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6511801B374B9E7EB4E92B8048A968DB /* Icon-76@2x.png */; };
 		AF437098539BBC524F7C86E9EF0CA5F0 /* Reader-Button-H@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5A1CE758A1D34CFEC65DC9550D016F /* Reader-Button-H@2x.png */; };
 		B2812748E5A40043402C2AF937A1612C /* AppIcon-114.png in Resources */ = {isa = PBXBuildFile; fileRef = 89208D0BE88208C40BE5CB135689E5FE /* AppIcon-114.png */; };
+		B3A31A99F28A0F4A4DE39C311BDC0F51 /* DICEDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8143A49681767F33AC20479757857BB9 /* DICEDownloadManager.m */; };
 		B59E3A5E9857C5CD91AE78AE38435363 /* TileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5FDAD67AFAB65E1AB6DBB57ECA30DE4 /* TileViewController.m */; };
 		BA3FFA78F8E5D37B5AA537FF8E92096F /* DICEExtractReportOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DB26861FD1BCE3D06B059090E40284A /* DICEExtractReportOperation.m */; };
 		BD010E315BB1D0A2501DB113E044C176 /* Reader-Thumbs@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 76296D1D02A987FDB352581A81BD358D /* Reader-Thumbs@2x.png */; };
@@ -228,6 +229,7 @@
 		5524AC7208550B2A19BD012B83BE1DC7 /* ReaderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderViewController.h; sourceTree = "<group>"; };
 		56B924E8E9DBF049A0D06981BD6C3DAE /* etc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = etc; sourceTree = "<group>"; };
 		58045F29EBE5FB763E34A831161BBA60 /* GeoPackageURLProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageURLProtocol.h; sourceTree = "<group>"; };
+		59944F08BB684FA4EAEECB54B5586B2D /* DICEDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEDownloadManager.h; sourceTree = "<group>"; };
 		5B7025562094188329E060AC80535BBB /* ReaderBookDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderBookDelegate.h; sourceTree = "<group>"; };
 		5CA65D8C712300A48AC48E4D620C274A /* HtmlReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HtmlReportType.m; sourceTree = "<group>"; };
 		5CCBB74C0C5CCF563469F4F08801C996 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -266,6 +268,7 @@
 		7F08FA6D829C10D714634130D174FBBD /* ReaderMainPagebar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderMainPagebar.m; sourceTree = "<group>"; };
 		7F9BB26938972B5CE474E51AA09F307C /* ReaderContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderContentView.h; sourceTree = "<group>"; };
 		80650670209CE88AB03251350F2A6C5E /* TestParseJsonOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestParseJsonOperation.m; sourceTree = "<group>"; };
+		8143A49681767F33AC20479757857BB9 /* DICEDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEDownloadManager.m; sourceTree = "<group>"; };
 		8160472C3F803823AEAE56407DAACE88 /* MapOverlayTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapOverlayTableCell.m; sourceTree = "<group>"; };
 		82031602C7DA4825BE0A08635CF45C9C /* ImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImportProcess.h; sourceTree = "<group>"; };
 		82700369A95E41424285EB966DE4C6C4 /* Reader-Mark-N@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Mark-N@2x.png"; sourceTree = "<group>"; };
@@ -610,6 +613,15 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		9D193367874CC8D48CDAE50635B32930 /* Download */ = {
+			isa = PBXGroup;
+			children = (
+				59944F08BB684FA4EAEECB54B5586B2D /* DICEDownloadManager.h */,
+				8143A49681767F33AC20479757857BB9 /* DICEDownloadManager.m */,
+			);
+			name = Download;
+			sourceTree = "<group>";
+		};
 		823F6667732B7E553B46E5F131E54D66 /* Map View */ = {
 			isa = PBXGroup;
 			children = (
@@ -783,6 +795,7 @@
 			isa = PBXGroup;
 			children = (
 				167C4871E1CA0AF05962C259E94371B5 /* API */,
+				9D193367874CC8D48CDAE50635B32930 /* Download */,
 				9B9F5DC0137F53B16CE46E006B3F252F /* List View */,
 				823F6667732B7E553B46E5F131E54D66 /* Map View */,
 				B3BF4950F080E99B61F9DD85AECB164C /* Model */,
@@ -1078,6 +1091,7 @@
 				DABC01706281F348119A687D2F85BFEC /* ContentEnumerationInfo.m in Sources */,
 				92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */,
 				7979D5B4D4EE665AD23AA68D1EB360CA /* DICEDefaultArchiveFactory.m in Sources */,
+				B3A31A99F28A0F4A4DE39C311BDC0F51 /* DICEDownloadManager.m in Sources */,
 				BA3FFA78F8E5D37B5AA537FF8E92096F /* DICEExtractReportOperation.m in Sources */,
 				134E1F756D92A3337ADF441D9EDFEB6F /* DICENavigationController.m in Sources */,
 				6E01CF160BBA8CD6AA10E28EBB09FE46 /* DICEOZZipFileArchive.m in Sources */,

@@ -114,14 +114,14 @@
     [current willMoveToParentViewController:nil];
     [self addChildViewController:target];
     
-    [self transitionFromViewController: current toViewController: target duration: 0.25 options: 0
-            animations: ^{
+    [self transitionFromViewController:current toViewController:target duration:0.25 options:0
+            animations:^{
                 target.view.frame = currentFrame;
                 current.view.frame = CGRectApplyAffineTransform(currentFrame, slide);
             }
-            completion: ^(BOOL finished) {
+            completion:^(BOOL finished) {
                 [current removeFromParentViewController];
-                [target didMoveToParentViewController: self];
+                [target didMoveToParentViewController:self];
                 currentViewIndex = sender.selectedSegmentIndex;
             }];
 }

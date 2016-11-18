@@ -7,6 +7,7 @@
 //
 
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <AFNetworking/AFNetworking.h>
 #import "ImportProcess.h"
 #import "ReportStore.h"
 #import "InspectReportArchiveOperation.h"
@@ -18,6 +19,7 @@
 #import "Report.h"
 #import "ReportType.h"
 #import "DICEUtiExpert.h"
+#import "DICEDownloadManager.h"
 #import "DICEExtractReportOperation.h"
 #import "FileOperations.h"
 
@@ -101,6 +103,13 @@
 + (NSString *)reportExtractProgress {
     return @"DICE.ReportImportProgress";
 }
++ (NSString *)reportDownloadProgress {
+    return @"DICE.ReportDownloadProgress";
+}
++ (NSString *)reportDownloadComplete
+{
+    return @"DICE.ReportDownloadComplete";
+}
 + (NSString *)reportImportFinished {
     return @"DICE.ReportImportFinished";
 }
@@ -126,6 +135,7 @@
 @implementation ReportStore
 {
     NSMutableArray<Report *> *_reports;
+    DICEDownloadManager *_downloadManager;
     NSMutableDictionary<NSURL *, PendingImport *> *_pendingImports;
     UIBackgroundTaskIdentifier _importBackgroundTaskId;
     NSURL *_trashDir;
@@ -133,14 +143,25 @@
     void *CONTENT_MATCH_CONTEXT;
 }
 
+dispatch_once_t _sharedInstanceOnce;
+ReportStore *_sharedInstance;
+
++ (void)setSharedInstance:(ReportStore *)sharedInstance
+{
+    dispatch_once(&_sharedInstanceOnce, ^{
+        _sharedInstance = sharedInstance;
+    });
+    if (sharedInstance != _sharedInstance) {
+        [NSException raise:NSInternalInconsistencyException format:@"shared instance already initialized"];
+    }
+}
+
 + (instancetype)sharedInstance
 {
-    static dispatch_once_t once;
-    static ReportStore *shared;
-    dispatch_once(&once, ^{
-        shared = [[ReportStore alloc] init];
+    dispatch_once(&_sharedInstanceOnce, ^{
+        _sharedInstance = [[ReportStore alloc] init];
     });
-    return shared;
+    return _sharedInstance;
 }
 
 - (instancetype)init
@@ -202,6 +223,16 @@
     CONTENT_MATCH_CONTEXT = &CONTENT_MATCH_CONTEXT;
 
     return self;
+}
+
+- (void)setDownloadManager:(DICEDownloadManager *)downloadManager
+{
+    _downloadManager = downloadManager;
+}
+
+- (DICEDownloadManager *)downloadManager
+{
+    return _downloadManager;
 }
 
 - (void)addReportsDirExclusion:(NSPredicate *)rule
@@ -295,21 +326,13 @@
     report.rootResource = reportUrl;
     report.uti = reportUti;
     report.title = reportUrl.lastPathComponent;
-    report.summary = @"";
+    report.summary = @"Inspecting new content";
 
     // TODO: do this in background for FS access; move after creating and adding report
     NSDictionary<NSFileAttributeKey, id> *attrs = [self.fileManager attributesOfItemAtPath:reportUrl.path error:nil];
     NSString *fileType = attrs.fileType;
     if ([NSFileTypeDirectory isEqualToString:fileType]) {
         report.baseDir = reportUrl;
-    }
-    
-    // TODO: identify the task name for the report, or just use one task for all pending imports?
-    if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
-        _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice import" expirationHandler:^{
-            [self suspendAndClearPendingImports];
-            [self finishBackgroundTaskIfImportsFinished];
-        }];
     }
 
     // TODO: report is added here but might not be imported;
@@ -321,10 +344,35 @@
         [self.notifications postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
     });
 
+    if ([reportUrl.scheme.lowercaseString hasPrefix:@"http"]) {
+        report.title = @"Downloading...";
+        report.summary = reportUrl.absoluteString;
+        report.uti = NULL;
+        report.importStatus = ReportImportStatusDownloading;
+        report.statusMessage = @"Downloading...";
+        [self.downloadManager downloadUrl:reportUrl];
+    }
+    else {
+        [self beginImportOfReport:report withUti:reportUti];
+    }
+
+    return report;
+}
+
+- (void)beginImportOfReport:(Report *)report withUti:(CFStringRef)reportUti
+{
+    // TODO: identify the task name for the report, or just use one task for all pending imports?
+    if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
+        _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice.background_import" expirationHandler:^{
+            [self suspendAndClearPendingImports];
+            [self finishBackgroundTaskIfImportsFinished];
+        }];
+    }
+
     if ([self.utiExpert uti:reportUti conformsToUti:kUTTypeZipArchive]) {
         // get zip file listing on background thread
         // find appropriate report type for archive contents
-        id<DICEArchive> archive = [self.archiveFactory createArchiveForResource:reportUrl withUti:reportUti];
+        id<DICEArchive> archive = [self.archiveFactory createArchiveForResource:report.rootResource withUti:reportUti];
         InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc]
             initWithReport:report reportArchive:archive candidateReportTypes:self.reportTypes utiExpert:self.utiExpert];
         [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:ARCHIVE_MATCH_CONTEXT];
@@ -336,8 +384,36 @@
         [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:CONTENT_MATCH_CONTEXT];
         [self.importQueue addOperation:op];
     }
+}
 
-    return report;
+- (void)downloadManager:(DICEDownloadManager *)downloadManager didReceiveDataForDownload:(DICEDownload *)download
+{
+    Report *report = [self reportAtPath:download.url];
+    if (report == nil || download.percentComplete == report.downloadProgress) {
+        return;
+    }
+    report.downloadProgress = (NSUInteger) download.percentComplete;
+    [self.notifications postNotificationName:ReportNotification.reportDownloadProgress object:self userInfo:@{@"report": report}];
+}
+
+- (NSURL *)downloadManager:(DICEDownloadManager *)downloadManager willFinishDownload:(DICEDownload *)download movingToFile:(NSURL *)destFile
+{
+    Report *report = [self reportAtPath:download.url];
+    if (report) {
+        report.rootResource = destFile;
+    }
+    return nil;
+}
+
+- (void)downloadManager:(DICEDownloadManager *)downloadManager didFinishDownload:(DICEDownload *)download
+{
+    if (!download.wasSuccessful || download.downloadedFile == nil) {
+        // TODO: updated report status appropriately
+    }
+    Report *report = [self reportAtPath:download.downloadedFile];
+    report.downloadProgress = 100;
+    [self.notifications postNotificationName:ReportNotification.reportDownloadComplete object:self userInfo:@{@"report": report}];
+    [self beginImportOfReport:report withUti:NULL];
 }
 
 - (Report *)reportForID:(NSString *)reportID
@@ -373,7 +449,7 @@
         if (type) {
             NSLog(@"matched report type %@ to report %@", type, report);
             [self.importQueue addOperationWithBlock:^{
-                [self startImportProcessForReport:report reportType:type];
+                [self importReport:report asReportType:type];
             }];
             return;
         }
@@ -509,7 +585,7 @@
     }
 
     NSBlockOperation *createImportProcess = [NSBlockOperation blockOperationWithBlock:^{
-        [self startImportProcessForReport:report reportType:reportType];
+        [self importReport:report asReportType:reportType];
     }];
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -524,7 +600,7 @@
     });
 }
 
-- (void)startImportProcessForReport:(Report *)report reportType:(id<ReportType>)type
+- (void)importReport:(Report *)report asReportType:(id<ReportType>)type
 {
     NSLog(@"creating import process for report %@", report);
     ImportProcess *importProcess = [type createProcessToImportReport:report toDir:self.reportsDir];
@@ -639,7 +715,6 @@
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            // TODO: deleted notification
             [_reports removeObject:report];
             deleteFromTrash.fileUrl = trashUrl;
             [self.notifications postNotificationName:ReportNotification.reportRemoved object:self userInfo:@{@"report": report}];

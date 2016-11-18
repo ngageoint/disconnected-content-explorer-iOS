@@ -10,8 +10,10 @@
 
 
 @protocol DICEArchiveFactory;
+@protocol DICEDownloadDelegate;
 @protocol ReportType;
 @class DICEUtiExpert;
+@class DICEDownloadManager;
 @class Report;
 
 #import "ImportProcess.h"
@@ -52,6 +54,10 @@
  }
  */
 @property (class, nonatomic, nonnull, readonly) NSString *reportExtractProgress;
+
+@property (class, nonatomic, nonnull, readonly) NSString *reportDownloadProgress;
+
+@property (class, nonatomic, nonnull, readonly) NSString *reportDownloadComplete;
 /**
  This notification indicates that a report was fully
  imported and is ready to view.
@@ -86,9 +92,9 @@
 
 
 
-@interface ReportStore : NSObject <ImportDelegate>
+@interface ReportStore : NSObject <ImportDelegate, DICEDownloadDelegate>
 
-@property (class, nonnull, readonly) ReportStore *sharedInstance;
+@property (class, nonnull) ReportStore *sharedInstance;
 
 
 /**
@@ -104,6 +110,7 @@
 @property (nonnull, readonly) NSCompoundPredicate *reportsDirExclusions;
 @property (nonnull, readonly) DICEUtiExpert *utiExpert;
 @property (nonnull, readonly) id<DICEArchiveFactory> archiveFactory;
+@property (nonnull, nonatomic) DICEDownloadManager *downloadManager;
 @property (nonnull, readonly) NSOperationQueue *importQueue;
 @property (nonnull, readonly) NSFileManager *fileManager;
 @property (nonnull, readonly) NSNotificationCenter *notifications;
