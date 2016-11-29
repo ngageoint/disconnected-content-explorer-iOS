@@ -30,16 +30,16 @@
 @protocol DICEDownloadDelegate;
 
 
-@interface DICEDownloadManager : NSObject
+@interface DICEDownloadManager : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
 
 //@property (class, nonnull, nonatomic) DICEDownloadManager *sharedInstance;
 
-
+@property (nullable) NSURLSession *downloadSession;
 /** the URL of the directory where this download manager will move downloaded files */
 @property (readonly, nonnull) NSURL *downloadDir;
 @property (readonly, nullable, weak) id<DICEDownloadDelegate> delegate;
 
-- (nullable instancetype)initWithDownloadDir:(nullable NSURL *)downloadDir queue:(nullable NSOperationQueue *)downloadQueue fileManager:(nullable NSFileManager *)fileManager delegate:(nullable id<DICEDownloadDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDownloadDir:(NSURL *)downloadDir fileManager:(NSFileManager *)fileManager delegate:(id<DICEDownloadDelegate>)delegate;
 
 - (void)downloadUrl:(nonnull NSURL *)url;
 - (void)handleEventsForBackgroundURLSession:(nonnull NSString *)identifier completionHandler:(nullable void (^)())completionHandler;

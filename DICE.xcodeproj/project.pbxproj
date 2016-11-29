@@ -22,6 +22,7 @@
 		17FB669C0414684800F469FB754C6DAD /* DisclaimerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB03EAA46D6AFBAEF7FE406C74638A71 /* DisclaimerViewController.m */; };
 		198D111BBBDC4E2EE8BDAB059EA80DB0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39D46E4251184064FF69409D758E04CE /* Images.xcassets */; };
 		19BD26BC17140140C803042DEEB0418D /* ReaderDemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE636D09070B4E049CEBDC10D013A59F /* ReaderDemoController.m */; };
+		1A18567868B2E92FA0856BB8C39F6822 /* DICEDownloadManagerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = AD7F89CE937873F061B70F50E41AB850 /* DICEDownloadManagerSpec.m */; };
 		1F16055531467CC62B3ED6A37B61A69A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D46AE2C7DAA4990566CA0BC8DD75DF2 /* MapKit.framework */; };
 		1F4462855CD2A1AF131E7519A68E9C75 /* MapOverlayController.m in Sources */ = {isa = PBXBuildFile; fileRef = A43B74D74A16090E3AA5066955E288DD /* MapOverlayController.m */; };
 		203ED09568AA183BEC126773956CA8E4 /* InspectReportArchiveOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0625CBAEB5560B095E5D02ED4AABEA57 /* InspectReportArchiveOperation.m */; };
@@ -316,6 +317,7 @@
 		AB74977C88550E3A8C96196EC40E128D /* ReaderContentTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderContentTile.h; sourceTree = "<group>"; };
 		AC47CA2D2073882A9942337FB7970EE0 /* ReaderContentPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderContentPage.h; sourceTree = "<group>"; };
 		AD397A407B5A60A02D3DAFE659B8E191 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
+		AD7F89CE937873F061B70F50E41AB850 /* DICEDownloadManagerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEDownloadManagerSpec.m; sourceTree = "<group>"; };
 		AE95FC42DECEC8146DEB15FCDA9DC15B /* TestReportType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestReportType.h; sourceTree = "<group>"; };
 		B01AFFC292436EA5963F34F558E4AE3F /* DICEUtiExpert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEUtiExpert.h; sourceTree = "<group>"; };
 		B03B9852B01E54A438D95248063F7669 /* ThumbsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThumbsViewController.m; sourceTree = "<group>"; };
@@ -613,15 +615,6 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
-		9D193367874CC8D48CDAE50635B32930 /* Download */ = {
-			isa = PBXGroup;
-			children = (
-				59944F08BB684FA4EAEECB54B5586B2D /* DICEDownloadManager.h */,
-				8143A49681767F33AC20479757857BB9 /* DICEDownloadManager.m */,
-			);
-			name = Download;
-			sourceTree = "<group>";
-		};
 		823F6667732B7E553B46E5F131E54D66 /* Map View */ = {
 			isa = PBXGroup;
 			children = (
@@ -642,6 +635,7 @@
 				0B89054DB1A7852C56A43ADAAC1ED3B8 /* Supporting Files */,
 				56B924E8E9DBF049A0D06981BD6C3DAE /* etc */,
 				3A54F3B11871E6420FC51D7AAE5B94ED /* ContentEnumerationInfoSpec.m */,
+				AD7F89CE937873F061B70F50E41AB850 /* DICEDownloadManagerSpec.m */,
 				FA3F782234B6FACC010EAF55B75AF41A /* ExplodedHtmlImportProcessSpec.m */,
 				B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */,
 				D1A346D07FF62AB077E3017306809DCB /* HtmlReportTypeSpec.m */,
@@ -726,6 +720,15 @@
 				C14C2D0B701F40DC426CCF81F62F986B /* ListViewController.m */,
 			);
 			name = "List View";
+			sourceTree = "<group>";
+		};
+		9D193367874CC8D48CDAE50635B32930 /* Download */ = {
+			isa = PBXGroup;
+			children = (
+				59944F08BB684FA4EAEECB54B5586B2D /* DICEDownloadManager.h */,
+				8143A49681767F33AC20479757857BB9 /* DICEDownloadManager.m */,
+			);
+			name = Download;
 			sourceTree = "<group>";
 		};
 		A82C08186B00843BEA0FD78EB5DC61F6 /* Frameworks */ = {
@@ -1167,6 +1170,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2508CED09B53B213385B138F4B40F133 /* ContentEnumerationInfoSpec.m in Sources */,
+				1A18567868B2E92FA0856BB8C39F6822 /* DICEDownloadManagerSpec.m in Sources */,
 				54CD2EBF057765169A258000DD4FE36C /* ExplodedHtmlImportProcessSpec.m in Sources */,
 				94FF34B63D94FD5FF4F7C1939CA50348 /* FileOperationsSpec.m in Sources */,
 				78F25D17D6F1DEBDA8B1E312D25AB76D /* HtmlReportTypeSpec.m in Sources */,

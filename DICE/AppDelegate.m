@@ -50,7 +50,11 @@
     ReportStore *store = [[ReportStore alloc] initWithReportsDir:reportsDir exclusions:exclusions utiExpert:utiExpert archiveFactory:archiveFactory importQueue:importQueue fileManager:fileManager notifications:notificationCenter application:application];
     ReportStore.sharedInstance = store;
 
-    _downloadManager = [[DICEDownloadManager alloc] initWithDownloadDir:reportsDir queue:importQueue fileManager:fileManager delegate:store];
+    _downloadManager = [[DICEDownloadManager alloc] initWithDownloadDir:reportsDir fileManager:fileManager delegate:store];
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"dice.download"];
+    configuration.sessionSendsLaunchEvents = YES;
+    configuration.discretionary = YES;
+    _downloadManager.downloadSession = [NSURLSession sessionWithConfiguration:configuration delegate:_downloadManager delegateQueue:importQueue];
     store.downloadManager = _downloadManager;
 
     store.reportTypes = @[
@@ -60,8 +64,9 @@
 
     // initialize offline map polygons
     // TODO: potentially thread this
+    // TODO: change to geopackage
     NSDictionary *geojson = [OfflineMapUtility dictionaryWithContentsOfJSONString:@"ne_50m-110m_land"];
-    NSMutableArray *featuresArray = [geojson objectForKey:@"features"];
+    NSMutableArray *featuresArray = geojson[@"features"];
     [OfflineMapUtility generateExteriorPolygons:featuresArray];
     
     [GeoPackageURLProtocol start];

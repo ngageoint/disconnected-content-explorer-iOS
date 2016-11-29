@@ -9,11 +9,6 @@
 #import "DICEDownloadManager.h"
 
 
-@interface DICEDownloadManager () <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
-
-@end
-
-
 @implementation DICEDownload
 
 - (instancetype)initWithUrl:(NSURL *)url
@@ -37,14 +32,12 @@
 
 
 @implementation DICEDownloadManager {
-    NSOperationQueue *_downloadQueue;
     NSFileManager *_fileManager;
-    NSURLSession *_downloadSession;
     NSMutableDictionary<NSNumber *, DICEDownload *> *_downloads;
     void (^_sessionCompletionHandler)();
 }
 
-- (instancetype)initWithDownloadDir:(NSURL *)downloadDir queue:(NSOperationQueue *)downloadQueue fileManager:(NSFileManager *)fileManager delegate:(id<DICEDownloadDelegate>)delegate
+- (instancetype)initWithDownloadDir:(NSURL *)downloadDir fileManager:(NSFileManager *)fileManager delegate:(id<DICEDownloadDelegate>)delegate
 {
     self = [super init];
 
@@ -56,35 +49,24 @@
     if (_downloadDir == nil) {
         _downloadDir = [_fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:NULL];
     }
-    _downloadQueue = downloadQueue;
-    if (_downloadQueue == nil) {
-        _downloadQueue = [[NSOperationQueue alloc] init];
-    }
+    _delegate = delegate;
     _downloads = [NSMutableDictionary dictionary];
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"dice.download"];
-    configuration.sessionSendsLaunchEvents = YES;
-    configuration.discretionary = YES;
-    _downloadSession = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:_downloadQueue];
 
     return self;
 }
 
 - (instancetype)init
 {
-    return [self initWithDownloadDir:nil queue:nil fileManager:nil delegate:nil];
+    return [self initWithDownloadDir:nil fileManager:nil delegate:nil];
 }
 
 - (void)downloadUrl:(NSURL *)url
 {
-    [self beginFileDownload:url];
-}
-
-- (void)beginFileDownload:(NSURL *)url
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSURLSessionDownloadTask *downloadTask = [_downloadSession downloadTaskWithURL:url];
-        [downloadTask resume];
-    });
+    if ([self alreadyDownloadingUrl:url]) {
+        return;
+    }
+    NSURLSessionDownloadTask *downloadTask = [_downloadSession downloadTaskWithURL:url];
+    [downloadTask resume];
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
@@ -101,7 +83,7 @@
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-
+    // TODO: anything?
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
@@ -155,6 +137,16 @@
         download.httpResponseMessage = [NSHTTPURLResponse localizedStringForStatusCode:download.httpResponseCode];
     }
     return download;
+}
+
+- (BOOL)alreadyDownloadingUrl:(NSURL *)url
+{
+    for (DICEDownload *download in _downloads.allValues) {
+        if ([url isEqual:download.url]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (void)handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
