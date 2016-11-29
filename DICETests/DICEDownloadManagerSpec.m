@@ -189,13 +189,18 @@ describe(@"DICEDownloadManager", ^{
         NSURL *url = [NSURL URLWithString:@"http://dice.com/test-data"];
         NSURL *urlDup = [url copy];
 
+        NSURLRequest *req = [[NSURLRequest alloc] initWithURL:url];
+        NSURLRequest *reqDup = [[NSURLRequest alloc] initWithURL:urlDup];
+
         NSURLSessionDownloadTask *task1 = mock(NSURLSessionDownloadTask.class);
         [given([task1 taskIdentifier]) willReturnUnsignedInteger:123];
+        [given([task1 originalRequest]) willReturn:req];
         [given([task1 countOfBytesExpectedToReceive]) willReturnLong:9999999];
         [given([task1 countOfBytesReceived]) willReturnLong:9999999];
 
         NSURLSessionDownloadTask *task2 = mock(NSURLSessionDownloadTask.class);
         [given([task2 taskIdentifier]) willReturnUnsignedInteger:246];
+        [given([task2 originalRequest]) willReturn:reqDup];
         [given([task2 countOfBytesExpectedToReceive]) willReturnLong:9999999];
         [given([task2 countOfBytesReceived]) willReturnLong:9999999];
 
@@ -208,11 +213,97 @@ describe(@"DICEDownloadManager", ^{
     });
 
     it(@"can start a new download for a url already downloaded", ^{
-        failure(@"do it");
+
+        NSURL *url = [NSURL URLWithString:@"http://dice.com/test-data"];
+        NSURL *urlDup = [url copy];
+
+        NSURLRequest *req = [[NSURLRequest alloc] initWithURL:url];
+        NSURLRequest *reqDup = [[NSURLRequest alloc] initWithURL:urlDup];
+
+        __block BOOL delegateFinished = NO;
+        [givenVoid([mockDelegate downloadManager:downloadManager didFinishDownload:anything()]) willDo:^id(NSInvocation *invocation) {
+            delegateFinished = YES;
+            return nil;
+        }];
+
+        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc]
+            initWithURL:[NSURL URLWithString:@"http://dice.com/test-data"] statusCode:200 HTTPVersion:@"1.1"
+            headerFields:@{@"Content-Disposition": @"attachment; filename=test.dat", @"Content-Type": @"application/test-data"}];
+
+        NSURLSessionDownloadTask *task1 = mock(NSURLSessionDownloadTask.class);
+        [given([task1 taskIdentifier]) willReturnUnsignedInteger:123];
+        [given([task1 originalRequest]) willReturn:req];
+        [given([task1 countOfBytesExpectedToReceive]) willReturnLong:9999999];
+        [given([task1 countOfBytesReceived]) willReturnLong:9999999];
+        [given([task1 response]) willReturn:response];
+
+        NSURLSessionDownloadTask *task2 = mock(NSURLSessionDownloadTask.class);
+        [given([task2 taskIdentifier]) willReturnUnsignedInteger:246];
+        [given([task2 originalRequest]) willReturn:reqDup];
+        [given([task2 countOfBytesExpectedToReceive]) willReturnLong:9999999];
+        [given([task2 countOfBytesReceived]) willReturnLong:9999999];
+        [given([task2 response]) willReturn:response];
+
+        [[given([mockSession downloadTaskWithURL:anything()]) willReturn:task1] willReturn:task2];
+
+        [downloadManager downloadUrl:url];
+        [urlSessionQueue addOperationWithBlock:^{
+            [downloadManager URLSession:mockSession downloadTask:task1 didFinishDownloadingToURL:[NSURL fileURLWithPath:@"/tmp/abc123"]];
+        }];
+
+        assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
+
+        delegateFinished = NO;
+        [downloadManager downloadUrl:urlDup];
+        [urlSessionQueue addOperationWithBlock:^{
+            [downloadManager URLSession:mockSession downloadTask:task2 didFinishDownloadingToURL:[NSURL fileURLWithPath:@"/tmp/efg456"]];
+        }];
+
+        assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
+
+        [verifyCount(mockSession, times(2)) downloadTaskWithURL:equalTo(url)];
     });
 
     it(@"notifies the delegate about download progress", ^{
-        failure(@"do it");
+
+        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc]
+            initWithURL:[NSURL URLWithString:@"http://dice.com/test-data"] statusCode:200 HTTPVersion:@"1.1"
+            headerFields:@{@"Content-Disposition": @"attachment; filename=test.dat", @"Content-Type": @"application/test-data"}];
+
+        NSURLSessionDownloadTask *task = mock(NSURLSessionDownloadTask.class);
+        [given([task taskIdentifier]) willReturnUnsignedInteger:123];
+        [given([task countOfBytesExpectedToReceive]) willReturnLong:100];
+        [[[given([task countOfBytesReceived]) willReturnLong:25] willReturnLong:50] willReturnLong:75];
+        [given([task response]) willReturn:response];
+
+        NSMutableArray<NSNumber *> *progressUpdates = [NSMutableArray array];
+        HCArgumentCaptor *captureDownload = [[HCArgumentCaptor alloc] init];
+        [givenVoid([mockDelegate downloadManager:downloadManager didReceiveDataForDownload:captureDownload]) willDo:^id(NSInvocation *invocation) {
+            DICEDownload *download = captureDownload.value;
+            [progressUpdates addObject:@(download.bytesReceived)];
+            return nil;
+        }];
+
+        __block BOOL delegateFinished = NO;
+        [givenVoid([mockDelegate downloadManager:downloadManager didFinishDownload:anything()]) willDo:^id(NSInvocation *invocation) {
+            delegateFinished = YES;
+            return nil;
+        }];
+
+        [urlSessionQueue addOperationWithBlock:^{
+            [downloadManager URLSession:mockSession downloadTask:task didWriteData:25 totalBytesWritten:25 totalBytesExpectedToWrite:100];
+            [downloadManager URLSession:mockSession downloadTask:task didWriteData:25 totalBytesWritten:50 totalBytesExpectedToWrite:100];
+            [downloadManager URLSession:mockSession downloadTask:task didWriteData:25 totalBytesWritten:75 totalBytesExpectedToWrite:100];
+            [downloadManager URLSession:mockSession downloadTask:task didFinishDownloadingToURL:[NSURL fileURLWithPath:@"/tmp/abc123"]];
+        }];
+
+        assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
+
+        [verifyCount(mockDelegate, times(3)) downloadManager:downloadManager didReceiveDataForDownload:captureDownload.value];
+        expect(progressUpdates.count).to.equal(3);
+        expect(progressUpdates[0]).to.equal(25);
+        expect(progressUpdates[1]).to.equal(50);
+        expect(progressUpdates[2]).to.equal(75);
     });
 
 });

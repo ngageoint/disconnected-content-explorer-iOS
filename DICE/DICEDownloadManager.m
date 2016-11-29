@@ -66,6 +66,7 @@
         return;
     }
     NSURLSessionDownloadTask *downloadTask = [_downloadSession downloadTaskWithURL:url];
+    [self downloadForTask:downloadTask];
     [downloadTask resume];
 }
 
