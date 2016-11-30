@@ -306,6 +306,53 @@ describe(@"DICEDownloadManager", ^{
         expect(progressUpdates[2]).to.equal(75);
     });
 
+    it(@"updates the download file name when the response is available", ^{
+
+        NSURL *url = [NSURL URLWithString:@"http://dice.com/test-data"];
+
+        NSURLSessionDownloadTask *task = mock(NSURLSessionDownloadTask.class);
+        [given([task taskIdentifier]) willReturnUnsignedInteger:123];
+        [given([task countOfBytesExpectedToReceive]) willReturnLong:9999999];
+        [given([task countOfBytesReceived]) willReturnLong:1024];
+        [given([mockSession downloadTaskWithURL:anything()]) willReturn:task];
+
+        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc]
+            initWithURL:url statusCode:200 HTTPVersion:@"1.1"
+            headerFields:@{@"Content-Disposition": @"attachment; filename=test.dat", @"Content-Type": @"application/test-data"}];
+
+        [downloadManager downloadUrl:url];
+
+        [given([task response]) willReturn:response];
+
+        __block DICEDownload *download;
+        __block NSString *fileName;
+        [givenVoid([mockDelegate downloadManager:downloadManager didReceiveDataForDownload:anything()]) willDo:^id(NSInvocation *invocation) {
+            download = invocation.mkt_arguments[1];
+            fileName = download.fileName;
+            return nil;
+        }];
+
+        [urlSessionQueue addOperationWithBlock:^{
+            [downloadManager URLSession:mockSession downloadTask:task didWriteData:1024 totalBytesWritten:1024 totalBytesExpectedToWrite:9999999];
+        }];
+
+        assertWithTimeout(1.0, thatEventually(fileName), notNilValue());
+
+        expect(response.suggestedFilename).to.equal(@"test.dat");
+        expect(fileName).to.equal(@"test.dat");
+        expect(download.fileName).to.equal(@"test.dat");
+    });
+
+    it(@"handles background events for the url session", ^{
+
+        __block BOOL handled = NO;
+        void (^handler)() = ^{ handled = NSThread.isMainThread; };
+        [downloadManager handleEventsForBackgroundURLSession:@"test.session" completionHandler:handler];
+        [downloadManager URLSessionDidFinishEventsForBackgroundURLSession:mockSession];
+
+        assertWithTimeout(1.0, thatEventually(@(handled)), isTrue());
+    });
+
 });
 
 SpecEnd

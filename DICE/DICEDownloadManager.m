@@ -125,10 +125,9 @@
         return download;
     }
     download = _downloads[@(task.taskIdentifier)];
-    if (download) {
-        return download;
+    if (download == nil) {
+        download = _downloads[@(task.taskIdentifier)] = [[DICEDownload alloc] initWithUrl:task.originalRequest.URL];
     }
-    download = _downloads[@(task.taskIdentifier)] = [[DICEDownload alloc] initWithUrl:task.originalRequest.URL];
     download.bytesExpected = task.countOfBytesExpectedToReceive;
     download.bytesReceived = task.countOfBytesReceived;
     if (task.response) {
