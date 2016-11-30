@@ -80,8 +80,10 @@ describe(@"DICEDownloadManager", ^{
 
         assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
 
-        [verify(mockDelegate) downloadManager:downloadManager willFinishDownload:captureDownload.value movingToFile:destUrl];
-        [verify(mockDelegate) downloadManager:downloadManager didFinishDownload:captureDownload.value];
+        DICEDownload *download = captureDownload.value;
+        expect(captureDownload).toNot.beNil();
+        [verify(mockDelegate) downloadManager:downloadManager willFinishDownload:download movingToFile:destUrl];
+        [verify(mockDelegate) downloadManager:downloadManager didFinishDownload:download];
     });
 
     it(@"moves the downloaded file serially on the invoking background thread", ^{
@@ -148,6 +150,7 @@ describe(@"DICEDownloadManager", ^{
         [verify(mockFileManager) moveItemAtURL:tempUrl toURL:destUrl error:NULL];
         expect(response.suggestedFilename).to.equal(@"test.dat");
         expect(download.downloadedFile).to.equal(destUrl);
+        expect(download.wasSuccessful).to.beTruthy();
     });
 
     it(@"moves the downloaded file to the override path", ^{
@@ -179,6 +182,11 @@ describe(@"DICEDownloadManager", ^{
         [verify(mockFileManager) moveItemAtURL:tempUrl toURL:destUrl error:NULL];
         expect(response.suggestedFilename).to.equal(@"test.dat");
         expect(download.downloadedFile).to.equal(destUrl);
+        expect(download.wasSuccessful).to.beTruthy();
+    });
+
+    it(@"was not successful when moving the temp file fails", ^{
+        failure(@"do it");
     });
 
     xit(@"handles duplicate downloaded file names", ^{

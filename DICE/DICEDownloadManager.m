@@ -104,6 +104,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [_downloads removeObjectForKey:@(downloadTask.taskIdentifier)];
         download.downloadedFile = destFile;
+        download.wasSuccessful = YES;
         if (self.delegate) {
             [self.delegate downloadManager:self didFinishDownload:download];
         }
