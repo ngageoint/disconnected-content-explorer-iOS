@@ -143,51 +143,46 @@
     NSLog(@"checking pasteboard contents ...");
 
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-    // TODO: does this call work on iOS < 10?
-    if (!pasteboard.hasStrings) {
-        return;
+#ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 10000
+    if ([UIPasteboard instancesRespondToSelector:@selector(hasStrings)]) {
+        if (!pasteboard.hasStrings) {
+            return;
+        }
     }
+#endif
+#endif
 
     NSString *pasteboardString = pasteboard.string;
+    if (pasteboardString == nil) {
+        return;
+    }
 
     NSLog(@"found pasteboard string: %@", pasteboardString);
 
     pasteboardURL = [NSURL URLWithString:pasteboardString];
-    NSString *recentURL = [NSUserDefaults.standardUserDefaults stringForKey:recentPasteboardURLKey];
-
-    if ([pasteboardURL.absoluteString isEqualToString:recentURL] || !(pasteboardURL && pasteboardURL.scheme && pasteboardURL.host)) {
+    if (pasteboardURL == nil || pasteboardURL.scheme == nil || pasteboardURL.host == nil) {
         return;
     }
 
-    // Before even giving the user the option to download, make sure that the link points to something we can use.
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:pasteboardURL];
-    [request setHTTPMethod:@"HEAD"];
+    NSString *recentURL = [NSUserDefaults.standardUserDefaults stringForKey:recentPasteboardURLKey];
+    if ([pasteboardURL.absoluteString isEqualToString:recentURL]) {
+//        return;
+    }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [NSURLConnection sendAsynchronousRequest:request queue:[[NSOperationQueue alloc] init]
-        completionHandler:^(NSURLResponse *_Nullable response, NSData *_Nullable data, NSError *_Nullable connectionError) {
-            NSString *mimeType = response.MIMEType;
-            if ([@"application/zip" isEqualToString:mimeType] || [@"application/octet-stream" isEqualToString:mimeType]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Download?" message:pasteboardString preferredStyle:UIAlertControllerStyleAlert];
-                    UIAlertAction *downloadAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-                        [NSUserDefaults.standardUserDefaults setObject:pasteboardURL.absoluteString forKey:recentPasteboardURLKey];
-                        [ReportStore.sharedInstance attemptToImportReportFromResource:pasteboardURL];
-                    }];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Download?" message:pasteboardString preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *downloadAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+        [NSUserDefaults.standardUserDefaults setObject:pasteboardURL.absoluteString forKey:recentPasteboardURLKey];
+        [ReportStore.sharedInstance attemptToImportReportFromResource:pasteboardURL];
+    }];
 
-                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-                        [NSUserDefaults.standardUserDefaults setObject:pasteboardURL.absoluteString forKey:recentPasteboardURLKey];
-                    }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
+        [NSUserDefaults.standardUserDefaults setObject:pasteboardURL.absoluteString forKey:recentPasteboardURLKey];
+    }];
 
-                    [alertController addAction:cancelAction];
-                    [alertController addAction:downloadAction];
-                    [self presentViewController:alertController animated:YES completion:nil];
-                });
-            }
-        }];
-#pragma clang diagnostic pop
-
+    [alertController addAction:cancelAction];
+    [alertController addAction:downloadAction];
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 
