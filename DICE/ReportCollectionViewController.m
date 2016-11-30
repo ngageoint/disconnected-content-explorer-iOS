@@ -167,34 +167,24 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [NSURLConnection sendAsynchronousRequest:request queue:[[NSOperationQueue alloc] init]
         completionHandler:^(NSURLResponse *_Nullable response, NSData *_Nullable data, NSError *_Nullable connectionError) {
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"MIME type of file: %@", [response MIMEType]);
-
-                NSDictionary *headers = [(NSHTTPURLResponse *) response allHeaderFields];
-                // TODO: check content-types that can also be report types in the head request, octet stream, etc.
-
-                NSLog(@"Suggested filename %@", [response suggestedFilename]);
-
-                if ([[response MIMEType] isEqualToString:@"application/zip"] || [headers[@"Content-Type"] isEqualToString:@"application/octet-stream"]) {
-                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Download?" message:[response.URL absoluteString] preferredStyle:UIAlertControllerStyleAlert];
+            NSString *mimeType = response.MIMEType;
+            if ([@"application/zip" isEqualToString:mimeType] || [@"application/octet-stream" isEqualToString:mimeType]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Download?" message:pasteboardString preferredStyle:UIAlertControllerStyleAlert];
                     UIAlertAction *downloadAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-                        NSLog(@"Download action choosen");
-                        // TODO: restore
-//                                                                  [[ReportStore sharedInstance] downloadReportAtURL:pasteboardURL withFilename: [response suggestedFilename]];
-                        [[NSUserDefaults standardUserDefaults] setObject:[pasteboardURL absoluteString] forKey:recentPasteboardURLKey];
+                        [NSUserDefaults.standardUserDefaults setObject:pasteboardURL.absoluteString forKey:recentPasteboardURLKey];
+                        [ReportStore.sharedInstance attemptToImportReportFromResource:pasteboardURL];
                     }];
 
                     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
-                        [[NSUserDefaults standardUserDefaults] setObject:[pasteboardURL absoluteString] forKey:recentPasteboardURLKey];
+                        [NSUserDefaults.standardUserDefaults setObject:pasteboardURL.absoluteString forKey:recentPasteboardURLKey];
                     }];
 
                     [alertController addAction:cancelAction];
                     [alertController addAction:downloadAction];
                     [self presentViewController:alertController animated:YES completion:nil];
-
-                }
-            });
+                });
+            }
         }];
 #pragma clang diagnostic pop
 
