@@ -41,6 +41,13 @@
 @end
 
 
+/**
+ * This is an import process that performs no work except to notify the delegate that the
+ * import is complete.
+ */
+@interface NoopImportProcess : ImportProcess
+@end
+
 
 @protocol ImportDelegate <NSObject>
 

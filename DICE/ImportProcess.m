@@ -35,6 +35,7 @@
     OBSERVATION_CONTEXT = &OBSERVATION_CONTEXT;
 
     _report = report;
+    _steps = @[];
     _finishedStepCount = 0;
     _mutexQueue = dispatch_queue_create("dice.ImportProcess", DISPATCH_QUEUE_SERIAL);
 
@@ -206,6 +207,18 @@
     @catch (NSException *e) {
         NSLog(@"error removing observer for key path isCancelled: %@: %@\n%@", e.name, e.reason, [e callStackSymbols]);
     }
+}
+
+@end
+
+
+@implementation NoopImportProcess
+
+- (instancetype)initWithReport:(Report *)report
+{
+    self = [super initWithReport:report];
+    self.steps = @[[[NSOperation alloc] init]];
+    return self;
 }
 
 @end

@@ -9,6 +9,7 @@
 #import "HtmlReportType.h"
 #import "UnzipOperation.h"
 #import "ExplodedHtmlImportProcess.h"
+#import "Report.h"
 
 
 @interface HtmlReportType ()
@@ -110,8 +111,14 @@
 
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
-    ExplodedHtmlImportProcess *process = [[ExplodedHtmlImportProcess alloc] initWithReport:report];
-    return process;
+    NSDictionary *attrs = [self.fileManager attributesOfItemAtPath:report.rootResource.path error:nil];
+    if ([self isHtmlBaseDir:report.rootResource attributes:attrs]) {
+        return [[ExplodedHtmlImportProcess alloc] initWithReport:report];
+    }
+    else if ([self isHtmlFile:report.rootResource attributes:attrs]) {
+        return [[NoopImportProcess alloc] initWithReport:report];
+    }
+    return nil;
 }
 
 - (BOOL)isHtmlBaseDir:(NSURL *)filePath attributes:(NSDictionary *)fileAttrs

@@ -115,15 +115,17 @@ describe(@"HtmlReportType", ^{
         [given([fileManager attributesOfItemAtPath:indexPath error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
         ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
         expect(import).to.beInstanceOf([ExplodedHtmlImportProcess class]);
+        expect(import.report).to.beIdenticalTo(report);
     });
 
-    it(@"creates an exploded html report import process for an html file report url", ^{
+    it(@"creates a noop import process for an html file report url", ^{
         NSURL *reportPath = [reportsDir URLByAppendingPathComponent:@"test_report.html" isDirectory:NO];
         Report *report = [[Report alloc] init];
         report.rootResource = reportPath;
         [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
         ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
-        expect(import).to.beInstanceOf([ExplodedHtmlImportProcess class]);
+        expect(import).to.beInstanceOf(NoopImportProcess.class);
+        expect(import.report).to.beIdenticalTo(report);
     });
 
     describe(@"content matching predicate", ^{
