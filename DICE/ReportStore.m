@@ -479,7 +479,7 @@ ReportStore *_sharedInstance;
 
     NSLog(@"no report type found for report archive %@", report);
     dispatch_async(dispatch_get_main_queue(), ^{
-//        [self clearPendingImportProcess:report];
+        [self clearPendingImportProcess:report];
         report.summary = @"Unknown content type";
         report.importStatus = ReportImportStatusFailed;
         [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];

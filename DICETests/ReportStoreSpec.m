@@ -1228,7 +1228,34 @@ describe(@"ReportStore", ^{
 
         it(@"can retry a failed import after deleting the report", ^{
 
-            failure(@"do it");
+            NSURL *url = [reportsDir URLByAppendingPathComponent:@"oops.bloo"];
+            [fileManager setContentsOfReportsDir:url.lastPathComponent, nil];
+            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            NSNotification *note = obs.received.firstObject.notification;
+
+            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+
+            [store deleteReport:report];
+
+            assertWithTimeout(1.0, thatEventually(@([fileManager fileExistsAtPath:url.path] || [store.reports containsObject:report])), isFalse());
+
+            [fileManager setContentsOfReportsDir:url.lastPathComponent, nil];
+
+            Report *retry = [store attemptToImportReportFromResource:url];
+
+            expect(retry).toNot.beIdenticalTo(report);
+
+            assertWithTimeout(1.0, thatEventually(@(retry.isImportFinished)), isTrue());
+
+            expect(retry.importStatus).to.equal(ReportImportStatusFailed);
+            expect(obs.received).to.haveCountOf(2);
+            expect(obs.received[0].notification.userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(obs.received[1].notification.userInfo[@"report"]).to.beIdenticalTo(retry);
         });
 
         xit(@"passees the content match predicate to the import process", ^{
