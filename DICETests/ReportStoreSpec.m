@@ -1212,6 +1212,11 @@ describe(@"ReportStore", ^{
             expect(report.rootResource).to.equal([reportsDir URLByAppendingPathComponent:@"dingle.blue"]);
         });
 
+        it(@"posts a failure notification if no report type matches the content", ^{
+
+            failure(@"do it");
+        });
+
         xit(@"passees the content match predicate to the import process", ^{
             /*
              TODO: Allow the ReportContentMatchPredicate to pass information to
@@ -1771,6 +1776,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"does not post a progress notification if the percent complete did not change", ^{
+
             __block NSInteger lastProgress = 0;
             NotificationRecordingObserver *obs = [[NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:^(NSNotification *notification) {
                 if (![ReportNotification.reportDownloadProgress isEqualToString:notification.name]) {
@@ -1884,6 +1890,16 @@ describe(@"ReportStore", ^{
             expect(obs.received.lastObject.notification.name).to.equal(ReportNotification.reportImportFinished);
             expect(report.importStatus).to.equal(ReportImportStatusFailed);
             expect(report.isEnabled).to.beFalsy();
+        });
+
+        it(@"can import a downloaded archive file", ^{
+
+            failure(@"do it");
+        });
+
+        it(@"can re-download the same url after failing to import a downloaded file", ^{
+
+            failure(@"do it");
         });
 
     });
