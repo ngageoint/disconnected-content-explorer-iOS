@@ -1214,6 +1214,20 @@ describe(@"ReportStore", ^{
 
         it(@"posts a failure notification if no report type matches the content", ^{
 
+            [fileManager setContentsOfReportsDir:@"oops.der", nil];
+            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
+            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"oops.dir"]];
+
+            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(1));
+
+            NSNotification *note = obs.received.firstObject.notification;
+
+            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+        });
+
+        it(@"can retry a failed import after deleting the report", ^{
+
             failure(@"do it");
         });
 

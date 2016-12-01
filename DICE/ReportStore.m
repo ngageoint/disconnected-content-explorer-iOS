@@ -482,7 +482,7 @@ ReportStore *_sharedInstance;
 //        [self clearPendingImportProcess:report];
         report.summary = @"Unknown content type";
         report.importStatus = ReportImportStatusFailed;
-        // TODO: notification
+        [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
     });
 }
 
