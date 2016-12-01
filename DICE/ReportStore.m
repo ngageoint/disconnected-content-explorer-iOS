@@ -494,19 +494,26 @@ ReportStore *_sharedInstance;
     // TODO: assign reportID if nil
     dispatch_async(dispatch_get_main_queue(), ^{
         // import probably changed the report url, so remove by searching for the report itself
-        [self clearPendingImportProcess:import.report];
-        import.report.isEnabled = import.wasSuccessful;
+        Report *report = import.report;
+        [self clearPendingImportProcess:report];
+        report.isEnabled = import.wasSuccessful;
         if (import.wasSuccessful) {
             if (descriptor) {
-                [import.report setPropertiesFromJsonDescriptor:descriptor];
+                [report setPropertiesFromJsonDescriptor:descriptor];
             }
-            import.report.isEnabled = YES;
-            import.report.importStatus = ReportImportStatusSuccess;
+            // TODO: this is a hack to ensure only nilling the summary if the import process didn't change it until
+            // the ui changes to use the statusMessage property instead of just summary.
+            else if ([@"Importing content..." isEqualToString:report.summary]) {
+                report.summary = nil;
+            }
+            report.isEnabled = YES;
+            report.importStatus = ReportImportStatusSuccess;
+            report.statusMessage = @"Import complete";
         }
         else {
-            import.report.isEnabled = NO;
-            import.report.importStatus = ReportImportStatusFailed;
-            import.report.summary = @"Failed to import content";
+            report.isEnabled = NO;
+            report.importStatus = ReportImportStatusFailed;
+            report.summary = report.statusMessage = @"Failed to import content";
         }
         [self.notifications postNotificationName:[ReportNotification reportImportFinished] object:self userInfo:@{@"report": import.report}];
     });
@@ -616,7 +623,7 @@ ReportStore *_sharedInstance;
         PendingImport *pendingImport = [_pendingImports pendingImportWithReport:report];
         pendingImport.importProcess = importProcess;
         report.importStatus = ReportImportStatusImporting;
-        report.summary = @"Importing content...";
+        report.summary = report.statusMessage = @"Importing content...";
         [self.notifications postNotificationName:ReportNotification.reportImportBegan object:self userInfo:@{@"report": report}];
         [self.importQueue addOperations:importProcess.steps waitUntilFinished:NO];
     });

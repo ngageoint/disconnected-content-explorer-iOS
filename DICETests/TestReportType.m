@@ -65,7 +65,6 @@
 
     TestImportProcess *my = self;
     NSBlockOperation *op1 = [NSBlockOperation blockOperationWithBlock:^{
-        my.report.summary = [NSString stringWithFormat:@"op1 %@", self.report.rootResource];
         [my.delegate reportWasUpdatedByImportProcess:my];
     }];
     NSBlockOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{
@@ -74,8 +73,6 @@
                 NSString *indexName = [NSString stringWithFormat:@"index.%@", self.typeExtension];
                 my.report.rootResource = [my.report.baseDir URLByAppendingPathComponent:indexName];
             }
-            my.report.title = [NSString stringWithFormat:@"finished %@", self.report.rootResource];
-            my.report.summary = [NSString stringWithFormat:@"finished %@", self.report.rootResource];
             [my.delegate reportWasUpdatedByImportProcess:my];
         });
     }];

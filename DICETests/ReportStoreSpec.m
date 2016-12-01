@@ -1132,6 +1132,17 @@ describe(@"ReportStore", ^{
             expect(report.summary).to.equal(@"Summary from dice.json");
         });
 
+        it(@"sets a nil summary if the report descriptor is unavailable", ^{
+            [fileManager setContentsOfReportsDir:@"blue_base/", @"blue_base/index.blue", nil];
+            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
+            [blueType enqueueImport];
+            Report *report = [store attemptToImportReportFromResource:baseDir];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
+
+            expect(report.summary).to.beNil();
+        });
+
         it(@"works if the import process changes the report url", ^{
             [fileManager setContentsOfReportsDir:@"blue_base/", @"blue_base/index.blue", nil];
             TestImportProcess *blueImport = [blueType enqueueImport];
