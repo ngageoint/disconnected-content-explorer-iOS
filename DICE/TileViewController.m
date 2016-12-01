@@ -24,10 +24,13 @@
     [super viewDidLoad];
     
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportExtractProgress object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportDownloadProgress object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportDownloadComplete object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportImportFinished object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportsLoaded object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportAdded object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportRemoved object:nil];
-    
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportsLoaded object:nil];
+
     [self.tileView setDataSource:self];
     [self.tileView setDelegate:self];
     self.refreshControl = [[UIRefreshControl alloc] init];

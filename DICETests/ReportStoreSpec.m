@@ -811,7 +811,7 @@ describe(@"ReportStore", ^{
 
         it(@"sends notifications about added reports", ^{
 
-            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:[ReportNotification reportAdded] on:notifications from:store withBlock:nil];
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportAdded on:notifications from:store withBlock:nil];
 
             [fileManager setContentsOfReportsDir:@"report1.red", @"report2.blue", nil];
 
@@ -820,7 +820,7 @@ describe(@"ReportStore", ^{
 
             NSArray *reports = [store loadReports];
 
-            assertWithTimeout(1.0, thatEventually(@(observer.received.count)), equalToInteger(2));
+            assertWithTimeout(1.0, thatEventually(observer.received), hasCountOf(2));
 
             [observer.received enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                 NSNotification *note = [obj notification];
@@ -831,6 +831,14 @@ describe(@"ReportStore", ^{
             }];
 
             [notifications removeObserver:observer];
+        });
+
+        it(@"posts a reports loaded notification", ^{
+
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportsLoaded on:notifications from:store withBlock:nil];
+            [store loadReports];
+
+            assertWithTimeout(1.0, thatEventually(observer.received), hasCountOf(1));
         });
 
     });

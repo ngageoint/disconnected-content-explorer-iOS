@@ -167,6 +167,7 @@
 
     NSString *recentURL = [NSUserDefaults.standardUserDefaults stringForKey:recentPasteboardURLKey];
     if ([pasteboardURL.absoluteString isEqualToString:recentURL]) {
+        // TODO: need some kind of mechanism to force re-downloading in case a download failed and the user wants to try again
 //        return;
     }
 
