@@ -326,7 +326,6 @@ ReportStore *_sharedInstance;
     report.rootResource = reportUrl;
     report.uti = reportUti;
     report.title = reportUrl.lastPathComponent;
-    report.summary = @"Inspecting new content";
 
     // TODO: do this in background for FS access; move after creating and adding report
     NSDictionary<NSFileAttributeKey, id> *attrs = [self.fileManager attributesOfItemAtPath:reportUrl.path error:nil];
@@ -361,6 +360,8 @@ ReportStore *_sharedInstance;
 
 - (void)beginImportOfReport:(Report *)report withUti:(CFStringRef)reportUti
 {
+    report.summary = @"Inspecting new content";
+
     // TODO: identify the task name for the report, or just use one task for all pending imports?
     if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
         _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice.background_import" expirationHandler:^{
@@ -392,6 +393,7 @@ ReportStore *_sharedInstance;
     if (report == nil || download.percentComplete == report.downloadProgress) {
         return;
     }
+    report.title = [NSString stringWithFormat:@"Downloading... %i%%", download.percentComplete];
     report.downloadProgress = (NSUInteger) download.percentComplete;
     [self.notifications postNotificationName:ReportNotification.reportDownloadProgress object:self userInfo:@{@"report": report}];
 }
@@ -417,9 +419,11 @@ ReportStore *_sharedInstance;
         [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
         return;
     }
+    report.title = download.downloadedFile.lastPathComponent;
+    report.statusMessage = @"Download complete";
     report.downloadProgress = 100;
-    [self.notifications postNotificationName:ReportNotification.reportDownloadComplete object:self userInfo:@{@"report": report}];
     [self beginImportOfReport:report withUti:NULL];
+    [self.notifications postNotificationName:ReportNotification.reportDownloadComplete object:self userInfo:@{@"report": report}];
 }
 
 - (Report *)reportForID:(NSString *)reportID
@@ -475,6 +479,7 @@ ReportStore *_sharedInstance;
 
     NSLog(@"no report type found for report archive %@", report);
     dispatch_async(dispatch_get_main_queue(), ^{
+//        [self clearPendingImportProcess:report];
         report.summary = @"Unknown content type";
         report.importStatus = ReportImportStatusFailed;
         // TODO: notification
