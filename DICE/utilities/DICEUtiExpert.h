@@ -15,6 +15,6 @@
 - (nullable CFStringRef)probableUtiForResource:(nonnull NSURL *)resource conformingToUti:(nullable CFStringRef)constraint;
 - (BOOL)uti:(nonnull CFStringRef)testUti isEqualToUti:(nonnull CFStringRef)basisUti;
 - (BOOL)uti:(nonnull CFStringRef)testUti conformsToUti:(nonnull CFStringRef)basisUti;
+- (BOOL)isDynamicUti:(nonnull CFStringRef)uti;
 
-- (BOOL)isDynamicUti:(CFStringRef)uti;
 @end
