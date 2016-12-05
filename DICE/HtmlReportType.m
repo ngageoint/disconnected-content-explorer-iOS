@@ -7,7 +7,6 @@
 //
 
 #import "HtmlReportType.h"
-#import "UnzipOperation.h"
 #import "ExplodedHtmlImportProcess.h"
 #import "Report.h"
 
@@ -97,6 +96,7 @@
 
 - (BOOL)couldImportFromPath:(NSURL *)filePath
 {
+    // TODO: use uti expert
     NSDictionary *attrs = [self.fileManager attributesOfItemAtPath:filePath.path error:nil];
 
     return

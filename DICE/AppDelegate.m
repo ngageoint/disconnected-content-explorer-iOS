@@ -35,7 +35,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    NSLog(@"DICE finished launching with options:\n%@", launchOptions);
+    NSLog(@"app finished launching with options:\n%@", launchOptions);
 
     NSPredicate *excludeGeopackageDir = [NSPredicate predicateWithFormat:@"self.lastPathComponent like %@", @"geopackage"];
     NSArray *exclusions = @[excludeGeopackageDir];
@@ -58,8 +58,7 @@
     store.downloadManager = _downloadManager;
 
     store.reportTypes = @[
-        // TODO: expose fileManager from ReportStore and use that with HtmlReportType
-        [[HtmlReportType alloc] initWithFileManager:[NSFileManager defaultManager]]
+        [[HtmlReportType alloc] initWithFileManager:store.fileManager]
     ];
 
     // initialize offline map polygons
@@ -78,9 +77,23 @@
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive.
     // If the application was previously in the background, optionally refresh the user interface.
-    NSLog(@"DICE became active");
+    NSLog(@"app became active");
 }
 
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+    NSLog(@"app resigning active");
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+    NSLog(@"app will enter foreground");
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+    NSLog(@"app did enter background");
+}
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
@@ -134,7 +147,9 @@
 
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
 {
-    [_downloadManager handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
+    if ([identifier isEqualToString:@"dice.download"]) {
+        [_downloadManager handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
+    }
 }
 
 - (BOOL)importGeoPackageFile:(NSString *)path withName:(NSString *)name
