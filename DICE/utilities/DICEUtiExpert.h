@@ -8,9 +8,13 @@
 
 @interface DICEUtiExpert : NSObject
 
+// TODO: these returned CFStringRef values might actually never be null as the UTType functions supposedly always return dynamic utis if one cannot be deteremined
 - (nullable CFStringRef)preferredUtiForExtension:(nonnull NSString *)ext conformingToUti:(nullable CFStringRef)constraint;
+- (nullable CFStringRef)preferredUtiForMimeType:(nonnull NSString *)type conformingToUti:(nullable CFStringRef)uti;
 - (nullable CFStringRef)probableUtiForPathName:(nonnull NSString *)pathName conformingToUti:(nullable CFStringRef)constraint;
+- (nullable CFStringRef)probableUtiForResource:(nonnull NSURL *)resource conformingToUti:(nullable CFStringRef)constraint;
 - (BOOL)uti:(nonnull CFStringRef)testUti isEqualToUti:(nonnull CFStringRef)basisUti;
 - (BOOL)uti:(nonnull CFStringRef)testUti conformsToUti:(nonnull CFStringRef)basisUti;
 
+- (BOOL)isDynamicUti:(CFStringRef)uti;
 @end

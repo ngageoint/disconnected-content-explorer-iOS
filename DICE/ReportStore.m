@@ -380,6 +380,7 @@ ReportStore *_sharedInstance;
         [self.importQueue addOperation:op];
     }
     else {
+        // TODO: incorporate report uti here as well
         MatchReportTypeToContentAtPathOperation *op =
             [[MatchReportTypeToContentAtPathOperation alloc] initWithReport:report candidateTypes:self.reportTypes];
         [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:CONTENT_MATCH_CONTEXT];
@@ -393,7 +394,7 @@ ReportStore *_sharedInstance;
     if (report == nil || download.percentComplete == report.downloadProgress) {
         return;
     }
-    report.title = [NSString stringWithFormat:@"Downloading... %i%%", download.percentComplete];
+    report.title = [NSString stringWithFormat:@"Downloading... %li%%", (long)download.percentComplete];
     report.downloadProgress = (NSUInteger) download.percentComplete;
     [self.notifications postNotificationName:ReportNotification.reportDownloadProgress object:self userInfo:@{@"report": report}];
 }
@@ -422,7 +423,28 @@ ReportStore *_sharedInstance;
     report.title = download.downloadedFile.lastPathComponent;
     report.statusMessage = @"Download complete";
     report.downloadProgress = 100;
-    [self beginImportOfReport:report withUti:NULL];
+    /*
+     * TODO: better utilise the uti expert to make a more intelligent decision based on the best, most specific
+     * information available from mime type and file name, and predetermine if a report type might support a uti.
+     * e.g., the example report from https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/metromap.zip
+     * has a mime type of application/octet-stream and the resulting uti is public.data.  given that, it is
+     * more optimal to use the file name to determine the uti.  however, not all downloads might provide a useful
+     * file name either, so there should also be a mechanism to make an attempt to import a resource given only a uti
+     * like public.data, possibly even user intervention.  this will require some static prioritization of preferred
+     * utis, e.g.,
+     */
+    CFStringRef uti = [self.utiExpert probableUtiForResource:report.rootResource conformingToUti:NULL];
+    if ((uti == NULL || [self.utiExpert isDynamicUti:uti]) && download.mimeType) {
+        uti = [self.utiExpert preferredUtiForMimeType:download.mimeType conformingToUti:NULL];
+    }
+    if (uti == NULL || [self.utiExpert uti:uti isEqualToUti:kUTTypeData]) {
+        uti = kUTTypeZipArchive;
+    }
+    if (uti == NULL) {
+        uti = kUTTypeItem;
+    }
+    // TODO: fail on null or dynamic uti?
+    [self beginImportOfReport:report withUti:uti];
     [self.notifications postNotificationName:ReportNotification.reportDownloadComplete object:self userInfo:@{@"report": report}];
 }
 

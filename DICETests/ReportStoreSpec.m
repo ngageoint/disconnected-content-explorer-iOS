@@ -1033,6 +1033,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"does not create multiple reports while the archive is extracting", ^{
+
             [fileManager setContentsOfReportsDir:@"blue.zip", nil];
             NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
             TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
@@ -1935,10 +1936,46 @@ describe(@"ReportStore", ^{
 
         it(@"can import a downloaded archive file", ^{
 
-            failure(@"do it");
+            NSURL *downloadUrl = [NSURL URLWithString:@"http://dice.com/report.zip"];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:downloadUrl];
+            download.bytesExpected = 999999;
+            Report *report = [store attemptToImportReportFromResource:downloadUrl];
+            download.bytesReceived = 555555;
+            [store downloadManager:store.downloadManager didReceiveDataForDownload:download];
+            download.bytesReceived = 999999;
+            NSURL *downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.zip"];
+            [store downloadManager:store.downloadManager willFinishDownload:download movingToFile:downloadedFile];
+            [fileManager createFileAtPath:downloadUrl.path contents:nil attributes:@{NSFileType: NSFileTypeRegular}];
+            download.wasSuccessful = YES;
+            download.downloadedFile = downloadedFile;
+            download.mimeType = @"application/zip";
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:999999 sizeExtracted:999999]
+            ] archiveUrl:downloadedFile archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:downloadedFile withUti:kUTTypeZipArchive]) willReturn:archive];
+            NSFileHandle *handle = mock([NSFileHandle class]);
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return handle;
+                };
+            }];
+            TestImportProcess *blueImport = [blueType enqueueImport];
+
+            [store downloadManager:store.downloadManager didFinishDownload:download];
+
+            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isImportFinished)), isTrue());
+
+            expect(report.importStatus).to.equal(ReportImportStatusSuccess);
+
+            [NSFileHandle deswizzleAllClassMethods];
         });
 
         it(@"can re-download the same url after failing to import a downloaded file", ^{
+
+            failure(@"do it");
+        });
+
+        it(@"creates report records for in-progress background downloads when the app starts", ^{
 
             failure(@"do it");
         });
