@@ -168,13 +168,21 @@
     NSString *recentURL = [NSUserDefaults.standardUserDefaults stringForKey:recentPasteboardURLKey];
     if ([pasteboardURL.absoluteString isEqualToString:recentURL]) {
         // TODO: need some kind of mechanism to force re-downloading in case a download failed and the user wants to try again
-//        return;
+        return;
     }
 
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Download?" message:pasteboardString preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *downloadAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
         [NSUserDefaults.standardUserDefaults setObject:pasteboardURL.absoluteString forKey:recentPasteboardURLKey];
-        [ReportStore.sharedInstance attemptToImportReportFromResource:pasteboardURL];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            /*
+             had to asyncify this to avoid weird errors related to UIAlertController and
+             ui changes resulting from importing the url:
+             _BSMachError: (os/kern) invalid capability (20)
+             _BSMachError: (os/kern) invalid name (15)
+             */
+            [ReportStore.sharedInstance attemptToImportReportFromResource:pasteboardURL];
+        });
     }];
 
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleDefault handler:^(UIAlertAction *_Nonnull action) {
