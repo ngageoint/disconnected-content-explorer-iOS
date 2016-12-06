@@ -308,8 +308,6 @@ ReportStore *_sharedInstance;
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
-    // TODO: run on background thread to avoid synchronization around report list and pending imports
-
     if ([self.reportsDirExclusions evaluateWithObject:reportUrl]) {
         return nil;
     }
