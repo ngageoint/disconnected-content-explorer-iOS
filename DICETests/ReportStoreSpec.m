@@ -1975,9 +1975,45 @@ describe(@"ReportStore", ^{
             failure(@"do it");
         });
 
-        it(@"creates report records for in-progress background downloads when the app starts", ^{
+        it(@"creates report records for downloads with no report record", ^{
 
-            failure(@"do it");
+            NotificationRecordingObserver *obs = [[[NotificationRecordingObserver
+                observe:ReportNotification.reportAdded on:notifications from:store withBlock:nil]
+                observe:ReportNotification.reportDownloadProgress on:notifications from:store]
+                observe:ReportNotification.reportDownloadComplete on:notifications from:store];
+            DICEDownload *inProgress = [[DICEDownload alloc] initWithUrl:[NSURL URLWithString:@"http://dice.com/test.blue"]];
+            inProgress.bytesExpected = 9876543;
+            inProgress.bytesReceived = 8765432;
+            DICEDownload *finished = [[DICEDownload alloc] initWithUrl:[NSURL URLWithString:@"http://dice.com/test.red"]];
+            finished.bytesReceived = finished.bytesExpected = 1234567;
+            NSURL *finishedFile = [reportsDir URLByAppendingPathComponent:@"test.red"];
+
+            [store downloadManager:downloadManager didReceiveDataForDownload:inProgress];
+            [store downloadManager:downloadManager willFinishDownload:finished movingToFile:finishedFile];
+
+            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(3));
+
+            expect(obs.received[0].notification.name).to.equal(ReportNotification.reportAdded);
+            expect(obs.received[1].notification.name).to.equal(ReportNotification.reportDownloadProgress);
+            expect(obs.received[2].notification.name).to.equal(ReportNotification.reportAdded);
+
+            Report *inProgressReport = obs.received[0].notification.userInfo[@"report"];
+            Report *finishedReport = obs.received[2].notification.userInfo[@"report"];
+
+            expect(inProgressReport.importStatus).to.equal(ReportImportStatusDownloading);
+            expect(inProgressReport.rootResource).to.equal(inProgress.url);
+            expect(finishedReport.importStatus).to.equal(ReportImportStatusDownloading);
+            expect(finishedReport.rootResource).to.equal(finishedFile);
+            expect(obs.received[0].notification.userInfo[@"report"]).to.beIdenticalTo(inProgressReport);
+            expect(obs.received[1].notification.userInfo[@"report"]).to.beIdenticalTo(inProgressReport);
+
+            [store downloadManager:downloadManager didFinishDownload:finished];
+
+            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(4));
+
+            expect(obs.received[3].notification.name).to.equal(ReportNotification.reportDownloadComplete);
+            expect(obs.received[3].notification.userInfo[@"report"]).to.beIdenticalTo(finishedReport);
+            expect(finishedReport.importStatus).to.equal(ReportImportStatusImporting);
         });
 
     });
@@ -1985,6 +2021,7 @@ describe(@"ReportStore", ^{
     describe(@"background task handling", ^{
 
         it(@"starts and ends background task for importing reports", ^{
+
             [fileManager setContentsOfReportsDir:@"test.red", nil];
             TestImportProcess *redImport = [redType enqueueImport];
             [[[given([app beginBackgroundTaskWithName:@"" expirationHandler:^{}]) withMatcher:notNilValue() forArgument:0] withMatcher:notNilValue() forArgument:1] willReturnUnsignedInteger:999];
@@ -1998,6 +2035,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"begins and ends only one background task for multiple concurrent imports", ^{
+
             [fileManager setContentsOfReportsDir:@"test.red", @"test.blue", nil];
             TestImportProcess *redImport = [[redType enqueueImport] block];
             TestImportProcess *blueImport = [blueType enqueueImport];
@@ -2022,6 +2060,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"begins and ends only one background task for loading reports", ^{
+
             [fileManager setContentsOfReportsDir:@"test.red", @"test.blue", nil];
             TestImportProcess *redImport = [[redType enqueueImport] block];
             TestImportProcess *blueImport = [blueType enqueueImport];
