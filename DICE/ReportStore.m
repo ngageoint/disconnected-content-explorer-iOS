@@ -352,13 +352,13 @@ ReportStore *_sharedInstance;
         [self.downloadManager downloadUrl:reportUrl];
     }
     else {
-        [self beginImportOfReport:report withUti:reportUti];
+        [self beginInspectingFileForReport:report withUti:reportUti];
     }
 
     return report;
 }
 
-- (void)beginImportOfReport:(Report *)report withUti:(CFStringRef)reportUti
+- (void)beginInspectingFileForReport:(Report *)report withUti:(CFStringRef)reportUti
 {
     report.summary = @"Inspecting new content";
 
@@ -444,7 +444,7 @@ ReportStore *_sharedInstance;
         uti = kUTTypeItem;
     }
     // TODO: fail on null or dynamic uti?
-    [self beginImportOfReport:report withUti:uti];
+    [self beginInspectingFileForReport:report withUti:uti];
     [self.notifications postNotificationName:ReportNotification.reportDownloadComplete object:self userInfo:@{@"report": report}];
 }
 
