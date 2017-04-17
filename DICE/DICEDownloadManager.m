@@ -60,6 +60,11 @@
     return [self initWithDownloadDir:nil fileManager:nil delegate:nil];
 }
 
+- (BOOL)isFinishingBackgroundEvents
+{
+    return _sessionCompletionHandler && UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+}
+
 - (void)downloadUrl:(NSURL *)url
 {
     if ([self isDownloadingUrl:url]) {

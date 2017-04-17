@@ -38,6 +38,7 @@
 /** the URL of the directory where this download manager will move downloaded files */
 @property (readonly, nonnull) NSURL *downloadDir;
 @property (readonly, nullable, weak) id<DICEDownloadDelegate> delegate;
+@property (readonly) BOOL isFinishingBackgroundEvents;
 
 - (instancetype)initWithDownloadDir:(NSURL *)downloadDir fileManager:(NSFileManager *)fileManager delegate:(id<DICEDownloadDelegate>)delegate;
 
