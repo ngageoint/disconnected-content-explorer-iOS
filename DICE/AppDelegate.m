@@ -120,7 +120,7 @@
                 if(selectedCaches == nil){
                     selectedCaches = [[NSMutableDictionary alloc] init];
                 }
-                [selectedCaches setObject:[[NSMutableArray alloc] init] forKey:name];
+                selectedCaches[name] = [[NSMutableArray alloc] init];
                 [defaults setObject:selectedCaches forKey:DICE_SELECTED_CACHES];
                 [defaults setObject:nil forKey:DICE_SELECTED_CACHES_UPDATED];
                 [defaults synchronize];
@@ -147,6 +147,7 @@
 
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
 {
+    NSLog(@"handle events for background url session %@", identifier);
     if ([identifier isEqualToString:@"dice.download"]) {
         [_downloadManager handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
     }
