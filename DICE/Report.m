@@ -20,7 +20,7 @@
         self.downloadSize = 0;
         self.downloadProgress = 0;
         self.cacheFiles = [[NSMutableArray alloc] init];
-        self.importStatus = ReportImportStatusNew;
+        self.importStatus = ReportImportStatusNewLocal;
     }
     
     return self;

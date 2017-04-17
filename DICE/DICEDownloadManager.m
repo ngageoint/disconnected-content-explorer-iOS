@@ -62,7 +62,7 @@
 
 - (void)downloadUrl:(NSURL *)url
 {
-    if ([self alreadyDownloadingUrl:url]) {
+    if ([self isDownloadingUrl:url]) {
         return;
     }
     NSURLSessionDownloadTask *downloadTask = [_downloadSession downloadTaskWithURL:url];
@@ -140,7 +140,7 @@
     return download;
 }
 
-- (BOOL)alreadyDownloadingUrl:(NSURL *)url
+- (BOOL)isDownloadingUrl:(NSURL *)url
 {
     for (DICEDownload *download in _downloads.allValues) {
         if ([url isEqual:download.url]) {

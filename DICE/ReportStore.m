@@ -313,45 +313,59 @@ ReportStore *_sharedInstance;
     }
 
     Report *report = [self reportAtPath:reportUrl];
-
     if (report) {
         return report;
     }
 
-    CFStringRef reportUti = [self.utiExpert preferredUtiForExtension:reportUrl.pathExtension conformingToUti:NULL];
-    report = [[Report alloc] initWithTitle:reportUrl.path];
+    report = [self addNewPendingReportForUrl:reportUrl];
+    if (report.importStatus == ReportImportStatusNewLocal) {
+        [self beginInspectingFileForReport:report withUti:NULL];
+    }
+    else if (report.importStatus == ReportImportStatusNewRemote) {
+        [self.downloadManager downloadUrl:reportUrl];
+        report.importStatus = ReportImportStatusDownloading;
+    }
+
+    return report;
+}
+
+/**
+ * Add a new report record and PendingReport place holder for the given URL, then serially post a
+ * ReportAdded notification.
+ * @param reportUrl
+ * @return
+ */
+- (Report *)addNewPendingReportForUrl:(NSURL *)reportUrl
+{
+    Report *report = [[Report alloc] init];
     report.isEnabled = NO;
     report.rootResource = reportUrl;
-    report.uti = reportUti;
-    report.title = reportUrl.lastPathComponent;
-
-    // TODO: do this in background for FS access; move after creating and adding report
-    NSDictionary<NSFileAttributeKey, id> *attrs = [self.fileManager attributesOfItemAtPath:reportUrl.path error:nil];
-    NSString *fileType = attrs.fileType;
-    if ([NSFileTypeDirectory isEqualToString:fileType]) {
-        report.baseDir = reportUrl;
-    }
 
     // TODO: report is added here but might not be imported;
     // maybe update report to reflect status but leave in list so user can choose to delete it
     [_reports addObject:report];
     _pendingImports[reportUrl] = [[PendingImport alloc] initWithSourceUrl:reportUrl Report:report];
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.notifications postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
-    });
-
     if ([reportUrl.scheme.lowercaseString hasPrefix:@"http"]) {
         report.title = @"Downloading...";
         report.summary = reportUrl.absoluteString;
         report.uti = NULL;
-        report.importStatus = ReportImportStatusDownloading;
+        report.importStatus = ReportImportStatusNewRemote;
         report.statusMessage = @"Downloading...";
-        [self.downloadManager downloadUrl:reportUrl];
     }
-    else {
-        [self beginInspectingFileForReport:report withUti:reportUti];
+    else if (reportUrl.isFileURL) {
+        report.title = reportUrl.lastPathComponent;
+        report.uti = [self.utiExpert preferredUtiForExtension:reportUrl.pathExtension conformingToUti:NULL];
+        report.importStatus = ReportImportStatusNewLocal;
+        // TODO: do this in background for FS access; move after creating and adding report
+        NSDictionary<NSFileAttributeKey, id> *attrs = [self.fileManager attributesOfItemAtPath:reportUrl.path error:nil];
+        NSString *fileType = attrs.fileType;
+        if ([NSFileTypeDirectory isEqualToString:fileType]) {
+            report.baseDir = reportUrl;
+        }
     }
+
+    [self.notifications postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
 
     return report;
 }
@@ -366,6 +380,10 @@ ReportStore *_sharedInstance;
             [self suspendAndClearPendingImports];
             [self finishBackgroundTaskIfImportsFinished];
         }];
+    }
+
+    if (reportUti == NULL) {
+        reportUti = [self.utiExpert preferredUtiForExtension:report.rootResource.pathExtension conformingToUti:NULL];
     }
 
     if ([self.utiExpert uti:reportUti conformsToUti:kUTTypeZipArchive]) {
@@ -388,8 +406,8 @@ ReportStore *_sharedInstance;
 
 - (void)downloadManager:(DICEDownloadManager *)downloadManager didReceiveDataForDownload:(DICEDownload *)download
 {
-    Report *report = [self reportAtPath:download.url];
-    if (report == nil || download.percentComplete == report.downloadProgress) {
+    Report *report = [self getOrAddReportForDownload:download];
+    if (download.percentComplete == report.downloadProgress) {
         return;
     }
     report.title = [NSString stringWithFormat:@"Downloading... %li%%", (long)download.percentComplete];
@@ -399,16 +417,21 @@ ReportStore *_sharedInstance;
 
 - (NSURL *)downloadManager:(DICEDownloadManager *)downloadManager willFinishDownload:(DICEDownload *)download movingToFile:(NSURL *)destFile
 {
-    Report *report = [self reportAtPath:download.url];
-    if (report) {
-        report.rootResource = destFile;
-    }
+    Report *report = [self getOrAddReportForDownload:download];
+    report.rootResource = destFile;
     return nil;
 }
 
 - (void)downloadManager:(DICEDownloadManager *)downloadManager didFinishDownload:(DICEDownload *)download
 {
-    Report *report = [self reportAtPath:download.url];
+    if (downloadManager.isFinishingBackgroundEvents) {
+        // the app was launched into the background to finish background downloads, so defer expensive
+        // import of downloaded files until the user next launches the application
+        return;
+    }
+
+    Report *report = [self getOrAddReportForDownload:download];
+
     if (!download.wasSuccessful || download.downloadedFile == nil) {
         // TODO: mechanism to retry
         report.isEnabled = NO;
@@ -418,7 +441,9 @@ ReportStore *_sharedInstance;
         [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
         return;
     }
+
     report.title = download.downloadedFile.lastPathComponent;
+    report.importStatus = ReportImportStatusNewLocal;
     report.statusMessage = @"Download complete";
     report.downloadProgress = 100;
     /*
@@ -441,9 +466,26 @@ ReportStore *_sharedInstance;
     if (uti == NULL) {
         uti = kUTTypeItem;
     }
+
     // TODO: fail on null or dynamic uti?
     [self beginInspectingFileForReport:report withUti:uti];
     [self.notifications postNotificationName:ReportNotification.reportDownloadComplete object:self userInfo:@{@"report": report}];
+}
+
+/**
+ * Retrieve or create a report record for the given download.
+ * @param download
+ * @return
+ */
+- (Report *)getOrAddReportForDownload:(DICEDownload *)download
+{
+    Report *report = [self reportAtPath:download.url];
+    if (report) {
+        return report;
+    }
+    report = [self addNewPendingReportForUrl:download.url];
+    report.importStatus = ReportImportStatusDownloading;
+    return report;
 }
 
 - (Report *)reportForID:(NSString *)reportID

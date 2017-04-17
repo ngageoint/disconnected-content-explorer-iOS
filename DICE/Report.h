@@ -8,7 +8,8 @@
 
 
 typedef NS_ENUM(NSUInteger, ReportImportStatus) {
-    ReportImportStatusNew,
+    ReportImportStatusNewLocal,
+    ReportImportStatusNewRemote,
     ReportImportStatusDownloading,
     ReportImportStatusExtracting,
     ReportImportStatusImporting,

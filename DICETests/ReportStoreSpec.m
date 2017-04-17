@@ -1864,7 +1864,7 @@ describe(@"ReportStore", ^{
             expect(report.downloadProgress).to.equal(100);
         });
 
-        it(@"does not post a progress notification about a url it is not importing", ^{
+        it(@"posts a progress notification about a url that did not match a report", ^{
 
             NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:nil];
             NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
@@ -1877,7 +1877,7 @@ describe(@"ReportStore", ^{
             [store downloadManager:store.downloadManager didReceiveDataForDownload:foreignDownload];
             [store downloadManager:store.downloadManager didReceiveDataForDownload:download];
 
-            expect(obs.received).to.haveCountOf(1);
+            expect(obs.received).to.haveCountOf(2);
         });
 
         it(@"begins an import for the same report after the download is complete", ^{
@@ -1975,7 +1975,7 @@ describe(@"ReportStore", ^{
             failure(@"do it");
         });
 
-        it(@"creates report records for downloads with no report record", ^{
+        it(@"creates reports for download notifications with no report", ^{
 
             NotificationRecordingObserver *obs = [[[NotificationRecordingObserver
                 observe:ReportNotification.reportAdded on:notifications from:store withBlock:nil]
@@ -2007,13 +2007,18 @@ describe(@"ReportStore", ^{
             expect(obs.received[0].notification.userInfo[@"report"]).to.beIdenticalTo(inProgressReport);
             expect(obs.received[1].notification.userInfo[@"report"]).to.beIdenticalTo(inProgressReport);
 
+            [redType enqueueImport];
+            finished.wasSuccessful = YES;
+            finished.downloadedFile = [reportsDir URLByAppendingPathComponent:@"test.red"];
             [store downloadManager:downloadManager didFinishDownload:finished];
 
             assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(4));
 
             expect(obs.received[3].notification.name).to.equal(ReportNotification.reportDownloadComplete);
             expect(obs.received[3].notification.userInfo[@"report"]).to.beIdenticalTo(finishedReport);
-            expect(finishedReport.importStatus).to.equal(ReportImportStatusImporting);
+            expect(finishedReport.importStatus).to.equal(ReportImportStatusNewLocal);
+
+            assertWithTimeout(1.0, thatEventually(@(finishedReport.isImportFinished)), isTrue());
         });
 
     });
