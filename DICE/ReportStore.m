@@ -7,8 +7,8 @@
 //
 
 #import <MobileCoreServices/MobileCoreServices.h>
-#import <AFNetworking/AFNetworking.h>
 #import "ImportProcess.h"
+#import "DICEDownloadManager.h"
 #import "ReportStore.h"
 #import "InspectReportArchiveOperation.h"
 #import "MatchReportTypeToContentAtPathOperation.h"
@@ -19,7 +19,6 @@
 #import "Report.h"
 #import "ReportType.h"
 #import "DICEUtiExpert.h"
-#import "DICEDownloadManager.h"
 #import "DICEExtractReportOperation.h"
 #import "FileOperations.h"
 
@@ -28,8 +27,6 @@
 
 @property NSURL *sourceUrl;
 @property Report *report;
-@property id<DICEArchive> archive;
-@property NSURL *extractedBaseDir;
 @property ImportProcess *importProcess;
 
 - (instancetype)initWithSourceUrl:(NSURL *)url Report:(Report *)report;
@@ -245,7 +242,6 @@ ReportStore *_sharedInstance;
 {
     // TODO: ensure this does not get called more than twice concurrently - main thread only
     // TODO: remove deleted reports from list
-    // TODO: establish reserved/exclude paths in docs dir
     NSIndexSet *defunctReports = [_reports indexesOfObjectsPassingTest:^BOOL(Report *report, NSUInteger idx, BOOL *stop) {
         if ([_fileManager fileExistsAtPath:report.rootResource.path]) {
             return NO;
