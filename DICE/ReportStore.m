@@ -308,7 +308,7 @@ ReportStore *_sharedInstance;
         return nil;
     }
 
-    Report *report = [self reportAtPath:reportUrl];
+    Report *report = [self reportForUrl:reportUrl];
     if (report) {
         return report;
     }
@@ -430,10 +430,10 @@ ReportStore *_sharedInstance;
 
     if (!download.wasSuccessful || download.downloadedFile == nil) {
         // TODO: mechanism to retry
-        report.isEnabled = NO;
+        report.title = report.statusMessage = @"Download failed";
         report.importStatus = ReportImportStatusFailed;
-        report.statusMessage = @"Download failed";
-        [self clearPendingImportProcess:report];
+        report.isEnabled = NO;
+        [self clearPendingImportsForReport:report];
         [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
         return;
     }
@@ -475,7 +475,7 @@ ReportStore *_sharedInstance;
  */
 - (Report *)getOrAddReportForDownload:(DICEDownload *)download
 {
-    Report *report = [self reportAtPath:download.url];
+    Report *report = [self reportForUrl:download.url];
     if (report) {
         return report;
     }
@@ -537,7 +537,7 @@ ReportStore *_sharedInstance;
 
     NSLog(@"no report type found for report archive %@", report);
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self clearPendingImportProcess:report];
+        [self clearPendingImportsForReport:report];
         report.summary = @"Unknown content type";
         report.importStatus = ReportImportStatusFailed;
         [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
@@ -558,14 +558,15 @@ ReportStore *_sharedInstance;
     dispatch_async(dispatch_get_main_queue(), ^{
         // import probably changed the report url, so remove by searching for the report itself
         Report *report = import.report;
-        [self clearPendingImportProcess:report];
-        report.isEnabled = import.wasSuccessful;
+        // TODO: leave failed imports so user can decide what to do, retry, delete, etc?
+        [self clearPendingImportsForReport:report];
         if (import.wasSuccessful) {
             if (descriptor) {
                 [report setPropertiesFromJsonDescriptor:descriptor];
             }
             // TODO: this is a hack to ensure only nilling the summary if the import process didn't change it until
-            // the ui changes to use the statusMessage property instead of just summary.
+            // the ui changes to use the statusMessage property instead of just summary.  then, ReportStore won't
+            // bother ever setting the summary and just set statusMessage instead.
             else if ([@"Importing content..." isEqualToString:report.summary]) {
                 report.summary = nil;
             }
@@ -584,7 +585,7 @@ ReportStore *_sharedInstance;
 
 #pragma mark - private_methods
 
-- (nullable Report *)reportAtPath:(NSURL *)pathUrl
+- (nullable Report *)reportForUrl:(NSURL *)pathUrl
 {
     PendingImport *pendingImport = _pendingImports[pathUrl];
 
@@ -626,8 +627,8 @@ ReportStore *_sharedInstance;
     dispatch_async(dispatch_get_main_queue(), ^{
         PendingImport *pendingImport = [_pendingImports pendingImportWithReport:extract.report];
         _pendingImports[extract.extractedReportBaseDir] = pendingImport;
-        report.baseDir = baseDirUrl;
         [self.importQueue addOperation:extract];
+        report.baseDir = baseDirUrl;
         report.importStatus = ReportImportStatusExtracting;
         [self.notifications postNotificationName:ReportNotification.reportExtractProgress object:self userInfo:@{@"report": report, @"percentExtracted": @(0)}];
     });
@@ -636,7 +637,7 @@ ReportStore *_sharedInstance;
 - (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        Report *report = [self reportAtPath:op.archive.archiveUrl];
+        Report *report = [self reportForUrl:op.archive.archiveUrl];
         report.summary = [NSString stringWithFormat:@"Extracting - %@%%", @(percent)];
         [self.notifications
             postNotificationName:ReportNotification.reportExtractProgress
@@ -692,7 +693,7 @@ ReportStore *_sharedInstance;
     });
 }
 
-- (void)clearPendingImportProcess:(Report *)report
+- (void)clearPendingImportsForReport:(Report *)report
 {
     NSArray *urls = [_pendingImports allKeysForReport:report];
     [_pendingImports removeObjectsForKeys:urls];
