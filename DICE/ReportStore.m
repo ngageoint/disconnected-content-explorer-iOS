@@ -627,10 +627,11 @@ ReportStore *_sharedInstance;
     dispatch_async(dispatch_get_main_queue(), ^{
         PendingImport *pendingImport = [_pendingImports pendingImportWithReport:extract.report];
         _pendingImports[extract.extractedReportBaseDir] = pendingImport;
-        [self.importQueue addOperation:extract];
         report.baseDir = baseDirUrl;
         report.importStatus = ReportImportStatusExtracting;
+        // TODO: really just a hack to get the ui to update before extraction actually begins, but probably not even necessary
         [self.notifications postNotificationName:ReportNotification.reportExtractProgress object:self userInfo:@{@"report": report, @"percentExtracted": @(0)}];
+        [self.importQueue addOperation:extract];
     });
 }
 
