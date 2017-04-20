@@ -18,7 +18,8 @@
 @property int64_t bytesReceived;
 @property (readonly) NSInteger percentComplete;
 @property NSInteger httpResponseCode;
-@property (nullable) NSString *httpResponseMessage;
+/** either the NSHTTPURLResponse responseMessage or a message from an NSError */
+@property (nullable) NSString *errorMessage;
 @property BOOL wasSuccessful;
 @property (nullable) NSURL *downloadedFile;
 

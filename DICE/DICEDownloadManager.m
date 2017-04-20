@@ -89,7 +89,33 @@
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    // TODO: anything?
+    DICEDownload *download = [self downloadForTask:task];
+    NSHTTPURLResponse *response = (NSHTTPURLResponse *) task.response;
+    if (!error && response.statusCode < 400) {
+        return;
+    }
+    [_downloads removeObjectForKey:@(task.taskIdentifier)];
+    download.wasSuccessful = NO;
+    download.httpResponseCode = response.statusCode;
+    NSMutableString *errorMessage = [NSMutableString string];
+    if (response && response.statusCode > 0) {
+        [errorMessage appendFormat:@"Server response: (%d) %@", response.statusCode, [NSHTTPURLResponse localizedStringForStatusCode:response.statusCode]];
+    }
+    NSString *clientMessage = error.userInfo[NSLocalizedDescriptionKey];
+    if (!clientMessage) {
+        clientMessage = error.localizedFailureReason;
+    }
+    if (clientMessage) {
+        if (errorMessage.length) {
+            [errorMessage appendString:@"\n"];
+        }
+        [errorMessage appendFormat:@"Local error: %@", clientMessage];
+    }
+    download.errorMessage = [NSString stringWithString:errorMessage];
+
+    if (self.delegate) {
+        [self.delegate downloadManager:self didFinishDownload:download];
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
@@ -140,7 +166,7 @@
         download.mimeType = task.response.MIMEType;
         download.fileName = task.response.suggestedFilename;
         download.httpResponseCode = ((NSHTTPURLResponse *)task.response).statusCode;
-        download.httpResponseMessage = [NSHTTPURLResponse localizedStringForStatusCode:download.httpResponseCode];
+        download.errorMessage = [NSHTTPURLResponse localizedStringForStatusCode:download.httpResponseCode];
     }
     return download;
 }

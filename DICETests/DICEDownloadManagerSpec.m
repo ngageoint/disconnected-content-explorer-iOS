@@ -185,6 +185,70 @@ describe(@"DICEDownloadManager", ^{
         expect(download.wasSuccessful).to.beTruthy();
     });
 
+    it(@"notifies the delegate when the response has an error code", ^{
+
+        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc]
+            initWithURL:[NSURL URLWithString:@"http://dice.com/test-data"] statusCode:400 HTTPVersion:@"1.1"
+            headerFields:@{@"Content-Disposition": @"attachment; filename=test.dat", @"Content-Type": @"application/test-data"}];
+
+        NSURLSessionDownloadTask *task = mock(NSURLSessionDownloadTask.class);
+        [given([task taskIdentifier]) willReturnUnsignedInteger:123];
+        [given([task countOfBytesExpectedToReceive]) willReturnLong:0];
+        [given([task countOfBytesReceived]) willReturnLong:0];
+        [given([task response]) willReturn:response];
+
+        HCArgumentCaptor *captureDownload = [[HCArgumentCaptor alloc] init];
+
+        __block BOOL delegateFinished = NO;
+        [givenVoid([mockDelegate downloadManager:downloadManager didFinishDownload:anything()]) willDo:^id(NSInvocation *invocation) {
+            delegateFinished = YES;
+            return nil;
+        }];
+
+        [urlSessionQueue addOperationWithBlock:^{
+            [downloadManager URLSession:mockSession task:task didCompleteWithError:nil];
+        }];
+
+        assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
+
+        [verify(mockDelegate) downloadManager:downloadManager didFinishDownload:captureDownload];
+
+        DICEDownload *download = captureDownload.value;
+        expect(download.wasSuccessful).to.beFalsy();
+        expect(download.httpResponseCode).to.equal(400);
+        expect(download.errorMessage).to.equal([NSString stringWithFormat:@"Server response: (400) %@", [NSHTTPURLResponse localizedStringForStatusCode:400]]);
+    });
+
+    it(@"notifies the delegate when a client error occurs", ^{
+
+        NSURLSessionDownloadTask *task = mock(NSURLSessionDownloadTask.class);
+        [given([task taskIdentifier]) willReturnUnsignedInteger:123];
+        [given([task countOfBytesExpectedToReceive]) willReturnLong:0];
+        [given([task countOfBytesReceived]) willReturnLong:0];
+
+        HCArgumentCaptor *captureDownload = [[HCArgumentCaptor alloc] init];
+
+        __block BOOL delegateFinished = NO;
+        [givenVoid([mockDelegate downloadManager:downloadManager didFinishDownload:anything()]) willDo:^id(NSInvocation *invocation) {
+            delegateFinished = YES;
+            return nil;
+        }];
+
+        [urlSessionQueue addOperationWithBlock:^{
+            NSError *error = [NSError errorWithDomain:@"NSURLSession" code:999 userInfo:@{NSLocalizedDescriptionKey: @"test error"}];
+            [downloadManager URLSession:mockSession task:task didCompleteWithError:error];
+        }];
+
+        assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
+
+        [verify(mockDelegate) downloadManager:downloadManager didFinishDownload:captureDownload];
+
+        DICEDownload *download = captureDownload.value;
+        expect(download.wasSuccessful).to.beFalsy();
+        expect(download.httpResponseCode).to.equal(0);
+        expect(download.errorMessage).to.equal(@"Local error: test error");
+    });
+
     it(@"was not successful when moving the temp file fails", ^{
         failure(@"do it");
     });
@@ -194,6 +258,7 @@ describe(@"DICEDownloadManager", ^{
     });
 
     it(@"does not start a new download for a url already downloading", ^{
+
         NSURL *url = [NSURL URLWithString:@"http://dice.com/test-data"];
         NSURL *urlDup = [url copy];
 
