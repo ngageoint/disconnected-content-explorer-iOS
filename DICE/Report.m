@@ -7,11 +7,11 @@
 
 @implementation Report
 
-- (id) initWithTitle:(NSString *)title {
+- (id) init {
     self = [super init];
 
     if (self) {
-        self.title = title;
+        self.title = nil;
         self.summary = nil;
         self.thumbnail = nil;
         self.uti = NULL;
@@ -19,7 +19,7 @@
         self.isEnabled = NO;
         self.downloadSize = 0;
         self.downloadProgress = 0;
-        self.cacheFiles = [[NSMutableArray alloc] init];
+        self.cacheFiles = [NSMutableArray array];
         self.importStatus = ReportImportStatusNewLocal;
     }
     

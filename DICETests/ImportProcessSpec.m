@@ -107,7 +107,8 @@ describe(@"ImportProcess", ^{
     });
     
     beforeEach(^{
-        report = [[Report alloc] initWithTitle:@"ImportProcess Test"];
+        report = [[Report alloc] init];
+        report.title = @"ImportProcess Test";
     });
 
     afterEach(^{
