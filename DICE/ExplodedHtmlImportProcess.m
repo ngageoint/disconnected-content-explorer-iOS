@@ -19,8 +19,10 @@
     }
 
     NSBlockOperation *setIndexUrl = [NSBlockOperation blockOperationWithBlock:^{
-        NSURL *indexUrl = [self.report.rootResource URLByAppendingPathComponent:@"index.html"];
-        [report performSelectorOnMainThread:@selector(setRootResource:) withObject:indexUrl waitUntilDone:YES];
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            NSURL *indexUrl = [self.report.rootResource URLByAppendingPathComponent:@"index.html"];
+            report.rootResource = indexUrl;
+        });
         [self.delegate reportWasUpdatedByImportProcess:self];
     }];
 
