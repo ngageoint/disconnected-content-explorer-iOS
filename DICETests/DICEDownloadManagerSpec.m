@@ -62,11 +62,15 @@ describe(@"DICEDownloadManager", ^{
         [given([mockFileManager moveItemAtURL:tempUrl toURL:destUrl error:NULL]) willReturnBool:YES];
         HCArgumentCaptor *captureDownload = [[HCArgumentCaptor alloc] init];
         __block BOOL delegateWillFinish = NO;
+        __block BOOL delegateFinished = NO;
         [given([mockDelegate downloadManager:downloadManager willFinishDownload:captureDownload movingToFile:anything()]) willDo:^id(NSInvocation *invocation) {
             delegateWillFinish = NSThread.isMainThread;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // this block should always go to the main queue ahead of download manager calling didFinishDownload
+                expect(delegateFinished).to.beFalsy();
+            });
             return nil;
         }];
-        __block BOOL delegateFinished = NO;
         [givenVoid([mockDelegate downloadManager:downloadManager didFinishDownload:anything()]) willDo:^id(NSInvocation *invocation) {
             delegateFinished = NSThread.isMainThread;
             return nil;
@@ -75,8 +79,10 @@ describe(@"DICEDownloadManager", ^{
         [urlSessionQueue addOperationWithBlock:^{
             [downloadManager URLSession:mockSession downloadTask:task didFinishDownloadingToURL:tempUrl];
             expect(delegateWillFinish).to.beTruthy();
-            expect(delegateFinished).to.beFalsy();
         }];
+
+        assertWithTimeout(1.0, thatEventually(@(delegateWillFinish)), isTrue());
+        expect(delegateFinished).to.beFalsy();
 
         assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
 
@@ -212,6 +218,7 @@ describe(@"DICEDownloadManager", ^{
         assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
 
         [verify(mockDelegate) downloadManager:downloadManager didFinishDownload:captureDownload];
+        [verifyCount(mockDelegate, never()) downloadManager:downloadManager willFinishDownload:anything() movingToFile:anything()];
 
         DICEDownload *download = captureDownload.value;
         expect(download.wasSuccessful).to.beFalsy();
@@ -242,6 +249,7 @@ describe(@"DICEDownloadManager", ^{
         assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
 
         [verify(mockDelegate) downloadManager:downloadManager didFinishDownload:captureDownload];
+        [verifyCount(mockDelegate, never()) downloadManager:downloadManager willFinishDownload:anything() movingToFile:anything()];
 
         DICEDownload *download = captureDownload.value;
         expect(download.wasSuccessful).to.beFalsy();
