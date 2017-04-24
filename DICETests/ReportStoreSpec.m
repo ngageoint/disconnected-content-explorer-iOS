@@ -810,7 +810,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"leaves failed download reports", ^{
-            failure(@"TODO: is this what we want?")
+            failure(@"TODO: is this what we want?");
         });
 
         it(@"sends notifications about added reports", ^{
@@ -1977,6 +1977,8 @@ describe(@"ReportStore", ^{
         it(@"can re-download the same url after failing to import a downloaded file", ^{
 
             failure(@"implement prompt to overwrite file with download");
+            failure(@"actually this isn't even possible right now because the download url is lost after the download completes");
+            failure(@"use CoreData to track where reports come from");
 
 //            TestImportProcess *importProcess = [blueType enqueueImport];
 //            importProcess.steps = @[[NSBlockOperation blockOperationWithBlock:^{
@@ -2017,10 +2019,6 @@ describe(@"ReportStore", ^{
 
         it(@"can re-download the same url after a download fails", ^{
 
-            TestImportProcess *import = [blueType enqueueImport];
-            import.steps = @[[NSBlockOperation blockOperationWithBlock:^{
-                failure(@"erroneously started import process for failed download");
-            }]];
             NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:store.notifications from:store withBlock:nil];
             [obs observe:ReportNotification.reportDownloadComplete on:store.notifications from:store];
             NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
@@ -2056,7 +2054,7 @@ describe(@"ReportStore", ^{
             expect(retryReport).to.beIdenticalTo(report);
             expect(retryReport.importStatus).to.equal(ReportImportStatusDownloading);
             expect(obs.received).to.haveCountOf(0);
-            [verify(downloadManager) downloadUrl:url];
+            [verifyCount(downloadManager, times(2)) downloadUrl:url];
 
             download.bytesReceived = 555555;
             download.httpResponseCode = 200;
@@ -2065,8 +2063,11 @@ describe(@"ReportStore", ^{
             expect(report.importStatus).to.equal(ReportImportStatusDownloading);
             expect(report.downloadProgress).to.equal(download.percentComplete);
 
+            [blueType enqueueImport];
             NSURL *downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
             [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
+            download.wasSuccessful = YES;
+            download.downloadedFile = downloadedFile;
             [store downloadManager:downloadManager didFinishDownload:download];
 
             assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
@@ -2525,6 +2526,14 @@ describe(@"ReportStore", ^{
             ReceivedNotification *removed = observer.received.firstObject;
 
             expect(removed.notification.userInfo[@"report"]).to.beIdenticalTo(singleResourceReport);
+        });
+
+        it(@"can delete a failed download report with a remote url", ^{
+            failure(@"unimplemented");
+        });
+
+        it(@"can delete a failed import report", ^{
+            failure(@"unimplemented");
         });
 
     });

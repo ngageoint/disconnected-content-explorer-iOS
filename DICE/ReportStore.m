@@ -29,17 +29,17 @@
 @property Report *report;
 @property ImportProcess *importProcess;
 
-- (instancetype)initWithSourceUrl:(NSURL *)url Report:(Report *)report;
+- (instancetype)initWithReport:(Report *)report;
 
 @end
 
 
 @implementation PendingImport
 
-- (instancetype)initWithSourceUrl:(NSURL *)url Report:(Report *)report
+- (instancetype)initWithReport:(Report *)report
 {
     self = [super init];
-    self.sourceUrl = url;
+    self.sourceUrl = report.rootResource;
     self.report = report;
     return self;
 }
@@ -50,7 +50,6 @@
 @interface NSMutableDictionary (PendingImport)
 
 - (PendingImport *)pendingImportWithReport:(Report *)report;
-- (PendingImport *)pendingImportForReportUrl:(NSURL *)reportUrl;
 - (NSArray *)allKeysForReport:(Report *)report;
 
 @end
@@ -62,16 +61,6 @@
 {
     for (PendingImport *pi in self.allValues) {
         if (pi.report == report) {
-            return pi;
-        }
-    }
-    return nil;
-}
-
-- (PendingImport *)pendingImportForReportUrl:(NSURL *)reportUrl
-{
-    for (PendingImport *pi in self.allValues) {
-        if ([pi.report.rootResource isEqual:reportUrl]) {
             return pi;
         }
     }
@@ -240,7 +229,7 @@ ReportStore *_sharedInstance;
 
 - (NSArray *)loadReports
 {
-    // TODO: ensure this does not get called more than twice concurrently - main thread only
+    // TODO: ensure this does not get called more than once concurrently - main thread only
     // TODO: remove deleted reports from list
     NSIndexSet *defunctReports = [_reports indexesOfObjectsPassingTest:^BOOL(Report *report, NSUInteger idx, BOOL *stop) {
         if ([_fileManager fileExistsAtPath:report.rootResource.path]) {
@@ -280,7 +269,6 @@ ReportStore *_sharedInstance;
         NSString *fileName = [file.lastPathComponent stringByRemovingPercentEncoding];
         NSURL *reportUrl = [self.reportsDir URLByAppendingPathComponent:fileName isDirectory:isDir];
 
-        // TODO: suspend notifications while loading reports
         [self attemptToImportReportFromResource:reportUrl];
     }
 
@@ -310,16 +298,60 @@ ReportStore *_sharedInstance;
 
     Report *report = [self reportForUrl:reportUrl];
     if (report) {
-        return report;
+        if (report.importStatus == ReportImportStatusFailed) {
+            [self initializeReport:report forSourceUrl:reportUrl];
+        }
+        else {
+            return report;
+        }
+    }
+    else {
+        report = [self addNewPendingReportForUrl:reportUrl];
     }
 
-    report = [self addNewPendingReportForUrl:reportUrl];
     if (report.importStatus == ReportImportStatusNewLocal) {
         [self beginInspectingFileForReport:report withUti:NULL];
     }
     else if (report.importStatus == ReportImportStatusNewRemote) {
-        [self.downloadManager downloadUrl:reportUrl];
         report.importStatus = ReportImportStatusDownloading;
+        [self.downloadManager downloadUrl:reportUrl];
+    }
+
+    return report;
+}
+
+- (Report *)initializeReport:(Report *)report forSourceUrl:(NSURL *)url
+{
+    report.rootResource = url;
+    report.baseDir = nil;
+    report.downloadProgress = 0;
+    report.downloadSize = 0;
+    report.isEnabled = NO;
+    report.lat = nil;
+    report.lon = nil;
+    report.reportID = nil;
+    report.statusMessage = nil;
+    report.summary = nil;
+    report.thumbnail = nil;
+    report.tileThumbnail = nil;
+    report.title = nil;
+    report.uti = NULL;
+
+    if ([url.scheme.lowercaseString hasPrefix:@"http"]) {
+        report.importStatus = ReportImportStatusNewRemote;
+        report.title = report.statusMessage = @"Downloading...";
+        report.summary = url.absoluteString;
+    }
+    else if (url.isFileURL) {
+        report.importStatus = ReportImportStatusNewLocal;
+        report.title = url.lastPathComponent;
+        report.uti = [self.utiExpert preferredUtiForExtension:url.pathExtension conformingToUti:NULL];
+        // TODO: do this in background for FS access; move after creating and adding report
+        NSDictionary<NSFileAttributeKey, id> *attrs = [self.fileManager attributesOfItemAtPath:url.path error:nil];
+        NSString *fileType = attrs.fileType;
+        if ([NSFileTypeDirectory isEqualToString:fileType]) {
+            report.baseDir = url;
+        }
     }
 
     return report;
@@ -333,33 +365,12 @@ ReportStore *_sharedInstance;
  */
 - (Report *)addNewPendingReportForUrl:(NSURL *)reportUrl
 {
-    Report *report = [[Report alloc] init];
-    report.isEnabled = NO;
-    report.rootResource = reportUrl;
+    Report *report = [self initializeReport:[[Report alloc] init] forSourceUrl:reportUrl];
+    [_reports addObject:report];
 
     // TODO: report is added here but might not be imported;
     // maybe update report to reflect status but leave in list so user can choose to delete it
-    [_reports addObject:report];
-    _pendingImports[reportUrl] = [[PendingImport alloc] initWithSourceUrl:reportUrl Report:report];
-
-    if ([reportUrl.scheme.lowercaseString hasPrefix:@"http"]) {
-        report.title = @"Downloading...";
-        report.summary = reportUrl.absoluteString;
-        report.uti = NULL;
-        report.importStatus = ReportImportStatusNewRemote;
-        report.statusMessage = @"Downloading...";
-    }
-    else if (reportUrl.isFileURL) {
-        report.title = reportUrl.lastPathComponent;
-        report.uti = [self.utiExpert preferredUtiForExtension:reportUrl.pathExtension conformingToUti:NULL];
-        report.importStatus = ReportImportStatusNewLocal;
-        // TODO: do this in background for FS access; move after creating and adding report
-        NSDictionary<NSFileAttributeKey, id> *attrs = [self.fileManager attributesOfItemAtPath:reportUrl.path error:nil];
-        NSString *fileType = attrs.fileType;
-        if ([NSFileTypeDirectory isEqualToString:fileType]) {
-            report.baseDir = reportUrl;
-        }
-    }
+    _pendingImports[reportUrl] = [[PendingImport alloc] initWithReport:report];
 
     [self.notifications postNotificationName:[ReportNotification reportAdded] object:self userInfo:@{@"report": report}];
 
@@ -430,8 +441,9 @@ ReportStore *_sharedInstance;
 
     if (!download.wasSuccessful || download.downloadedFile == nil) {
         // TODO: mechanism to retry
-        report.title = report.statusMessage = @"Download failed";
+        report.title = @"Download failed";
         report.importStatus = ReportImportStatusFailed;
+        report.statusMessage = download.errorMessage;
         report.isEnabled = NO;
         [self clearPendingImportsForReport:report];
         [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
@@ -593,11 +605,17 @@ ReportStore *_sharedInstance;
         return pendingImport.report;
     }
 
+    NSString *urlStr = pathUrl.absoluteString;
     for (Report *candidate in self.reports) {
-        if ([pathUrl.path isEqualToString:candidate.rootResource.path] ||
-            [pathUrl.path isEqualToString:candidate.baseDir.path] ||
-            [candidate.rootResource.path descendsFromPath:pathUrl.path]) {
+        if ([urlStr isEqualToString:candidate.rootResource.absoluteString] ||
+            [urlStr isEqualToString:candidate.rootResource.absoluteString] ||
+            [urlStr isEqualToString:candidate.baseDir.absoluteString]) {
             return candidate;
+        }
+        else if (pathUrl.isFileURL) {
+            if (candidate.rootResource && [candidate.rootResource.path descendsFromPath:pathUrl.path]) {
+                return candidate;
+            }
         }
     }
 
