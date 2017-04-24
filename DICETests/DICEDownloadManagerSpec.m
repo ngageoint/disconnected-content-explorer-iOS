@@ -19,11 +19,12 @@ SpecBegin(DICEDownloadManager)
 describe(@"DICEDownloadManager", ^{
 
     __block NSURL *downloadDir;
+    __block NSURLSessionConfiguration *sessionConfig;
     __block NSFileManager *mockFileManager;
     __block NSURLSession *mockSession;
     __block id<DICEDownloadDelegate> mockDelegate;
     __block DICEDownloadManager *downloadManager;
-    __block NSOperationQueue *urlSessionQueue;
+    __block NSOperationQueue *sessionQueue;
 
     beforeAll(^{
 
@@ -34,13 +35,16 @@ describe(@"DICEDownloadManager", ^{
         mockFileManager = mock([NSFileManager class]);
         mockDelegate = mockProtocol(@protocol(DICEDownloadDelegate));
         downloadManager = [[DICEDownloadManager alloc] initWithDownloadDir:downloadDir fileManager:mockFileManager delegate:mockDelegate];
+        sessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"DICEDownloadManagerSpec"];
+        sessionQueue = [[NSOperationQueue alloc] init];
         mockSession = mock(NSURLSession.class);
+        [given([mockSession configuration]) willReturn:sessionConfig];
+        [given([mockSession delegateQueue]) willReturn:sessionQueue];
         downloadManager.downloadSession = mockSession;
-        urlSessionQueue = [[NSOperationQueue alloc] init];
     });
 
     afterEach(^{
-        [urlSessionQueue waitUntilAllOperationsAreFinished];
+        [sessionQueue waitUntilAllOperationsAreFinished];
     });
 
     afterAll(^{
@@ -76,15 +80,12 @@ describe(@"DICEDownloadManager", ^{
             return nil;
         }];
 
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             [downloadManager URLSession:mockSession downloadTask:task didFinishDownloadingToURL:tempUrl];
             expect(delegateWillFinish).to.beTruthy();
         }];
 
-        assertWithTimeout(1.0, thatEventually(@(delegateWillFinish)), isTrue());
-        expect(delegateFinished).to.beFalsy();
-
-        assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
+        assertWithTimeout(1.0, thatEventually(@(delegateWillFinish && delegateFinished)), isTrue());
 
         DICEDownload *download = captureDownload.value;
         expect(captureDownload).toNot.beNil();
@@ -116,7 +117,7 @@ describe(@"DICEDownloadManager", ^{
             return nil;
         }];
 
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             downloadThread = NSThread.currentThread;
             [downloadManager URLSession:mockSession downloadTask:task didFinishDownloadingToURL:tempUrl];
             expect(movedFile).to.beTruthy();
@@ -147,7 +148,7 @@ describe(@"DICEDownloadManager", ^{
             return nil;
         }];
 
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             [downloadManager URLSession:mockSession downloadTask:task didFinishDownloadingToURL:tempUrl];
         }];
 
@@ -179,7 +180,7 @@ describe(@"DICEDownloadManager", ^{
             return nil;
         }];
 
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             [downloadManager URLSession:mockSession downloadTask:task didFinishDownloadingToURL:tempUrl];
         }];
 
@@ -211,7 +212,7 @@ describe(@"DICEDownloadManager", ^{
             return nil;
         }];
 
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             [downloadManager URLSession:mockSession task:task didCompleteWithError:nil];
         }];
 
@@ -241,7 +242,7 @@ describe(@"DICEDownloadManager", ^{
             return nil;
         }];
 
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             NSError *error = [NSError errorWithDomain:@"NSURLSession" code:999 userInfo:@{NSLocalizedDescriptionKey: @"test error"}];
             [downloadManager URLSession:mockSession task:task didCompleteWithError:error];
         }];
@@ -328,7 +329,7 @@ describe(@"DICEDownloadManager", ^{
         [[given([mockSession downloadTaskWithURL:anything()]) willReturn:task1] willReturn:task2];
 
         [downloadManager downloadUrl:url];
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             [downloadManager URLSession:mockSession downloadTask:task1 didFinishDownloadingToURL:[NSURL fileURLWithPath:@"/tmp/abc123"]];
         }];
 
@@ -336,7 +337,7 @@ describe(@"DICEDownloadManager", ^{
 
         delegateFinished = NO;
         [downloadManager downloadUrl:urlDup];
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             [downloadManager URLSession:mockSession downloadTask:task2 didFinishDownloadingToURL:[NSURL fileURLWithPath:@"/tmp/efg456"]];
         }];
 
@@ -371,7 +372,7 @@ describe(@"DICEDownloadManager", ^{
             return nil;
         }];
 
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             [downloadManager URLSession:mockSession downloadTask:task didWriteData:25 totalBytesWritten:25 totalBytesExpectedToWrite:100];
             [downloadManager URLSession:mockSession downloadTask:task didWriteData:25 totalBytesWritten:50 totalBytesExpectedToWrite:100];
             [downloadManager URLSession:mockSession downloadTask:task didWriteData:25 totalBytesWritten:75 totalBytesExpectedToWrite:100];
@@ -413,7 +414,7 @@ describe(@"DICEDownloadManager", ^{
             return nil;
         }];
 
-        [urlSessionQueue addOperationWithBlock:^{
+        [sessionQueue addOperationWithBlock:^{
             [downloadManager URLSession:mockSession downloadTask:task didWriteData:1024 totalBytesWritten:1024 totalBytesExpectedToWrite:9999999];
         }];
 
@@ -428,12 +429,107 @@ describe(@"DICEDownloadManager", ^{
 
         __block BOOL handled = NO;
         void (^handler)() = ^{ handled = NSThread.isMainThread; };
-        [downloadManager handleEventsForBackgroundURLSession:@"test.session" completionHandler:handler];
-        [downloadManager URLSessionDidFinishEventsForBackgroundURLSession:mockSession];
+
+        [sessionQueue addOperationWithBlock:^{
+            [downloadManager handleEventsForBackgroundURLSession:@"DICEDownloadManagerSpec" completionHandler:handler];
+        }];
+        [sessionQueue addOperationWithBlock:^{
+            [downloadManager URLSessionDidFinishEventsForBackgroundURLSession:mockSession];
+        }];
 
         assertWithTimeout(1.0, thatEventually(@(handled)), isTrue());
     });
 
+    it(@"does not handle background events for a different session", ^{
+
+        void (^handler)() = ^{ failure(@"erroneously called completion handler"); };
+
+        [sessionQueue addOperationWithBlock:^{
+            [downloadManager handleEventsForBackgroundURLSession:@"NotDICEDownloadManagerSpec" completionHandler:handler];
+        }];
+        [sessionQueue addOperationWithBlock:^{
+            [downloadManager URLSessionDidFinishEventsForBackgroundURLSession:mockSession];
+        }];
+    });
+
+    it(@"does not finish background events until notifying delegate about all downloads", ^{
+
+        NSURLRequest *request1 = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://dice.com/file1.dat"]];
+        NSHTTPURLResponse *response1 = [[NSHTTPURLResponse alloc]
+            initWithURL:request1.URL statusCode:200 HTTPVersion:@"1.1" headerFields:@{}];
+        NSURLSessionDownloadTask *task1 = mock(NSURLSessionDownloadTask.class);
+        [given([task1 taskIdentifier]) willReturnUnsignedInteger:1];
+        [given([task1 countOfBytesExpectedToReceive]) willReturnLong:99999];
+        [given([task1 countOfBytesReceived]) willReturnLong:99999];
+        [given([task1 originalRequest]) willReturn:request1];
+        [given([task1 response]) willReturn:response1];
+        NSURL *file1 = [downloadDir URLByAppendingPathComponent:@"file1.dat"];
+
+        NSURLRequest *request2 = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://dice.com/file2.dat"]];
+        NSHTTPURLResponse *response2 = [[NSHTTPURLResponse alloc]
+            initWithURL:request2.URL statusCode:200 HTTPVersion:@"1.1" headerFields:@{}];
+        NSURLSessionDownloadTask *task2 = mock(NSURLSessionDownloadTask.class);
+        [given([task2 taskIdentifier]) willReturnUnsignedInteger:2];
+        [given([task2 countOfBytesExpectedToReceive]) willReturnLong:99999];
+        [given([task2 countOfBytesReceived]) willReturnLong:99999];
+        [given([task2 originalRequest]) willReturn:request2];
+        [given([task2 response]) willReturn:response2];
+        NSURL *file2 = [downloadDir URLByAppendingPathComponent:@"file2.dat"];
+
+        NSMutableArray *willFinishDownloads = [NSMutableArray array];
+        [givenVoid([mockDelegate downloadManager:downloadManager willFinishDownload:anything() movingToFile:anything()]) willDo:^id(NSInvocation *invocation) {
+            DICEDownload *d = invocation.mkt_arguments[1];
+            [willFinishDownloads addObject:d];
+            return nil;
+        }];
+
+        NSMutableArray *finishedDownloads = [NSMutableArray array];
+        [givenVoid([mockDelegate downloadManager:anything() didFinishDownload:anything()]) willDo:^id(NSInvocation *invocation) {
+            DICEDownload *d = invocation.mkt_arguments[1];
+            [finishedDownloads addObject:d];
+            return nil;
+        }];
+
+        __block BOOL handled = NO;
+        void (^handler)() = ^{
+            expect(willFinishDownloads).to.haveCountOf(2);
+            expect(finishedDownloads).to.haveCountOf(2);
+            handled = NSThread.isMainThread;
+        };
+
+        [sessionQueue addOperationWithBlock:^{
+            [downloadManager handleEventsForBackgroundURLSession:@"DICEDownloadManagerSpec" completionHandler:handler];
+        }];
+        [sessionQueue addOperationWithBlock:^{
+            [downloadManager URLSession:mockSession downloadTask:task1 didFinishDownloadingToURL:file1];
+        }];
+        [sessionQueue addOperationWithBlock:^{
+            [downloadManager URLSession:mockSession downloadTask:task2 didFinishDownloadingToURL:file2];
+        }];
+        [sessionQueue addOperationWithBlock:^{
+            [downloadManager URLSessionDidFinishEventsForBackgroundURLSession:mockSession];
+        }];
+
+        assertWithTimeout(1000.0, thatEventually(@(handled)), isTrue());
+        expect(willFinishDownloads).to.haveCountOf(2);
+        expect(finishedDownloads).to.haveCountOf(2);
+        assertThat(willFinishDownloads, hasItem(allOf(
+            hasProperty(@"url", equalTo(response1.URL)),
+            hasProperty(@"downloadedFile", equalTo(file1)),
+        nil)));
+        assertThat(willFinishDownloads, hasItem(allOf(
+            hasProperty(@"url", equalTo(response2.URL)),
+            hasProperty(@"downloadedFile", equalTo(file2)),
+        nil)));
+        assertThat(finishedDownloads, hasItem(allOf(
+            hasProperty(@"url", equalTo(response1.URL)),
+            hasProperty(@"downloadedFile", equalTo(file1)),
+        nil)));
+        assertThat(finishedDownloads, hasItem(allOf(
+            hasProperty(@"url", equalTo(response2.URL)),
+            hasProperty(@"downloadedFile", equalTo(file2)),
+        nil)));
+    });
 });
 
 SpecEnd
