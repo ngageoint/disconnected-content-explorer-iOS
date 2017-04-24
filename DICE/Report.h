@@ -49,8 +49,6 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 @property (readonly, nonatomic) BOOL isImportFinished;
 @property (nonatomic) NSMutableArray<ReportCache *> * cacheFiles;
 
-- (instancetype)initWithTitle:(NSString *)title;
-
 /**
  Set the properties of this report from key-value pairs in the given
  JSON descriptor dictionary.
