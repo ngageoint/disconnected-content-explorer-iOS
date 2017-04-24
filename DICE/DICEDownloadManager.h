@@ -33,8 +33,6 @@
 
 @interface DICEDownloadManager : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
 
-//@property (class, nonnull, nonatomic) DICEDownloadManager *sharedInstance;
-
 @property (nullable) NSURLSession *downloadSession;
 /** the URL of the directory where this download manager will move downloaded files */
 @property (readonly, nonnull) NSURL *downloadDir;
@@ -74,7 +72,8 @@
 /**
  * Indicate the download manager has finished downloading the file and will move the temporary file to
  * the given permanent destination.  The delegate can override the permanent destination by returning
- * a non-nil NSURL object referencing the desired final destination.  The download manager invokes this
+ * a non-nil NSURL object referencing the desired final destination.  If an error occurs before the
+ * download completes, the download manager will not call this method.  The download manager invokes this
  * method synchronously on the main thread.
  */
 - (nullable NSURL *)downloadManager:(nonnull DICEDownloadManager *)downloadManager willFinishDownload:(nonnull DICEDownload *)download movingToFile:(nonnull NSURL *)destFile;

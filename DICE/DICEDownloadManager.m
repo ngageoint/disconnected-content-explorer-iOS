@@ -7,7 +7,9 @@
 //
 
 #import "DICEDownloadManager.h"
-
+#import <libkern/OSAtomic.h>
+// TODO: OSAtomic.h is deprecated, so figure out stdatomic at some point
+//#import <stdatomic.h>
 
 @implementation DICEDownload
 
@@ -35,6 +37,7 @@
     NSFileManager *_fileManager;
     NSMutableDictionary<NSNumber *, DICEDownload *> *_downloads;
     void (^_sessionCompletionHandler)();
+    int32_t _backgroundEventsRemaining;
 }
 
 - (instancetype)initWithDownloadDir:(NSURL *)downloadDir fileManager:(NSFileManager *)fileManager delegate:(id<DICEDownloadDelegate>)delegate
@@ -51,6 +54,7 @@
     }
     _delegate = delegate;
     _downloads = [NSMutableDictionary dictionary];
+    _backgroundEventsRemaining = 0;
 
     return self;
 }
@@ -89,14 +93,15 @@
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    DICEDownload *download = [self downloadForTask:task];
+    [self incrementBackgroundEventCount];
+    if (![task isKindOfClass:[NSURLSessionDownloadTask class]]) {
+        return;
+    }
     NSHTTPURLResponse *response = (NSHTTPURLResponse *) task.response;
     if (!error && response.statusCode < 400) {
         return;
     }
-    [_downloads removeObjectForKey:@(task.taskIdentifier)];
-    download.wasSuccessful = NO;
-    download.httpResponseCode = response.statusCode;
+
     NSMutableString *errorMessage = [NSMutableString string];
     if (response && response.statusCode > 0) {
         [errorMessage appendFormat:@"Server response: (%d) %@", response.statusCode, [NSHTTPURLResponse localizedStringForStatusCode:response.statusCode]];
@@ -111,15 +116,24 @@
         }
         [errorMessage appendFormat:@"Local error: %@", clientMessage];
     }
-    download.errorMessage = [NSString stringWithString:errorMessage];
 
-    if (self.delegate) {
-        [self.delegate downloadManager:self didFinishDownload:download];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        DICEDownload *download = [self downloadForTask:(NSURLSessionDownloadTask *)task];
+        [_downloads removeObjectForKey:@(task.taskIdentifier)];
+        download.errorMessage = [NSString stringWithString:errorMessage];
+        download.wasSuccessful = NO;
+        if (self.delegate) {
+            [self.delegate downloadManager:self didFinishDownload:download];
+        }
+    });
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self callBackgroundEventsHandlerIfFinished];
+    });
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
+    [self incrementBackgroundEventCount];
     DICEDownload *download = [self downloadForTask:downloadTask];
     NSURL *destFile = [self.downloadDir URLByAppendingPathComponent:download.fileName];
     if (self.delegate) {
@@ -139,6 +153,9 @@
         if (self.delegate) {
             [self.delegate downloadManager:self didFinishDownload:download];
         }
+    });
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self callBackgroundEventsHandlerIfFinished];
     });
 }
 
@@ -168,6 +185,7 @@
         download.httpResponseCode = ((NSHTTPURLResponse *)task.response).statusCode;
         download.errorMessage = [NSHTTPURLResponse localizedStringForStatusCode:download.httpResponseCode];
     }
+
     return download;
 }
 
@@ -185,16 +203,36 @@
 {
     if ([identifier isEqualToString:_downloadSession.configuration.identifier]) {
         _sessionCompletionHandler = completionHandler;
+        [self incrementBackgroundEventCount];
     }
 }
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
 {
-    if (_sessionCompletionHandler) {
-        void (^handler)() = _sessionCompletionHandler;
-        _sessionCompletionHandler = nil;
-        dispatch_async(dispatch_get_main_queue(), handler);
+    if ([session.configuration.identifier isEqualToString:self.downloadSession.configuration.identifier]) {
+        [self callBackgroundEventsHandlerIfFinished];
     }
+}
+
+- (void)callBackgroundEventsHandlerIfFinished
+{
+    [self.downloadSession.delegateQueue addOperationWithBlock:^{
+        if (OSAtomicDecrement32Barrier(&_backgroundEventsRemaining)) {
+            return;
+        }
+        void (^handler)() = _sessionCompletionHandler;
+        if (handler) {
+            _sessionCompletionHandler = nil;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                handler();
+            });
+        }
+    }];
+}
+
+- (void)incrementBackgroundEventCount
+{
+    OSAtomicIncrement32Barrier(&_backgroundEventsRemaining);
 }
 
 - (void)shutdown
