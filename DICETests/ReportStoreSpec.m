@@ -853,9 +853,13 @@ describe(@"ReportStore", ^{
 
             TestImportProcess *redImport = redType.enqueueImport;
 
-            [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
+            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
             assertWithTimeout(1.0, thatEventually(@(redImport.report.isEnabled)), isTrue());
+
+            expect(store.reports).to.haveCountOf(1);
+            expect(store.reports).to.contain(report);
+            expect(report).to.beIdenticalTo(redImport.report);
         });
 
         it(@"posts a notification when the import begins", ^{
@@ -2126,7 +2130,7 @@ describe(@"ReportStore", ^{
 
             expect(obs.received[3].notification.name).to.equal(ReportNotification.reportDownloadComplete);
             expect(obs.received[3].notification.userInfo[@"report"]).to.beIdenticalTo(finishedReport);
-            expect(finishedReport.importStatus).to.equal(ReportImportStatusNewLocal);
+            expect(finishedReport.importStatus).to.equal(ReportImportStatusNew);
 
             assertWithTimeout(1.0, thatEventually(@(finishedReport.isImportFinished)), isTrue());
         });

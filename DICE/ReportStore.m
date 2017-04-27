@@ -279,7 +279,6 @@ ReportStore *_sharedInstance;
 //        [reports addObject:[self getUserGuideReport]];
 //    }
 
-    // TODO: probably not necessary
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.notifications
             postNotificationName:[ReportNotification reportsLoaded]
@@ -309,7 +308,7 @@ ReportStore *_sharedInstance;
         report = [self addNewPendingReportForUrl:reportUrl];
     }
 
-    if (report.importStatus == ReportImportStatusNewLocal) {
+    if (report.importStatus == ReportImportStatusNew) {
         [self beginInspectingFileForReport:report withUti:NULL];
     }
     else if (report.importStatus == ReportImportStatusNewRemote) {
@@ -343,7 +342,7 @@ ReportStore *_sharedInstance;
         report.summary = url.absoluteString;
     }
     else if (url.isFileURL) {
-        report.importStatus = ReportImportStatusNewLocal;
+        report.importStatus = ReportImportStatusNew;
         report.title = url.lastPathComponent;
         report.uti = [self.utiExpert preferredUtiForExtension:url.pathExtension conformingToUti:NULL];
         // TODO: do this in background for FS access; move after creating and adding report
@@ -451,7 +450,7 @@ ReportStore *_sharedInstance;
     }
 
     report.title = download.downloadedFile.lastPathComponent;
-    report.importStatus = ReportImportStatusNewLocal;
+    report.importStatus = ReportImportStatusNew;
     report.statusMessage = @"Download complete";
     report.downloadProgress = 100;
     /*
