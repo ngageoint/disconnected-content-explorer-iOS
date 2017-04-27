@@ -113,6 +113,7 @@
 		ADA1790D0166B639D32097ACAD3A7788 /* Icon-76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6511801B374B9E7EB4E92B8048A968DB /* Icon-76@2x.png */; };
 		AF437098539BBC524F7C86E9EF0CA5F0 /* Reader-Button-H@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DD5A1CE758A1D34CFEC65DC9550D016F /* Reader-Button-H@2x.png */; };
 		B2812748E5A40043402C2AF937A1612C /* AppIcon-114.png in Resources */ = {isa = PBXBuildFile; fileRef = 89208D0BE88208C40BE5CB135689E5FE /* AppIcon-114.png */; };
+		B350C3D1836AA1896B058F0045905554 /* DICE.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B7D94F8941F2E058D8E7B9CF2547A6A0 /* DICE.storyboard */; };
 		B3A31A99F28A0F4A4DE39C311BDC0F51 /* DICEDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8143A49681767F33AC20479757857BB9 /* DICEDownloadManager.m */; };
 		B59E3A5E9857C5CD91AE78AE38435363 /* TileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5FDAD67AFAB65E1AB6DBB57ECA30DE4 /* TileViewController.m */; };
 		BA3FFA78F8E5D37B5AA537FF8E92096F /* DICEExtractReportOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DB26861FD1BCE3D06B059090E40284A /* DICEExtractReportOperation.m */; };
@@ -325,6 +326,7 @@
 		B509885B6330B98E360935E6572E0715 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		B52DB2B934C3FDAC88D176B8144E074F /* FileOperations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileOperations.m; sourceTree = "<group>"; };
 		B5BD13DE114EB92FBCFB57F58719152C /* KVOBlockObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KVOBlockObserver.m; sourceTree = "<group>"; };
+		B7D94F8941F2E058D8E7B9CF2547A6A0 /* DICE.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = DICE.storyboard; sourceTree = "<group>"; };
 		B7DA662AB518461840B91E0C433EDC62 /* ReaderBookDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderBookDelegate.m; sourceTree = "<group>"; };
 		B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileOperationsSpec.m; sourceTree = "<group>"; };
 		B82E56AF6DA2F8F3E59CE6516AADBC4C /* ReaderMainToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderMainToolbar.m; sourceTree = "<group>"; };
@@ -811,6 +813,7 @@
 				5CCBB74C0C5CCF563469F4F08801C996 /* AppDelegate.h */,
 				827175300533ADBEA03FB1E8434D23C8 /* AppDelegate.m */,
 				BBAFD92BE2F0CA1ABC6DFD12704C622A /* ContentEnumerationInfo.m */,
+				B7D94F8941F2E058D8E7B9CF2547A6A0 /* DICE.storyboard */,
 				CFAEF44650A2B12F30A02E488950C708 /* DICEConstants.h */,
 				3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */,
 				E76540F5865474CF839BFA5BA0A7D27F /* DICENavigationController.h */,
@@ -953,6 +956,7 @@
 				439FB79AF23F4548BA73802F87684C50 /* AppIcon-144.png in Resources */,
 				CAC8574DF427351D95E6FF0BCE584D37 /* AppIcon-152.png in Resources */,
 				EDC811DF2395C9B5E0BE59C70AF06F5A /* AppIcon-180.png in Resources */,
+				B350C3D1836AA1896B058F0045905554 /* DICE.storyboard in Resources */,
 				13C6310C1113F2EB93AFFAFCAACE89F4 /* Default-568h@2x.png in Resources */,
 				ADA1790D0166B639D32097ACAD3A7788 /* Icon-76@2x.png in Resources */,
 				198D111BBBDC4E2EE8BDAB059EA80DB0 /* Images.xcassets in Resources */,

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Disclaimer View Controller-->
+        <scene sceneID="8fW-XR-2cy">
+            <objects>
+                <viewController storyboardIdentifier="disclaimer" id="Owc-UC-CkX" customClass="DisclaimerViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="GE9-qe-ZOK"/>
+                        <viewControllerLayoutGuide type="bottom" id="Mgc-EY-FVs"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="v5Q-J0-1S3" userLabel="Root View">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Disclaimer" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xCx-dh-u9X" userLabel="Disclaimer Title">
+                                <rect key="frame" x="167" y="151" width="80" height="20.333333333333343"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                                <variation key="heightClass=regular-widthClass=regular">
+                                    <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                </variation>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wYS-wo-V5f" userLabel="Disclaimer Text">
+                                <rect key="frame" x="10" y="192.33333333333331" width="394" height="167.33333333333331"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="ePn-uu-aI0"/>
+                                </constraints>
+                                <string key="text">With respect to information available in this Application, neither the United States Government nor the National Geospatial-Intelligence Agency nor any of their employees, makes any warranty, express or implied, including the warranties of merchantability and fitness for a particular purpose, or assumes any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, product, or process disclosed, or represents that its use would not infringe privately owned rights.</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                                <variation key="heightClass=regular-widthClass=regular">
+                                    <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                </variation>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="cJy-vO-Ryh" userLabel="Toggle Stack">
+                                <rect key="frame" x="127" y="647" width="160" height="30"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Show next time" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8s2-aW-Ms0">
+                                        <rect key="frame" x="0.0" y="0.0" width="105" height="30"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular-widthClass=regular">
+                                            <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                        </variation>
+                                    </label>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xfn-Fh-BIJ">
+                                        <rect key="frame" x="111" y="0.0" width="51" height="30"/>
+                                        <connections>
+                                            <action selector="switchChanged:" destination="Owc-UC-CkX" eventType="valueChanged" id="yNU-KH-dei"/>
+                                        </connections>
+                                    </switch>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="UWV-gS-h9e"/>
+                                </constraints>
+                            </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="I3h-8j-72c">
+                                <rect key="frame" x="179" y="383.66666666666669" width="56" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="42" id="9Nr-Wa-18v"/>
+                                    <constraint firstAttribute="width" constant="56" id="I0O-F8-Zkh"/>
+                                    <constraint firstAttribute="height" constant="21" id="j6U-pM-hJ3"/>
+                                    <constraint firstAttribute="width" constant="104" id="rET-x7-S4n"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="I Agree">
+                                    <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="9Nr-Wa-18v"/>
+                                        <exclude reference="rET-x7-S4n"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=regular">
+                                    <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                    <mask key="constraints">
+                                        <include reference="9Nr-Wa-18v"/>
+                                        <exclude reference="I0O-F8-Zkh"/>
+                                        <exclude reference="j6U-pM-hJ3"/>
+                                        <include reference="rET-x7-S4n"/>
+                                    </mask>
+                                </variation>
+                                <connections>
+                                    <action selector="agreeTapped:" destination="Owc-UC-CkX" eventType="touchUpInside" id="24e-i5-tp3"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="cJy-vO-Ryh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="I3h-8j-72c" secondAttribute="bottom" constant="20" id="33r-BK-piq"/>
+                            <constraint firstItem="cJy-vO-Ryh" firstAttribute="bottom" secondItem="v5Q-J0-1S3" secondAttribute="bottom" multiplier="0.92" priority="900" id="8pD-CS-Be6"/>
+                            <constraint firstItem="cJy-vO-Ryh" firstAttribute="centerX" secondItem="v5Q-J0-1S3" secondAttribute="centerX" id="9TY-XS-atI"/>
+                            <constraint firstItem="wYS-wo-V5f" firstAttribute="centerY" secondItem="v5Q-J0-1S3" secondAttribute="centerY" id="EVe-gT-dgP"/>
+                            <constraint firstItem="wYS-wo-V5f" firstAttribute="centerY" secondItem="v5Q-J0-1S3" secondAttribute="centerY" id="GVW-vG-Hme"/>
+                            <constraint firstItem="wYS-wo-V5f" firstAttribute="width" secondItem="v5Q-J0-1S3" secondAttribute="width" priority="900" constant="-20" id="O6d-Ig-ApD"/>
+                            <constraint firstItem="Mgc-EY-FVs" firstAttribute="top" relation="greaterThanOrEqual" secondItem="cJy-vO-Ryh" secondAttribute="bottom" constant="20" id="TbN-cH-LlR"/>
+                            <constraint firstItem="wYS-wo-V5f" firstAttribute="top" secondItem="xCx-dh-u9X" secondAttribute="bottom" constant="21" id="f03-bC-XYv">
+                                <variation key="heightClass=compact" constant="5"/>
+                            </constraint>
+                            <constraint firstItem="xCx-dh-u9X" firstAttribute="centerX" secondItem="v5Q-J0-1S3" secondAttribute="centerX" id="fmZ-Y8-9Mo"/>
+                            <constraint firstItem="wYS-wo-V5f" firstAttribute="centerY" secondItem="v5Q-J0-1S3" secondAttribute="centerY" multiplier="0.75" id="qxs-ZK-6Xy"/>
+                            <constraint firstItem="wYS-wo-V5f" firstAttribute="centerX" secondItem="v5Q-J0-1S3" secondAttribute="centerX" id="sNx-Zx-oHJ"/>
+                            <constraint firstItem="I3h-8j-72c" firstAttribute="top" secondItem="wYS-wo-V5f" secondAttribute="bottom" constant="24" id="tkC-yo-5ha"/>
+                            <constraint firstItem="I3h-8j-72c" firstAttribute="centerX" secondItem="v5Q-J0-1S3" secondAttribute="centerX" id="uYp-wL-sYZ"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="GVW-vG-Hme"/>
+                                <exclude reference="qxs-ZK-6Xy"/>
+                            </mask>
+                        </variation>
+                        <variation key="widthClass=compact">
+                            <mask key="constraints">
+                                <exclude reference="EVe-gT-dgP"/>
+                                <include reference="qxs-ZK-6Xy"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=regular-widthClass=regular">
+                            <mask key="constraints">
+                                <include reference="GVW-vG-Hme"/>
+                            </mask>
+                        </variation>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jfi-1S-cXU" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-639.84375" y="-2370.1171875"/>
+        </scene>
+    </scenes>
+</document>
