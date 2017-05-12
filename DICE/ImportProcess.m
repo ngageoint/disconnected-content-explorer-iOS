@@ -6,7 +6,6 @@
 //  Copyright © 2016 mil.nga. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 
 #import "ImportProcess+Internal.h"
 #import "Report.h"
@@ -103,11 +102,11 @@
 
 - (BOOL)wasSuccessful
 {
-    if (!self.isFinished) {
-        return NO;
-    }
     __block BOOL success = NO;
     dispatch_sync(_mutexQueue, ^{
+        if (_finishedStepCount < self.steps.count) {
+            return;
+        }
         for (NSOperation *step in self.steps) {
             if (step.isCancelled) {
                 return;
