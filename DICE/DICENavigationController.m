@@ -93,10 +93,10 @@
     ReportResourceViewController *reportView = [self.storyboard instantiateViewControllerWithIdentifier:@"reportResourceViewController"];
     reportView.report = report;
     if (!resourceName) {
-        reportView.resource = report.rootResource;
+        reportView.resource = report.rootFile;
     }
     else {
-        NSURL *resource = [report.rootResource.baseURL URLByAppendingPathComponent:resourceName];
+        NSURL *resource = [report.rootFile.baseURL URLByAppendingPathComponent:resourceName];
         reportView.resource = resource;
     }
     [self pushViewController:reportView animated:animated];

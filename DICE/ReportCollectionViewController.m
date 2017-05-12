@@ -91,7 +91,7 @@
     if ([segue.identifier isEqualToString:@"showReport"]) {
         ReportResourceViewController *reportViewController = (ReportResourceViewController *)segue.destinationViewController;
         reportViewController.report = selectedReport;
-        reportViewController.resource = selectedReport.rootResource;
+        reportViewController.resource = selectedReport.rootFile;
     }
 }
 

@@ -10,13 +10,12 @@
 
 
 @protocol DICEArchiveFactory;
-@protocol DICEDownloadDelegate;
 @protocol ReportType;
 @class DICEUtiExpert;
-@class DICEDownloadManager;
 @class Report;
 
 #import "ImportProcess.h"
+#import "DICEDownloadManager.h"
 
 
 /**
@@ -164,6 +163,6 @@
 
 - (void)deleteReport:(nonnull Report *)report;
 
-- (void)addReportsDirExclusion:(NSPredicate *)rule;
+- (void)addReportsDirExclusion:(nonnull NSPredicate *)rule;
 
 @end

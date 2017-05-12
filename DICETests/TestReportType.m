@@ -71,7 +71,7 @@
         dispatch_sync(dispatch_get_main_queue(), ^{
             if (my.report.baseDir) {
                 NSString *indexName = [NSString stringWithFormat:@"index.%@", self.typeExtension];
-                my.report.rootResource = [my.report.baseDir URLByAppendingPathComponent:indexName];
+                my.report.rootFile = [my.report.baseDir URLByAppendingPathComponent:indexName];
             }
             [my.delegate reportWasUpdatedByImportProcess:my];
         });
@@ -165,6 +165,11 @@
     }
     failure([NSString stringWithFormat:@"tried to create process from empty to queue to import report %@", report]);
     return nil;
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"TestReportType.%@ (%@)", self.extension, super.description];
 }
 
 @end

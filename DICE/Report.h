@@ -11,6 +11,7 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
     ReportImportStatusNew,
     ReportImportStatusNewRemote,
     ReportImportStatusDownloading,
+    ReportImportStatusNewLocal,
     ReportImportStatusExtracting,
     ReportImportStatusImporting,
     ReportImportStatusSuccess,
@@ -20,25 +21,37 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 };
 
 
-@interface Report : NSObject
+@interface Report : NSObject // TODO: <NSCoding>
 
+// TODO: add ReportType reference to materialize more easily after initial import?
+// @property (nonatomic) NSString *reportTypeKey; // or something
+
+// provided by descriptor/content author
 @property (nonatomic) NSString *reportID;
 @property (nonatomic) NSString *title;
 @property (nonatomic) NSString *summary;
 @property (nonatomic) NSString *thumbnail;
 @property (nonatomic) NSString *tileThumbnail;
-/** the url of the resource that a client should load first when viewing this report */
-@property (nonatomic) NSURL *rootResource;
+@property (nonatomic) NSNumber *lat;
+@property (nonatomic) NSNumber *lon;
+
+// provided by app during/after import
+/** the url of the resource from which this report was downloaded, or nil */
+@property (nonatomic) NSURL *remoteSource;
+/** the file url of the resource from which this report was first imported, i.e., the url passed to ReportStore:attemptToImportReportFromResource: */
+@property (nonatomic) NSURL *sourceFile;
+/** a container directory ReportStore creates to wrap extra information with report package's content */
+@property (nonatomic) NSURL *importDir;
 /**
- * the url of the base directory for this report's content;
- * nil if the content is a single resource in the reports directory,
+ * the file url of the base directory for this report's content;
+ * nil if the content is a stand-alone resource in the import directory,
  * e.g., a PDF or MS Office file
  */
 @property (nonatomic) NSURL *baseDir;
+/** the file url of the resource that a client should load first when viewing this report */
+@property (nonatomic) NSURL *rootFile;
 /** the uniform type identifier of the report's root resource */
 @property (nonatomic) CFStringRef uti;
-@property (nonatomic) NSNumber *lat;
-@property (nonatomic) NSNumber *lon;
 @property (nonatomic) NSUInteger downloadSize;
 @property (nonatomic) NSUInteger downloadProgress;
 @property (nonatomic) BOOL isEnabled;

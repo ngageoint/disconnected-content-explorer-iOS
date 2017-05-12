@@ -29,7 +29,7 @@
     @autoreleasepool {
         [_candidates enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             id<ReportType> candidate = obj;
-            if ([candidate couldImportFromPath:self.report.rootResource]) {
+            if ([candidate couldImportFromPath:self.report.sourceFile]) {
                 _matchedReportType = candidate;
                 *stop = YES;
             }

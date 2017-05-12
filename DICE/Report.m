@@ -20,7 +20,7 @@
         self.downloadSize = 0;
         self.downloadProgress = 0;
         self.cacheFiles = [NSMutableArray array];
-        self.importStatus = ReportImportStatusNew;
+        self.importStatus = ReportImportStatusNewLocal;
     }
     
     return self;
@@ -72,7 +72,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"Report: %@ @%@", self.title, self.rootResource];
+    return [NSString stringWithFormat:@"Report: %@ (%@)", self.title, self.sourceFile];
 }
 
 @end

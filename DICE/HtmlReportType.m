@@ -111,11 +111,11 @@
 
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
-    NSDictionary *attrs = [self.fileManager attributesOfItemAtPath:report.rootResource.path error:nil];
-    if ([self isHtmlBaseDir:report.rootResource attributes:attrs]) {
+    NSDictionary *attrs = [self.fileManager attributesOfItemAtPath:report.rootFile.path error:nil];
+    if ([self isHtmlBaseDir:report.baseDir attributes:attrs]) {
         return [[ExplodedHtmlImportProcess alloc] initWithReport:report];
     }
-    else if ([self isHtmlFile:report.rootResource attributes:attrs]) {
+    else if ([self isHtmlFile:report.rootFile attributes:attrs]) {
         return [[NoopImportProcess alloc] initWithReport:report];
     }
     return nil;

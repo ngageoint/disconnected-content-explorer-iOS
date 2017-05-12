@@ -158,7 +158,7 @@
     if (navigationType == UIWebViewNavigationTypeLinkClicked && request.URL.isFileURL) {
         if ([ResourceTypes canOpenResource:request.URL]) {
             // TODO: better api for url handling, e.g., dice://reports/{reportID}/relative_resource?options
-            NSString *base = self.report.rootResource.baseURL.absoluteString;
+            NSString *base = self.report.rootFile.baseURL.absoluteString;
             NSString *relativeResource = [request.URL.absoluteString substringFromIndex:base.length];
             NSURL *diceURL = [NSURL URLWithString:[NSString stringWithFormat:@"dice://?reportID=%@&resource=%@", self.report.reportID, relativeResource]];
             [[UIApplication sharedApplication] openURL:diceURL];
