@@ -13,6 +13,7 @@
 		0E2554673255336FE0E9EC6CD10B8E01 /* TestNSOperationKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 36248EB120561F10DE3C298B717EC769 /* TestNSOperationKVO.m */; };
 		0E68EF113ED610CAAAC46546A93960D3 /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E4342FFD2C2132B3989BF7BCD77F626 /* SettingsViewController+SettingsViewController_iPhone.m */; };
 		11F2EAD30DEB1368384C9B0EF9EF2194 /* Reader-Thumbs.png in Resources */ = {isa = PBXBuildFile; fileRef = EEB4E28AC03C2CA43C6B4FEBA09029BB /* Reader-Thumbs.png */; };
+		125401C5E25EE2121AB415AF2241877F /* TestFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A314DBC86F0F53F19E8B14C545BD54 /* TestFileManager.m */; };
 		134E1F756D92A3337ADF441D9EDFEB6F /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7325570DB6549C485CB4A9C18216BDDF /* DICENavigationController.m */; };
 		139D42501E83FACE0B458302F93D9A98 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30FF242598BC0A2CC88697DFA9A7C8EF /* UIKit.framework */; };
 		13C6310C1113F2EB93AFFAFCAACE89F4 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3413AF6F908E2D8F5B48AF0F147B690A /* Default-568h@2x.png */; };
@@ -32,6 +33,7 @@
 		252EBD190BA1BB850F22D4A606590DC6 /* NoteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 46940E01625BD7F3E945302A0F301589 /* NoteViewController.m */; };
 		27648773A51FC0E27DE75CD843BD7132 /* Reader-Email.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CF4C914C808A66FE4A7B38A18FA7DB9 /* Reader-Email.png */; };
 		27648BC3D1EF1D6D7F4C3EF078653502 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD3667F5C2726FBC8085CA9717C10A87 /* Foundation.framework */; };
+		2B3D7C854B832FECAC9933B4BBDCDF9B /* TestFileManagerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 90512924C57DC52098BD663E0174254C /* TestFileManagerSpec.m */; };
 		2E56585A5E0C47434D1346E51E2D2E6F /* AppIcon-076.png in Resources */ = {isa = PBXBuildFile; fileRef = 0324100DE9AAFAEC564EA470EE6B01E7 /* AppIcon-076.png */; };
 		2EC7E9A398EA7AF6CBCC459E8ADE913E /* ReaderThumbView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8AE35FD54F4D22927C099C3869D2F96F /* ReaderThumbView.m */; };
 		2FCAC481388915F3834D783CE398D74A /* ReaderBookDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B7DA662AB518461840B91E0C433EDC62 /* ReaderBookDelegate.m */; };
@@ -217,6 +219,7 @@
 		3C86416628DA967D2FABBF84724E30EF /* ReportViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportViewCell.h; sourceTree = "<group>"; };
 		3D27834265B35825A573282348A3AF46 /* ReaderThumbRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbRender.h; sourceTree = "<group>"; };
 		3E0A6175BE4F214F4AD42562F7CB4A9B /* TestOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestOperationQueue.m; sourceTree = "<group>"; };
+		3F367E09F00AEE3932C932E0EC9F98F8 /* TestFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFileManager.h; sourceTree = "<group>"; };
 		3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
 		408B5BAE51B0CCB8040EC7645517FE05 /* DICE-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DICE-Prefix.pch"; sourceTree = "<group>"; };
 		42DC8D0E9D67A6011F44FA39BA1D229F /* Reader-Export@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Export@2x.png"; sourceTree = "<group>"; };
@@ -288,6 +291,7 @@
 		8D90355B5DE466E3792BADAEC6331D56 /* ReportCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportCollectionViewController.h; sourceTree = "<group>"; };
 		8DA05A54024256C0883FA5D7958178FB /* DICE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DICE.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9016A99D53FAA4679287F566D6C64D4F /* DICEOZZipFileArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEOZZipFileArchive.h; sourceTree = "<group>"; };
+		90512924C57DC52098BD663E0174254C /* TestFileManagerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestFileManagerSpec.m; sourceTree = "<group>"; };
 		9088FCC44C91982330C314BF6B677C89 /* ReportUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportUtils.m; sourceTree = "<group>"; };
 		91DE9AADF066A41E4737F8A176CC9B3F /* CGPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPDFDocument.h; sourceTree = "<group>"; };
 		9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseJsonOperation.h; path = ../ParseJsonOperation.h; sourceTree = "<group>"; };
@@ -354,6 +358,7 @@
 		CE636D09070B4E049CEBDC10D013A59F /* ReaderDemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderDemoController.m; sourceTree = "<group>"; };
 		CF9B13DD7EF9090D1C0A06D1C822B22B /* ReaderMainPagebar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderMainPagebar.h; sourceTree = "<group>"; };
 		CFAEF44650A2B12F30A02E488950C708 /* DICEConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEConstants.h; sourceTree = "<group>"; };
+		D0A314DBC86F0F53F19E8B14C545BD54 /* TestFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestFileManager.m; sourceTree = "<group>"; };
 		D1072CDB13E3DBEE9ADA1DE8BEDF4A2F /* libPods-DICETests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICETests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1A346D07FF62AB077E3017306809DCB /* HtmlReportTypeSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HtmlReportTypeSpec.m; sourceTree = "<group>"; };
 		D3AEF0E9E67F338417CAF00EE25D57D1 /* ResourceTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourceTypes.m; sourceTree = "<group>"; };
@@ -656,6 +661,9 @@
 				3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */,
 				FC50C7FC6EEC908733FE1A59E8330444 /* TestDICEArchive.h */,
 				1C9139A2663CCAC0CD5F442EEA80498B /* TestDICEArchive.m */,
+				3F367E09F00AEE3932C932E0EC9F98F8 /* TestFileManager.h */,
+				D0A314DBC86F0F53F19E8B14C545BD54 /* TestFileManager.m */,
+				90512924C57DC52098BD663E0174254C /* TestFileManagerSpec.m */,
 				36248EB120561F10DE3C298B717EC769 /* TestNSOperationKVO.m */,
 				CA1FCEFE8D94360C1C93C0D6DA69986C /* TestOperationQueue.h */,
 				3E0A6175BE4F214F4AD42562F7CB4A9B /* TestOperationQueue.m */,
@@ -1188,6 +1196,8 @@
 				609D8685B07AC8BD8EC3E8FFF7EF564C /* ReportStoreSpec.m in Sources */,
 				7850CC9236DA9EF5F2A6C026F107304A /* ResourceTypesTests.m in Sources */,
 				830D519069C792284EED586678F80BCB /* TestDICEArchive.m in Sources */,
+				125401C5E25EE2121AB415AF2241877F /* TestFileManager.m in Sources */,
+				2B3D7C854B832FECAC9933B4BBDCDF9B /* TestFileManagerSpec.m in Sources */,
 				0E2554673255336FE0E9EC6CD10B8E01 /* TestNSOperationKVO.m in Sources */,
 				34EC6AE4957E12CA5BAA4D9C3055FDC9 /* TestOperationQueue.m in Sources */,
 				E68E2E9936A8EC1888DA9FF9F711AF59 /* TestParseJsonOperation.m in Sources */,
