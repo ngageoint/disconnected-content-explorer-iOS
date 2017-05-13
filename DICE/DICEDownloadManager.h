@@ -39,7 +39,7 @@
 @property (readonly, nullable, weak) id<DICEDownloadDelegate> delegate;
 @property (readonly) BOOL isFinishingBackgroundEvents;
 
-- (instancetype)initWithDownloadDir:(NSURL *)downloadDir fileManager:(NSFileManager *)fileManager delegate:(id<DICEDownloadDelegate>)delegate;
+- (nullable instancetype)initWithDownloadDir:(nullable NSURL *)downloadDir fileManager:(nullable NSFileManager *)fileManager delegate:(nullable id<DICEDownloadDelegate>)delegate;
 
 - (void)downloadUrl:(nonnull NSURL *)url;
 - (void)handleEventsForBackgroundURLSession:(nonnull NSString *)identifier completionHandler:(nullable void (^)())completionHandler;
