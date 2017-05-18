@@ -19,6 +19,19 @@
 
 SpecBegin(FileOperations)
 
+describe(@"NSFileManager behavior", ^{
+
+    it(@"does something when moving a file that does not exist", ^{
+        NSURL *source = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/tmp/%@", [NSUUID UUID].UUIDString]];
+        NSURL *dest = [NSURL fileURLWithPath:@"/tmp/who_cares"];
+        NSError *err;
+        BOOL moved = [NSFileManager.defaultManager moveItemAtURL:source toURL:dest error:&err];
+
+        expect(moved).to.beFalsy();
+        expect(err).toNot.beNil();
+    });
+
+});
 
 describe(@"MkdirOperation", ^{
 
@@ -165,8 +178,10 @@ describe(@"MoveFileOperation", ^{
 
     beforeEach(^{
         fileManager = mock([NSFileManager class]);
-        source = [NSURL fileURLWithPath:@"/source/file.txt"];
-        dest = [NSURL fileURLWithPath:@"/dest/file.txt"];
+        NSString *sourceName = [NSString stringWithFormat:@"/source/%@/file.txt", [NSUUID UUID].UUIDString];
+        NSString *destName = [NSString stringWithFormat:@"/dest/%@/file.txt", [NSUUID UUID].UUIDString];
+        source = [NSURL fileURLWithPath:sourceName];
+        dest = [NSURL fileURLWithPath:destName];
     });
 
     afterEach(^{
@@ -279,7 +294,7 @@ describe(@"MoveFileOperation", ^{
 
         MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
 
-        [given([fileManager moveItemAtURL:anything() toURL:anything() error:NULL]) willReturnBool:YES];
+        [[given([fileManager moveItemAtURL:anything() toURL:anything() error:NULL]) withMatcher:anything() forArgument:2] willReturnBool:YES];
 
         [op start];
 
@@ -337,6 +352,16 @@ describe(@"MoveFileOperation", ^{
         [op start];
 
         [[verifyCount(fileManager, never()) withMatcher:anything() forArgument:2] moveItemAtURL:anything() toURL:anything() error:NULL];
+    });
+
+    it(@"sets the error when the source file does not exist", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:NSFileManager.defaultManager];
+        [op start];
+
+        expect(op.error).toNot.beNil();
+        expect(op.error.code).to.equal(NSFileNoSuchFileError);
+        expect(op.error.userInfo[NSFilePathErrorKey]).to.equal(source.path);
     });
 
 });

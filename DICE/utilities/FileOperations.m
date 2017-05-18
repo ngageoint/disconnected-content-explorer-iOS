@@ -23,11 +23,17 @@
     return self;
 }
 
+- (NSError *)error
+{
+    return _error;
+}
+
 @end
 
 
 
 @implementation MkdirOperation
+
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
 {
@@ -192,7 +198,9 @@
 - (void)main
 {
     @autoreleasepool {
-        _fileWasMoved = [self.fileManager moveItemAtURL:self.sourceUrl toURL:self.destUrl error:NULL];
+        NSError *err;
+        _fileWasMoved = [self.fileManager moveItemAtURL:self.sourceUrl toURL:self.destUrl error:&err];
+        _error = err;
     }
 }
 

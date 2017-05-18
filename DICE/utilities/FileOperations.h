@@ -14,10 +14,16 @@
 
 
 @interface FileOperation : NSOperation
+{
+    @protected
+    NSError *_error;
+}
 
 @property (readonly, nonnull) NSFileManager *fileManager;
 
 - (nullable instancetype)initWithFileMananger:(nonnull NSFileManager *)fileManager;
+
+- (nullable NSError *)error;
 
 @end
 
