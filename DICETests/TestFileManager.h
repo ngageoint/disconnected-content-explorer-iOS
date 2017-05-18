@@ -11,13 +11,13 @@
 
 @interface TestFileManager : NSFileManager
 
-@property NSURL *reportsDir;
-@property NSMutableOrderedSet<NSString *> *pathsInReportsDir;
+@property NSURL *rootDir;
+@property NSMutableOrderedSet<NSString *> *pathsInRootDir;
 @property NSMutableDictionary *pathAttrs;
 @property BOOL (^onCreateFileAtPath)(NSString *path);
 @property BOOL (^onCreateDirectoryAtURL)(NSURL *path, BOOL createIntermediates, NSError **error);
 @property NSMutableDictionary<NSString *, NSData *> *contentsAtPath;
 
-- (void)setContentsOfReportsDir:(NSString *)relPath, ... NS_REQUIRES_NIL_TERMINATION;
+- (void)setContentsOfRootDir:(NSString *)relPath, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end

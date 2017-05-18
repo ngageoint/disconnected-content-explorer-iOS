@@ -87,7 +87,7 @@
 - (instancetype)init
 {
     self = [super init];
-    self.pathsInReportsDir = [NSMutableOrderedSet orderedSet];
+    self.pathsInRootDir = [NSMutableOrderedSet orderedSet];
     self.pathAttrs = [NSMutableDictionary dictionary];
     self.contentsAtPath = [NSMutableDictionary dictionary];
     return self;
@@ -95,14 +95,14 @@
 
 - (NSString *)pathRelativeToReportsDirOfPath:(NSString *)absolutePath
 {
-    return [absolutePath pathRelativeToPath:self.reportsDir.path];
+    return [absolutePath pathRelativeToPath:self.rootDir.path];
 }
 
 - (BOOL)fileExistsAtPath:(NSString *)path
 {
     @synchronized (self) {
         NSString *relPath = [self pathRelativeToReportsDirOfPath:path];
-        return relPath != nil && (relPath.length == 0 || [self.pathsInReportsDir containsObject:relPath]);
+        return relPath != nil && (relPath.length == 0 || [self.pathsInRootDir containsObject:relPath]);
     }
 }
 
@@ -123,10 +123,10 @@
 {
     @synchronized (self) {
         NSMutableArray *paths = [NSMutableArray array];
-        for (NSString *relPath in self.pathsInReportsDir) {
+        for (NSString *relPath in self.pathsInRootDir) {
             if (relPath.pathComponents.count == 1) {
                 BOOL isDir = [NSFileTypeDirectory isEqualToString:self.pathAttrs[relPath][NSFileType]];
-                NSURL *url = [self.reportsDir URLByAppendingPathComponent:relPath isDirectory:isDir];
+                NSURL *url = [self.rootDir URLByAppendingPathComponent:relPath isDirectory:isDir];
                 [paths addObject:url];
             }
         }
@@ -154,32 +154,32 @@
         if (relRootDir == nil) {
             return nil;
         }
-        NSUInteger pos = [self.pathsInReportsDir indexOfObject:relRootDir];
-        if (pos == self.pathsInReportsDir.count - 1) {
+        NSUInteger pos = [self.pathsInRootDir indexOfObject:relRootDir];
+        if (pos == self.pathsInRootDir.count - 1) {
             return [NSOrderedSet orderedSet];
         }
         pos += 1;
         relRootDir = [relRootDir stringByAppendingString:@"/"];
-        NSMutableOrderedSet *descendants = [NSMutableOrderedSet orderedSetWithCapacity:self.pathsInReportsDir.count - pos];
-        while (pos < self.pathsInReportsDir.count) {
-            NSString *descendant = [self.pathsInReportsDir objectAtIndex:pos];
+        NSMutableOrderedSet *descendants = [NSMutableOrderedSet orderedSetWithCapacity:self.pathsInRootDir.count - pos];
+        while (pos < self.pathsInRootDir.count) {
+            NSString *descendant = [self.pathsInRootDir objectAtIndex:pos];
             if ([descendant hasPrefix:relRootDir]) {
                 descendant = [descendant pathRelativeToPath:relRootDir];
                 [descendants addObject:descendant];
                 pos += 1;
             }
             else {
-                pos = self.pathsInReportsDir.count;
+                pos = self.pathsInRootDir.count;
             }
         }
         return descendants;
     }
 }
 
-- (void)setContentsOfReportsDir:(NSString *)relPath, ...
+- (void)setContentsOfRootDir:(NSString *)relPath, ...
 {
     @synchronized (self) {
-        [self.pathsInReportsDir removeAllObjects];
+        [self.pathsInRootDir removeAllObjects];
         [self.pathAttrs removeAllObjects];
         if (relPath == nil) {
             return;
@@ -187,13 +187,13 @@
         va_list args;
         va_start(args, relPath);
         for(NSString *arg = relPath; arg != nil; arg = va_arg(args, NSString *)) {
-            [self addPathInReportsDir:arg withAttributes:nil];
+            [self addPath:arg attributes:nil];
         }
         va_end(args);
     }
 }
 
-- (void)addPathInReportsDir:(NSString *)relPath withAttributes:(NSDictionary *)attrs
+- (instancetype)addPath:(NSString *)relPath attributes:(NSDictionary *)attrs
 {
     @synchronized (self) {
         if (!attrs) {
@@ -209,12 +209,14 @@
         else if (!mutableAttrs[NSFileType]) {
             mutableAttrs[NSFileType] = NSFileTypeRegular;
         }
-        NSUInteger pos = [self.pathsInReportsDir indexOfObject:relPath inSortedRange:NSMakeRange(0, self.pathsInReportsDir.count) options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(NSString * _Nonnull obj1, NSString * _Nonnull obj2) {
+        NSUInteger pos = [self.pathsInRootDir indexOfObject:relPath inSortedRange:NSMakeRange(0, self.pathsInRootDir.count) options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(NSString * _Nonnull obj1, NSString * _Nonnull obj2) {
             return [obj1 localizedStandardCompare:obj2];
         }];
-        [self.pathsInReportsDir insertObject:relPath atIndex:pos];
+        [self.pathsInRootDir insertObject:relPath atIndex:pos];
         self.pathAttrs[relPath] = [NSDictionary dictionaryWithDictionary:mutableAttrs];
     }
+
+    return self;
 }
 
 - (BOOL)createFileAtPath:(NSString *)path contents:(NSData *)data attributes:(NSDictionary<NSString *, id> *)attr
@@ -233,7 +235,7 @@
         if (relPath == nil) {
             return NO;
         }
-        [self addPathInReportsDir:relPath withAttributes:attr];
+        [self addPath:relPath attributes:attr];
         return YES;
     }
 }
@@ -262,7 +264,7 @@
             NSString *part = relPathParts.firstObject;
             [relPathParts removeObjectAtIndex:0];
             relPath = [relPath stringByAppendingPathComponent:part];
-            NSString *absPath = [self.reportsDir.path stringByAppendingPathComponent:relPath];
+            NSString *absPath = [self.rootDir.path stringByAppendingPathComponent:relPath];
             BOOL isDir;
             if ([self fileExistsAtPath:absPath isDirectory:&isDir]) {
                 if (!isDir) {
@@ -274,7 +276,7 @@
                 }
             }
             else if (createIntermediates) {
-                [self addPathInReportsDir:relPath withAttributes:@{NSFileType: NSFileTypeDirectory}];
+                [self addPath:relPath attributes:@{NSFileType: NSFileTypeDirectory}];
             }
             else {
                 if (error) {
@@ -303,12 +305,12 @@
         if (relativePath == nil) {
             return NO;
         }
-        NSUInteger index = [self.pathsInReportsDir indexOfObject:relativePath];
+        NSUInteger index = [self.pathsInRootDir indexOfObject:relativePath];
         if (index == NSNotFound) {
             return NO;
         }
         if (!isDir) {
-            [self.pathsInReportsDir removeObjectAtIndex:index];
+            [self.pathsInRootDir removeObjectAtIndex:index];
             return YES;
         }
 
@@ -316,9 +318,9 @@
         for (NSString *descendant in descendants) {
             NSString *descendantAbsPath = [path stringByAppendingPathComponent:descendant];
             NSString *descendantRelPath = [self pathRelativeToReportsDirOfPath:descendantAbsPath];
-            [self.pathsInReportsDir removeObject:descendantRelPath];
+            [self.pathsInRootDir removeObject:descendantRelPath];
         }
-        [self.pathsInReportsDir removeObjectAtIndex:index];
+        [self.pathsInRootDir removeObjectAtIndex:index];
 
         return YES;
     }
@@ -376,14 +378,14 @@
 
         NSDictionary *srcAttrs = [self attributesOfItemAtPath:srcPath error:NULL];
         NSString *destRelPath = [self pathRelativeToReportsDirOfPath:dstPath];
-        [self addPathInReportsDir:destRelPath withAttributes:srcAttrs];
+        [self addPath:destRelPath attributes:srcAttrs];
         NSDirectoryEnumerator *descendants = [self enumeratorAtPath:srcPath];
         if (descendants) {
             NSString *srcRelPath = descendants.nextObject;
             while (srcRelPath != nil) {
                 NSString *destRelPath = [dstPath stringByAppendingPathComponent:srcRelPath];
                 destRelPath = [self pathRelativeToReportsDirOfPath:destRelPath];
-                [self addPathInReportsDir:destRelPath withAttributes:descendants.fileAttributes];
+                [self addPath:destRelPath attributes:descendants.fileAttributes];
                 srcRelPath = descendants.nextObject;
             }
         }

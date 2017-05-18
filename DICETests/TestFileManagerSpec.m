@@ -14,18 +14,18 @@
 
 SpecBegin(TestFileManager)
 
-describe(@"ReportStore_FileManager", ^{
+describe(@"TestFileManager", ^{
 
     __block TestFileManager *fileManager;
     __block NSURL *reportsDir;
 
     beforeEach(^{
         fileManager = [[TestFileManager alloc] init];
-        fileManager.reportsDir = reportsDir = [NSURL fileURLWithPath:@"/dice" isDirectory:YES];
+        fileManager.rootDir = reportsDir = [NSURL fileURLWithPath:@"/dice" isDirectory:YES];
     });
 
     it(@"works", ^{
-        [fileManager setContentsOfReportsDir:@"hello.txt", @"dir/", nil];
+        [fileManager setContentsOfRootDir:@"hello.txt", @"dir/", nil];
 
         BOOL isDir;
         BOOL *isDirOut = &isDir;
@@ -40,28 +40,28 @@ describe(@"ReportStore_FileManager", ^{
         expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"dir"].path isDirectory:isDirOut]).to.equal(YES);
         expect(isDir).to.equal(YES);
 
-        expect(fileManager.pathsInReportsDir).to.contain(@"dir");
+        expect(fileManager.pathsInRootDir).to.contain(@"dir");
         expect([fileManager removeItemAtURL:[reportsDir URLByAppendingPathComponent:@"does_not_exist"] error:NULL]).to.equal(NO);
         expect([fileManager removeItemAtURL:[reportsDir URLByAppendingPathComponent:@"dir"] error:NULL]).to.equal(YES);
         expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"dir"].path]).to.equal(NO);
-        expect(fileManager.pathsInReportsDir).notTo.contain(@"dir");
+        expect(fileManager.pathsInRootDir).notTo.contain(@"dir");
 
         expect([fileManager createFileAtPath:[reportsDir URLByAppendingPathComponent:@"new.txt"].path contents:nil attributes:nil]).to.equal(YES);
         expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"new.txt"].path isDirectory:isDirOut]).to.equal(YES);
         expect(isDir).to.equal(NO);
-        NSUInteger pathCount = fileManager.pathsInReportsDir.count;
+        NSUInteger pathCount = fileManager.pathsInRootDir.count;
         expect([fileManager createFileAtPath:[reportsDir.path stringByAppendingPathComponent:@"new.txt"] contents:nil attributes:nil]).to.equal(YES);
         expect([fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"new.txt"] withIntermediateDirectories:YES attributes:nil error:NULL]).to.equal(NO);
-        expect(fileManager.pathsInReportsDir.count).to.equal(pathCount);
+        expect(fileManager.pathsInRootDir.count).to.equal(pathCount);
 
         expect([fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:YES attributes:nil error:NULL]).to.equal(YES);
         expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"dir"].path isDirectory:isDirOut]).to.equal(YES);
         expect(isDir).to.equal(YES);
-        pathCount = fileManager.pathsInReportsDir.count;
+        pathCount = fileManager.pathsInRootDir.count;
         expect([fileManager createFileAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir"] contents:nil attributes:nil]).to.equal(NO);
         expect([fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:YES attributes:nil error:NULL]).to.equal(YES);
         expect([fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:NO attributes:nil error:NULL]).to.equal(NO);
-        expect(fileManager.pathsInReportsDir.count).to.equal(pathCount);
+        expect(fileManager.pathsInRootDir.count).to.equal(pathCount);
 
         NSString *intermediates = [reportsDir.path stringByAppendingPathComponent:@"dir1/dir2/dir3"];
         expect([fileManager createDirectoryAtPath:intermediates withIntermediateDirectories:NO attributes:nil error:NULL]).to.beFalsy();
@@ -78,10 +78,11 @@ describe(@"ReportStore_FileManager", ^{
         expect([fileManager fileExistsAtPath:@"/not/in/reportsDir.txt" isDirectory:isDirOut]).to.equal(NO);
         expect(isDir).to.equal(NO);
 
+
         describe(@"removing files", ^{
 
             beforeEach(^{
-                [fileManager setContentsOfReportsDir:@"dir/", @"dir/file.txt", @"dir/dir/", @"dir/dir/file.txt", @"file.txt", nil];
+                [fileManager setContentsOfRootDir:@"dir/", @"dir/file.txt", @"dir/dir/", @"dir/dir/file.txt", @"file.txt", nil];
             });
 
             it(@"removes a single file", ^{
@@ -131,12 +132,12 @@ describe(@"ReportStore_FileManager", ^{
 
             source = [reportsDir.path stringByAppendingPathComponent:@"src_base"];
             dest = [reportsDir.path stringByAppendingPathComponent:@"dest_base"];
-            [fileManager setContentsOfReportsDir:
+            [fileManager setContentsOfRootDir:
                 @"src_base/",
                 @"src_base/child1.txt",
                 @"src_base/child2/",
                 @"src_base/child2/grand_child.txt",
-                nil];
+                    nil];
             expect([fileManager fileExistsAtPath:source isDirectory:isDirOut]).to.beTruthy();
             expect(isDir).to.beTruthy();
             expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child1.txt"] isDirectory:isDirOut]).to.beTruthy();
