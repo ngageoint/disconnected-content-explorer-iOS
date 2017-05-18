@@ -10,6 +10,6 @@ end
 target :DICETests do
   pod 'Specta', '~>1.0'
   pod 'Expecta', '~>1.0'
-  pod 'OCMockito', '~>4.0'
+  pod 'OCMockito', '~>4.1'
   pod 'JGMethodSwizzler', '~>2.0'
 end
