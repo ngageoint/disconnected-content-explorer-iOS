@@ -12,6 +12,7 @@
 		0A69A4C5B190C6B0CD9322977D9181B2 /* GeoPackageMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */; };
 		0E2554673255336FE0E9EC6CD10B8E01 /* TestNSOperationKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 36248EB120561F10DE3C298B717EC769 /* TestNSOperationKVO.m */; };
 		0E68EF113ED610CAAAC46546A93960D3 /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E4342FFD2C2132B3989BF7BCD77F626 /* SettingsViewController+SettingsViewController_iPhone.m */; };
+		10128A10F03B187A05B02C5DB2B68F6B /* DICEDeleteReportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0921E29EE4D10D95AD66D7DCBE30B0CC /* DICEDeleteReportProcessSpec.m */; };
 		11F2EAD30DEB1368384C9B0EF9EF2194 /* Reader-Thumbs.png in Resources */ = {isa = PBXBuildFile; fileRef = EEB4E28AC03C2CA43C6B4FEBA09029BB /* Reader-Thumbs.png */; };
 		125401C5E25EE2121AB415AF2241877F /* TestFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A314DBC86F0F53F19E8B14C545BD54 /* TestFileManager.m */; };
 		134E1F756D92A3337ADF441D9EDFEB6F /* DICENavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7325570DB6549C485CB4A9C18216BDDF /* DICENavigationController.m */; };
@@ -146,6 +147,7 @@
 		E5E36A1026B51BC927A57B4D8DDB710A /* MapOverlayCellItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8B5EF56D91CCDCA1179E64E25263C3 /* MapOverlayCellItem.m */; };
 		E68E2E9936A8EC1888DA9FF9F711AF59 /* TestParseJsonOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 80650670209CE88AB03251350F2A6C5E /* TestParseJsonOperation.m */; };
 		EAD14095635E7CD022DE7F949EDBF464 /* Reader-Print.png in Resources */ = {isa = PBXBuildFile; fileRef = 799083837BE434E792107B5329AA2A52 /* Reader-Print.png */; };
+		ED0858851EF7BA605859DDA8F5F83652 /* DICEDeleteReportProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 1611C781F31E5FEA6E01DBABFDDD637A /* DICEDeleteReportProcess.m */; };
 		EDC811DF2395C9B5E0BE59C70AF06F5A /* AppIcon-180.png in Resources */ = {isa = PBXBuildFile; fileRef = 2E816633A0F9664041FA4F640E048518 /* AppIcon-180.png */; };
 		EF3E35357D0EC3E3E93D41897814552C /* MapOverlayActiveSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = CB25E4ECD46494ECBCEB24550840ED41 /* MapOverlayActiveSwitch.m */; };
 		F14AA5A359E19CBD321B29698681E701 /* ReaderContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = D59F27657D7CECA9CDC6B5FFA71D07A7 /* ReaderContentView.m */; };
@@ -175,11 +177,13 @@
 		06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICE.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		080F57BCEBAADB3EA412455DB8C3B9E2 /* ParseJsonOperationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParseJsonOperationSpec.m; sourceTree = "<group>"; };
 		082F3AF7E6E32F0F96AA471A45ABD900 /* ReaderAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderAppDelegate.m; sourceTree = "<group>"; };
+		0921E29EE4D10D95AD66D7DCBE30B0CC /* DICEDeleteReportProcessSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEDeleteReportProcessSpec.m; sourceTree = "<group>"; };
 		09E6FE836CCD624799154F5DD1F59271 /* ReportType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportType.h; sourceTree = "<group>"; };
 		0E23BD9603647226F154F0838A00A8DE /* ReaderConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderConstants.m; sourceTree = "<group>"; };
 		1231F813DFFCAA88FA0AF6A5400B8E2E /* DICE-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DICE-Info.plist"; sourceTree = "<group>"; };
 		136C41DAD43029A23E5852C8E91B020D /* KVOBlockObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KVOBlockObserver.h; sourceTree = "<group>"; };
 		14827AD6924AAD3526397C6E234F633E /* DICEDefaultArchiveFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEDefaultArchiveFactory.h; sourceTree = "<group>"; };
+		1611C781F31E5FEA6E01DBABFDDD637A /* DICEDeleteReportProcess.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEDeleteReportProcess.m; sourceTree = "<group>"; };
 		191EFF3FA422C46D6862F39A78455C14 /* TestParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestParseJsonOperation.h; sourceTree = "<group>"; };
 		1A9C25D39666109CB4144F843B809BAB /* AppIcon-072.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-072.png"; sourceTree = "<group>"; };
 		1AB0215D024A45538EF9CFC2950CA73A /* GeoPackageTableMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageTableMapData.m; sourceTree = "<group>"; };
@@ -296,6 +300,7 @@
 		91DE9AADF066A41E4737F8A176CC9B3F /* CGPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPDFDocument.h; sourceTree = "<group>"; };
 		9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParseJsonOperation.h; path = ../ParseJsonOperation.h; sourceTree = "<group>"; };
 		926F8CF6FAD526952A067E62D3AFEAFF /* ReaderThumbFetch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbFetch.m; sourceTree = "<group>"; };
+		95A08FF8CBD67518C76EE0744CB0B933 /* DICEDeleteReportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DICEDeleteReportProcess.h; sourceTree = "<group>"; };
 		964C827CDF701E097D1EE25DC8811CD4 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportAPI.m; sourceTree = "<group>"; };
 		979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeoPackageMapData.m; sourceTree = "<group>"; };
@@ -642,6 +647,7 @@
 				0B89054DB1A7852C56A43ADAAC1ED3B8 /* Supporting Files */,
 				56B924E8E9DBF049A0D06981BD6C3DAE /* etc */,
 				3A54F3B11871E6420FC51D7AAE5B94ED /* ContentEnumerationInfoSpec.m */,
+				0921E29EE4D10D95AD66D7DCBE30B0CC /* DICEDeleteReportProcessSpec.m */,
 				AD7F89CE937873F061B70F50E41AB850 /* DICEDownloadManagerSpec.m */,
 				FA3F782234B6FACC010EAF55B75AF41A /* ExplodedHtmlImportProcessSpec.m */,
 				B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */,
@@ -780,6 +786,8 @@
 		B3BF4950F080E99B61F9DD85AECB164C /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				95A08FF8CBD67518C76EE0744CB0B933 /* DICEDeleteReportProcess.h */,
+				1611C781F31E5FEA6E01DBABFDDD637A /* DICEDeleteReportProcess.m */,
 				C600E068D6F92B4C2A716D449656BE8C /* DICEExtractReportOperation.h */,
 				5DB26861FD1BCE3D06B059090E40284A /* DICEExtractReportOperation.m */,
 				F1622EB77C38AF2B93DD7A71930F1728 /* ExplodedHtmlImportProcess.h */,
@@ -1106,6 +1114,7 @@
 				DABC01706281F348119A687D2F85BFEC /* ContentEnumerationInfo.m in Sources */,
 				92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */,
 				7979D5B4D4EE665AD23AA68D1EB360CA /* DICEDefaultArchiveFactory.m in Sources */,
+				ED0858851EF7BA605859DDA8F5F83652 /* DICEDeleteReportProcess.m in Sources */,
 				B3A31A99F28A0F4A4DE39C311BDC0F51 /* DICEDownloadManager.m in Sources */,
 				BA3FFA78F8E5D37B5AA537FF8E92096F /* DICEExtractReportOperation.m in Sources */,
 				134E1F756D92A3337ADF441D9EDFEB6F /* DICENavigationController.m in Sources */,
@@ -1182,6 +1191,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2508CED09B53B213385B138F4B40F133 /* ContentEnumerationInfoSpec.m in Sources */,
+				10128A10F03B187A05B02C5DB2B68F6B /* DICEDeleteReportProcessSpec.m in Sources */,
 				1A18567868B2E92FA0856BB8C39F6822 /* DICEDownloadManagerSpec.m in Sources */,
 				54CD2EBF057765169A258000DD4FE36C /* ExplodedHtmlImportProcessSpec.m in Sources */,
 				94FF34B63D94FD5FF4F7C1939CA50348 /* FileOperationsSpec.m in Sources */,
