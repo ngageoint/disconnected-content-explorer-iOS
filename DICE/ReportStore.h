@@ -165,4 +165,8 @@
 
 - (void)addReportsDirExclusion:(nonnull NSPredicate *)rule;
 
+- (void)appDidEnterBackground;
+
+- (void)appWillEnterForeground;
+
 @end

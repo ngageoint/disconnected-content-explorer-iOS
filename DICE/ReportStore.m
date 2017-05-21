@@ -19,6 +19,7 @@
 #import "Report.h"
 #import "ReportType.h"
 #import "DICEUtiExpert.h"
+#import "DICEDeleteReportProcess.h"
 #import "DICEExtractReportOperation.h"
 #import "FileOperations.h"
 
@@ -68,7 +69,7 @@
 @end
 
 
-@interface ReportStore () <UnzipDelegate>
+@interface ReportStore () <UnzipDelegate, DICEDeleteReportProcessDelegate>
 @end
 
 
@@ -167,6 +168,13 @@ ReportStore *_sharedInstance;
     ARCHIVE_MATCH_CONTEXT = &ARCHIVE_MATCH_CONTEXT;
     CONTENT_MATCH_CONTEXT = &CONTENT_MATCH_CONTEXT;
 
+    // TODO: handle errors more goodly
+    NSError *err;
+    BOOL created = [_fileManager createDirectoryAtURL:_trashDir withIntermediateDirectories:YES attributes:nil error:&err];
+    if (!created) {
+        [NSException raise:NSInternalInconsistencyException format:@"error creating trash directory %@: %@", _trashDir, err.localizedDescription];
+    }
+
     return self;
 }
 
@@ -246,6 +254,8 @@ ReportStore *_sharedInstance;
 
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
+    // TODO: differentiate between new and imported reports (*.dice_import/)
+    // here or in loadReports? probably here
     if ([self.reportsDirExclusions evaluateWithObject:reportUrl]) {
         return nil;
     }
@@ -519,7 +529,9 @@ ReportStore *_sharedInstance;
     report.importStatus = ReportImportStatusDeleting;
     report.statusMessage = @"Deleting content...";
     [self.notifications postNotificationName:ReportNotification.reportChanged object:self userInfo:@{@"report": report}];
-    [self scheduleDeleteContentsOfReport:report];
+    DICEDeleteReportProcess *delReport = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir fileManager:self.fileManager];
+    delReport.delegate = self;
+    [self.importQueue addOperations:delReport.steps waitUntilFinished:NO];
 }
 
 #pragma mark - ImportDelegate methods
@@ -782,52 +794,20 @@ ReportStore *_sharedInstance;
     return json;
 }
 
-- (NSArray<NSOperation *> *)stepsToDeleteReport:(Report *)report
+- (void)filesDidMoveToTrashByDeleteReportProcess:(DICEDeleteReportProcess *)process
 {
-    NSString *trashName = [NSUUID UUID].UUIDString;
-    NSURL *trashUrl = [_trashDir URLByAppendingPathComponent:trashName isDirectory:YES];
-    NSURL *trashContentUrl = [trashUrl URLByAppendingPathComponent:report.importDir.lastPathComponent];
-
-    MkdirOperation *makeTrashDir = [[MkdirOperation alloc] initWithDirUrl:trashUrl fileManager:self.fileManager];
-    makeTrashDir.queuePriority = NSOperationQueuePriorityHigh;
-    makeTrashDir.qualityOfService = NSQualityOfServiceUserInitiated;
-
-    MoveFileOperation *moveToTrash = [[MoveFileOperation alloc] initWithSourceUrl:report.importDir destUrl:trashContentUrl fileManager:self.fileManager];
-    moveToTrash.queuePriority = NSOperationQueuePriorityHigh;
-    moveToTrash.qualityOfService = NSQualityOfServiceUserInitiated;
-    [moveToTrash addDependency:makeTrashDir];
-
-    DeleteFileOperation *deleteFromTrash = [[DeleteFileOperation alloc] initWithFileUrl:nil fileManager:self.fileManager];
-    deleteFromTrash.queuePriority = NSOperationQueuePriorityLow;
-    deleteFromTrash.qualityOfService = NSQualityOfServiceBackground;
-    [deleteFromTrash addDependency:moveToTrash];
-
-    __weak MoveFileOperation *moveToTrashCompleted = moveToTrash;
-    moveToTrash.completionBlock = ^{
-        if (!moveToTrashCompleted.fileWasMoved) {
-            [deleteFromTrash cancel];
-            return;
-        }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [_reports removeObject:report];
-            deleteFromTrash.fileUrl = trashUrl;
-            [self.notifications postNotificationName:ReportNotification.reportRemoved object:self userInfo:@{@"report": report}];
-        });
-    };
-
-    deleteFromTrash.completionBlock = ^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            report.importStatus = ReportImportStatusDeleted;
-        });
-    };
-
-    return @[makeTrashDir, moveToTrash, deleteFromTrash];
+    // TODO: handle move failure
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_reports removeObject:process.report];
+        [self.notifications postNotificationName:ReportNotification.reportRemoved object:self userInfo:@{@"report": process.report}];
+    });
 }
 
-- (void)scheduleDeleteContentsOfReport:(Report *)report
+- (void)noFilesFoundToDeleteByDeleteReportProcess:(DICEDeleteReportProcess *)process
 {
-    NSArray<NSOperation *> *steps = [self stepsToDeleteReport:report];
-    [self.importQueue addOperations:steps waitUntilFinished:NO];
+    [self filesDidMoveToTrashByDeleteReportProcess:process];
 }
+
+
 
 @end

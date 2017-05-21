@@ -264,6 +264,100 @@ describe(@"DICEDeleteReportProcess", ^{
         expect(rm.isReady).to.beTruthy();
     });
 
+    it(@"notifies the delegate after the files moved to the trash", ^{
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+
+        Report *report = [[Report alloc] init];
+        report.sourceFile = [NSURL fileURLWithPath:@"/dice/reports/source.zip"];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/reports/source.zip.imported" isDirectory:YES];
+
+        [fileManager createFileAtPath:report.sourceFile.path contents:nil attributes:nil];
+        [fileManager createDirectoryAtPath:report.importDir.path withIntermediateDirectories:YES attributes:nil error:NULL];
+
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        MoveFileOperation *mv1 = (MoveFileOperation *) del.steps[1];
+        MoveFileOperation *mv2 = (MoveFileOperation *) del.steps[2];
+        DeleteFileOperation *rm = (DeleteFileOperation *) del.steps[3];
+
+        id<DICEDeleteReportProcessDelegate> delegate = mockProtocol(@protocol(DICEDeleteReportProcessDelegate));
+        [givenVoid([delegate filesDidMoveToTrashByDeleteReportProcess:del]) willDo:^id _Nonnull(NSInvocation * _Nonnull invoc) {
+            expect(rm.fileUrl).to.beNil();
+            expect(rm.isReady).to.beFalsy();
+            return nil;
+        }];
+        del.delegate = delegate;
+
+        [ops addOperations:del.steps waitUntilFinished:YES];
+
+        [verify(delegate) filesDidMoveToTrashByDeleteReportProcess:del];
+    });
+
+    it(@"notifies the delegate after the source file moved to the trash", ^{
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+
+        Report *report = [[Report alloc] init];
+        report.sourceFile = [NSURL fileURLWithPath:@"/dice/reports/source.zip"];
+        [fileManager createFileAtPath:report.sourceFile.path contents:nil attributes:nil];
+
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DeleteFileOperation *rm = (DeleteFileOperation *) del.steps[2];
+
+        id<DICEDeleteReportProcessDelegate> delegate = mockProtocol(@protocol(DICEDeleteReportProcessDelegate));
+        [givenVoid([delegate filesDidMoveToTrashByDeleteReportProcess:del]) willDo:^id _Nonnull(NSInvocation * _Nonnull invoc) {
+            expect(rm.fileUrl).to.beNil();
+            expect(rm.isReady).to.beFalsy();
+            return nil;
+        }];
+        del.delegate = delegate;
+
+        [ops addOperations:del.steps waitUntilFinished:YES];
+
+        [verify(delegate) filesDidMoveToTrashByDeleteReportProcess:del];
+    });
+
+    it(@"notifies the delegate after the import dir moved to the trash", ^{
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+
+        Report *report = [[Report alloc] init];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/reports/source.zip.imported" isDirectory:YES];
+        [fileManager createDirectoryAtPath:report.importDir.path withIntermediateDirectories:YES attributes:nil error:NULL];
+
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DeleteFileOperation *rm = (DeleteFileOperation *) del.steps[2];
+
+        id<DICEDeleteReportProcessDelegate> delegate = mockProtocol(@protocol(DICEDeleteReportProcessDelegate));
+        [givenVoid([delegate filesDidMoveToTrashByDeleteReportProcess:del]) willDo:^id _Nonnull(NSInvocation * _Nonnull invoc) {
+            expect(rm.fileUrl).to.beNil();
+            expect(rm.isReady).to.beFalsy();
+            return nil;
+        }];
+        del.delegate = delegate;
+
+        [ops addOperations:del.steps waitUntilFinished:YES];
+
+        [verify(delegate) filesDidMoveToTrashByDeleteReportProcess:del];
+    });
+
+    it(@"notifies the delegate if their are no files to delete", ^{
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+
+        Report *report = [[Report alloc] init];
+        report.sourceFile = [NSURL fileURLWithPath:@"/dice/reports/source.zip"];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/reports/source.zip.imported" isDirectory:YES];
+
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+
+        id<DICEDeleteReportProcessDelegate> delegate = mockProtocol(@protocol(DICEDeleteReportProcessDelegate));
+        del.delegate = delegate;
+
+        [ops addOperations:del.steps waitUntilFinished:YES];
+
+        [verify(delegate) noFilesFoundToDeleteByDeleteReportProcess:del];
+    });
 });
 
 SpecEnd

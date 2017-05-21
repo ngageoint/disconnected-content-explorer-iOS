@@ -19,3 +19,10 @@
 - (nullable instancetype)initWithReport:(nonnull Report *)report trashDir:(nonnull NSURL *)trashDir fileManager:(nonnull NSFileManager *)fileManager;
 
 @end
+
+@protocol DICEDeleteReportProcessDelegate <ImportDelegate>
+
+- (void)filesDidMoveToTrashByDeleteReportProcess:(nonnull DICEDeleteReportProcess *)process;
+- (void)noFilesFoundToDeleteByDeleteReportProcess:(nonnull DICEDeleteReportProcess *)process;
+
+@end

@@ -13,6 +13,8 @@
     MoveFileOperation *_moveContentToTrash;
     MoveFileOperation *_moveSourceFileToTrash;
     DeleteFileOperation *_deleteFromTrash;
+    dispatch_queue_t _moveCountQueue;
+    NSUInteger _filesRemainingToMove;
 }
 
 - (instancetype)initWithReport:(Report *)report trashDir:(NSURL *)trashDir fileManager:(NSFileManager *)fileManager
@@ -27,6 +29,7 @@
     _fileManager = fileManager;
     NSString *trashContainerName = [NSUUID UUID].UUIDString;
     _trashContainerDir = [_trashDir URLByAppendingPathComponent:trashContainerName isDirectory:YES];
+    _moveCountQueue = dispatch_queue_create("dice.DICEDeleteReportProcess_move_count", DISPATCH_QUEUE_SERIAL);
 
     MkdirOperation *makeTrashDir = [[MkdirOperation alloc] initWithDirUrl:_trashContainerDir fileManager:_fileManager];
     makeTrashDir.queuePriority = NSOperationQueuePriorityHigh;
@@ -47,6 +50,7 @@
         [_moveContentToTrash addDependency:makeTrashDir];
         [_deleteFromTrash addDependency:_moveContentToTrash];
         [steps addObject:_moveContentToTrash];
+        _filesRemainingToMove += 1;
     }
 
     if (report.sourceFile && [_fileManager fileExistsAtPath:report.sourceFile.path]) {
@@ -57,14 +61,21 @@
         [_moveSourceFileToTrash addDependency:makeTrashDir];
         [_deleteFromTrash addDependency:_moveSourceFileToTrash];
         [steps addObject:_moveSourceFileToTrash];
+        _filesRemainingToMove += 1;
     }
 
     if (steps.count == 0) {
-        return self;
+        [steps addObject:[NSBlockOperation blockOperationWithBlock:^{
+            if (self.delegate && [self.delegate conformsToProtocol:@protocol(DICEDeleteReportProcessDelegate)]) {
+                [(id<DICEDeleteReportProcessDelegate>)self.delegate noFilesFoundToDeleteByDeleteReportProcess:self];
+            }
+        }]];
+    }
+    else {
+        [steps insertObject:makeTrashDir atIndex:0];
+        [steps addObject:_deleteFromTrash];
     }
 
-    [steps insertObject:makeTrashDir atIndex:0];
-    [steps addObject:_deleteFromTrash];
     self.steps = [NSArray arrayWithArray:steps];
     [steps removeAllObjects];
 
@@ -76,13 +87,17 @@
     if (!(step == _moveContentToTrash || step == _moveSourceFileToTrash)) {
         return;
     }
-    if (step == _moveContentToTrash && !_moveSourceFileToTrash.isFinished) {
-        return;
-    }
-    if (step == _moveSourceFileToTrash && !_moveContentToTrash.isFinished) {
-        return;
-    }
-    _deleteFromTrash.fileUrl = self.trashContainerDir;
+
+    dispatch_sync(_moveCountQueue, ^{
+        _filesRemainingToMove -= 1;
+        if (_filesRemainingToMove > 0) {
+            return;
+        }
+        if (self.delegate && [self.delegate conformsToProtocol:@protocol(DICEDeleteReportProcessDelegate)]) {
+            [((id<DICEDeleteReportProcessDelegate>)self.delegate) filesDidMoveToTrashByDeleteReportProcess:self];
+        }
+        _deleteFromTrash.fileUrl = self.trashContainerDir;
+    });
 }
 
 @end
