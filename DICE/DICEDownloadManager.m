@@ -102,11 +102,11 @@
 
     NSMutableString *errorMessage = [NSMutableString string];
     if (response && response.statusCode > 0) {
-        [errorMessage appendFormat:@"Server response: (%d) %@", response.statusCode, [NSHTTPURLResponse localizedStringForStatusCode:response.statusCode]];
+        [errorMessage appendFormat:@"Server response: (%ld) %@", (long)response.statusCode, [NSHTTPURLResponse localizedStringForStatusCode:response.statusCode]];
     }
     NSString *clientMessage = error.userInfo[NSLocalizedDescriptionKey];
     if (!clientMessage) {
-        clientMessage = error.localizedFailureReason;
+        clientMessage = error.localizedDescription;
     }
     if (clientMessage) {
         if (errorMessage.length) {
