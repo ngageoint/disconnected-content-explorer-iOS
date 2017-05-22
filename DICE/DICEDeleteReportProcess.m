@@ -7,14 +7,14 @@
 #import "FileOperations.h"
 #import "Report.h"
 #import "ImportProcess+Internal.h"
+#import <stdatomic.h>
 
 @implementation DICEDeleteReportProcess
 {
     MoveFileOperation *_moveContentToTrash;
     MoveFileOperation *_moveSourceFileToTrash;
     DeleteFileOperation *_deleteFromTrash;
-    dispatch_queue_t _moveCountQueue;
-    NSUInteger _filesRemainingToMove;
+    atomic_uint _filesRemainingToMove;
 }
 
 - (instancetype)initWithReport:(Report *)report trashDir:(NSURL *)trashDir fileManager:(NSFileManager *)fileManager
@@ -29,7 +29,6 @@
     _fileManager = fileManager;
     NSString *trashContainerName = [NSUUID UUID].UUIDString;
     _trashContainerDir = [_trashDir URLByAppendingPathComponent:trashContainerName isDirectory:YES];
-    _moveCountQueue = dispatch_queue_create("dice.DICEDeleteReportProcess_move_count", DISPATCH_QUEUE_SERIAL);
 
     MkdirOperation *makeTrashDir = [[MkdirOperation alloc] initWithDirUrl:_trashContainerDir fileManager:_fileManager];
     makeTrashDir.queuePriority = NSOperationQueuePriorityHigh;
@@ -50,7 +49,7 @@
         [_moveContentToTrash addDependency:makeTrashDir];
         [_deleteFromTrash addDependency:_moveContentToTrash];
         [steps addObject:_moveContentToTrash];
-        _filesRemainingToMove += 1;
+        atomic_fetch_add(&_filesRemainingToMove, 1);
     }
 
     if (report.sourceFile && [_fileManager fileExistsAtPath:report.sourceFile.path]) {
@@ -61,7 +60,7 @@
         [_moveSourceFileToTrash addDependency:makeTrashDir];
         [_deleteFromTrash addDependency:_moveSourceFileToTrash];
         [steps addObject:_moveSourceFileToTrash];
-        _filesRemainingToMove += 1;
+        atomic_fetch_add(&_filesRemainingToMove, 1);
     }
 
     if (steps.count == 0) {
@@ -88,16 +87,14 @@
         return;
     }
 
-    dispatch_sync(_moveCountQueue, ^{
-        _filesRemainingToMove -= 1;
-        if (_filesRemainingToMove > 0) {
-            return;
-        }
-        if (self.delegate && [self.delegate conformsToProtocol:@protocol(DICEDeleteReportProcessDelegate)]) {
-            [((id<DICEDeleteReportProcessDelegate>)self.delegate) filesDidMoveToTrashByDeleteReportProcess:self];
-        }
-        _deleteFromTrash.fileUrl = self.trashContainerDir;
-    });
+    if (atomic_fetch_sub(&_filesRemainingToMove, 1) - 1) {
+        return;
+    }
+
+    if (self.delegate && [self.delegate conformsToProtocol:@protocol(DICEDeleteReportProcessDelegate)]) {
+        [((id<DICEDeleteReportProcessDelegate>)self.delegate) filesDidMoveToTrashByDeleteReportProcess:self];
+    }
+    _deleteFromTrash.fileUrl = self.trashContainerDir;
 }
 
 @end
