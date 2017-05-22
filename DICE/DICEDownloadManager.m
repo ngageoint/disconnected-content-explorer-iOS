@@ -7,9 +7,7 @@
 //
 
 #import "DICEDownloadManager.h"
-#import <libkern/OSAtomic.h>
-// TODO: OSAtomic.h is deprecated, so figure out stdatomic at some point
-//#import <stdatomic.h>
+#import <stdatomic.h>
 
 @implementation DICEDownload
 
@@ -37,7 +35,7 @@
     NSFileManager *_fileManager;
     NSMutableDictionary<NSNumber *, DICEDownload *> *_downloads;
     void (^_sessionCompletionHandler)();
-    int32_t _backgroundEventsRemaining;
+    atomic_uint _backgroundEventsRemaining;
 }
 
 - (instancetype)initWithDownloadDir:(NSURL *)downloadDir fileManager:(NSFileManager *)fileManager delegate:(id<DICEDownloadDelegate>)delegate
@@ -217,7 +215,7 @@
 - (void)callBackgroundEventsHandlerIfFinished
 {
     [self.downloadSession.delegateQueue addOperationWithBlock:^{
-        if (OSAtomicDecrement32Barrier(&_backgroundEventsRemaining)) {
+        if (atomic_fetch_sub(&_backgroundEventsRemaining, 1) - 1) {
             return;
         }
         void (^handler)() = _sessionCompletionHandler;
@@ -232,7 +230,7 @@
 
 - (void)incrementBackgroundEventCount
 {
-    OSAtomicIncrement32Barrier(&_backgroundEventsRemaining);
+    atomic_fetch_add(&_backgroundEventsRemaining, 1);
 }
 
 - (void)shutdown
