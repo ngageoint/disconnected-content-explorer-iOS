@@ -21,7 +21,7 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 };
 
 
-@interface Report : NSObject // TODO: <NSCoding>
+@interface Report : NSObject <NSCoding>
 
 // TODO: add ReportType reference to materialize more easily after initial import?
 // @property (nonatomic) NSString *reportTypeKey; // or something
@@ -61,6 +61,9 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 /** convenience method that returns YES if the import status is success or failed */
 @property (readonly, nonatomic) BOOL isImportFinished;
 @property (nonatomic) NSMutableArray<ReportCache *> * cacheFiles;
+
+- (instancetype)initWithCoder:(NSCoder *)coder;
+- (void)encodeWithCoder:(NSCoder *)coder;
 
 /**
  Set the properties of this report from key-value pairs in the given
