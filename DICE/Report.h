@@ -27,7 +27,7 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 // @property (nonatomic) NSString *reportTypeKey; // or something
 
 // provided by descriptor/content author
-@property (nonatomic) NSString *reportID;
+@property (nonatomic) NSString *contentId;
 @property (nonatomic) NSString *title;
 @property (nonatomic) NSString *summary;
 @property (nonatomic) NSString *thumbnail;

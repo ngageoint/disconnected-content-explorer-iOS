@@ -292,7 +292,7 @@ ReportStore *_sharedInstance;
     report.isEnabled = NO;
     report.lat = nil;
     report.lon = nil;
-    report.reportID = nil;
+    report.contentId = nil;
     report.statusMessage = nil;
     report.summary = nil;
     report.thumbnail = nil;
@@ -513,7 +513,7 @@ ReportStore *_sharedInstance;
 
 - (Report *)reportForID:(NSString *)reportID
 {
-    return [self.reports filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"reportID == %@", reportID]].firstObject;
+    return [self.reports filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"contentId == %@", reportID]].firstObject;
 }
 
 - (void)deleteReport:(Report *)report
@@ -546,7 +546,7 @@ ReportStore *_sharedInstance;
     NSLog(@"import did finish for report %@", importProcess.report);
     // TODO: only use json descriptor if new import, else use NSCoding serialized Report object
     NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:importProcess.report];
-    // TODO: assign reportID if nil
+    // TODO: assign contentId if nil
     dispatch_async(dispatch_get_main_queue(), ^{
         // TODO: leave failed imports so user can decide what to do, retry, delete, etc?
         NSLog(@"finalizing import for report %@", importProcess.report);

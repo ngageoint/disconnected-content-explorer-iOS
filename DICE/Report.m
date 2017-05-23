@@ -15,7 +15,7 @@
         self.summary = nil;
         self.thumbnail = nil;
         self.uti = NULL;
-        self.reportID = nil;
+        self.contentId = nil;
         self.isEnabled = NO;
         self.downloadSize = 0;
         self.downloadProgress = 0;

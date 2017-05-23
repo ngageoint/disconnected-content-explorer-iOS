@@ -129,7 +129,7 @@
 - (void)reportSelectedToView:(Report *)report
 {
     selectedReport = report;
-//    if ([selectedReport.reportID isEqualToString:[ReportStore userGuideReportID]]) {
+//    if ([selectedReport.contentId isEqualToString:[ReportStore userGuideReportID]]) {
 //        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/DICEUserGuide.zip"]];
 //    }
 //    else {

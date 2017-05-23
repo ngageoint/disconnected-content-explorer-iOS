@@ -40,7 +40,7 @@
     if(self.preserveCache){
         self.preserveCache = NO;
     }else{
-        [GeoPackageURLProtocol startCache:[self.report.reportID stringByDeletingPathExtension]];
+        [GeoPackageURLProtocol startCache:[self.report.contentId stringByDeletingPathExtension]];
     }
 }
 
