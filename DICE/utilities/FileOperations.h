@@ -47,9 +47,13 @@
 
 @property (nullable, nonatomic) NSURL *sourceUrl;
 @property (nullable, nonatomic) NSURL *destUrl;
+@property (readonly) BOOL createDestDirs;
 @property (readonly) BOOL fileWasMoved;
 
 - (nullable instancetype)initWithSourceUrl:(nullable NSURL *)sourceUrl destUrl:(nullable NSURL *)destUrl fileManager:(nonnull NSFileManager *)fileManager;
+- (nullable instancetype)initWithSourceUrl:(nullable NSURL *)sourceUrl destDirUrl:(nonnull NSURL *)destDirUrl fileManager:(nonnull NSFileManager *)fileManager;
+- (nonnull instancetype)createDestDirs:(BOOL)mkdirs;
+- (nonnull instancetype)setDestDirUrl:(nonnull NSURL *)destDirUrl;
 
 @end
 

@@ -144,6 +144,26 @@
     return self;
 }
 
+- (instancetype)initWithSourceUrl:(NSURL *)sourceUrl destDirUrl:(NSURL *)destDirUrl fileManager:(NSFileManager *)fileManager
+{
+    return [[self initWithSourceUrl:sourceUrl destUrl:nil fileManager:fileManager] setDestDirUrl:destDirUrl];
+}
+
+- (instancetype)createDestDirs:(BOOL)mkdirs
+{
+    if (self.isExecuting || self.isFinished) {
+        [NSException raise:NSInternalInconsistencyException format:@"cannot set createDestDirs flag whlie or after executing"];
+    }
+    _createDestDirs = mkdirs;
+    return self;
+}
+
+- (instancetype)setDestDirUrl:(NSURL *)destDirUrl
+{
+    self.destUrl = [destDirUrl URLByAppendingPathComponent:self.sourceUrl.lastPathComponent];
+    return self;
+}
+
 - (void)setSourceUrl:(NSURL *)sourceUrl
 {
     if (self.isExecuting || self.isFinished) {
@@ -199,6 +219,13 @@
 {
     @autoreleasepool {
         NSError *err;
+        if (_createDestDirs) {
+            NSURL *destDir = [self.destUrl URLByDeletingLastPathComponent];
+            if (![self.fileManager createDirectoryAtURL:destDir withIntermediateDirectories:YES attributes:nil error:&err]) {
+                _error = err;
+                return;
+            }
+        }
         _fileWasMoved = [self.fileManager moveItemAtURL:self.sourceUrl toURL:self.destUrl error:&err];
         _error = err;
     }

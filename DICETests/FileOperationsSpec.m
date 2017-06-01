@@ -170,22 +170,34 @@ describe(@"MkdirOperation", ^{
 describe(@"MoveFileOperation", ^{
 
     __block NSFileManager *fileManager;
+    __block NSURL *baseDir;
     __block NSURL *source;
     __block NSURL *dest;
+    __block NSData *contents;
 
     beforeAll(^{
     });
 
     beforeEach(^{
-        fileManager = mock([NSFileManager class]);
-        NSString *sourceName = [NSString stringWithFormat:@"/source/%@/file.txt", [NSUUID UUID].UUIDString];
-        NSString *destName = [NSString stringWithFormat:@"/dest/%@/file.txt", [NSUUID UUID].UUIDString];
-        source = [NSURL fileURLWithPath:sourceName];
-        dest = [NSURL fileURLWithPath:destName];
+        fileManager = [[NSFileManager alloc] init];
+        NSURL *tmpDir = [fileManager temporaryDirectory];
+        NSString *baseDirName = [NSUUID UUID].UUIDString;
+        baseDir = [tmpDir URLByAppendingPathComponent:baseDirName];
+        if (![fileManager createDirectoryAtURL:baseDir withIntermediateDirectories:YES attributes:nil error:NULL]) {
+            [NSException raise:NSInternalInconsistencyException format:@"failed to base dir %@", baseDir];
+        }
+        NSString *sourceName = @"source.txt";
+        NSString *destName = @"dest.txt";
+        source = [baseDir URLByAppendingPathComponent:sourceName];
+        dest = [baseDir URLByAppendingPathComponent:destName];
+        contents = [baseDirName dataUsingEncoding:NSUTF8StringEncoding];
+        if (![contents writeToURL:source atomically:YES]) {
+            [NSException raise:NSInternalInconsistencyException format:@"failed to write contents to source file %@", source];
+        }
     });
 
     afterEach(^{
-        stopMocking(fileManager);
+        [fileManager removeItemAtURL:baseDir error:NULL];
     });
 
     afterAll(^{
@@ -294,15 +306,17 @@ describe(@"MoveFileOperation", ^{
 
         MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
 
-        [[given([fileManager moveItemAtURL:anything() toURL:anything() error:NULL]) withMatcher:anything() forArgument:2] willReturnBool:YES];
-
         [op start];
 
-        [[verify(fileManager) withMatcher:anything() forArgument:2] moveItemAtURL:source toURL:dest error:NULL];
         expect(op.fileWasMoved).to.beTruthy();
+        expect([fileManager fileExistsAtPath:source.path]).to.beFalsy();
+        expect([fileManager fileExistsAtPath:dest.path]).to.beTruthy();
+        expect([fileManager contentsAtPath:dest.path]).to.equal(contents);
     });
 
     it(@"inidicates when the move was not successful", ^{
+
+        fileManager = mock([NSFileManager class]);
 
         MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
 
@@ -315,6 +329,8 @@ describe(@"MoveFileOperation", ^{
     });
 
     it(@"gets dequeued if cancelled before becoming ready", ^{
+
+        fileManager = mock([NSFileManager class]);
 
         MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:nil destUrl:nil fileManager:fileManager];
 
@@ -332,6 +348,8 @@ describe(@"MoveFileOperation", ^{
 
     it(@"gets dequeued and does not move file if enqueued then cancelled before executing", ^{
 
+        fileManager = mock([NSFileManager class]);
+
         MoveFileOperation *move = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
         NSBlockOperation *cancelMove = [NSBlockOperation blockOperationWithBlock:^{
             [move cancel];
@@ -346,6 +364,8 @@ describe(@"MoveFileOperation", ^{
 
     it(@"does not move the file if cancelled before executing", ^{
 
+        fileManager = mock([NSFileManager class]);
+
         MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
 
         [op cancel];
@@ -356,14 +376,144 @@ describe(@"MoveFileOperation", ^{
 
     it(@"sets the error when the source file does not exist", ^{
 
-        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:NSFileManager.defaultManager];
+        expect([fileManager removeItemAtURL:source error:NULL]).to.beTruthy();
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
         [op start];
 
+        expect(op.fileWasMoved).to.beFalsy();
         expect(op.error).toNot.beNil();
         expect(op.error.code).to.equal(NSFileNoSuchFileError);
         expect(op.error.userInfo[NSFilePathErrorKey]).to.equal(source.path);
     });
 
+    it(@"sets the error when the dest parent dir does not exist", ^{
+
+        dest = [baseDir URLByAppendingPathComponent:@"another_dir/dest.txt"];
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+        [op start];
+
+        expect(op.fileWasMoved).to.beFalsy();
+        expect(op.error).toNot.beNil();
+        expect(op.error.code).to.equal(NSFileNoSuchFileError);
+        expect([fileManager contentsAtPath:source.path]).to.equal(contents);
+    });
+
+    it(@"sets create dest dirs flag when explicitly set", ^{
+
+        MoveFileOperation *op = [[[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager] createDestDirs:YES];
+
+        expect(op.createDestDirs).to.beTruthy();
+
+        op = [[[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager] createDestDirs:NO];
+
+        expect(op.createDestDirs).to.beFalsy();
+
+        [op createDestDirs:YES];
+
+        expect(op.createDestDirs).to.beTruthy();
+
+        [op createDestDirs:NO];
+
+        expect(op.createDestDirs).to.beFalsy();
+    });
+
+    it(@"does not create dest dirs by default", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+
+        expect(op.createDestDirs).to.beFalsy();
+    });
+
+    it(@"creates dest dirs when requested", ^{
+
+        dest = [baseDir URLByAppendingPathComponent:@"another_dir/dest.txt"];
+
+        MoveFileOperation *op = [[[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager] createDestDirs:YES];
+        [op start];
+
+        expect(op.fileWasMoved).to.beTruthy();
+        expect(op.error).to.beNil();
+        expect([fileManager contentsAtPath:dest.path]).to.equal(contents);
+    });
+
+    it(@"raises an exception if calling create dest dirs while executing", ^{
+
+        MoveFileOperation *op = [[[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager] block];
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperation:op];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
+
+        expect(^{ [op createDestDirs:YES]; }).to.raise(NSInternalInconsistencyException);
+
+        [op unblock];
+        [ops waitUntilAllOperationsAreFinished];
+    });
+
+    it(@"raises an exception if calling create dest dirs after finished", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+        [op start];
+
+        expect(op.isFinished).to.beTruthy();
+        expect(^{ [op createDestDirs:YES]; }).to.raise(NSInternalInconsistencyException);
+    });
+
+    it(@"does not attempt to move if create dest dirs fails", ^{
+
+        fileManager = mock([NSFileManager class]);
+        NSError *createDirErr = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSFileReadNoPermissionError userInfo:@{NSLocalizedDescriptionKey: @"test error"}];
+        [[given([fileManager createDirectoryAtURL:anything() withIntermediateDirectories:YES attributes:anything() error:NULL]) withMatcher:anything() forArgument:3] willDo:^id _Nonnull(NSInvocation * _Nonnull invoc) {
+            NSError * __autoreleasing *errOut = NULL;
+            [invoc getArgument:&errOut atIndex:5];
+            *errOut = createDirErr;
+            return @NO;
+        }];
+
+        MoveFileOperation *op = [[[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager] createDestDirs:YES];
+        [op start];
+
+        expect(op.fileWasMoved).to.beFalsy();
+        expect(op.error).to.beIdenticalTo(createDirErr);
+        [[verifyCount(fileManager, never()) withMatcher:anything() forArgument:2] moveItemAtURL:anything() toURL:anything() error:NULL];
+    });
+
+    it(@"sets the dest url to dest dir with last path component of source url", ^{
+
+        NSURL *destDir = [baseDir URLByAppendingPathComponent:@"dir1"];
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destDirUrl:destDir fileManager:fileManager];
+
+        expect(op.destUrl).to.equal([destDir URLByAppendingPathComponent:source.lastPathComponent]);
+
+        [destDir URLByAppendingPathComponent:@"dir2"];
+        [op setDestDirUrl:destDir];
+
+        expect(op.destUrl).to.equal([destDir URLByAppendingPathComponent:source.lastPathComponent]);
+    });
+
+    it(@"raises an exception setting dest dir when op is executing or finished", ^{
+
+        MoveFileOperation *op = [[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager];
+
+        [op start];
+
+        expect(op.isFinished).to.beTruthy();
+        expect(^{ [op setDestDirUrl:[baseDir URLByAppendingPathComponent:@"another_dir"]]; }).to.raise(NSInternalInconsistencyException);
+
+        op = [[[MoveFileOperation alloc] initWithSourceUrl:source destUrl:dest fileManager:fileManager] block];
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperation:op];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
+
+        expect(^{ [op setDestDirUrl:[baseDir URLByAppendingPathComponent:@"another_dir"]]; }).to.raise(NSInternalInconsistencyException);
+
+        [op unblock];
+        [ops waitUntilAllOperationsAreFinished];
+    });
 });
 
 
