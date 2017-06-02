@@ -52,7 +52,7 @@
     }
     _delegate = delegate;
     _downloads = [NSMutableDictionary dictionary];
-    _backgroundEventsRemaining = 0;
+    atomic_init(&_backgroundEventsRemaining, 0);
 
     return self;
 }
