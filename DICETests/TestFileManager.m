@@ -344,6 +344,11 @@
 
 - (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError * _Nullable __autoreleasing *)error
 {
+    if (self.onMoveItemAtPath) {
+        if (!self.onMoveItemAtPath(srcPath, dstPath, error)) {
+            return NO;
+        }
+    }
     if ([srcPath isEqualToString:dstPath]) {
         return YES;
     }

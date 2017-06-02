@@ -16,6 +16,7 @@
 @property NSMutableDictionary *pathAttrs;
 @property BOOL (^onCreateFileAtPath)(NSString *path);
 @property BOOL (^onCreateDirectoryAtURL)(NSURL *path, BOOL createIntermediates, NSError **error);
+@property BOOL (^onMoveItemAtPath)(NSString *sourcePath, NSString *destPath, NSError **error);
 @property NSMutableDictionary<NSString *, NSData *> *contentsAtPath;
 
 - (void)setContentsOfRootDir:(NSString *)relPath, ... NS_REQUIRES_NIL_TERMINATION;
