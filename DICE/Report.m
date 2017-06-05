@@ -9,19 +9,6 @@
 
 - (id) init {
     self = [super init];
-
-    if (self) {
-        self.title = nil;
-        self.summary = nil;
-        self.thumbnail = nil;
-        self.uti = NULL;
-        self.contentId = nil;
-        self.isEnabled = NO;
-        self.downloadSize = 0;
-        self.downloadProgress = 0;
-        self.cacheFiles = [NSMutableArray array];
-        self.importStatus = ReportImportStatusNewLocal;
-    }
     
     return self;
 }
@@ -32,24 +19,24 @@
         return nil;
     }
 
-    self.baseDir = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(baseDir))];
-    self.contentId = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(contentId))];
-    self.downloadProgress = (NSUInteger) [coder decodeIntegerForKey:NSStringFromSelector(@selector(downloadProgress))];
-    self.downloadSize = (NSUInteger) [coder decodeIntegerForKey:NSStringFromSelector(@selector(downloadSize))];
-    self.importDir = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(importDir))];
-    self.importStatus = (ReportImportStatus) [coder decodeIntegerForKey:NSStringFromSelector(@selector(importStatus))];
-    self.isEnabled = [coder decodeBoolForKey:NSStringFromSelector(@selector(isEnabled))];
-    self.lat = [coder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(lat))];
-    self.lon = [coder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(lon))];
-    self.remoteSource = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(remoteSource))];
-    self.rootFile = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(rootFile))];
-    self.sourceFile = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(sourceFile))];
-    self.statusMessage = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(statusMessage))];
-    self.summary = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(summary))];
-    self.thumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(thumbnail))];
-    self.tileThumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(tileThumbnail))];
-    self.title = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(title))];
-    self.uti = (__bridge CFStringRef) [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(uti))];
+    _baseDir = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(baseDir))];
+    _contentId = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(contentId))];
+    _downloadProgress = (NSUInteger) [coder decodeIntegerForKey:NSStringFromSelector(@selector(downloadProgress))];
+    _downloadSize = (NSUInteger) [coder decodeIntegerForKey:NSStringFromSelector(@selector(downloadSize))];
+    _importDir = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(importDir))];
+    _importStatus = (ReportImportStatus) [coder decodeIntegerForKey:NSStringFromSelector(@selector(importStatus))];
+    _isEnabled = [coder decodeBoolForKey:NSStringFromSelector(@selector(isEnabled))];
+    _lat = [coder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(lat))];
+    _lon = [coder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(lon))];
+    _remoteSource = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(remoteSource))];
+    _rootFile = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(rootFile))];
+    _sourceFile = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(sourceFile))];
+    _statusMessage = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(statusMessage))];
+    _summary = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(summary))];
+    _thumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(thumbnail))];
+    _tileThumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(tileThumbnail))];
+    _title = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(title))];
+    _uti = (__bridge CFStringRef) [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(uti))];
 
     return self;
 }
@@ -112,7 +99,8 @@
 
 - (BOOL)isImportFinished
 {
-    return self.importStatus == ReportImportStatusSuccess || self.importStatus == ReportImportStatusFailed;
+    ReportImportStatus status = self.importStatus;
+    return status == ReportImportStatusSuccess || status == ReportImportStatusFailed;
 }
 
 - (instancetype)setPropertiesFromJsonDescriptor:(NSDictionary *)descriptor

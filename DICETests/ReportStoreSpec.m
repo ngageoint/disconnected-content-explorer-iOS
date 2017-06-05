@@ -23,6 +23,7 @@
 #import "DICEUtiExpert.h"
 #import "MatchReportTypeToContentAtPathOperation.h"
 #import "TestFileManager.h"
+#import <stdatomic.h>
 
 
 
@@ -91,7 +92,12 @@ describe(@"ReportStore", ^{
     });
 
     beforeEach(^{
-        NSString *reportsDirPath = [NSString stringWithFormat:@"/%@/reports", ((SPTSpec *)SPTCurrentSpec).name];
+        NSString *testNameComponent = ((SPTSpec *)SPTCurrentSpec).name;
+        NSRange doubleUnderscore = [testNameComponent rangeOfString:@"__" options:NSBackwardsSearch];
+        testNameComponent = [testNameComponent substringFromIndex:doubleUnderscore.location + 2];
+        NSRegularExpression *nonWords = [NSRegularExpression regularExpressionWithPattern:@"\\W" options:0 error:NULL];
+        testNameComponent = [nonWords stringByReplacingMatchesInString:testNameComponent options:0 range:NSMakeRange(0, testNameComponent.length) withTemplate:@""];
+        NSString *reportsDirPath = [NSString stringWithFormat:@"/%@/reports", testNameComponent];
         reportsDir = [NSURL fileURLWithPath:reportsDirPath];
         fileManager = [[TestFileManager alloc] init];
         fileManager.rootDir = reportsDir;
@@ -311,12 +317,12 @@ describe(@"ReportStore", ^{
 
     });
 
-    describe(@"importing stand-alone files", ^{
+    describe(@"importing stand-alone files from the documents directory", ^{
 
-        it(@"imports a report with the capable ReportType", ^{
+        it(@"imports a report with the capable report type", ^{
 
+            [fileManager setContentsOfRootDir:@"report.red", nil];
             TestImportProcess *redImport = [redType enqueueImport];
-
             Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
             assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
@@ -326,34 +332,72 @@ describe(@"ReportStore", ^{
             expect(report).to.beIdenticalTo(redImport.report);
         });
 
-        it(@"creates an import dir for the content", ^{
+        it(@"moves source file to base dir in import dir before importing", ^{
 
+            NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"report.red"];
             NSURL *importDir = [reportsDir URLByAppendingPathComponent:@"report.red.dice_import" isDirectory:YES];
-            TestImportProcess *importProcess = [[redType enqueueImport] block];
+            NSURL *baseDir = [importDir URLByAppendingPathComponent:@"dice_content" isDirectory:YES];
+            NSURL *rootFile = [baseDir URLByAppendingPathComponent:sourceFile.lastPathComponent];
 
-            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
+            __block atomic_bool assignedToReportBeforeCreated; atomic_init(&assignedToReportBeforeCreated, NO);
+            __block atomic_bool createdImportDirOnMainThread; atomic_init(&createdImportDirOnMainThread, NO);
+            __block atomic_bool sourceFileMoved; atomic_init(&sourceFileMoved, NO);
+            __block atomic_bool movedOnBackgroundThread; atomic_init(&movedOnBackgroundThread, NO);
+            __block atomic_bool movedBeforeImport; atomic_init(&movedBeforeImport, NO);
 
-            __block BOOL assignedToReportBeforeCreated = NO;
+            __block Report *report;
+
             fileManager.onCreateDirectoryAtURL = ^BOOL(NSURL *url, BOOL createIntermediates, NSError **err) {
                 if ([url isEqual:importDir]) {
-                    assignedToReportBeforeCreated = [report.importDir isEqual:url];
+                    atomic_store((atomic_bool *)&createdImportDirOnMainThread, NSThread.isMainThread);
+                }
+                else if ([url isEqual:baseDir]) {
+                    BOOL val = [report.baseDir isEqual:url] && [report.rootFile isEqual:rootFile] && createIntermediates;
+                    atomic_store((atomic_bool *)&assignedToReportBeforeCreated, val);
                 }
                 return YES;
             };
+            fileManager.onMoveItemAtPath = ^BOOL(NSString *sourcePath, NSString *destPath, NSError *__autoreleasing *error) {
+                if ([sourcePath isEqualToString:sourceFile.path] && [destPath isEqualToString:rootFile.path]) {
+                    atomic_store((atomic_bool *)&sourceFileMoved, [report.rootFile isEqual:rootFile]);
+                    atomic_store((atomic_bool *)&movedOnBackgroundThread, !NSThread.isMainThread);
+                }
+                return YES;
+            };
+            TestImportProcess *importProcess = [[redType enqueueImport] block];
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if (op == importProcess.steps.firstObject) {
+                    atomic_store((atomic_bool *)&movedBeforeImport, (_Bool)sourceFileMoved);
+                }
+            };
+
+            [fileManager setContentsOfRootDir:sourceFile.lastPathComponent, nil];
+            report = [store attemptToImportReportFromResource:sourceFile];
+
+            expect(report.sourceFile).to.equal(sourceFile);
 
             assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
 
-            expect(assignedToReportBeforeCreated).to.beTruthy();
+            expect(atomic_load((atomic_bool *)&sourceFileMoved)).to.beTruthy();
 
             [importProcess unblock];
 
             assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(report.sourceFile).to.equal(sourceFile);
+            expect(report.importDir).to.equal(importDir);
+            expect(report.baseDir).to.equal(baseDir);
+            expect(report.rootFile).to.equal(rootFile);
+            expect(atomic_load((atomic_bool *)&assignedToReportBeforeCreated)).to.beTruthy();
+            expect(atomic_load((atomic_bool *)&movedBeforeImport)).to.beTruthy();
+            expect(atomic_load((atomic_bool *)&movedOnBackgroundThread)).to.beTruthy();
         });
 
         it(@"posts a notification when the import begins", ^{
 
-            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportImportBegan on:notifications from:store withBlock:nil];
-
+            [fileManager setContentsOfRootDir:@"report.red", nil];
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver
+                observe:ReportNotification.reportImportBegan on:store.notifications from:store withBlock:nil];
             [redType enqueueImport];
             Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
@@ -371,8 +415,9 @@ describe(@"ReportStore", ^{
 
         it(@"posts a notification when the import finishes successfully", ^{
 
-            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
-
+            [fileManager setContentsOfRootDir:@"report.red", nil];
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver
+                observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
             [redType enqueueImport];
             Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
@@ -387,9 +432,10 @@ describe(@"ReportStore", ^{
         });
 
         it(@"posts a notification when the import finishes unsuccessfully", ^{
-            
-            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
 
+            [fileManager setContentsOfRootDir:@"report.red", nil];
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver
+                observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
             TestImportProcess *redImport = [redType enqueueImport];
             [redImport.steps.firstObject cancel];
             Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
@@ -405,6 +451,8 @@ describe(@"ReportStore", ^{
         });
 
         it(@"returns a report even if the url cannot be imported", ^{
+
+            [fileManager setContentsOfRootDir:@"report.green", nil];
             NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.green"];
             Report *report = [store attemptToImportReportFromResource:url];
 
@@ -415,6 +463,7 @@ describe(@"ReportStore", ^{
 
         it(@"assigns an error message if the report type was unknown", ^{
 
+            [fileManager setContentsOfRootDir:@"report.green", nil];
             NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.green"];
             Report *report = [store attemptToImportReportFromResource:url];
 
@@ -425,8 +474,8 @@ describe(@"ReportStore", ^{
 
         it(@"immediately adds the report to the report list", ^{
 
+            [fileManager setContentsOfRootDir:@"report.red", nil];
             TestImportProcess *import = [[redType enqueueImport] block];
-
             NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.red"];
             Report *report = [store attemptToImportReportFromResource:url];
 
@@ -469,10 +518,10 @@ describe(@"ReportStore", ^{
 
         it(@"does not start an import for a report file already importing", ^{
 
+            [fileManager setContentsOfRootDir:@"report1.red", nil];
             TestImportProcess *import = [[redType enqueueImport] block];
-
-            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportAdded on:notifications from:store withBlock:nil];
-
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver
+                observe:ReportNotification.reportAdded on:notifications from:store withBlock:nil];
             NSURL *reportUrl = [reportsDir URLByAppendingPathComponent:@"report1.red"];
             Report *report = [store attemptToImportReportFromResource:reportUrl];
             Report *reportAgain = [store attemptToImportReportFromResource:reportUrl];
@@ -480,10 +529,9 @@ describe(@"ReportStore", ^{
             expect(store.reports).to.haveCountOf(1);
             expect(reportAgain).to.beIdenticalTo(report);
             expect(observer.received).to.haveCountOf(1);
-
             Report *notificationReport = observer.received.firstObject.notification.userInfo[@"report"];
             expect(notificationReport).to.beIdenticalTo(report);
-            expect(store.reports.count).to.equal(1);
+            expect(store.reports).to.haveCountOf(1);
             expect(store.reports.firstObject).to.beIdenticalTo(notificationReport);
 
             assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
@@ -499,16 +547,129 @@ describe(@"ReportStore", ^{
 
             expect(sameReport).to.beIdenticalTo(report);
             expect(store.reports).to.haveCountOf(1);
-            expect(observer.received.count).to.equal(0);
+            expect(observer.received).to.haveCountOf(0);
 
             [notifications removeObserver:observer];
         });
 
+        it(@"removes special characters from file name to make import dir", ^{
+            failure(@"unimplemented");
+        });
+
+        it(@"posts a failure notification if no report type matches the content", ^{
+
+            [fileManager setContentsOfRootDir:@"oops.der", nil];
+            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
+            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"oops.der"]];
+
+            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(1));
+
+            NSNotification *note = obs.received.firstObject.notification;
+
+            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+        });
+
+        it(@"can retry a failed import after deleting the report", ^{
+
+            NSURL *url = [reportsDir URLByAppendingPathComponent:@"oops.bloo"];
+            [fileManager setContentsOfRootDir:url.lastPathComponent, nil];
+            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            NSNotification *note = obs.received.firstObject.notification;
+
+            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+
+            [store deleteReport:report];
+
+            assertWithTimeout(1.0, thatEventually(store.reports), isNot(contains(report, nil)));
+
+            [fileManager setContentsOfRootDir:url.lastPathComponent, nil];
+
+            Report *retry = [store attemptToImportReportFromResource:url];
+
+            expect(retry).toNot.beIdenticalTo(report);
+
+            assertWithTimeout(1.0, thatEventually(@(retry.isImportFinished)), isTrue());
+
+            expect(retry.importStatus).to.equal(ReportImportStatusFailed);
+            expect(obs.received).to.haveCountOf(2);
+            expect(obs.received[0].notification.userInfo[@"report"]).to.beIdenticalTo(report);
+            expect(obs.received[1].notification.userInfo[@"report"]).to.beIdenticalTo(retry);
+        });
+
+        it(@"writes the report record to the import dir", ^{
+            NSURL *url = [reportsDir URLByAppendingPathComponent:@"thing.blue"];
+            [blueType enqueueImport];
+
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            NSURL *record = [report.importDir URLByAppendingPathComponent:@"dice.obj"];
+
+            expect([fileManager fileExistsAtPath:record.path]).to.beTruthy();
+
+            NSData *recordData = [fileManager contentsAtPath:record.path];
+            Report *saved = nil; // TODO: NSCoding stuff
+
+            failure(@"implement persistence");
+        });
+
+        xit(@"passees the content match predicate to the import process", ^{
+            /*
+             TODO: Allow the ReportContentMatchPredicate to pass information to
+             the ImportProcess about what was found in the archive.  this will
+             help support alternatives to the standard index.html assumption by
+             potentially allowing the ImportProcess to rename or symlink html
+             resources found during the archive entry enumeration.
+             Also the HtmlReportType should do a breadth first search for html
+             files, or at least in the base dir.  also maybe restore the fail-
+             fast element of the ReportTypeMatchPredicate, e.g., if index.html
+             exists at the root, stop immediately.  Possibly reuse the ReportContentMatchPredicate
+             for enumerating file system contents.
+             */
+            failure(@"do it");
+        });
+
+    });
+
+    xdescribe(@"importing exploded directories", ^{
+
+        // TODO: the utility of this is debatable
+
+        it(@"sets the base dir when there is one", ^{
+
+            [fileManager setContentsOfRootDir:@"blue.dice_import/", @"blue.dice_import/blue_base/", @"blue.dice_import/blue_base/index.blue", nil];
+            TestImportProcess *blueImport = [[blueType enqueueImport] block];
+
+            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue.dice_import" isDirectory:YES]];
+
+            expect(report.baseDir).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]);
+            expect(report.rootFile).to.equal(report.baseDir);
+
+            [blueImport unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(report.importDir).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]);
+            expect(report.rootFile).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"]);
+        });
+
+        it(@"sets the root file to the source file in the import dir if the import process doesn't set the root file", ^{
+            
+        });
+
         it(@"parses the report descriptor if present in base dir as metadata.json", ^{
+
             [fileManager setContentsOfRootDir:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", nil];
             fileManager.contentsAtPath[[reportsDir.path stringByAppendingPathComponent:@"blue_base/metadata.json"]] =
-                [@"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}"
-                    dataUsingEncoding:NSUTF8StringEncoding];
+            [@"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}"
+             dataUsingEncoding:NSUTF8StringEncoding];
             NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
             [blueType enqueueImport];
             Report *report = [store attemptToImportReportFromResource:baseDir];
@@ -520,10 +681,11 @@ describe(@"ReportStore", ^{
         });
 
         it(@"parses the report descriptor if present in base dir as dice.json", ^{
+
             [fileManager setContentsOfRootDir:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", nil];
             fileManager.contentsAtPath[[reportsDir.path stringByAppendingPathComponent:@"blue_base/dice.json"]] =
-                [@"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}"
-                    dataUsingEncoding:NSUTF8StringEncoding];
+            [@"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}"
+             dataUsingEncoding:NSUTF8StringEncoding];
             NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
             [blueType enqueueImport];
             Report *report = [store attemptToImportReportFromResource:baseDir];
@@ -535,13 +697,12 @@ describe(@"ReportStore", ^{
         });
 
         it(@"prefers dice.json to metadata.json", ^{
+
             [fileManager setContentsOfRootDir:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", @"blue_base/dice.json", nil];
             fileManager.contentsAtPath[[reportsDir.path stringByAppendingPathComponent:@"blue_base/dice.json"]] =
-                [@"{\"title\": \"Title From dice.json\", \"description\": \"Summary from dice.json\"}"
-                    dataUsingEncoding:NSUTF8StringEncoding];
+                [@"{\"title\": \"Title From dice.json\", \"description\": \"Summary from dice.json\"}" dataUsingEncoding:NSUTF8StringEncoding];
             fileManager.contentsAtPath[[reportsDir.path stringByAppendingPathComponent:@"blue_base/metadata.json"]] =
-                [@"{\"title\": \"Title From metadata.json\", \"description\": \"Summary from metadata.json\"}"
-                    dataUsingEncoding:NSUTF8StringEncoding];
+                [@"{\"title\": \"Title From metadata.json\", \"description\": \"Summary from metadata.json\"}" dataUsingEncoding:NSUTF8StringEncoding];
             NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
             [blueType enqueueImport];
             Report *report = [store attemptToImportReportFromResource:baseDir];
@@ -553,6 +714,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"sets a nil summary if the report descriptor is unavailable", ^{
+
             [fileManager setContentsOfRootDir:@"blue_base/", @"blue_base/index.blue", nil];
             NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
             [blueType enqueueImport];
@@ -564,6 +726,7 @@ describe(@"ReportStore", ^{
         });
 
         it(@"works if the import process changes the report url", ^{
+
             [fileManager setContentsOfRootDir:@"blue_base/", @"blue_base/index.blue", nil];
             TestImportProcess *blueImport = [blueType enqueueImport];
             blueImport.steps = @[
@@ -591,118 +754,14 @@ describe(@"ReportStore", ^{
             expect(store.reports.firstObject).to.beIdenticalTo(report1);
 
             report2 = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
-
+            
             expect(report2).to.beIdenticalTo(report1);
             expect(report2.isEnabled).to.equal(YES);
         });
 
-        it(@"sets the base dir when there is one", ^{
-
-            [fileManager setContentsOfRootDir:@"blue.import/", @"blue.import/blue_base/", @"blue.import/blue_base/index.blue", nil];
-            TestImportProcess *blueImport = [[blueType enqueueImport] block];
-
-            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
-
-            expect(report.baseDir).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]);
-            expect(report.rootFile).to.equal(report.baseDir);
-
-            [blueImport unblock];
-
-            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-
-            expect(report.importDir).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]);
-            expect(report.rootFile).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"]);
-        });
-
-        it(@"moves a stand-alone file to an import dir", ^{
-
-            [fileManager setContentsOfRootDir:@"dingle.blue", nil];
-            TestImportProcess *blueImport = [[blueType enqueueImport] block];
-
-            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"dingle.blue"]];
-
-            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"dingle.blue.imported" isDirectory:YES];
-            expect(report.importDir).to.equal(baseDir);
-            expect(report.sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"dingle.blue"]);
-            expect(report.rootFile).to.equal([baseDir URLByAppendingPathComponent:@"dingle.blue" isDirectory:NO]);
-
-            [blueImport unblock];
-
-            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-
-            expect(report.baseDir).to.beNil();
-            expect(report.rootFile).to.equal([reportsDir URLByAppendingPathComponent:@"dingle.blue"]);
-        });
-
-        it(@"removes special characters from file name to make import dir", ^{
-            failure(@"unimplemented");
-        });
-
-        it(@"posts a failure notification if no report type matches the content", ^{
-
-            [fileManager setContentsOfRootDir:@"oops.der", nil];
-            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
-            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"oops.dir"]];
-
-            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(1));
-
-            NSNotification *note = obs.received.firstObject.notification;
-
-            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-            expect(report.importStatus).to.equal(ReportImportStatusFailed);
-        });
-
-        it(@"can retry a failed import after deleting the report", ^{
-
-            NSURL *url = [reportsDir URLByAppendingPathComponent:@"oops.bloo"];
-            [fileManager setContentsOfRootDir:url.lastPathComponent, nil];
-            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
-            Report *report = [store attemptToImportReportFromResource:url];
-
-            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-
-            NSNotification *note = obs.received.firstObject.notification;
-
-            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-            expect(report.importStatus).to.equal(ReportImportStatusFailed);
-
-            [store deleteReport:report];
-
-            assertWithTimeout(1.0, thatEventually(@([fileManager fileExistsAtPath:url.path] || [store.reports containsObject:report])), isFalse());
-
-            [fileManager setContentsOfRootDir:url.lastPathComponent, nil];
-
-            Report *retry = [store attemptToImportReportFromResource:url];
-
-            expect(retry).toNot.beIdenticalTo(report);
-
-            assertWithTimeout(1.0, thatEventually(@(retry.isImportFinished)), isTrue());
-
-            expect(retry.importStatus).to.equal(ReportImportStatusFailed);
-            expect(obs.received).to.haveCountOf(2);
-            expect(obs.received[0].notification.userInfo[@"report"]).to.beIdenticalTo(report);
-            expect(obs.received[1].notification.userInfo[@"report"]).to.beIdenticalTo(retry);
-        });
-
-        xit(@"passees the content match predicate to the import process", ^{
-            /*
-             TODO: Allow the ReportContentMatchPredicate to pass information to
-             the ImportProcess about what was found in the archive.  this will
-             help support alternatives to the standard index.html assumption by
-             potentially allowing the ImportProcess to rename or symlink html
-             resources found during the archive entry enumeration.
-             Also the HtmlReportType should do a breadth first search for html
-             files, or at least in the base dir.  also maybe restore the fail-
-             fast element of the ReportTypeMatchPredicate, e.g., if index.html
-             exists at the root, stop immediately.  Possibly reuse the ReportContentMatchPredicate
-             for enumerating file system contents.
-             */
-            failure(@"do it");
-        });
-
     });
 
-    xdescribe(@"importing report archives", ^{
+    xdescribe(@"importing report archives from the documents directory", ^{
 
         it(@"creates an import dir for the archive", ^{
 
@@ -1246,6 +1305,17 @@ describe(@"ReportStore", ^{
             [NSFileHandle deswizzleAllClassMethods];
         });
 
+    });
+
+    describe(@"importing previously imported content", ^{
+
+        it(@"treats an import dir as a stand-alone documents dir", ^{
+            failure(@"to do");
+        });
+
+        it(@"materializes the report record from the stored import record in the import dir", ^{
+            failure(@"to do");
+        });
     });
 
 #pragma mark downloading

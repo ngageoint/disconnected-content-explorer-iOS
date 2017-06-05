@@ -17,10 +17,16 @@
 #import "GeoPackageURLProtocol.h"
 #import "HtmlReportType.h"
 
+//#import "DICECoordinator.h"
+
+
 @interface AppDelegate ()
 
 @property (readonly, weak, nonatomic) DICENavigationController *navigation;
+@property (readonly, nonatomic) ReportStore *store;
 @property (readonly, nonatomic) DICEDownloadManager *downloadManager;
+
+//@property (readonly, nonatomic) DICECoordinator *dice;
 
 @end
 
@@ -47,18 +53,18 @@
     NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
     NSURL *reportsDir = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:NULL];
 
-    ReportStore *store = [[ReportStore alloc] initWithReportsDir:reportsDir exclusions:exclusions utiExpert:utiExpert archiveFactory:archiveFactory importQueue:importQueue fileManager:fileManager notifications:notificationCenter application:application];
-    ReportStore.sharedInstance = store;
+    _store = [[ReportStore alloc] initWithReportsDir:reportsDir exclusions:exclusions utiExpert:utiExpert archiveFactory:archiveFactory importQueue:importQueue fileManager:fileManager notifications:notificationCenter application:application];
+    ReportStore.sharedInstance = _store;
 
-    _downloadManager = [[DICEDownloadManager alloc] initWithDownloadDir:reportsDir fileManager:fileManager delegate:store];
+    _downloadManager = [[DICEDownloadManager alloc] initWithDownloadDir:reportsDir fileManager:fileManager delegate:_store];
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"dice.download"];
     configuration.sessionSendsLaunchEvents = YES;
     configuration.discretionary = YES;
     _downloadManager.downloadSession = [NSURLSession sessionWithConfiguration:configuration delegate:_downloadManager delegateQueue:importQueue];
-    store.downloadManager = _downloadManager;
+    _store.downloadManager = _downloadManager;
 
-    store.reportTypes = @[
-        [[HtmlReportType alloc] initWithFileManager:store.fileManager]
+    _store.reportTypes = @[
+        [[HtmlReportType alloc] initWithFileManager:_store.fileManager]
     ];
 
     // initialize offline map polygons
@@ -69,7 +75,17 @@
     [OfflineMapUtility generateExteriorPolygons:featuresArray];
     
     [GeoPackageURLProtocol start];
-    
+
+//    self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
+//
+//    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"DICE" bundle:nil];
+//    UIViewController *rootView = [storyboard instantiateInitialViewController];
+//    self.window.rootViewController = rootView;
+//    [self.window makeKeyAndVisible];
+//
+//    _dice = DICECoordinator.instance;
+//    [_dice beginWithRootView:rootView];
+
     return YES;
 }
 
@@ -93,6 +109,11 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
     NSLog(@"app did enter background");
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+    NSLog(@"app will terminate");
 }
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
@@ -141,7 +162,7 @@
         // some other app opened DICE directly, let's see what they want to do
         [self.navigation navigateToReportForURL:url fromApp:sourceApplication];
     }
-    
+
     return YES;
 }
 
@@ -164,11 +185,11 @@
     @finally {
         [manager close];
     }
-    
+
     if(!imported){
         NSLog(@"Error importing GeoPackage file: %@, name: %@", path, name);
     }
-    
+
     return imported;
 }
 

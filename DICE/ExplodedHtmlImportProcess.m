@@ -20,7 +20,7 @@
 
     NSBlockOperation *setIndexUrl = [NSBlockOperation blockOperationWithBlock:^{
         dispatch_sync(dispatch_get_main_queue(), ^{
-            NSURL *indexUrl = [self.report.rootFile URLByAppendingPathComponent:@"index.html"];
+            NSURL *indexUrl = [self.report.baseDir URLByAppendingPathComponent:@"index.html"];
             report.rootFile = indexUrl;
         });
         [self.delegate reportWasUpdatedByImportProcess:self];

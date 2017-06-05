@@ -69,7 +69,7 @@
     }];
     NSBlockOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{
         dispatch_sync(dispatch_get_main_queue(), ^{
-            if (my.report.baseDir) {
+            if (my.report.baseDir && !my.report.rootFile) {
                 NSString *indexName = [NSString stringWithFormat:@"index.%@", self.typeExtension];
                 my.report.rootFile = [my.report.baseDir URLByAppendingPathComponent:indexName];
             }

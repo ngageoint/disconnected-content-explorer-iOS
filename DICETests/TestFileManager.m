@@ -10,14 +10,14 @@
 #import "NSString+PathUtils.h"
 
 
-@interface ReportStoreSpec_DirectoryEnumerator : NSDirectoryEnumerator
+@interface TestFileManager_DirectoryEnumerator : NSDirectoryEnumerator
 
 - (instancetype)initWithRootDir:(NSString *)rootDir descendants:(NSOrderedSet<NSString *> *)descendants fileManager:(NSFileManager *)fileManager;
 
 @end
 
 
-@implementation ReportStoreSpec_DirectoryEnumerator {
+@implementation TestFileManager_DirectoryEnumerator {
     NSString *_rootDir;
     NSOrderedSet<NSString *> *_descendants;
     NSFileManager *_fileManager;
@@ -93,7 +93,7 @@
     return self;
 }
 
-- (NSString *)pathRelativeToReportsDirOfPath:(NSString *)absolutePath
+- (NSString *)pathRelativeToRootDirOfPath:(NSString *)absolutePath
 {
     return [absolutePath pathRelativeToPath:self.rootDir.path];
 }
@@ -101,7 +101,7 @@
 - (BOOL)fileExistsAtPath:(NSString *)path
 {
     @synchronized (self) {
-        NSString *relPath = [self pathRelativeToReportsDirOfPath:path];
+        NSString *relPath = [self pathRelativeToRootDirOfPath:path];
         return relPath != nil && (relPath.length == 0 || [self.pathsInRootDir containsObject:relPath]);
     }
 }
@@ -113,7 +113,7 @@
             *isDirectory = NO;
             return NO;
         }
-        NSString *relPath = [self pathRelativeToReportsDirOfPath:path];
+        NSString *relPath = [self pathRelativeToRootDirOfPath:path];
         *isDirectory = relPath.length == 0 || (self.pathAttrs[relPath] && [self.pathAttrs[relPath][NSFileType] isEqualToString:NSFileTypeDirectory]);
         return YES;
     }
@@ -142,7 +142,7 @@
             return nil;
         }
         NSOrderedSet<NSString *> *descendants = [self descendantRelativePathsOfDir:path];
-        ReportStoreSpec_DirectoryEnumerator *enumerator = [[ReportStoreSpec_DirectoryEnumerator alloc] initWithRootDir:path descendants:descendants fileManager:self];
+        TestFileManager_DirectoryEnumerator *enumerator = [[TestFileManager_DirectoryEnumerator alloc] initWithRootDir:path descendants:descendants fileManager:self];
         return enumerator;
     }
 }
@@ -150,7 +150,7 @@
 - (NSOrderedSet<NSString *> *)descendantRelativePathsOfDir:(NSString *)rootDir
 {
     @synchronized (self) {
-        NSString *relRootDir = [self pathRelativeToReportsDirOfPath:rootDir];
+        NSString *relRootDir = [self pathRelativeToRootDirOfPath:rootDir];
         if (relRootDir == nil) {
             return nil;
         }
@@ -231,7 +231,7 @@
         if ([self fileExistsAtPath:path isDirectory:&isDir]) {
             return !isDir;
         }
-        NSString *relPath = [self pathRelativeToReportsDirOfPath:path];
+        NSString *relPath = [self pathRelativeToRootDirOfPath:path];
         if (relPath == nil) {
             return NO;
         }
@@ -257,7 +257,7 @@
         if ([self fileExistsAtPath:url.path isDirectory:&isDir]) {
             return isDir && createIntermediates;
         }
-        NSString *relPath = [self pathRelativeToReportsDirOfPath:url.path];
+        NSString *relPath = [self pathRelativeToRootDirOfPath:url.path];
         NSMutableArray<NSString *> *relPathParts = [relPath.pathComponents mutableCopy];
         relPath = @"";
         while (relPathParts.count > 0) {
@@ -301,7 +301,7 @@
             }
             return NO;
         }
-        NSString *relativePath = [self pathRelativeToReportsDirOfPath:path];
+        NSString *relativePath = [self pathRelativeToRootDirOfPath:path];
         if (relativePath == nil) {
             return NO;
         }
@@ -317,7 +317,7 @@
         NSOrderedSet *descendants = [self descendantRelativePathsOfDir:path];
         for (NSString *descendant in descendants) {
             NSString *descendantAbsPath = [path stringByAppendingPathComponent:descendant];
-            NSString *descendantRelPath = [self pathRelativeToReportsDirOfPath:descendantAbsPath];
+            NSString *descendantRelPath = [self pathRelativeToRootDirOfPath:descendantAbsPath];
             [self.pathsInRootDir removeObject:descendantRelPath];
         }
         [self.pathsInRootDir removeObjectAtIndex:index];
@@ -338,7 +338,7 @@
 
 - (NSDictionary<NSFileAttributeKey, id> *)attributesOfItemAtPath:(NSString *)path error:(NSError * _Nullable __autoreleasing *)error
 {
-    NSString *relPath = [self pathRelativeToReportsDirOfPath:path];
+    NSString *relPath = [self pathRelativeToRootDirOfPath:path];
     return self.pathAttrs[relPath];
 }
 
@@ -382,14 +382,14 @@
         }
 
         NSDictionary *srcAttrs = [self attributesOfItemAtPath:srcPath error:NULL];
-        NSString *destRelPath = [self pathRelativeToReportsDirOfPath:dstPath];
+        NSString *destRelPath = [self pathRelativeToRootDirOfPath:dstPath];
         [self addPath:destRelPath attributes:srcAttrs];
         NSDirectoryEnumerator *descendants = [self enumeratorAtPath:srcPath];
         if (descendants) {
             NSString *srcRelPath = descendants.nextObject;
             while (srcRelPath != nil) {
                 NSString *destRelPath = [dstPath stringByAppendingPathComponent:srcRelPath];
-                destRelPath = [self pathRelativeToReportsDirOfPath:destRelPath];
+                destRelPath = [self pathRelativeToRootDirOfPath:destRelPath];
                 [self addPath:destRelPath attributes:descendants.fileAttributes];
                 srcRelPath = descendants.nextObject;
             }
