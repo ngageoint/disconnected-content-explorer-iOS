@@ -836,7 +836,7 @@ describe(@"ReportStore", ^{
 
             [blueImport unblock];
 
-            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
 
             [NSFileHandle deswizzleAllClassMethods];
         });
@@ -887,64 +887,9 @@ describe(@"ReportStore", ^{
 
             [blueImport unblock];
 
-            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
 
             expect(createdUnexpectedDir).to.beFalsy();
-
-            [NSFileHandle deswizzleAllClassMethods];
-        });
-
-        it(@"changes the report url and base dir to the extracted base dir", ^{
-
-            [fileManager setContentsOfRootDir:@"blue.zip", nil];
-            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
-            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
-                [TestDICEArchiveEntry entryWithName:@"blue_base/" sizeInArchive:0 sizeExtracted:0],
-                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
-            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
-            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-            TestImportProcess *blueImport = [blueType enqueueImport];
-            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
-
-            NSFileHandle *handle = mock([NSFileHandle class]);
-            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
-                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
-                    return handle;
-                };
-            }];
-
-            [store attemptToImportReportFromResource:archiveUrl];
-
-            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
-
-            expect(blueImport.report.baseDir).to.equal(baseDir);
-
-            [NSFileHandle deswizzleAllClassMethods];
-        });
-
-        it(@"changes the report url and base dir to the created base dir", ^{
-
-            [fileManager setContentsOfRootDir:@"blue.zip", nil];
-            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
-            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
-                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
-            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
-            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-            TestImportProcess *blueImport = [blueType enqueueImport];
-
-            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dicex" isDirectory:YES];
-            NSFileHandle *handle = mock([NSFileHandle class]);
-            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
-                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
-                    return handle;
-                };
-            }];
-
-            [store attemptToImportReportFromResource:archiveUrl];
-
-            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
-
-            expect(blueImport.report.baseDir).to.equal(baseDir);
 
             [NSFileHandle deswizzleAllClassMethods];
         });
@@ -1063,9 +1008,10 @@ describe(@"ReportStore", ^{
 
         it(@"load reports does not create multiple reports while the archive is extracting", ^{
 
-            [fileManager setContentsOfRootDir:@"blue.zip", nil];
             NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            [fileManager setContentsOfRootDir:archiveUrl.lastPathComponent, nil];
             TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"blue_base/" sizeInArchive:0 sizeExtracted:0],
                 [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
             ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
             [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
@@ -1078,22 +1024,26 @@ describe(@"ReportStore", ^{
             }];
 
             __block DICEExtractReportOperation *extract;
+            __block BOOL multipleExtracts = NO;
             importQueue.onAddOperation = ^(NSOperation *op) {
                 if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
+                    if (!NSThread.isMainThread) {
+                        [NSException raise:NSInternalInconsistencyException format:@"added extract operation from background thread"];
+                    }
                     if (extract != nil) {
-                        failure(@"multiple extract operations queued for the same report archive");
+                        multipleExtracts = YES;
                         return;
                     }
                     extract = (DICEExtractReportOperation *)op;
-                    NSLog(@"blocking extract operation");
                     [extract block];
-                    [fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"blue_base"] withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
             };
 
-            NSArray *reports1 = [[store loadReports] copy];
+            NSArray<Report *> *reports1 = [[store loadReports] copy];
+            Report *report = reports1.firstObject;
 
             expect(reports1.count).to.equal(1);
+            expect(report.sourceFile).to.equal(archiveUrl);
 
             assertWithTimeout(1.0, thatEventually(@(extract && extract.isExecuting)), isTrue());
 
@@ -1102,14 +1052,15 @@ describe(@"ReportStore", ^{
             NSArray *reports2 = [[store loadReports] copy];
 
             expect(reports2.count).to.equal(reports1.count);
+            expect(reports2.firstObject).to.beIdenticalTo(report);
             expect(importQueue.operationCount).to.equal(opCount);
 
-            TestImportProcess *blueImport = [blueType enqueueImport];
-
-            NSLog(@"unblocking extract operation");
+            [blueType enqueueImport];
             [extract unblock];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(multipleExtracts).to.beFalsy();
 
             [NSFileHandle deswizzleAllClassMethods];
         });
@@ -1131,37 +1082,47 @@ describe(@"ReportStore", ^{
             }];
 
             __block DICEExtractReportOperation *extract;
+            __block BOOL multipleExtracts = NO;
             importQueue.onAddOperation = ^(NSOperation *op) {
                 if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
+                    if (!NSThread.isMainThread) {
+                        [NSException raise:NSInternalInconsistencyException format:@"added extract operation from background thread"];
+                    }
                     if (extract != nil) {
-                        failure(@"multiple extract operations queued for the same report archive");
+                        multipleExtracts = YES;
                         return;
                     }
                     extract = (DICEExtractReportOperation *)op;
-                    NSLog(@"blocking extract operation");
                     [extract block];
-                    [fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"blue_base"] withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
             };
 
-            Report *report1 = [store attemptToImportReportFromResource:archiveUrl];
+            Report *report = [store attemptToImportReportFromResource:archiveUrl];
 
             assertWithTimeout(1.0, thatEventually(@(extract && extract.isExecuting)), isTrue());
 
+            NSURL *importDir = report.importDir;
+            NSURL *importDirParent = importDir.URLByDeletingLastPathComponent;
+
+            expect(importDir).toNot.beNil();
+            expect(importDirParent.pathComponents).to.equal(reportsDir.pathComponents);
+
             NSUInteger opCount = importQueue.operationCount;
 
-            Report *report2 = [store attemptToImportReportFromResource:archiveUrl];
+            Report *dupFromArchiveUrl = [store attemptToImportReportFromResource:archiveUrl];
+            Report *dupFromImportDir = [store attemptToImportReportFromResource:report.importDir];
 
-            expect(report2).to.beIdenticalTo(report1);
-            expect(store.reports.count).to.equal(1);
+            expect(dupFromArchiveUrl).to.beIdenticalTo(report);
+            expect(dupFromImportDir).to.beIdenticalTo(report);
+            expect(store.reports).to.haveCountOf(1);
             expect(importQueue.operationCount).to.equal(opCount);
 
-            TestImportProcess *blueImport = [blueType enqueueImport];
-            // [blueImport block];
-            NSLog(@"unblocking extract operation");
+            [blueType enqueueImport];
             [extract unblock];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
+
+            expect(multipleExtracts).to.beFalsy();
 
             [NSFileHandle deswizzleAllClassMethods];
         });
@@ -1182,18 +1143,21 @@ describe(@"ReportStore", ^{
                 };
             }];
 
-            // intentionally do not enqueue import process
+            // intentionally do not enqueue import process to force failure if attempted
             // TestImportProcess *blueImport = [blueType enqueueImport];
 
             __block DICEExtractReportOperation *extract;
+            __block BOOL multipleExtracts = NO;
             importQueue.onAddOperation = ^(NSOperation *op) {
                 if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
+                    if (!NSThread.isMainThread) {
+                        [NSException raise:NSInternalInconsistencyException format:@"added extract operation from background thread"];
+                    }
                     if (extract != nil) {
-                        failure(@"multiple extract operations queued for the same report archive");
+                        multipleExtracts = YES;
                         return;
                     }
                     extract = (DICEExtractReportOperation *)op;
-                    [fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"blue_base"] withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
             };
 
@@ -1203,6 +1167,7 @@ describe(@"ReportStore", ^{
 
             expect(extract.isFinished).to.equal(YES);
             expect(extract.wasSuccessful).to.equal(NO);
+            expect(multipleExtracts).to.beFalsy();
 
             [NSFileHandle deswizzleAllClassMethods];
         });
@@ -1223,18 +1188,21 @@ describe(@"ReportStore", ^{
                 };
             }];
 
-            // intentionally do not enqueue import process
+            // intentionally do not enqueue import process to force failure if attempted
             // TestImportProcess *blueImport = [blueType enqueueImport];
 
             __block DICEExtractReportOperation *extract;
+            __block BOOL multipleExtracts = NO;
             importQueue.onAddOperation = ^(NSOperation *op) {
+                if (!NSThread.isMainThread) {
+                    [NSException raise:NSInternalInconsistencyException format:@"queued extract operation from background thread"];
+                }
                 if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
                     if (extract != nil) {
-                        failure(@"multiple extract operations queued for the same report archive");
+                        multipleExtracts = YES;
                         return;
                     }
                     extract = (DICEExtractReportOperation *)op;
-                    [fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"blue_base"] withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
             };
 
@@ -1242,7 +1210,7 @@ describe(@"ReportStore", ^{
 
             Report *report = [store attemptToImportReportFromResource:archiveUrl];
 
-            assertWithTimeout(1.0, thatEventually(@(observer.received.count)), equalToUnsignedInteger(1));
+            assertWithTimeout(1.0, thatEventually(observer.received), hasCountOf(1));
             
             expect(extract.isFinished).to.equal(YES);
             expect(extract.wasSuccessful).to.equal(NO);

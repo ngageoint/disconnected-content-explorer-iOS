@@ -641,6 +641,7 @@ ReportStore *_sharedInstance;
     NSString *urlStr = pathUrl.absoluteString;
     for (Report *candidate in self.reports) {
         if ([urlStr isEqualToString:candidate.rootFile.absoluteString] ||
+            [urlStr isEqualToString:candidate.importDir.absoluteString] ||
             [urlStr isEqualToString:candidate.sourceFile.absoluteString] ||
             [urlStr isEqualToString:candidate.remoteSource.absoluteString] ||
             [urlStr isEqualToString:candidate.baseDir.absoluteString]) {
