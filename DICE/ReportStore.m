@@ -661,6 +661,7 @@ ReportStore *_sharedInstance;
  */
 - (void)extractReportArchive:(id<DICEArchive>)archive withBaseDir:(NSString *)baseDir forReport:(Report *)report ofType:(id<ReportType>)reportType
 {
+    ensureMainThread();
     NSLog(@"extracting report archive %@", report);
     NSURL *extractToDir = report.importDir;
     if (baseDir == nil) {
@@ -669,7 +670,7 @@ ReportStore *_sharedInstance;
         extractToDir = [extractToDir URLByAppendingPathComponent:baseDir isDirectory:YES];
         NSError *mkdirError;
         if (![self.fileManager createDirectoryAtURL:extractToDir withIntermediateDirectories:NO attributes:nil error:&mkdirError]) {
-            report.summary = [NSString stringWithFormat:@"Error creating base directory for package %@: %@", report.title, mkdirError.localizedDescription];
+            report.summary = [NSString stringWithFormat:@"Error creating base directory for report %@: %@", report.title, mkdirError.localizedDescription];
         }
     }
     NSURL *baseDirUrl = [report.importDir URLByAppendingPathComponent:baseDir isDirectory:YES];
@@ -679,7 +680,6 @@ ReportStore *_sharedInstance;
         initWithReport:report reportType:reportType extractedBaseDir:baseDirUrl
         archive:archive extractToDir:extractToDir fileManager:self.fileManager];
     extract.delegate = self;
-    report.baseDir = extract.extractedReportBaseDir;
     report.importStatus = ReportImportStatusExtracting;
     // TODO: really just a hack to get the ui to update before extraction actually begins, but probably not even necessary
     [self.notifications postNotificationName:ReportNotification.reportExtractProgress object:self userInfo:@{@"report": report, @"percentExtracted": @(0)}];
