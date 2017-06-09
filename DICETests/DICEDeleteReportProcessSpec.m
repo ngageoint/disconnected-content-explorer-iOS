@@ -34,7 +34,7 @@ describe(@"DICEDeleteReportProcess", ^{
         reportsDir = [NSURL fileURLWithPath:@"/dice" isDirectory:YES];
         trashDir = [reportsDir URLByAppendingPathComponent:@"trash" isDirectory:YES];
         fileManager = [[TestFileManager alloc] init];
-        fileManager.rootDir = reportsDir;
+        fileManager.workingDir = reportsDir.path;
         [fileManager createDirectoryAtURL:trashDir withIntermediateDirectories:YES attributes:nil error:NULL];
     });
 

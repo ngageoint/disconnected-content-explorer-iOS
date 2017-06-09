@@ -17,53 +17,51 @@ SpecBegin(TestFileManager)
 describe(@"TestFileManager", ^{
 
     __block TestFileManager *fileManager;
-    __block NSURL *reportsDir;
+    __block NSURL *rootDir;
+    __block BOOL isDir;
 
     beforeEach(^{
+        rootDir = [NSURL fileURLWithPath:@"/dice" isDirectory:YES];
         fileManager = [[TestFileManager alloc] init];
-        fileManager.rootDir = reportsDir = [NSURL fileURLWithPath:@"/dice" isDirectory:YES];
+        fileManager.workingDir = rootDir.path;
     });
 
     it(@"works", ^{
-        [fileManager setContentsOfRootDir:@"hello.txt", @"dir/", nil];
 
-        BOOL isDir;
-        BOOL *isDirOut = &isDir;
+        [fileManager createPaths:@"hello.txt", @"dir/", nil];
 
-        expect([fileManager fileExistsAtPath:reportsDir.path isDirectory:isDirOut]).to.beTruthy();
+        expect([fileManager fileExistsAtPath:rootDir.path isDirectory:&isDir]).to.beTruthy();
         expect(isDir).to.beTruthy();
 
-        expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"hello.txt"].path isDirectory:isDirOut]).to.equal(YES);
-        expect(isDir).to.equal(NO);
-        expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"dir" isDirectory:YES].path isDirectory:isDirOut]).to.equal(YES);
-        expect(isDir).to.equal(YES);
-        expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"dir"].path isDirectory:isDirOut]).to.equal(YES);
-        expect(isDir).to.equal(YES);
+        expect([fileManager fileExistsAtPath:[rootDir URLByAppendingPathComponent:@"hello.txt"].path isDirectory:&isDir]).to.beTruthy();
+        expect(isDir).to.beFalsy();
+        expect([fileManager fileExistsAtPath:[rootDir URLByAppendingPathComponent:@"dir" isDirectory:YES].path isDirectory:&isDir]).to.beTruthy();
+        expect(isDir).to.beTruthy();
+        expect([fileManager fileExistsAtPath:[rootDir URLByAppendingPathComponent:@"dir"].path isDirectory:&isDir]).to.beTruthy();
+        expect(isDir).to.beTruthy();
 
-        expect(fileManager.pathsInRootDir).to.contain(@"dir");
-        expect([fileManager removeItemAtURL:[reportsDir URLByAppendingPathComponent:@"does_not_exist"] error:NULL]).to.equal(NO);
-        expect([fileManager removeItemAtURL:[reportsDir URLByAppendingPathComponent:@"dir"] error:NULL]).to.equal(YES);
-        expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"dir"].path]).to.equal(NO);
-        expect(fileManager.pathsInRootDir).notTo.contain(@"dir");
+        expect([fileManager removeItemAtURL:[rootDir URLByAppendingPathComponent:@"does_not_exist"] error:NULL]).to.beFalsy();
+        expect([fileManager removeItemAtURL:[rootDir URLByAppendingPathComponent:@"dir"] error:NULL]).to.beTruthy();
+        expect([fileManager fileExistsAtPath:[rootDir URLByAppendingPathComponent:@"dir"].path]).to.beFalsy();
 
-        expect([fileManager createFileAtPath:[reportsDir URLByAppendingPathComponent:@"new.txt"].path contents:nil attributes:nil]).to.equal(YES);
-        expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"new.txt"].path isDirectory:isDirOut]).to.equal(YES);
-        expect(isDir).to.equal(NO);
-        NSUInteger pathCount = fileManager.pathsInRootDir.count;
-        expect([fileManager createFileAtPath:[reportsDir.path stringByAppendingPathComponent:@"new.txt"] contents:nil attributes:nil]).to.equal(YES);
-        expect([fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"new.txt"] withIntermediateDirectories:YES attributes:nil error:NULL]).to.equal(NO);
-        expect(fileManager.pathsInRootDir.count).to.equal(pathCount);
+        expect([fileManager createFileAtPath:[rootDir URLByAppendingPathComponent:@"new.txt"].path contents:nil attributes:nil]).to.beTruthy();
+        expect([fileManager fileExistsAtPath:[rootDir URLByAppendingPathComponent:@"new.txt"].path isDirectory:&isDir]).to.beTruthy();
+        expect(isDir).to.beFalsy();
+        NSUInteger pathCount = [fileManager contentsOfDirectoryAtPath:rootDir.path error:NULL].count;
+        expect([fileManager createFileAtPath:[rootDir.path stringByAppendingPathComponent:@"new.txt"] contents:nil attributes:nil]).to.beTruthy();
+        expect([fileManager createDirectoryAtURL:[rootDir URLByAppendingPathComponent:@"new.txt"] withIntermediateDirectories:YES attributes:nil error:NULL]).to.beFalsy();
+        expect([fileManager contentsOfDirectoryAtPath:rootDir.path error:NULL]).to.haveCountOf(pathCount);
 
-        expect([fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:YES attributes:nil error:NULL]).to.equal(YES);
-        expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"dir"].path isDirectory:isDirOut]).to.equal(YES);
-        expect(isDir).to.equal(YES);
-        pathCount = fileManager.pathsInRootDir.count;
-        expect([fileManager createFileAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir"] contents:nil attributes:nil]).to.equal(NO);
-        expect([fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:YES attributes:nil error:NULL]).to.equal(YES);
-        expect([fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:NO attributes:nil error:NULL]).to.equal(NO);
-        expect(fileManager.pathsInRootDir.count).to.equal(pathCount);
+        expect([fileManager createDirectoryAtURL:[rootDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:YES attributes:nil error:NULL]).to.beTruthy();
+        expect([fileManager fileExistsAtPath:[rootDir URLByAppendingPathComponent:@"dir"].path isDirectory:&isDir]).to.beTruthy();
+        expect(isDir).to.beTruthy();
+        pathCount = [fileManager contentsOfDirectoryAtPath:rootDir.path error:NULL].count;
+        expect([fileManager createFileAtPath:[rootDir.path stringByAppendingPathComponent:@"dir"] contents:nil attributes:nil]).to.beFalsy();
+        expect([fileManager createDirectoryAtURL:[rootDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:YES attributes:nil error:NULL]).to.beTruthy();
+        expect([fileManager createDirectoryAtURL:[rootDir URLByAppendingPathComponent:@"dir"] withIntermediateDirectories:NO attributes:nil error:NULL]).to.beFalsy();
+        expect([fileManager contentsOfDirectoryAtPath:rootDir.path error:NULL]).to.haveCountOf(pathCount);
 
-        NSString *intermediates = [reportsDir.path stringByAppendingPathComponent:@"dir1/dir2/dir3"];
+        NSString *intermediates = [rootDir.path stringByAppendingPathComponent:@"dir1/dir2/dir3"];
         expect([fileManager createDirectoryAtPath:intermediates withIntermediateDirectories:NO attributes:nil error:NULL]).to.beFalsy();
         expect([fileManager fileExistsAtPath:intermediates]).to.beFalsy();
         expect([fileManager fileExistsAtPath:intermediates.stringByDeletingLastPathComponent]).to.beFalsy();
@@ -72,104 +70,215 @@ describe(@"TestFileManager", ^{
         expect([fileManager fileExistsAtPath:intermediates]).to.beTruthy();
         expect([fileManager fileExistsAtPath:intermediates.stringByDeletingLastPathComponent]).to.beTruthy();
         expect([fileManager fileExistsAtPath:intermediates.stringByDeletingLastPathComponent.stringByDeletingLastPathComponent]).to.beTruthy();
+        expect([fileManager createFileAtPath:@"/not/in/rootDir.txt" contents:nil attributes:nil]).to.beFalsy();
+        expect([fileManager fileExistsAtPath:@"/not/in/rootDir.txt" isDirectory:&isDir]).to.beFalsy();
+        expect(isDir).to.beFalsy();
+    });
 
+    describe(@"file contents", ^{
 
-        expect([fileManager createFileAtPath:@"/not/in/reportsDir.txt" contents:nil attributes:nil]).to.equal(NO);
-        expect([fileManager fileExistsAtPath:@"/not/in/reportsDir.txt" isDirectory:isDirOut]).to.equal(NO);
-        expect(isDir).to.equal(NO);
+        it(@"sets the contents of a child of root dir", ^{
 
+            NSString *contentsPath = [rootDir.path stringByAppendingPathComponent:@"contents.txt"];
+            NSData *contents = [@"ABC123" dataUsingEncoding:NSUTF8StringEncoding];
+            [fileManager createFilePath:@"contents.txt" contents:[contents copy]];
 
-        describe(@"removing files", ^{
-
-            beforeEach(^{
-                [fileManager setContentsOfRootDir:@"dir/", @"dir/file.txt", @"dir/dir/", @"dir/dir/file.txt", @"file.txt", nil];
-            });
-
-            it(@"removes a single file", ^{
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beTruthy();
-                expect([fileManager removeItemAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"] error:NULL]).to.beTruthy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beFalsy();
-            });
-
-            it(@"removes a file from a subdirectory", ^{
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beTruthy();
-                expect([fileManager removeItemAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"] error:NULL]).to.beTruthy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beFalsy();
-            });
-
-            it(@"removes a directory and its descendants", ^{
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir"]]).to.beTruthy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beTruthy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/dir"]]).to.beTruthy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/dir/file.txt"]]).to.beTruthy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beTruthy();
-
-                expect([fileManager removeItemAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/"] error:NULL]).to.beTruthy();
-
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/"]]).to.beFalsy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beFalsy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/dir"]]).to.beFalsy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"dir/dir/file.txt"]]).to.beFalsy();
-                expect([fileManager fileExistsAtPath:[reportsDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beFalsy();
-            });
-
+            expect([fileManager contentsAtPath:contentsPath]).to.equal([contents copy]);
+            expect([fileManager fileExistsAtPath:contentsPath isDirectory:&isDir]);
+            expect(isDir).to.beFalsy();
         });
 
-        describe(@"moving files", ^{
+        it(@"sets the contents of a file in a subdir", ^{
 
-            BOOL isDir;
-            BOOL *isDirOut = &isDir;
-            __block NSError *error;
-            NSString *source = [reportsDir.path stringByAppendingPathComponent:@"move_src.txt"];
-            NSString *dest = [reportsDir.path stringByAppendingPathComponent:@"move_dest.txt"];
-            [fileManager createFileAtPath:source contents:nil attributes:nil];
-            expect([fileManager moveItemAtPath:source toPath:dest error:&error]).to.beTruthy();
-            expect([fileManager fileExistsAtPath:source isDirectory:isDirOut]).to.beFalsy();
+            NSString *contentsPath = [rootDir.path stringByAppendingPathComponent:@"dir_prefix/contents.txt"];
+            NSData *contents = [@"456DEF" dataUsingEncoding:NSUTF8StringEncoding];
+            [fileManager createFilePath:@"dir_prefix/contents.txt" contents:[contents copy]];
+
+            expect([fileManager fileExistsAtPath:contentsPath isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beFalsy();
-            expect([fileManager fileExistsAtPath:dest isDirectory:isDirOut]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir_prefix"] isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+            expect([fileManager contentsAtPath:contentsPath]).to.equal([contents copy]);
+            expect([fileManager contentsAtPath:contentsPath.stringByDeletingLastPathComponent]).to.beNil();
+        });
+
+        it(@"overwrites contents of a file", ^{
+
+            NSString *contentsPath = [rootDir.path stringByAppendingPathComponent:@"dir_prefix/contents.txt"];
+            NSData *contents = [@"ABC123" dataUsingEncoding:NSUTF8StringEncoding];
+            [fileManager createFilePath:@"dir_prefix/contents.txt" contents:[contents copy]];
+
+            expect([fileManager fileExistsAtPath:contentsPath isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir_prefix"] isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+            expect([fileManager contentsAtPath:contentsPath]).to.equal([contents copy]);
+            expect([fileManager contentsAtPath:contentsPath.stringByDeletingLastPathComponent]).to.beNil();
+
+            NSData *overwrite = [@"overwrite" dataUsingEncoding:NSUTF8StringEncoding];
+            [fileManager createFilePath:@"dir_prefix/contents.txt" contents:[overwrite copy]];
+
+            expect([fileManager fileExistsAtPath:contentsPath isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir_prefix"] isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+            expect([fileManager contentsAtPath:contentsPath]).to.equal([overwrite copy]);
+            expect([fileManager contentsAtPath:contentsPath.stringByDeletingLastPathComponent]).to.beNil();
+        });
+
+        it(@"returns empty data for files with no explicitly set contents", ^{
+
+            [fileManager createPaths:@"contents.txt", @"subdir/contents.txt", nil];
+            NSData *empty = [NSData data];
+
+            expect([fileManager contentsAtPath:[rootDir.path stringByAppendingPathComponent:@"contents.txt"]]).to.equal([empty copy]);
+            expect([fileManager contentsAtPath:[rootDir.path stringByAppendingPathComponent:@"subdir/contents.txt"]]).to.equal([empty copy]);
+        });
+
+        it(@"returns nil for contents of directory", ^{
+
+            [fileManager createPaths:@"subdir/", nil];
+
+            expect([fileManager fileExistsAtPath:@"subdir" isDirectory:&isDir] && isDir).to.beTruthy();
+            expect([fileManager contentsAtPath:[rootDir.path stringByAppendingPathComponent:@"subdir"]]).to.beNil();
+            expect([fileManager contentsAtPath:[rootDir.path stringByAppendingPathComponent:@"subdir/"]]).to.beNil();
+        });
+
+        it(@"sets contents when creating file with base api", ^{
+
+            NSString *contentsPath = [rootDir.path stringByAppendingPathComponent:@"contents.txt"];
+            NSData *contents = [@"ABC123" dataUsingEncoding:NSUTF8StringEncoding];
+
+            [fileManager createFileAtPath:contentsPath contents:contents attributes:nil];
+
+            expect([fileManager contentsAtPath:contentsPath]).to.equal([contents copy]);
+            expect([fileManager attributesOfItemAtPath:contentsPath error:NULL][NSFileType]).to.equal(NSFileTypeRegular);
+        });
+    });
+
+    describe(@"removing files", ^{
+
+        beforeEach(^{
+            [fileManager createPaths:@"dir/", @"dir/file.txt", @"dir/dir/", @"dir/dir/file.txt", @"file.txt", nil];
+        });
+
+        it(@"removes a single file", ^{
+
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beTruthy();
+            expect([fileManager removeItemAtPath:[rootDir.path stringByAppendingPathComponent:@"file.txt"] error:NULL]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beFalsy();
+        });
+
+        it(@"removes a file from a subdirectory", ^{
+
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beTruthy();
+            expect([fileManager removeItemAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"] error:NULL]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir"] isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+        });
+
+        it(@"removes a directory and its descendants", ^{
+
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir"]]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/dir"]]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/dir/file.txt"]]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beTruthy();
+
+            expect([fileManager removeItemAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/"] error:NULL]).to.beTruthy();
+
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/"]]).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/dir"]]).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/dir/file.txt"]]).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beFalsy();
+        });
+
+        it(@"removes the file contents", ^{
+
+            expect([fileManager contentsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.equal([NSData data]);
+            expect([fileManager removeItemAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"] error:NULL]).to.beTruthy();
+            expect([fileManager contentsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beNil();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beFalsy();
+        });
+
+    });
+
+    describe(@"moving files", ^{
+
+        it(@"moves a file", ^{
+
+            __block NSError *error;
+            NSString *source = [rootDir.path stringByAppendingPathComponent:@"move_src.txt"];
+            NSString *dest = [rootDir.path stringByAppendingPathComponent:@"move_dest.txt"];
+            NSData *contents = [@"MOVED FILE" dataUsingEncoding:NSUTF8StringEncoding];
+            [fileManager createFileAtPath:source contents:contents attributes:nil];
+
+            expect([fileManager moveItemAtPath:source toPath:dest error:&error]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:source isDirectory:&isDir]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:dest isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beFalsy();
             expect(error).to.beNil();
+        });
 
-            source = [reportsDir.path stringByAppendingPathComponent:@"src_base"];
-            dest = [reportsDir.path stringByAppendingPathComponent:@"dest_base"];
-            [fileManager setContentsOfRootDir:
+        it(@"moves directory and its contents", ^{
+
+            __block NSError *error;
+            NSString *source = [rootDir.path stringByAppendingPathComponent:@"src_base"];
+            NSString *dest = [rootDir.path stringByAppendingPathComponent:@"dest_base"];
+            [fileManager createPaths:
                 @"src_base/",
                 @"src_base/child1.txt",
                 @"src_base/child2/",
-                @"src_base/child2/grand_child.txt",
-                    nil];
-            expect([fileManager fileExistsAtPath:source isDirectory:isDirOut]).to.beTruthy();
+                @"src_base/child2/grandchild.txt",
+                nil];
+
+            NSData *child1Contents = [@"child1" dataUsingEncoding:NSUTF8StringEncoding];
+            [fileManager createFileAtPath:@"src_base/child1.txt" contents:child1Contents attributes:nil];
+            NSData *grandchildContents = [@"grandchild" dataUsingEncoding:NSUTF8StringEncoding];
+            [fileManager createFileAtPath:@"src_base/child2/grandchild.txt" contents:grandchildContents attributes:nil];
+
+            expect([fileManager fileExistsAtPath:source isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beTruthy();
-            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child1.txt"] isDirectory:isDirOut]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child1.txt"] isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beFalsy();
-            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child2/"] isDirectory:isDirOut]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child2/"] isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beTruthy();
-            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child2/grand_child.txt"] isDirectory:isDirOut]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"child2/grandchild.txt"] isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beFalsy();
 
             expect([fileManager moveItemAtPath:source toPath:dest error:&error]).to.beTruthy();
 
-            expect([fileManager fileExistsAtPath:dest isDirectory:isDirOut]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:dest isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beTruthy();
-            expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child1.txt"] isDirectory:isDirOut]).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child1.txt"] isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beFalsy();
-            expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child2/"] isDirectory:isDirOut]).to.beTruthy();
-            expect(isDir).to.beTruthy();
-            expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child2/grand_child.txt"] isDirectory:isDirOut]).to.beTruthy();
-            expect(isDir).to.beFalsy();
-            expect([fileManager fileExistsAtPath:source isDirectory:isDirOut]).to.beFalsy();
-            expect(isDir).to.beFalsy();
-            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"chi1d1.txt"] isDirectory:isDirOut]).to.beFalsy();
-            expect(isDir).to.beFalsy();
-            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"chi1d2/"] isDirectory:isDirOut]).to.beFalsy();
-            expect(isDir).to.beFalsy();
-            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"chi1d2/grand_child.txt"] isDirectory:isDirOut]).to.beFalsy();
-            expect(isDir).to.beFalsy();
+            expect([fileManager contentsAtPath:[dest stringByAppendingString:@"child1.txt"]]).to.equal(child1Contents);
 
+            expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child2/"] isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+            expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child2/grandchild.txt"] isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager contentsAtPath:[dest stringByAppendingString:@"child2/grandchild.txt"]]).to.equal(grandchildContents);
+
+            expect([fileManager fileExistsAtPath:source isDirectory:&isDir]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"chi1d1.txt"] isDirectory:&isDir]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager contentsAtPath:[source stringByAppendingPathComponent:@"child1.txt"]]).to.beNil();
+
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"chi1d2/"] isDirectory:&isDir]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[source stringByAppendingPathComponent:@"chi1d2/grandchild.txt"] isDirectory:&isDir]).to.beFalsy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager contentsAtPath:[source stringByAppendingPathComponent:@"chi1d2/grandchild.txt"]]).to.beNil();
         });
 
     });
 
 });
+
 
 SpecEnd
