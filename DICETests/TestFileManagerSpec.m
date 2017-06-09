@@ -124,6 +124,15 @@ describe(@"TestFileManager", ^{
             expect(isDir).to.beTruthy();
             expect([fileManager contentsAtPath:contentsPath]).to.equal([overwrite copy]);
             expect([fileManager contentsAtPath:contentsPath.stringByDeletingLastPathComponent]).to.beNil();
+
+            [fileManager createFileAtPath:@"dir_prefix/contents.txt" contents:[contents copy] attributes:nil];
+
+            expect([fileManager fileExistsAtPath:contentsPath isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir_prefix"] isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beTruthy();
+            expect([fileManager contentsAtPath:contentsPath]).to.equal([contents copy]);
+            expect([fileManager contentsAtPath:contentsPath.stringByDeletingLastPathComponent]).to.beNil();
         });
 
         it(@"returns empty data for files with no explicitly set contents", ^{
