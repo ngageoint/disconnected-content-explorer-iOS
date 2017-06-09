@@ -10,6 +10,33 @@
 #import "NSString+PathUtils.h"
 
 
+
+@interface NSString (TestFileManager)
+
+- (NSString *)withoutLeadingSlash;
+- (NSArray<NSString *> *)nodeNames;
+
+@end
+
+@implementation NSString (TestFileManager)
+
+- (NSString *)withoutLeadingSlash
+{
+    if (self.length && [self hasPrefix:@"/"]) {
+        return [self substringFromIndex:1];
+    }
+    return self;
+}
+
+- (NSArray<NSString *> *)nodeNames
+{
+    return self.withoutLeadingSlash.pathComponents;
+}
+
+@end
+
+
+
 @interface TestFileManager_Node : NSObject <NSCopying>
 
 @property (class, readonly, nonnull) NSComparator comparator;
@@ -81,8 +108,8 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
     self = [super init];
     _name = name;
     _contents = [NSMutableData data];
-    NSMutableDictionary *mattrs = [attrs mutableCopy];
-    [mattrs setObject:NSFileTypeRegular forKey:NSFileType];
+    NSMutableDictionary *mattrs = [@{NSFileType: NSFileTypeRegular} mutableCopy];
+    [mattrs addEntriesFromDictionary:attrs];
     _attrs = [NSDictionary dictionaryWithDictionary:mattrs];
     _children = nil;
     return self;
@@ -93,8 +120,8 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
     self = [super init];
     _name = name;
     _contents = nil;
-    NSMutableDictionary *mattrs = [attrs mutableCopy];
-    [mattrs setObject:NSFileTypeDirectory forKey:NSFileType];
+    NSMutableDictionary *mattrs = [@{NSFileType: NSFileTypeDirectory} mutableCopy];
+    [mattrs addEntriesFromDictionary:attrs];
     _attrs = [NSDictionary dictionaryWithDictionary:mattrs];
     _children = [NSMutableDictionary dictionary];
     return self;
@@ -378,6 +405,7 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
     self = [super init];
 
     _root = [[TestFileManager_Node alloc] initDirWithName:@"" attrs:nil];
+    _workingDir = @"/";
 
     return self;
 }
@@ -408,10 +436,7 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
 - (TestFileManager_Node *)nodeAtPath:(NSString *)path
 {
     @synchronized (_root) {
-        path = [self absolutify:path];
-        NSArray<NSString *> *names = path.pathComponents;
-        // skip leading slash
-        names = [names subarrayWithRange:NSMakeRange(1, names.count - 1)];
+        NSArray<NSString *> *names = [self absolutify:path].nodeNames;
         TestFileManager_Node *cursor = _root;
         for (NSString *name in names) {
             cursor = [cursor childWithName:name];
@@ -428,14 +453,14 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
     @synchronized (_root) {
         va_list args;
         va_start(args, relPath);
-        for(NSString *arg = relPath; arg != nil; arg = va_arg(args, NSString *)) {
-            NSString *stdPath = [self absolutify:arg];
+        for(NSString *pathArg = relPath; pathArg != nil; pathArg = va_arg(args, NSString *)) {
+            NSString *stdPath = [self absolutify:pathArg];
             NSString *parentPath = stdPath.stringByDeletingLastPathComponent;
             NSError *error;
             if (![self createDirectoryAtPath:parentPath withIntermediateDirectories:YES attributes:nil error:&error]) {
                 [NSException raise:NSInvalidArgumentException format:@"error creating parent dir %@: %@", parentPath, error.localizedDescription];
             }
-            if ([relPath hasSuffix:@"/"]) {
+            if ([pathArg hasSuffix:@"/"]) {
                 if (![self createDirectoryAtPath:stdPath withIntermediateDirectories:YES attributes:nil error:&error]) {
                     [NSException raise:NSInvalidArgumentException format:@"error creating dir %@: %@", stdPath, error.localizedDescription];
                 }
@@ -487,17 +512,27 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
     }
 }
 
-- (NSArray *)contentsOfDirectoryAtURL:(NSURL *)url includingPropertiesForKeys:(NSArray<NSString *> *)keys options:(NSDirectoryEnumerationOptions)mask error:(NSError **)error
+- (NSDictionary<NSFileAttributeKey,id> *)attributesOfItemAtPath:(NSString *)path error:(NSError * _Nullable __autoreleasing *)error
+{
+    TestFileManager_Node *node = [self nodeAtPath:path];
+    if (node) {
+        return node.attrs;
+    }
+    // TODO: set error
+    return nil;
+}
+
+- (NSArray<NSString *> *)contentsOfDirectoryAtPath:(NSString *)path error:(NSError * _Nullable __autoreleasing *)error
 {
     @synchronized (_root) {
-        TestFileManager_Node *dirNode = [self nodeAtPath:url.path];
+        TestFileManager_Node *dirNode = [self nodeAtPath:path];
         if (!dirNode) {
             *error = [[NSError alloc] initWithDomain:NSCocoaErrorDomain code:NSFileNoSuchFileError
-                userInfo:@{NSURLErrorKey: url, NSLocalizedDescriptionKey: [NSString stringWithFormat:@"no file for url %@ exists", url]}];
+                userInfo:@{NSURLErrorKey: path, NSLocalizedDescriptionKey: [NSString stringWithFormat:@"no path for url %@ exists", path]}];
         }
         if (dirNode.isFile) {
             *error = [[NSError alloc] initWithDomain:NSCocoaErrorDomain code:NSFileNoSuchFileError
-                 userInfo:@{NSURLErrorKey: url, NSLocalizedDescriptionKey: [NSString stringWithFormat:@"file at url %@ is not a directory", url]}];
+                userInfo:@{NSURLErrorKey: path, NSLocalizedDescriptionKey: [NSString stringWithFormat:@"file at path %@ is not a directory", path]}];
         }
         NSMutableArray<NSURL *> *paths = [NSMutableArray array];
         for (TestFileManager_Node *child in dirNode.children.allValues) {
@@ -505,6 +540,11 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
         }
         return [NSArray arrayWithArray:paths];
     }
+}
+
+- (NSArray *)contentsOfDirectoryAtURL:(NSURL *)url includingPropertiesForKeys:(NSArray<NSString *> *)keys options:(NSDirectoryEnumerationOptions)mask error:(NSError **)error
+{
+    return [self contentsOfDirectoryAtPath:url.path error:error];
 }
 
 - (NSDirectoryEnumerator<NSString *> *)enumeratorAtPath:(NSString *)path
@@ -538,6 +578,9 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
         if (node == nil) {
             node = [[[TestFileManager_Node alloc] initFileWithName:path.lastPathComponent attrs:attr] moveToParent:parentDirNode];
         }
+        else if (node.isDir) {
+            return NO;
+        }
         [node.contents setData:data];
 
         return YES;
@@ -554,36 +597,47 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
         }
 
         path = [self absolutify:path];
-        NSString *baseName = path.lastPathComponent;
-        NSString *parentPath = path.stringByDeletingLastPathComponent;
-        TestFileManager_Node *node = [self nodeAtPath:parentPath];
+        if ([path isEqualToString:@"/"]) {
+            return createIntermediates;
+        }
+
+        TestFileManager_Node *node = [self nodeAtPath:path];
         if (node) {
+            if (node.isDir) {
+                if (createIntermediates) {
+                    return YES;
+                }
+                // TODO: set error
+                return NO;
+            }
             if (node.isFile) {
                 // TODO: set error
                 return NO;
             }
-            if ([node childWithName:baseName]) {
-                return createIntermediates;
-            }
-            [[[TestFileManager_Node alloc] initDirWithName:baseName attrs:attributes] moveToParent:node];
-            return YES;
-        }
-        else if (!createIntermediates) {
-            // TODO: set error
-            return NO;
         }
 
+        NSString *baseName = path.lastPathComponent;
+        NSString *parentPath = path.stringByDeletingLastPathComponent;
+        NSMutableArray<NSString *> *ancestorNames = [parentPath.nodeNames mutableCopy];
         node = _root;
-        NSMutableArray<NSString *> *ancestorNames = [parentPath.pathComponents mutableCopy];
+
         while (ancestorNames.count) {
             NSString *ancestorName = ancestorNames.firstObject;
             [ancestorNames removeObjectAtIndex:0];
             TestFileManager_Node *child = [node childWithName:ancestorName];
             if (child) {
+                if (child.isFile) {
+                    // TODO: set error
+                    return NO;
+                }
                 node = child;
             }
-            else {
+            else if (createIntermediates) {
                 node = [[[TestFileManager_Node alloc] initDirWithName:ancestorName attrs:nil] moveToParent:node];
+            }
+            else {
+                // TODO: set error
+                return NO;
             }
         }
 
@@ -634,15 +688,6 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
         return nil;
     }
     return node.contents;
-}
-
-- (NSDictionary<NSFileAttributeKey, id> *)attributesOfItemAtPath:(NSString *)path error:(NSError * _Nullable __autoreleasing *)error
-{
-    TestFileManager_Node *node = [self nodeAtPath:path];
-    if (node == nil) {
-        return nil;
-    }
-    return node.attrs;
 }
 
 - (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError * _Nullable __autoreleasing *)error

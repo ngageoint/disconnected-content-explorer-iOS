@@ -21,8 +21,8 @@ describe(@"TestFileManager", ^{
     __block BOOL isDir;
 
     beforeEach(^{
-        rootDir = [NSURL fileURLWithPath:@"/dice" isDirectory:YES];
-        fileManager = [[TestFileManager alloc] init];
+        rootDir = [NSURL fileURLWithPath:@"/dice/" isDirectory:YES];
+        fileManager = [[[TestFileManager alloc] init] createPaths:@"dice/", nil];
         fileManager.workingDir = rootDir.path;
     });
 
@@ -192,7 +192,7 @@ describe(@"TestFileManager", ^{
             expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/file.txt"]]).to.beFalsy();
             expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/dir"]]).to.beFalsy();
             expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"dir/dir/file.txt"]]).to.beFalsy();
-            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beFalsy();
+            expect([fileManager fileExistsAtPath:[rootDir.path stringByAppendingPathComponent:@"file.txt"]]).to.beTruthy();
         });
 
         it(@"removes the file contents", ^{
@@ -255,13 +255,13 @@ describe(@"TestFileManager", ^{
             expect(isDir).to.beTruthy();
             expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child1.txt"] isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beFalsy();
-            expect([fileManager contentsAtPath:[dest stringByAppendingString:@"child1.txt"]]).to.equal(child1Contents);
+            expect([fileManager contentsAtPath:[dest stringByAppendingPathComponent:@"child1.txt"]]).to.equal(child1Contents);
 
             expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child2/"] isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beTruthy();
             expect([fileManager fileExistsAtPath:[dest stringByAppendingPathComponent:@"child2/grandchild.txt"] isDirectory:&isDir]).to.beTruthy();
             expect(isDir).to.beFalsy();
-            expect([fileManager contentsAtPath:[dest stringByAppendingString:@"child2/grandchild.txt"]]).to.equal(grandchildContents);
+            expect([fileManager contentsAtPath:[dest stringByAppendingPathComponent:@"child2/grandchild.txt"]]).to.equal(grandchildContents);
 
             expect([fileManager fileExistsAtPath:source isDirectory:&isDir]).to.beFalsy();
             expect(isDir).to.beFalsy();
