@@ -445,6 +445,7 @@ ReportStore *_sharedInstance;
 - (void)moveStandaloneSourceFileToRootFileOfReport:(Report *)report importAsType:(id<ReportType>)reportType
 {
     ensureMainThread();
+
     MoveFileOperation *mv = [[[MoveFileOperation alloc]
         initWithSourceUrl:report.sourceFile destUrl:report.rootFile fileManager:self.fileManager] createDestDirs:YES];
     __weak MoveFileOperation *mvCaptured = mv;
@@ -470,6 +471,8 @@ ReportStore *_sharedInstance;
 
 - (void)downloadManager:(DICEDownloadManager *)downloadManager didReceiveDataForDownload:(DICEDownload *)download
 {
+    ensureMainThread();
+
     Report *report = [self getOrAddReportForDownload:download];
     if (download.percentComplete == report.downloadProgress) {
         return;
@@ -481,6 +484,8 @@ ReportStore *_sharedInstance;
 
 - (NSURL *)downloadManager:(DICEDownloadManager *)downloadManager willFinishDownload:(DICEDownload *)download movingToFile:(NSURL *)destFile
 {
+    ensureMainThread();
+
     Report *report = [self getOrAddReportForDownload:download];
     report.sourceFile = destFile;
     return nil;
@@ -488,6 +493,8 @@ ReportStore *_sharedInstance;
 
 - (void)downloadManager:(DICEDownloadManager *)downloadManager didFinishDownload:(DICEDownload *)download
 {
+    ensureMainThread();
+
     if (downloadManager.isFinishingBackgroundEvents) {
         // the app was launched into the background to finish background downloads, so defer expensive
         // import of downloaded files until the user next launches the application
@@ -544,6 +551,8 @@ ReportStore *_sharedInstance;
  */
 - (Report *)getOrAddReportForDownload:(DICEDownload *)download
 {
+    ensureMainThread();
+
     Report *report = [self reportForUrl:download.url];
     if (report) {
         return report;
@@ -555,11 +564,15 @@ ReportStore *_sharedInstance;
 
 - (Report *)reportForID:(NSString *)reportID
 {
+    ensureMainThread();
+
     return [self.reports filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"contentId == %@", reportID]].firstObject;
 }
 
 - (void)deleteReport:(Report *)report
 {
+    ensureMainThread();
+
     // TODO: update status message if report cannot be deleted
     if (![self.reports containsObject:report]) {
         return;
