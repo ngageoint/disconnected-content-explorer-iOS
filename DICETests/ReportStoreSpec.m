@@ -97,9 +97,9 @@ describe(@"ReportStore", ^{
         testNameComponent = [testNameComponent substringFromIndex:doubleUnderscore.location + 2];
         NSRegularExpression *nonWords = [NSRegularExpression regularExpressionWithPattern:@"\\W" options:0 error:NULL];
         testNameComponent = [nonWords stringByReplacingMatchesInString:testNameComponent options:0 range:NSMakeRange(0, testNameComponent.length) withTemplate:@""];
-        NSString *reportsDirPath = [NSString stringWithFormat:@"/%@/reports", testNameComponent];
+        NSString *reportsDirPath = [NSString stringWithFormat:@"/%@/reports/", testNameComponent];
         reportsDir = [NSURL fileURLWithPath:reportsDirPath];
-        fileManager = [[TestFileManager alloc] init];
+        fileManager = [[[TestFileManager alloc] init] createPaths:reportsDirPath, nil];
         fileManager.workingDir = reportsDir.path;
         archiveFactory = mockProtocol(@protocol(DICEArchiveFactory));
         downloadManager = mock([DICEDownloadManager class]);
@@ -897,7 +897,7 @@ describe(@"ReportStore", ^{
             [NSFileHandle deswizzleAllClassMethods];
         });
 
-        it(@"removes the archive file after extracting the contents", ^{
+        it(@"deletes the archive file after extracting the contents", ^{
 
             [fileManager createPaths:@"blue.zip", nil];
             NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
@@ -905,7 +905,7 @@ describe(@"ReportStore", ^{
                 [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
             ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
             [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-            TestImportProcess *blueImport = [blueType enqueueImport];
+            TestImportProcess *blueImport = [[blueType enqueueImport] block];
 
             NSFileHandle *handle = mock([NSFileHandle class]);
             [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
@@ -914,13 +914,91 @@ describe(@"ReportStore", ^{
                 };
             }];
 
+            __block DeleteFileOperation *deleteArchive;
+            __block BOOL queuedOnMainThread = NO;
+            __block BOOL multipleDeletes = NO;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[DeleteFileOperation class]]) {
+                    DeleteFileOperation *del = (DeleteFileOperation *)op;
+                    if ([del.fileUrl isEqual:archiveUrl]) {
+                        if (deleteArchive) {
+                            multipleDeletes = YES;
+                            return;
+                        }
+                        queuedOnMainThread = NSThread.isMainThread;
+                        deleteArchive = [del block];
+                    }
+                }
+            };
+
+            expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.beTruthy();
+
+            Report *report = [store attemptToImportReportFromResource:archiveUrl];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+
+            expect(deleteArchive).toNot.beNil();
+            expect(queuedOnMainThread).to.beTruthy();
+            expect(multipleDeletes).to.beFalsy();
+
+            [deleteArchive unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(deleteArchive.isFinished)), isTrue());
+
+            expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.beFalsy();
+            expect(report.importStatus).to.equal(ReportImportStatusImporting);
+
+            [blueImport unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
+
+            [importQueue waitUntilAllOperationsAreFinished];
+
+            expect(multipleDeletes).to.beFalsy();
+            
+            [NSFileHandle deswizzleAllClassMethods];
+        });
+
+        it(@"does not delete the archive file if the extract fails", ^{
+
+            [fileManager createPaths:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
+
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return nil;
+                };
+            }];
+
+            __block DICEExtractReportOperation *extract;
+            __block DeleteFileOperation *deleteArchive;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
+                    extract = (DICEExtractReportOperation *)op;
+                    [extract cancel];
+                }
+                else if ([op isKindOfClass:[DeleteFileOperation class]]) {
+                    deleteArchive = (DeleteFileOperation *)op;
+                }
+            };
+
             expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.equal(YES);
 
-            [store attemptToImportReportFromResource:archiveUrl];
+            Report *report = [store attemptToImportReportFromResource:archiveUrl];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
-            
-            expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.equal(NO);
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            [importQueue waitUntilAllOperationsAreFinished];
+
+            expect(extract).toNot.beNil();
+            expect(extract.wasSuccessful).to.beFalsy();
+            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+            expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.equal(YES);
+            expect(deleteArchive).to.beNil();
             
             [NSFileHandle deswizzleAllClassMethods];
         });

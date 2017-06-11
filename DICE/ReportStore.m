@@ -260,6 +260,7 @@ ReportStore *_sharedInstance;
 - (Report *)attemptToImportReportFromResource:(NSURL *)reportUrl
 {
     ensureMainThread();
+
     // TODO: differentiate between new and imported reports (*.dice_import/)
     // here or in loadReports? probably here
     if ([self.reportsDirExclusions evaluateWithObject:reportUrl]) {
@@ -721,13 +722,8 @@ ReportStore *_sharedInstance;
 
     NSLog(@"finished extracting contents of report archive %@", report);
 
-    NSError *error;
-    BOOL deleted = [self.fileManager removeItemAtURL:extract.archive.archiveUrl error:&error];
-    if (!deleted) {
-        // TODO: something
-    }
-
     if (!success) {
+        NSLog(@"extraction of archive %@ was not successful", report.sourceFile);
         dispatch_async(dispatch_get_main_queue(), ^{
             report.summary = report.statusMessage = @"Failed to extract archive contents";
             report.importStatus = ReportImportStatusFailed;
@@ -740,10 +736,12 @@ ReportStore *_sharedInstance;
     NSBlockOperation *createImportProcess = [NSBlockOperation blockOperationWithBlock:^{
         [self importReport:report asReportType:reportType];
     }];
+    DeleteFileOperation *deleteArchive = [[DeleteFileOperation alloc] initWithFileUrl:extract.archive.archiveUrl fileManager:self.fileManager];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         report.baseDir = baseDir;
         [self.importQueue addOperation:createImportProcess];
+        [self.importQueue addOperation:deleteArchive];
     });
 }
 
