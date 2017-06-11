@@ -219,6 +219,59 @@ describe(@"UnzipOperation", ^{
         stopMocking(archive);
     });
 
+    it(@"notifies the delegate if cancelled before executing", ^{
+
+        id<DICEArchive> archive = mockProtocol(@protocol(DICEArchive));
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:nil fileManager:[NSFileManager defaultManager]];
+        id delegate = mockProtocol(@protocol(UnzipDelegate));
+        op.delegate = delegate;
+
+        [op cancel];
+
+        [verify(delegate) unzipOperationDidFinish:op];
+    });
+
+    it(@"it does not notifiy the delegate more than once if cancelled while executing", ^{
+
+        id<DICEArchive> archive = mockProtocol(@protocol(DICEArchive));
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:[NSURL fileURLWithPath:@"/tmp"] fileManager:[NSFileManager defaultManager]];
+        id delegate = mockProtocol(@protocol(UnzipDelegate));
+        op.delegate = delegate;
+
+        NSOperationQueue *ops = [[NSOperationQueue alloc] init];
+        [ops addOperation:[op block]];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isExecuting)), isTrue());
+
+        [op cancel];
+
+        [verifyCount(delegate, never()) unzipOperationDidFinish:op];
+
+        [op unblock];
+        [ops waitUntilAllOperationsAreFinished];
+
+        assertWithTimeout(1.0, thatEventually(@(op.isFinished)), isTrue());
+
+        [verify(delegate) unzipOperationDidFinish:op];
+    });
+
+    it(@"it does not notifiy the delegate more than once if cancelled after executing", ^{
+
+        id<DICEArchive> archive = mockProtocol(@protocol(DICEArchive));
+        UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:[NSURL fileURLWithPath:@"/tmp"] fileManager:[NSFileManager defaultManager]];
+        id delegate = mockProtocol(@protocol(UnzipDelegate));
+        op.delegate = delegate;
+
+        [op start];
+
+        expect(op.isFinished).to.beTruthy();
+        [verify(delegate) unzipOperationDidFinish:op];
+
+        [op cancel];
+
+        [verifyCount(delegate, never()) unzipOperationDidFinish:op];
+    });
+
     it(@"throws an exception when dest dir change is attempted while executing", ^{
         id<DICEArchive> archive = mockProtocol(@protocol(DICEArchive));
         UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:archive destDir:[NSURL URLWithString:@"/tmp/"] fileManager:[NSFileManager defaultManager]];
@@ -472,12 +525,13 @@ describe(@"UnzipOperation", ^{
 
         [zipFile enqueueError:[NSError errorWithDomain:@"dice.test" code:1 userInfo:@{NSLocalizedDescriptionKey: @"test error"}]];
 
+        [[given([fileManager createDirectoryAtURL:[NSURL fileURLWithPath:@"/tmp/test" isDirectory:YES] withIntermediateDirectories:YES attributes:nil error:NULL]) withMatcher:anything() forArgument:3] willReturnBool:YES];
         [given([fileManager createFileAtPath:@"/tmp/test/index.html" contents:nil attributes:nil]) willReturnBool:NO];
 
         [op start];
 
         expect(op.wasSuccessful).to.equal(NO);
-        expect(op.errorMessage).to.equal(@"Failed to create file to extract archive entry index.html");
+        expect(op.errorMessage).to.equal(@"Failed to create file to extract entry index.html in archive test.zip");
 
         stopMocking(fileManager);
     });
@@ -491,6 +545,7 @@ describe(@"UnzipOperation", ^{
 
         UnzipOperation *op = [[UnzipOperation alloc] initWithArchive:zipFile destDir:destDir fileManager:fileManager];
 
+        [[given([fileManager createDirectoryAtURL:[NSURL fileURLWithPath:@"/tmp/test" isDirectory:YES] withIntermediateDirectories:YES attributes:nil error:NULL]) withMatcher:anything() forArgument:3] willReturnBool:YES];
         [given([fileManager createFileAtPath:@"/tmp/test/index.html" contents:nil attributes:nil]) willReturnBool:YES];
 
         NSError *error = [NSError errorWithDomain:@"dice.test" code:1 userInfo:@{NSLocalizedDescriptionKey: @"test error"}];
@@ -504,7 +559,7 @@ describe(@"UnzipOperation", ^{
         [op start];
 
         expect(op.wasSuccessful).to.equal(NO);
-        expect(op.errorMessage).to.equal(@"Failed to open file for writing archive entry index.html: test error");
+        expect(op.errorMessage).to.match(@"Failed to open file for writing entry index.html in archive test.zip: test error");
 
         stopMocking(fileManager);
         deswizzleAll();
@@ -522,7 +577,9 @@ describe(@"UnzipOperation", ^{
         [zipFile calculateArchiveSizeExtractedWithError:nil];
         [zipFile enqueueError:[NSError errorWithDomain:@"dice.test" code:1 userInfo:@{NSLocalizedDescriptionKey: @"test error"}]];
 
+        [[given([fileManager createDirectoryAtURL:[NSURL fileURLWithPath:@"/tmp/test" isDirectory:YES] withIntermediateDirectories:YES attributes:nil error:NULL]) withMatcher:anything() forArgument:3] willReturnBool:YES];
         [given([fileManager createFileAtPath:@"/tmp/test/index.html" contents:nil attributes:nil]) willReturnBool:YES];
+
         NSFileHandle *stdout = [NSFileHandle fileHandleWithStandardOutput];
         [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
             return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
@@ -533,7 +590,7 @@ describe(@"UnzipOperation", ^{
         [op start];
 
         expect(op.wasSuccessful).to.equal(NO);
-        expect(op.errorMessage).to.equal(@"Failed to read archive entry index.html: test error");
+        expect(op.errorMessage).to.equal(@"Failed to read entry index.html in archive test.zip: test error");
 
         stopMocking(fileManager);
         deswizzleAll();

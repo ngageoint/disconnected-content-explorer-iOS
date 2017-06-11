@@ -57,10 +57,6 @@
 
 - (void)main
 {
-    if (self.isCancelled) {
-        return;
-    }
-    
     @autoreleasepool {
         if (!self.buffer) {
             _buffer = [NSMutableData dataWithLength:(1 << 16)];
@@ -75,6 +71,14 @@
     if (self.delegate) {
         [self.delegate unzipOperationDidFinish:self];
     }
+}
+
+- (void)cancel
+{
+    if (!(self.isExecuting || self.isFinished) && self.delegate) {
+        [self.delegate unzipOperationDidFinish:self];
+    }
+    [super cancel];
 }
 
 - (BOOL)isReady
@@ -126,9 +130,10 @@
         NSURL *entryUrl = [self.destDir URLByAppendingPathComponent:entry.archiveEntryPath];
         BOOL entryIsDir = [entry.archiveEntryPath hasSuffix:@"/"];
         if (entryIsDir) {
-            [self createDirectoryAtUrl:entryUrl];
+            [self createDirectoryAtUrl:entryUrl forEntry:(id<DICEArchiveEntry>)entry];
             dirDates[entryUrl.path] = entry.archiveEntryDate;
-        } else {
+        }
+        else {
             [self writeFileForEntry:entry atUrl:entryUrl];
             NSDictionary *modDate = @{NSFileModificationDate: entry.archiveEntryDate};
             [self.fileManager setAttributes:modDate ofItemAtPath:entryUrl.path error:NULL];
@@ -137,7 +142,7 @@
 
     _wasSuccessful = !self.isCancelled;
 
-    // set the directory mod dates last because to ensure that writing the files
+    // set the directory mod dates last to ensure that writing the files
     // while unzipping does not update the mod date
     for (NSString *dirPath in [dirDates keyEnumerator]) {
         NSDictionary *modDate = @{ NSFileModificationDate: dirDates[dirPath] };
@@ -147,44 +152,47 @@
     [dirDates removeAllObjects];
 }
 
-- (void)createDirectoryAtUrl:(NSURL *)dir
+- (void)createDirectoryAtUrl:(NSURL *)dir forEntry:(id<DICEArchiveEntry>)entry
 {
-    BOOL existingFileIsDir = YES;
-    if ([self.fileManager fileExistsAtPath:dir.path isDirectory:&existingFileIsDir]) {
-        if (!existingFileIsDir) {
-            [self cancel];
-        }
-        return;
-    }
-
-    BOOL created = [self.fileManager createDirectoryAtURL:dir withIntermediateDirectories:YES attributes:nil error:nil];
-
+    NSError *error;
+    BOOL created = [self.fileManager createDirectoryAtURL:dir withIntermediateDirectories:YES attributes:nil error:&error];
     if (!created) {
+        _errorMessage = [NSString stringWithFormat:@"Failed to create directory for entry %@ in archive %@", entry.archiveEntryPath, _archive.archiveUrl.lastPathComponent];
+        NSLog(@"%@: directory: %@; error: %@", _errorMessage, dir, error.localizedDescription);
         [self cancel];
     }
 }
 
 - (void)writeFileForEntry:(id<DICEArchiveEntry>)entry atUrl:(NSURL *)file
 {
-    BOOL created = [self.fileManager createFileAtPath:file.path contents:nil attributes:nil];
+    NSURL *parentDir = file.URLByDeletingLastPathComponent;
+    NSError *error;
+    BOOL created = [self.fileManager createDirectoryAtURL:parentDir withIntermediateDirectories:YES attributes:nil error:&error];
     if (!created) {
-        _errorMessage = [NSString stringWithFormat:@"Failed to create file to extract archive entry %@", entry.archiveEntryPath];
+        _errorMessage = [NSString stringWithFormat:@"Failed to create parent dir to extract entry %@ in archive %@", entry.archiveEntryPath, _archive.archiveUrl.lastPathComponent];
+        NSLog(@"%@: directory: %@; error: %@", _errorMessage, parentDir, error.localizedDescription);
         [self cancel];
         return;
     }
-    NSError *error;
+    created = [self.fileManager createFileAtPath:file.path contents:nil attributes:nil];
+    if (!created) {
+        _errorMessage = [NSString stringWithFormat:@"Failed to create file to extract entry %@ in archive %@", entry.archiveEntryPath, _archive.archiveUrl.lastPathComponent];
+        NSLog(@"%@: file: %@", _errorMessage, file);
+        [self cancel];
+        return;
+    }
     NSFileHandle *handle = [NSFileHandle fileHandleForWritingToURL:file error:&error];
     if (error || !handle) {
         NSString *errDesc = @"null file handle";
-        if (error) {
+        if (error && error.localizedDescription) {
             errDesc = error.localizedDescription;
         }
-        _errorMessage = [NSString stringWithFormat:@"Failed to open file for writing archive entry %@: %@", entry.archiveEntryPath, errDesc];
+        _errorMessage = [NSString stringWithFormat:@"Failed to open file for writing entry %@ in archive %@: %@", entry.archiveEntryPath, _archive.archiveUrl.lastPathComponent, errDesc];
         [self cancel];
         return;
     }
     if (![_archive openCurrentArchiveEntryWithError:&error]) {
-        _errorMessage = [NSString stringWithFormat:@"Failed to read archive entry %@: %@", entry.archiveEntryPath, error.localizedDescription];
+        _errorMessage = [NSString stringWithFormat:@"Failed to read entry %@ in archive %@: %@", entry.archiveEntryPath, _archive.archiveUrl.lastPathComponent, error.localizedDescription];
         [self cancel];
         return;
     }
