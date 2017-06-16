@@ -15,7 +15,7 @@
  * any necessary intermediate directories.  Throw NSInvalidArgumentException if creating any
  * of the given items fails.
  */
-- (nonnull instancetype)createPaths:(nonnull NSString *)path, ... NS_REQUIRES_NIL_TERMINATION;
+- (nonnull instancetype)setWorkingDirChildren:(nonnull NSString *)path, ... NS_REQUIRES_NIL_TERMINATION;
 - (nonnull instancetype)createFilePath:(nonnull NSString *)path contents:(nullable NSData *)data;
 
 @end

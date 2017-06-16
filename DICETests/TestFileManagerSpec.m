@@ -22,13 +22,13 @@ describe(@"TestFileManager", ^{
 
     beforeEach(^{
         rootDir = [NSURL fileURLWithPath:@"/dice/" isDirectory:YES];
-        fileManager = [[[TestFileManager alloc] init] createPaths:@"dice/", nil];
+        fileManager = [[[TestFileManager alloc] init] setWorkingDirChildren:@"dice/", nil];
         fileManager.workingDir = rootDir.path;
     });
 
     it(@"works", ^{
 
-        [fileManager createPaths:@"hello.txt", @"dir/", nil];
+        [fileManager setWorkingDirChildren:@"hello.txt", @"dir/", nil];
 
         expect([fileManager fileExistsAtPath:rootDir.path isDirectory:&isDir]).to.beTruthy();
         expect(isDir).to.beTruthy();
@@ -137,7 +137,7 @@ describe(@"TestFileManager", ^{
 
         it(@"returns empty data for files with no explicitly set contents", ^{
 
-            [fileManager createPaths:@"contents.txt", @"subdir/contents.txt", nil];
+            [fileManager setWorkingDirChildren:@"contents.txt", @"subdir/contents.txt", nil];
             NSData *empty = [NSData data];
 
             expect([fileManager contentsAtPath:[rootDir.path stringByAppendingPathComponent:@"contents.txt"]]).to.equal([empty copy]);
@@ -146,7 +146,7 @@ describe(@"TestFileManager", ^{
 
         it(@"returns nil for contents of directory", ^{
 
-            [fileManager createPaths:@"subdir/", nil];
+            [fileManager setWorkingDirChildren:@"subdir/", nil];
 
             expect([fileManager fileExistsAtPath:@"subdir" isDirectory:&isDir] && isDir).to.beTruthy();
             expect([fileManager contentsAtPath:[rootDir.path stringByAppendingPathComponent:@"subdir"]]).to.beNil();
@@ -168,7 +168,7 @@ describe(@"TestFileManager", ^{
     describe(@"removing files", ^{
 
         beforeEach(^{
-            [fileManager createPaths:@"dir/", @"dir/file.txt", @"dir/dir/", @"dir/dir/file.txt", @"file.txt", nil];
+            [fileManager setWorkingDirChildren:@"dir/", @"dir/file.txt", @"dir/dir/", @"dir/dir/file.txt", @"file.txt", nil];
         });
 
         it(@"removes a single file", ^{
@@ -237,7 +237,7 @@ describe(@"TestFileManager", ^{
             __block NSError *error;
             NSString *source = [rootDir.path stringByAppendingPathComponent:@"src_base"];
             NSString *dest = [rootDir.path stringByAppendingPathComponent:@"dest_base"];
-            [fileManager createPaths:
+            [fileManager setWorkingDirChildren:
                 @"src_base/",
                 @"src_base/child1.txt",
                 @"src_base/child2/",

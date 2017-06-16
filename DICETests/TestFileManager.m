@@ -86,20 +86,24 @@
 @end
 
 
+
 @implementation TestFileManager_Node
 {
     NSMutableData *_contents;
 }
 
-static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left, TestFileManager_Node *right) {
-    if (left.isFile != right.isFile) {
-        return left.isFile ? NSOrderedAscending : NSOrderedDescending;
-    }
-    return [left.name compare:right.name];
-};
-
 + (NSComparator)comparator
 {
+    static NSComparator _comparator;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        _comparator = ^NSComparisonResult(TestFileManager_Node *left, TestFileManager_Node *right) {
+            if (left.isFile != right.isFile) {
+                return left.isFile ? NSOrderedAscending : NSOrderedDescending;
+            }
+            return [left.name compare:right.name];
+        };
+    });
     return _comparator;
 }
 
@@ -225,7 +229,7 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
 
 - (NSComparisonResult)compare:(TestFileManager_Node *)other
 {
-    return _comparator(self, other);
+    return TestFileManager_Node.comparator(self, other);
 }
 
 # pragma mark - NSCopying
@@ -369,7 +373,7 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
 
 - (NSDictionary<NSFileAttributeKey,id> *)fileAttributes
 {
-    if (_cursor < _currentDirChildren.count) {
+    if (_cursor <= _currentDirChildren.count) {
         return _currentDirChildren[_cursor - 1].attrs;
     }
     return nil;
@@ -448,21 +452,30 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
     }
 }
 
-- (instancetype)createPaths:(NSString *)relPath, ... NS_REQUIRES_NIL_TERMINATION
+- (instancetype)setWorkingDirChildren:(NSString *)relPath, ... NS_REQUIRES_NIL_TERMINATION
 {
     @synchronized (_root) {
+        NSError *error;
+        NSLog(@"clearing working dir contents %@", self.workingDir);
+        [self removeItemAtPath:self.workingDir error:NULL];
+        NSLog(@"populating working dir %@", self.workingDir);
+        if (![self createDirectoryAtPath:self.workingDir withIntermediateDirectories:YES attributes:nil error:&error]) {
+            [NSException raise:NSInvalidArgumentException format:@"error creating working dir %@: %@", self.workingDir, error];
+        }
         va_list args;
         va_start(args, relPath);
         for(NSString *pathArg = relPath; pathArg != nil; pathArg = va_arg(args, NSString *)) {
+            if (pathArg.isAbsolutePath) {
+                [NSException raise:NSInvalidArgumentException format:@"attempt to set non-relative path as working dir child: %@", pathArg];
+            }
             NSString *stdPath = [self absolutify:pathArg];
             NSString *parentPath = stdPath.stringByDeletingLastPathComponent;
-            NSError *error;
             if (![self createDirectoryAtPath:parentPath withIntermediateDirectories:YES attributes:nil error:&error]) {
-                [NSException raise:NSInvalidArgumentException format:@"error creating parent dir %@: %@", parentPath, error.localizedDescription];
+                [NSException raise:NSInvalidArgumentException format:@"error creating parent dir %@: %@", parentPath, error];
             }
             if ([pathArg hasSuffix:@"/"]) {
                 if (![self createDirectoryAtPath:stdPath withIntermediateDirectories:YES attributes:nil error:&error]) {
-                    [NSException raise:NSInvalidArgumentException format:@"error creating dir %@: %@", stdPath, error.localizedDescription];
+                    [NSException raise:NSInvalidArgumentException format:@"error creating dir %@: %@", stdPath, error];
                 }
             }
             else if (![self createFileAtPath:stdPath contents:nil attributes:nil]) {
@@ -544,7 +557,19 @@ static NSComparator _comparator = ^NSComparisonResult(TestFileManager_Node *left
 
 - (NSArray *)contentsOfDirectoryAtURL:(NSURL *)url includingPropertiesForKeys:(NSArray<NSString *> *)keys options:(NSDirectoryEnumerationOptions)mask error:(NSError **)error
 {
-    return [self contentsOfDirectoryAtPath:url.path error:error];
+    NSMutableArray *contents = [NSMutableArray array];
+    NSDirectoryEnumerator *enumerator = [self enumeratorAtPath:url.path];
+    NSString *relPath = enumerator.nextObject;
+    while (relPath) {
+        BOOL isDir = [enumerator.fileAttributes.fileType isEqualToString:NSFileTypeDirectory];
+        NSURL *pathUrl = [url URLByAppendingPathComponent:relPath isDirectory:isDir];
+        NSURLFileResourceType type = isDir ? NSURLFileResourceTypeDirectory : NSURLFileResourceTypeRegular;
+        [pathUrl setTemporaryResourceValue:type forKey:NSURLFileResourceTypeKey];
+        [contents addObject:pathUrl];
+        [enumerator skipDescendants];
+        relPath = enumerator.nextObject;
+    }
+    return [NSArray arrayWithArray:contents];
 }
 
 - (NSDirectoryEnumerator<NSString *> *)enumeratorAtPath:(NSString *)path

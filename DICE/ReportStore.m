@@ -22,6 +22,7 @@
 #import "DICEDeleteReportProcess.h"
 #import "DICEExtractReportOperation.h"
 #import "FileOperations.h"
+#import "NSURL+ResourceValues.h"
 
 void ensureMainThread() {
     if (!NSThread.isMainThread) {
@@ -68,6 +69,17 @@ void ensureMainThread() {
 - (BOOL)isReadyForShutdown
 {
     return self.isImportFinished || self.importStatus == ReportImportStatusDownloading;
+}
+
+@end
+
+
+@implementation NSFileManager (ReportStore)
+
+- (BOOL)isDirectoryAtUrl:(NSURL *)url
+{
+    BOOL isDir;
+    return [self fileExistsAtPath:url.path isDirectory:&isDir] && isDir;
 }
 
 @end
@@ -156,7 +168,6 @@ ReportStore *_sharedInstance;
     _notifications = notifications;
     _application = application;
     _importBackgroundTaskId = UIBackgroundTaskInvalid;
-    _contentDir = [_reportsDir URLByAppendingPathComponent:@"dice.content" isDirectory:YES];
     _trashDir = [_reportsDir URLByAppendingPathComponent:@"dice.trash" isDirectory:YES];
     _backgroundTimeExpired = NO;
 
@@ -230,9 +241,7 @@ ReportStore *_sharedInstance;
          */
         BOOL isDir = [file.absoluteString hasSuffix:@"/"];
         if (!isDir) {
-            NSString *fileType;
-            [file getResourceValue:&fileType forKey:NSURLFileResourceTypeKey error:NULL];
-            isDir = [NSURLFileResourceTypeDirectory isEqualToString:fileType];
+            isDir = file.isDirectory.boolValue;
         }
         NSString *fileName = [file.lastPathComponent stringByRemovingPercentEncoding];
         NSURL *reportUrl = [self.reportsDir URLByAppendingPathComponent:fileName isDirectory:isDir];
@@ -317,12 +326,6 @@ ReportStore *_sharedInstance;
         report.importStatus = ReportImportStatusNewLocal;
         report.title = url.lastPathComponent;
         report.uti = [self.utiExpert preferredUtiForExtension:url.pathExtension conformingToUti:NULL];
-        // TODO: do this in background for FS access; move after creating and adding report
-        NSDictionary<NSFileAttributeKey, id> *attrs = [self.fileManager attributesOfItemAtPath:url.path error:nil];
-        NSString *fileType = attrs.fileType;
-        if ([NSFileTypeDirectory isEqualToString:fileType]) {
-            report.baseDir = url;
-        }
     }
 
     return report;
@@ -347,6 +350,7 @@ ReportStore *_sharedInstance;
 - (void)beginInspectingFileForReport:(Report *)report withUti:(CFStringRef)reportUti
 {
     ensureMainThread();
+
     // TODO: identify the task name for the report, or just use one task for all pending imports?
     if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
         _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice.background_import" expirationHandler:^{
@@ -393,9 +397,7 @@ ReportStore *_sharedInstance;
         if (type) {
             NSLog(@"matched report type %@ to report %@", type, report);
             nextStep = ^{
-                report.baseDir = [report.importDir URLByAppendingPathComponent:@"dice_content" isDirectory:YES];
-                report.rootFile = [report.baseDir URLByAppendingPathComponent:report.sourceFile.lastPathComponent];
-                [self moveStandaloneSourceFileToRootFileOfReport:report importAsType:type];
+                [self moveSourceFileToImportDirOfReport:report importAsType:type];
             };
         }
     }
@@ -416,7 +418,7 @@ ReportStore *_sharedInstance;
 
     dispatch_async(dispatch_get_main_queue(), ^{
         if (nextStep) {
-            // TODO: probaby fine on main thread, but who knows? possibly move to import queue
+            // TODO: probably fine on main thread, but who knows? possibly move to import queue
             // TODO: normalize to proper file names
             NSError *err = nil;
             NSString *importDirName = [NSString stringWithFormat:@"%@.dice_import", report.sourceFile.lastPathComponent];
@@ -440,15 +442,22 @@ ReportStore *_sharedInstance;
     });
 }
 
-/**
- * invoke on main thread
- */
-- (void)moveStandaloneSourceFileToRootFileOfReport:(Report *)report importAsType:(id<ReportType>)reportType
+- (void)moveSourceFileToImportDirOfReport:(Report *)report importAsType:(id<ReportType>)reportType
 {
     ensureMainThread();
 
     MoveFileOperation *mv = [[[MoveFileOperation alloc]
-        initWithSourceUrl:report.sourceFile destUrl:report.rootFile fileManager:self.fileManager] createDestDirs:YES];
+        initWithSourceUrl:report.sourceFile destUrl:nil fileManager:self.fileManager] createDestDirs:YES];
+    if ([self.fileManager isDirectoryAtUrl:report.sourceFile]) {
+        report.baseDir = [report.importDir URLByAppendingPathComponent:report.sourceFile.lastPathComponent isDirectory:YES];
+        mv.destUrl = report.baseDir;
+    }
+    else {
+        report.baseDir = [report.importDir URLByAppendingPathComponent:@"dice_content" isDirectory:YES];
+        report.rootFile = [report.baseDir URLByAppendingPathComponent:report.sourceFile.lastPathComponent];
+        mv.destUrl = report.rootFile;
+    }
+
     __weak MoveFileOperation *mvCaptured = mv;
     void (^afterMove)() = ^{
         if (mvCaptured.fileWasMoved) {
@@ -868,6 +877,7 @@ ReportStore *_sharedInstance;
 {
     // TODO: handle move failure
     dispatch_async(dispatch_get_main_queue(), ^{
+        process.report.importStatus = ReportImportStatusDeleted;
         [_reports removeObject:process.report];
         [self.notifications postNotificationName:ReportNotification.reportRemoved object:self userInfo:@{@"report": process.report}];
     });
