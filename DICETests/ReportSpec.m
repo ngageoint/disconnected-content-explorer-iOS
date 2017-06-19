@@ -12,6 +12,7 @@
 #import <OCHamcrest/OCHamcrest.h>
 
 #import "Report.h"
+#import <stdatomic.h>
 
 
 SpecBegin(Report)
@@ -27,6 +28,7 @@ describe(@"Report", ^{
     });
     
     it(@"updates report from json descriptor", ^{
+
         Report *report = [[Report alloc] init];
 
         [report setPropertiesFromJsonDescriptor:@{
@@ -46,11 +48,12 @@ describe(@"Report", ^{
         expect(report.lon).to.equal(@-104.8);
         expect(report.thumbnail).to.equal(@"images/test.png");
         expect(report.tileThumbnail).to.equal(@"images/test-tile.png");
-        expect(report.importStatus).to.equal(ReportImportStatusNewLocal);
+        expect(report.importStatus).to.equal(ReportImportStatusNew);
         expect(report.isImportFinished).to.equal(NO);
     });
 
     it(@"leaves properties not in the descriptor intact", ^{
+
         Report *report = [[Report alloc] init];
 
         report.contentId = @"/path/to/report";
@@ -73,14 +76,15 @@ describe(@"Report", ^{
         expect(report.lon).to.beNil();
         expect(report.thumbnail).to.equal(@"default.png");
         expect(report.tileThumbnail).to.equal(@"my_tile.png");
-        expect(report.importStatus).to.equal(ReportImportStatusNewLocal);
+        expect(report.importStatus).to.equal(ReportImportStatusNew);
         expect(report.isImportFinished).to.equal(NO);
     });
 
     it(@"indicates import finished when status is success or failed", ^{
+
         Report *report = [[Report alloc] init];
 
-        expect(report.importStatus).to.equal(ReportImportStatusNewLocal);
+        expect(report.importStatus).to.equal(ReportImportStatusNew);
         expect(report.isImportFinished).to.equal(NO);
 
         report.importStatus = ReportImportStatusDownloading;
@@ -101,33 +105,33 @@ describe(@"Report", ^{
 
     describe(@"NSCoding support", ^{
 
+        NSURL *reportsDir = [NSURL fileURLWithPath:@"/dice" isDirectory:YES];
+        NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"NSCoding.zip" isDirectory:NO];
+        NSURL *importDir = [reportsDir URLByAppendingPathComponent:@"NSCoding.zip.dice_import" isDirectory:YES];
+        NSURL *baseDir = [importDir URLByAppendingPathComponent:@"NSCoding" isDirectory:YES];
+        NSURL *rootFile = [baseDir URLByAppendingPathComponent:@"index.txt" isDirectory:NO];
+
+        Report *original = [[Report alloc] init];
+        original.baseDir = baseDir;
+        original.contentId = @"dice.test.NSCoding";
+        original.downloadProgress = 75;
+        original.downloadSize = 123456;
+        original.importDir = importDir;
+        original.importStatus = ReportImportStatusSuccess;
+        original.isEnabled = YES;
+        original.lat = @36.0;
+        original.lon = @(-104.0);
+        original.remoteSource = [NSURL URLWithString:@"http://dice.com/NSCoding.zip"];
+        original.rootFile = rootFile;
+        original.sourceFile = sourceFile;
+        original.statusMessage = @"Imported";
+        original.summary = @"Testing NSCoding support";
+        original.thumbnail = @"thumbnail.png";
+        original.tileThumbnail = @"tile.png";
+        original.title = @"NSCoding Test";
+        original.uti = (__bridge CFStringRef)@"dice.test";
+
         it(@"encodes and decodes properly", ^{
-
-            NSURL *reportsDir = [NSURL fileURLWithPath:@"/dice" isDirectory:YES];
-            NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"NSCoding.zip" isDirectory:NO];
-            NSURL *importDir = [reportsDir URLByAppendingPathComponent:@"NSCoding.zip.dice_import" isDirectory:YES];
-            NSURL *baseDir = [importDir URLByAppendingPathComponent:@"NSCoding" isDirectory:YES];
-            NSURL *rootFile = [baseDir URLByAppendingPathComponent:@"index.txt" isDirectory:NO];
-
-            Report *original = [[Report alloc] init];
-            original.baseDir = baseDir;
-            original.contentId = @"dice.test.NSCoding";
-            original.downloadProgress = 75;
-            original.downloadSize = 123456;
-            original.importDir = importDir;
-            original.importStatus = ReportImportStatusSuccess;
-            original.isEnabled = YES;
-            original.lat = @36.0;
-            original.lon = @(-104.0);
-            original.remoteSource = [NSURL URLWithString:@"http://dice.com/NSCoding.zip"];
-            original.rootFile = rootFile;
-            original.sourceFile = sourceFile;
-            original.statusMessage = @"Imported";
-            original.summary = @"Testing NSCoding support";
-            original.thumbnail = @"thumbnail.png";
-            original.tileThumbnail = @"tile.png";
-            original.title = @"NSCoding Test";
-            original.uti = (__bridge CFStringRef)@"dice.test";
 
             NSDictionary *properties = @{
                 @"baseDir": original.baseDir,
@@ -158,8 +162,29 @@ describe(@"Report", ^{
             assertThat(originalProperties, hasEntriesIn(properties));
             assertThat(materializedProperties, hasEntriesIn(originalProperties));
         });
+
+        it(@"is fast enough", ^{
+
+            __block NSData *archive = nil;
+            __block atomic_bool done; atomic_init(&done, NO);
+
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                archive = [NSKeyedArchiver archivedDataWithRootObject:rootFile];
+                atomic_store(&done, YES);
+            });
+
+            expect(atomic_load(&done)).after(0.0001).to.beTruthy();
+
+            __block Report *unarchived = nil;
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                unarchived = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
+                atomic_store(&done, NO);
+            });
+
+            expect(atomic_load(&done)).after(0.0001).to.beFalsy();
+        });
     });
-    
+
     afterEach(^{
 
     });
