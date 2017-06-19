@@ -160,7 +160,7 @@ describe(@"ReportStore", ^{
         
     });
 
-    xdescribe(@"load all reports", ^{
+    describe(@"load all reports", ^{
 
         beforeEach(^{
         });
@@ -636,10 +636,6 @@ describe(@"ReportStore", ^{
             expect(report.rootFile).to.equal(rootFile);
         });
 
-        it(@"sets the root file to the source file in the import dir if the import process doesn't set the root file", ^{
-            
-        });
-
         it(@"parses the report descriptor if present in base dir as metadata.json", ^{
 
             [fileManager setWorkingDirChildren:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", nil];
@@ -703,45 +699,11 @@ describe(@"ReportStore", ^{
             expect(report.summary).to.beNil();
         });
 
-        it(@"works if the import process changes the report url", ^{
-
-            [fileManager setWorkingDirChildren:@"blue_base/", @"blue_base/index.blue", nil];
-            TestImportProcess *blueImport = [blueType enqueueImport];
-            blueImport.steps = @[
-                [NSBlockOperation blockOperationWithBlock:^{
-                    blueImport.report.rootFile = [reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"];
-                }],
-                [[NSBlockOperation blockOperationWithBlock:^{}] block]
-            ];
-
-            Report *report1 = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
-
-            assertWithTimeout(1.0, thatEventually(report1.rootFile), equalTo([reportsDir URLByAppendingPathComponent:@"blue_base/index.blue"]));
-
-            Report *report2 = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
-
-            expect(report2).to.beIdenticalTo(report1);
-            expect(store.reports.count).to.equal(1);
-            expect(store.reports.firstObject).to.beIdenticalTo(report1);
-
-            [blueImport.steps[1] unblock];
-
-            assertWithTimeout(1.0, thatEventually(@(report1.isEnabled)), isTrue());
-
-            expect(store.reports.count).to.equal(1);
-            expect(store.reports.firstObject).to.beIdenticalTo(report1);
-
-            report2 = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
-            
-            expect(report2).to.beIdenticalTo(report1);
-            expect(report2.isEnabled).to.equal(YES);
-        });
-
     });
 
     // #pragma mark - Importing archives
 
-    xdescribe(@"importing report archives from the documents directory", ^{
+    describe(@"importing report archives from the documents directory", ^{
 
         it(@"creates an import dir for the archive", ^{
 
