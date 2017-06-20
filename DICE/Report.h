@@ -51,7 +51,7 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 /** the file url of the resource that a client should load first when viewing this report */
 @property NSURL *rootFile;
 /** the uniform type identifier of the report's root resource */
-@property CFStringRef uti;
+@property NSString *uti;
 @property NSUInteger downloadSize;
 @property NSUInteger downloadProgress;
 @property BOOL isEnabled;

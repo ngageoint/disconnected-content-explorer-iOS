@@ -43,7 +43,7 @@
     [coder encodeObject:self.thumbnail forKey:NSStringFromSelector(@selector(thumbnail))];
     [coder encodeObject:self.tileThumbnail forKey:NSStringFromSelector(@selector(tileThumbnail))];
     [coder encodeObject:self.title forKey:NSStringFromSelector(@selector(title))];
-    [coder encodeObject:(NSString *)self.uti forKey:NSStringFromSelector(@selector(uti))];
+    [coder encodeObject:self.uti forKey:NSStringFromSelector(@selector(uti))];
 }
 
 - (id)valueForKey:(NSString *)key
@@ -52,27 +52,6 @@
         return (NSString *)self.uti;
     }
     return [super valueForKey:key];
-}
-
-- (void)setValue:(nullable id)value forKey:(NSString *)key
-{
-    if ([NSStringFromSelector(@selector(uti)) isEqualToString:key]) {
-        NSString *utiStr = (NSString *)value;
-        self.uti = (__bridge CFStringRef)utiStr;
-    }
-    else {
-        [super setValue:value forKey:key];
-    }
-}
-
-- (void)setNilValueForKey:(NSString *)key
-{
-    if ([NSStringFromSelector(@selector(uti)) isEqualToString:key]) {
-        self.uti = NULL;
-    }
-    else {
-        [super setNilValueForKey:key];
-    }
 }
 
 - (NSURL *)thumbnailURL
@@ -105,7 +84,7 @@
     _thumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(thumbnail))];
     _tileThumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(tileThumbnail))];
     _title = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(title))];
-    _uti = (__bridge CFStringRef) [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(uti))];
+    _uti = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(uti))];
 
     return self;
 }

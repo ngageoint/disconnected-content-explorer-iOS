@@ -130,7 +130,7 @@ describe(@"Report", ^{
         original.thumbnail = @"thumbnail.png";
         original.tileThumbnail = @"tile.png";
         original.title = @"NSCoding Test";
-        original.uti = (__bridge CFStringRef)@"dice.test";
+        original.uti = @"dice.test";
 
         NSDictionary *properties = @{
             @"baseDir": original.baseDir,
@@ -150,7 +150,7 @@ describe(@"Report", ^{
             @"thumbnail": original.thumbnail,
             @"tileThumbnail": original.tileThumbnail,
             @"title": original.title,
-            @"uti": (NSString *) original.uti,
+            @"uti": original.uti,
         };
 
 

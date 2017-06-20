@@ -330,7 +330,7 @@ ReportStore *_sharedInstance;
         report.sourceFile = url;
         report.importStatus = ReportImportStatusNewLocal;
         report.title = url.lastPathComponent;
-        report.uti = [self.utiExpert preferredUtiForExtension:url.pathExtension conformingToUti:NULL];
+        report.uti = (__bridge NSString *)[self.utiExpert preferredUtiForExtension:url.pathExtension conformingToUti:NULL];
     }
 
     return report;

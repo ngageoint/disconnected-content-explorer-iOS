@@ -1261,7 +1261,7 @@ describe(@"ReportStore", ^{
             report.importDir = [reportsDir URLByAppendingPathComponent:@"restore.dice_import" isDirectory:YES];
             report.baseDir = [report.importDir URLByAppendingPathComponent:@"dice_content"];
             report.rootFile = [report.baseDir URLByAppendingPathComponent:@"index.blue"];
-            report.uti = (CFStringRef)@"dice.test.blue";
+            report.uti = @"dice.test.blue";
             report.title = @"Persistence Test";
             report.summary = @"Persisted content";
             report.importStatus = ReportImportStatusSuccess;
