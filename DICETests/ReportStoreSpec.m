@@ -607,6 +607,8 @@ describe(@"ReportStore", ^{
             expect(report.baseDir).to.beNil();
             expect(report.rootFile).to.beNil();
             expect(report.isEnabled).to.beFalsy();
+
+            failure(@"revisit how this behaves with respect to persistence");
         });
 
         it(@"moves the directory to an import dir", ^{
@@ -1259,11 +1261,33 @@ describe(@"ReportStore", ^{
             report.importDir = [reportsDir URLByAppendingPathComponent:@"restore.dice_import" isDirectory:YES];
             report.baseDir = [report.importDir URLByAppendingPathComponent:@"dice_content"];
             report.rootFile = [report.baseDir URLByAppendingPathComponent:@"index.blue"];
-            report.title = @"Persist and Restore Test";
-            report.summary = @"Content to restore";
+            report.uti = (CFStringRef)@"dice.test.blue";
+            report.title = @"Persistence Test";
+            report.summary = @"Persisted content";
+            report.importStatus = ReportImportStatusSuccess;
+
+            NSMutableData *record = [NSMutableData data];
+            NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:record];
+            [report encodeWithCoder:archiver];
+            [archiver finishEncoding];
 
             [fileManager createFilePath:@"restore.dice_import/dice_content/index.blue" contents:[@"Restore me!" dataUsingEncoding:NSUTF8StringEncoding]];
-            [fileManager createFilePath:@"restore.dice_import/dice.obj" contents:[NSKeyedArchiver archivedDataWithRootObject:report]];
+            [fileManager createFilePath:@"restore.dice_import/dice.obj" contents:record];
+
+            Report *restored = [store attemptToImportReportFromResource:report.importDir];
+
+            expect(restored.importStatus).to.equal(ReportImportStatusNewLocal);
+
+            assertWithTimeout(1.0, thatEventually(@(restored.isImportFinished)), isTrue());
+
+            expect(restored.sourceFile).to.equal(report.sourceFile);
+            expect(restored.importDir).to.equal(report.importDir);
+            expect(restored.baseDir).to.equal(report.baseDir);
+            expect(restored.rootFile).to.equal(report.rootFile);
+            expect(restored.uti).to.equal(report.uti);
+            expect(restored.title).to.equal(report.title);
+            expect(restored.summary).to.equal(report.summary);
+            expect(restored.importStatus).to.equal(ReportImportStatusSuccess);
         });
 
         it(@"treats an import dir as a stand-alone documents dir", ^{

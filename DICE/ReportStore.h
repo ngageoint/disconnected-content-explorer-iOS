@@ -90,7 +90,6 @@
 
 
 
-
 @interface ReportStore : NSObject <ImportDelegate, DICEDownloadDelegate>
 
 @property (class, nonnull) ReportStore *sharedInstance;

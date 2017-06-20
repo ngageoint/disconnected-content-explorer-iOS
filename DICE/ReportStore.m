@@ -85,6 +85,11 @@ void ensureMainThread() {
 @end
 
 
+
+static NSString *const PersistedRecordName = @"dice.obj";
+static NSString *const ImportDirSuffix = @".dice_import";
+
+
 @interface ReportStore () <UnzipDelegate, DICEDeleteReportProcessDelegate>
 @end
 
@@ -359,6 +364,11 @@ ReportStore *_sharedInstance;
         }];
     }
 
+    if ([report.sourceFile.lastPathComponent hasSuffix:ImportDirSuffix]) {
+        [self restoreImportedReport:report];
+        return;
+    }
+
     report.summary = @"Inspecting new content";
 
     if (reportUti == NULL) {
@@ -381,6 +391,32 @@ ReportStore *_sharedInstance;
         [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:CONTENT_MATCH_CONTEXT];
         [self.importQueue addOperation:op];
     }
+}
+
+- (void)restoreImportedReport:(Report *)report
+{
+    ensureMainThread();
+
+    NSString *recordPath = [report.sourceFile.path stringByAppendingPathComponent:PersistedRecordName];
+    __block NSData *record = nil;
+
+    NSBlockOperation *loadRecord = [NSBlockOperation blockOperationWithBlock:^{
+        record = [self.fileManager contentsAtPath:recordPath];
+    }];
+    NSBlockOperation *decodeRecord = [NSBlockOperation blockOperationWithBlock:^{
+        if (!record) {
+            report.summary = report.statusMessage = @"Error loading previously imported content - no record found.";
+            report.importStatus = ReportImportStatusFailed;
+            return;
+        }
+        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:record];
+        [report setPropertiesFromCoder:unarchiver];
+        [unarchiver finishDecoding];
+    }];
+
+    [decodeRecord addDependency:loadRecord];
+    [self.importQueue addOperation:loadRecord];
+    [NSOperationQueue.mainQueue addOperation:decodeRecord];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
@@ -421,7 +457,7 @@ ReportStore *_sharedInstance;
             // TODO: probably fine on main thread, but who knows? possibly move to import queue
             // TODO: normalize to proper file names
             NSError *err = nil;
-            NSString *importDirName = [NSString stringWithFormat:@"%@.dice_import", report.sourceFile.lastPathComponent];
+            NSString *importDirName = [report.sourceFile.lastPathComponent stringByAppendingString:ImportDirSuffix];
             report.importDir = [self.reportsDir URLByAppendingPathComponent:importDirName isDirectory:YES];
             if ([self.fileManager fileExistsAtPath:report.importDir.path]) {
                 // TODO: prompt to make new report or overwrite existing
