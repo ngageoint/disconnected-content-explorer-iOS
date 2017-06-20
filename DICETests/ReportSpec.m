@@ -105,6 +105,7 @@ describe(@"Report", ^{
 
     describe(@"NSCoding support", ^{
 
+
         NSURL *reportsDir = [NSURL fileURLWithPath:@"/dice" isDirectory:YES];
         NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"NSCoding.zip" isDirectory:NO];
         NSURL *importDir = [reportsDir URLByAppendingPathComponent:@"NSCoding.zip.dice_import" isDirectory:YES];
@@ -131,28 +132,29 @@ describe(@"Report", ^{
         original.title = @"NSCoding Test";
         original.uti = (__bridge CFStringRef)@"dice.test";
 
-        it(@"encodes and decodes properly", ^{
+        NSDictionary *properties = @{
+            @"baseDir": original.baseDir,
+            @"contentId": original.contentId,
+            @"downloadProgress": @(original.downloadProgress),
+            @"downloadSize": @(original.downloadSize),
+            @"importDir": original.importDir,
+            @"importStatus": @(original.importStatus),
+            @"isEnabled": @(original.isEnabled),
+            @"lat": original.lat,
+            @"lon": original.lon,
+            @"remoteSource": original.remoteSource,
+            @"rootFile": original.rootFile,
+            @"sourceFile": original.sourceFile,
+            @"statusMessage": original.statusMessage,
+            @"summary": original.summary,
+            @"thumbnail": original.thumbnail,
+            @"tileThumbnail": original.tileThumbnail,
+            @"title": original.title,
+            @"uti": (NSString *) original.uti,
+        };
 
-            NSDictionary *properties = @{
-                @"baseDir": original.baseDir,
-                @"contentId": original.contentId,
-                @"downloadProgress": @(original.downloadProgress),
-                @"downloadSize": @(original.downloadSize),
-                @"importDir": original.importDir,
-                @"importStatus": @(original.importStatus),
-                @"isEnabled": @(original.isEnabled),
-                @"lat": original.lat,
-                @"lon": original.lon,
-                @"remoteSource": original.remoteSource,
-                @"rootFile": original.rootFile,
-                @"sourceFile": original.sourceFile,
-                @"statusMessage": original.statusMessage,
-                @"summary": original.summary,
-                @"thumbnail": original.thumbnail,
-                @"tileThumbnail": original.tileThumbnail,
-                @"title": original.title,
-                @"uti": (NSString *) original.uti,
-            };
+
+        it(@"encodes and decodes properly", ^{
 
             NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:original];
             Report *materialized = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
@@ -161,6 +163,24 @@ describe(@"Report", ^{
 
             assertThat(originalProperties, hasEntriesIn(properties));
             assertThat(materializedProperties, hasEntriesIn(originalProperties));
+        });
+
+        it(@"decodes to an existing object", ^{
+
+            NSMutableData *archive = [NSMutableData data];
+            NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:archive];
+            [original encodeWithCoder:archiver];
+            [archiver finishEncoding];
+            NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:archive];
+            Report *restored = [[Report alloc] init];
+            Report *populated = [restored setPropertiesFromCoder:unarchiver];
+            [unarchiver finishDecoding];
+            NSDictionary *originalProperties = [original dictionaryWithValuesForKeys:properties.allKeys];
+            NSDictionary *populatedProperties = [populated dictionaryWithValuesForKeys:properties.allKeys];
+
+            expect(populated).to.beIdenticalTo(restored);
+            assertThat(originalProperties, hasEntriesIn(properties));
+            assertThat(populatedProperties, hasEntriesIn(properties));
         });
 
         it(@"is fast enough", ^{

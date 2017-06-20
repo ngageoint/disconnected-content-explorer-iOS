@@ -64,6 +64,7 @@ typedef NS_ENUM(NSUInteger, ReportImportStatus) {
 
 - (instancetype)initWithCoder:(NSCoder *)coder;
 - (void)encodeWithCoder:(NSCoder *)coder;
+- (instancetype)setPropertiesFromCoder:(NSCoder *)coder;
 
 /**
  Set the properties of this report from key-value pairs in the given

@@ -19,24 +19,7 @@
         return nil;
     }
 
-    _baseDir = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(baseDir))];
-    _contentId = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(contentId))];
-    _downloadProgress = (NSUInteger) [coder decodeIntegerForKey:NSStringFromSelector(@selector(downloadProgress))];
-    _downloadSize = (NSUInteger) [coder decodeIntegerForKey:NSStringFromSelector(@selector(downloadSize))];
-    _importDir = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(importDir))];
-    _importStatus = (ReportImportStatus) [coder decodeIntegerForKey:NSStringFromSelector(@selector(importStatus))];
-    _isEnabled = [coder decodeBoolForKey:NSStringFromSelector(@selector(isEnabled))];
-    _lat = [coder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(lat))];
-    _lon = [coder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(lon))];
-    _remoteSource = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(remoteSource))];
-    _rootFile = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(rootFile))];
-    _sourceFile = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(sourceFile))];
-    _statusMessage = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(statusMessage))];
-    _summary = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(summary))];
-    _thumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(thumbnail))];
-    _tileThumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(tileThumbnail))];
-    _title = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(title))];
-    _uti = (__bridge CFStringRef) [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(uti))];
+    [self setPropertiesFromCoder:coder];
 
     return self;
 }
@@ -101,6 +84,30 @@
 {
     ReportImportStatus status = self.importStatus;
     return status == ReportImportStatusSuccess || status == ReportImportStatusFailed;
+}
+
+- (instancetype)setPropertiesFromCoder:(NSCoder *)coder
+{
+    _baseDir = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(baseDir))];
+    _contentId = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(contentId))];
+    _downloadProgress = (NSUInteger) [coder decodeIntegerForKey:NSStringFromSelector(@selector(downloadProgress))];
+    _downloadSize = (NSUInteger) [coder decodeIntegerForKey:NSStringFromSelector(@selector(downloadSize))];
+    _importDir = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(importDir))];
+    _importStatus = (ReportImportStatus) [coder decodeIntegerForKey:NSStringFromSelector(@selector(importStatus))];
+    _isEnabled = [coder decodeBoolForKey:NSStringFromSelector(@selector(isEnabled))];
+    _lat = [coder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(lat))];
+    _lon = [coder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(lon))];
+    _remoteSource = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(remoteSource))];
+    _rootFile = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(rootFile))];
+    _sourceFile = [coder decodeObjectOfClass:[NSURL class] forKey:NSStringFromSelector(@selector(sourceFile))];
+    _statusMessage = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(statusMessage))];
+    _summary = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(summary))];
+    _thumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(thumbnail))];
+    _tileThumbnail = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(tileThumbnail))];
+    _title = [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(title))];
+    _uti = (__bridge CFStringRef) [coder decodeObjectOfClass:[NSString class] forKey:NSStringFromSelector(@selector(uti))];
+
+    return self;
 }
 
 - (instancetype)setPropertiesFromJsonDescriptor:(NSDictionary *)descriptor
