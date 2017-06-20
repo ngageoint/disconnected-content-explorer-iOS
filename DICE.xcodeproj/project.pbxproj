@@ -8,8 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		0697BB828B9EB48268DC1244BE6C8749 /* ne_50m-110m_land.geojson in Resources */ = {isa = PBXBuildFile; fileRef = A92CB380D2DA9CAE7A7D693B6B739F28 /* ne_50m-110m_land.geojson */; };
+		07900899AF8B2ED0AC0F0C21FFD94C74 /* NSURL+ResourceValues.m in Sources */ = {isa = PBXBuildFile; fileRef = EF4E616BF8B0CEB709A64C52EA5A7567 /* NSURL+ResourceValues.m */; };
 		09F8DB2D7CB1DCB81BF6CE816B20174A /* Reader-Button-N.png in Resources */ = {isa = PBXBuildFile; fileRef = 354233DD845B9B0674BDA0F04D324721 /* Reader-Button-N.png */; };
 		0A69A4C5B190C6B0CD9322977D9181B2 /* GeoPackageMapData.m in Sources */ = {isa = PBXBuildFile; fileRef = 979CCE8BD2DB94BB71D1F464EC7E2A8B /* GeoPackageMapData.m */; };
+		0B4191671419838AFDB2BD24042D6157 /* NSURL+ResourceValuesTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C44C176CCFC3A83620B5AC1094A5424B /* NSURL+ResourceValuesTest.m */; };
 		0E2554673255336FE0E9EC6CD10B8E01 /* TestNSOperationKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 36248EB120561F10DE3C298B717EC769 /* TestNSOperationKVO.m */; };
 		0E68EF113ED610CAAAC46546A93960D3 /* SettingsViewController+SettingsViewController_iPhone.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E4342FFD2C2132B3989BF7BCD77F626 /* SettingsViewController+SettingsViewController_iPhone.m */; };
 		10128A10F03B187A05B02C5DB2B68F6B /* DICEDeleteReportProcessSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0921E29EE4D10D95AD66D7DCBE30B0CC /* DICEDeleteReportProcessSpec.m */; };
@@ -172,6 +174,7 @@
 		02548AAC07F73FBE058DB9FE4B18CA8E /* DICEDefaultArchiveFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEDefaultArchiveFactory.m; sourceTree = "<group>"; };
 		0324100DE9AAFAEC564EA470EE6B01E7 /* AppIcon-076.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-076.png"; sourceTree = "<group>"; };
 		043B75F7841209451A3F0099594F3433 /* MapOverlayCellItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapOverlayCellItem.h; sourceTree = "<group>"; };
+		05A9B038783FD004BCD4C5DC7C95FF14 /* NSURL+ResourceValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+ResourceValues.h"; sourceTree = "<group>"; };
 		0625CBAEB5560B095E5D02ED4AABEA57 /* InspectReportArchiveOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectReportArchiveOperation.m; sourceTree = "<group>"; };
 		06C21977576D6EAF9B29D3BF7658313A /* NotificationRecordingObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationRecordingObserver.m; sourceTree = "<group>"; };
 		06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DICE.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -347,6 +350,7 @@
 		BF3B19DF4FB3FD7E33F6521F279DFB55 /* URLProtocolUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLProtocolUtils.h; sourceTree = "<group>"; };
 		BFAF15129409439A2C6C6E59611CC4A3 /* ReportStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportStore.h; sourceTree = "<group>"; };
 		C14C2D0B701F40DC426CCF81F62F986B /* ListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListViewController.m; sourceTree = "<group>"; };
+		C44C176CCFC3A83620B5AC1094A5424B /* NSURL+ResourceValuesTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+ResourceValuesTest.m"; sourceTree = "<group>"; };
 		C4AA91C552F83B1CC8C5DDDF10788FD9 /* ReaderThumbRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbRequest.m; sourceTree = "<group>"; };
 		C565C16CCF4E72BEFF614EECFDC7B86A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		C5C92DC52C2275901E63D7D521C6FE54 /* URLProtocolUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLProtocolUtils.m; sourceTree = "<group>"; };
@@ -378,7 +382,7 @@
 		DD5A1CE758A1D34CFEC65DC9550D016F /* Reader-Button-H@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Button-H@2x.png"; sourceTree = "<group>"; };
 		DF20C6768FA0AE0F8ADEEC711E0DD75C /* AppIcon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-144.png"; sourceTree = "<group>"; };
 		E19A852D6712D1CCCAA990CEA2B1EE1F /* TileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileViewController.h; sourceTree = "<group>"; };
-		E3637EAEA07D8BC7F6668D1B445DAA0D /* ReportStoreSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReportStoreSpec.m; sourceTree = "<group>"; };
+		E3637EAEA07D8BC7F6668D1B445DAA0D /* ReportStoreSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ReportStoreSpec.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E3D28406D032A36E6D265EF023667580 /* ReaderContentTile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderContentTile.m; sourceTree = "<group>"; };
 		E5FDAD67AFAB65E1AB6DBB57ECA30DE4 /* TileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileViewController.m; sourceTree = "<group>"; };
 		E711D5FF5179CD2ED7CD057E34175B3A /* GeoPackageMapData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPackageMapData.h; sourceTree = "<group>"; };
@@ -391,6 +395,7 @@
 		ED2F3273BFEB9C070C83E33191883259 /* Reader-Export.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Export.png"; sourceTree = "<group>"; };
 		EDC084DF4089D0B972C4ABEE131947F2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		EEB4E28AC03C2CA43C6B4FEBA09029BB /* Reader-Thumbs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Thumbs.png"; sourceTree = "<group>"; };
+		EF4E616BF8B0CEB709A64C52EA5A7567 /* NSURL+ResourceValues.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+ResourceValues.m"; sourceTree = "<group>"; };
 		F1622EB77C38AF2B93DD7A71930F1728 /* ExplodedHtmlImportProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExplodedHtmlImportProcess.h; sourceTree = "<group>"; };
 		F26681C4422F0A2DEDB0A8755D002EA8 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		F330494B17E7979470CAB3441261E4BA /* ParseJsonOperationSpec.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = ParseJsonOperationSpec.json; path = etc/ParseJsonOperationSpec.json; sourceTree = "<group>"; };
@@ -581,6 +586,8 @@
 				B52DB2B934C3FDAC88D176B8144E074F /* FileOperations.m */,
 				44762CB048CF6D190AAC72EBA64BC348 /* NSString+PathUtils.h */,
 				AAF0C363D23DA45642935CFE000F1293 /* NSString+PathUtils.m */,
+				05A9B038783FD004BCD4C5DC7C95FF14 /* NSURL+ResourceValues.h */,
+				EF4E616BF8B0CEB709A64C52EA5A7567 /* NSURL+ResourceValues.m */,
 				7B138AAC3B91D624A57D33CA66EF8823 /* OfflineMapUtility.h */,
 				E7449828F94774A7779D000A98DDA60C /* OfflineMapUtility.m */,
 				9266CEF8AB71F687DA52429237FA6175 /* ParseJsonOperation.h */,
@@ -658,6 +665,7 @@
 				B5BD13DE114EB92FBCFB57F58719152C /* KVOBlockObserver.m */,
 				304F560694337EE0F95BF3A07D627644 /* NSOperation+Blockable.h */,
 				F7A7706235A1DF6C533AC8F2D753B988 /* NSOperation+Blockable.m */,
+				C44C176CCFC3A83620B5AC1094A5424B /* NSURL+ResourceValuesTest.m */,
 				CAB552427B765A65BC345281B35D8957 /* NotificationRecordingObserver.h */,
 				06C21977576D6EAF9B29D3BF7658313A /* NotificationRecordingObserver.m */,
 				F330494B17E7979470CAB3441261E4BA /* ParseJsonOperationSpec.json */,
@@ -1141,6 +1149,7 @@
 				A2A955DC3241517F69018FF2395B7F9A /* MapViewController.m in Sources */,
 				7748EDD2F7C10B9FEA8CB58BD7252643 /* MatchReportTypeToContentAtPathOperation.m in Sources */,
 				6B42E32848A560D478BDADA105B6DF0D /* NSString+PathUtils.m in Sources */,
+				07900899AF8B2ED0AC0F0C21FFD94C74 /* NSURL+ResourceValues.m in Sources */,
 				252EBD190BA1BB850F22D4A606590DC6 /* NoteViewController.m in Sources */,
 				489663D9A34EA5A601A0183AFD7DC291 /* OfflineMapUtility.m in Sources */,
 				7CA903F152A4E7AA5DFF30BCBFC52440 /* PDFViewController.m in Sources */,
@@ -1200,6 +1209,7 @@
 				81007E3C2AF945586BD517D46F97563E /* InspectReportArchiveOperationSpec.m in Sources */,
 				AB35C836E02302FCFEAF39762C456B6E /* KVOBlockObserver.m in Sources */,
 				7BC45E2720A9A150B8B6414A33029127 /* NSOperation+Blockable.m in Sources */,
+				0B4191671419838AFDB2BD24042D6157 /* NSURL+ResourceValuesTest.m in Sources */,
 				850FF826DF90205CC41DC7BBD3C62F92 /* NotificationRecordingObserver.m in Sources */,
 				9602A9539E46F3BC3E122C542DCD253C /* ParseJsonOperationSpec.m in Sources */,
 				71C7198B92D481F40C453492764425BF /* ReportSpec.m in Sources */,
