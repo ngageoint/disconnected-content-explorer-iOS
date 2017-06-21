@@ -37,6 +37,7 @@
 
 @protocol ReportType <NSObject>
 
+// TODO: pre-load path attributes and pass to method; use NSURL:resourceValuesForKeys:error:
 - (BOOL)couldImportFromPath:(nonnull NSURL *)path;
 /**
  * Create a predicate to evaluate the enumerated contents of a report archive.
@@ -59,6 +60,7 @@
  * @param destDir
  * @return
  */
+// TODO: remove toDir and import to Report.importDir
 - (nullable ImportProcess *)createProcessToImportReport:(nonnull Report *)report toDir:(nonnull NSURL *)destDir;
 
 @end

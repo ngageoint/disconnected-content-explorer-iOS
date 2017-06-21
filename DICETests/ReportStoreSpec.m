@@ -250,6 +250,8 @@ describe(@"ReportStore", ^{
         });
 
         it(@"leaves failed download reports", ^{
+
+
             failure(@"TODO: is this what we want?");
         });
 
@@ -1375,7 +1377,7 @@ describe(@"ReportStore", ^{
 
 #pragma mark - Downloading
 
-    xdescribe(@"downloading content", ^{
+    describe(@"downloading content", ^{
 
         it(@"starts a download when importing from an http url", ^{
         
@@ -1615,8 +1617,6 @@ describe(@"ReportStore", ^{
         it(@"can re-download the same url after failing to import a downloaded file", ^{
 
             failure(@"implement prompt to overwrite file with download");
-            failure(@"actually this isn't even possible right now because the download url is lost after the download completes");
-            failure(@"use CoreData to track where reports come from");
 
 //            TestImportProcess *importProcess = [blueType enqueueImport];
 //            importProcess.steps = @[[NSBlockOperation blockOperationWithBlock:^{
@@ -1687,10 +1687,9 @@ describe(@"ReportStore", ^{
                 observe:ReportNotification.reportDownloadProgress on:store.notifications from:store]
                 observe:ReportNotification.reportDownloadComplete on:store.notifications from:store];
 
-            Report *retryReport = [store attemptToImportReportFromResource:url];
+            [store retryImportingReport:report];
 
-            expect(retryReport).to.beIdenticalTo(report);
-            expect(retryReport.importStatus).to.equal(ReportImportStatusDownloading);
+            expect(report.importStatus).to.equal(ReportImportStatusDownloading);
             expect(obs.received).to.haveCountOf(0);
             [verifyCount(downloadManager, times(2)) downloadUrl:url];
 
@@ -1706,11 +1705,13 @@ describe(@"ReportStore", ^{
             [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
             download.wasSuccessful = YES;
             download.downloadedFile = downloadedFile;
+            [fileManager createFilePath:downloadedFile.path contents:nil];
             [store downloadManager:downloadManager didFinishDownload:download];
 
             assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
             expect(report.isEnabled).to.beTruthy();
-            expect(report.rootFile).to.equal(downloadedFile);
+            expect(report.sourceFile).to.equal(downloadedFile);
             expect(report.importStatus).to.equal(ReportImportStatusSuccess);
 
             NSArray<ReceivedNotification *> *received = obs.received;
@@ -1749,9 +1750,9 @@ describe(@"ReportStore", ^{
             Report *finishedReport = obs.received[2].notification.userInfo[@"report"];
 
             expect(inProgressReport.importStatus).to.equal(ReportImportStatusDownloading);
-            expect(inProgressReport.rootFile).to.equal(inProgress.url);
+            expect(inProgressReport.remoteSource).to.equal(inProgress.url);
             expect(finishedReport.importStatus).to.equal(ReportImportStatusDownloading);
-            expect(finishedReport.rootFile).to.equal(finishedFile);
+            expect(finishedReport.sourceFile).to.equal(finishedFile);
             expect(obs.received[0].notification.userInfo[@"report"]).to.beIdenticalTo(inProgressReport);
             expect(obs.received[1].notification.userInfo[@"report"]).to.beIdenticalTo(inProgressReport);
 

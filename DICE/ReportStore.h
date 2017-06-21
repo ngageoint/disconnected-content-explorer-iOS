@@ -158,6 +158,12 @@
  */
 - (nullable Report *)attemptToImportReportFromResource:(nonnull NSURL *)reportUrl;
 
+/**
+ Try again to import the content for the given report.  The given report's import
+ status must be ReportImportStatusFailed, or this method will do nothing.
+ */
+- (void)retryImportingReport:(nonnull Report *)report;
+
 - (nullable Report *)reportForID:(nonnull NSString *)reportID;
 
 - (void)deleteReport:(nonnull Report *)report;

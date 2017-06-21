@@ -289,15 +289,24 @@ ReportStore *_sharedInstance;
     }
 
     report = [self addNewReportForUrl:reportUrl];
-    if (report.importStatus == ReportImportStatusNewLocal) {
-        [self beginInspectingFileForReport:report withUti:NULL];
-    }
-    else if (report.importStatus == ReportImportStatusNewRemote) {
-        report.importStatus = ReportImportStatusDownloading;
-        [self.downloadManager downloadUrl:reportUrl];
-    }
+    [self beginImportingNewReport:report];
 
     return report;
+}
+
+- (void)retryImportingReport:(Report *)report
+{
+    ensureMainThread();
+
+    if (!report.isImportFinished || ![self.reports containsObject:report]) {
+        return;
+    }
+
+    if (report.remoteSource) {
+        [self initializeReport:report forSourceUrl:report.remoteSource];
+    }
+
+    [self beginImportingNewReport:report];
 }
 
 - (Report *)initializeReport:(Report *)report forSourceUrl:(NSURL *)url
@@ -334,6 +343,17 @@ ReportStore *_sharedInstance;
     }
 
     return report;
+}
+
+- (void)beginImportingNewReport:(Report *)report
+{
+    if (report.importStatus == ReportImportStatusNewLocal) {
+        [self beginInspectingFileForReport:report withUti:NULL];
+    }
+    else if (report.importStatus == ReportImportStatusNewRemote) {
+        report.importStatus = ReportImportStatusDownloading;
+        [self.downloadManager downloadUrl:report.remoteSource];
+    }
 }
 
 /**
@@ -558,7 +578,6 @@ ReportStore *_sharedInstance;
         report.importStatus = ReportImportStatusFailed;
         report.statusMessage = download.errorMessage;
         report.isEnabled = NO;
-        [self finishBackgroundTaskIfImportsFinished];
         [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
         return;
     }
