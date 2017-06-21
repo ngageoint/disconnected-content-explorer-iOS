@@ -10,6 +10,7 @@
 
 @property (readonly) BOOL wasMainThread;
 @property (readonly) NSNotification *notification;
+@property (readonly) NSDictionary *userInfo;
 
 - (instancetype)initWithNotification:(NSNotification *)notification;
 

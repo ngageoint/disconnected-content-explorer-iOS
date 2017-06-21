@@ -1250,8 +1250,79 @@ describe(@"ReportStore", ^{
 
     describe(@"persistence", ^{
 
-        it(@"writes a record to the import dir immediately", ^{
-            failure(@"to do");
+        it(@"writes a record to the import dir when the import succeeds", ^{
+
+            NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"test.blue"];
+            [fileManager setWorkingDirChildren:sourceFile.lastPathComponent, nil];
+            TestImportProcess *blueImport = [[blueType enqueueImport] block];
+
+            Report *report = [store attemptToImportReportFromResource:sourceFile];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+
+            NSString *recordPath = [report.importDir.path stringByAppendingPathComponent:@"dice.obj"];
+
+            expect([fileManager fileExistsAtPath:recordPath]).to.beFalsy();
+
+            [blueImport unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect([fileManager fileExistsAtPath:recordPath]).to.beTruthy();
+            expect(report.importStatus).to.equal(ReportImportStatusSuccess);
+
+            NSData *record = [fileManager contentsAtPath:recordPath];
+            NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:record];
+            Report *fromRecord = [[Report alloc] initWithCoder:unarchiver];
+            [unarchiver finishDecoding];
+
+            expect(fromRecord.baseDir).to.equal(report.baseDir);
+            expect(fromRecord.importDir).to.equal(report.importDir);
+            expect(fromRecord.importStatus).to.equal(report.importStatus);
+            expect(fromRecord.isEnabled).to.equal(report.isEnabled);
+            expect(fromRecord.rootFile).to.equal(report.rootFile);
+            expect(fromRecord.sourceFile).to.equal(report.sourceFile);
+            expect(fromRecord.statusMessage).to.equal(report.statusMessage);
+            expect(fromRecord.summary).to.equal(report.summary);
+            expect(fromRecord.title).to.equal(report.title);
+        });
+
+        it(@"writes a record to the import dir when the import fails", ^{
+
+            NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"test.blue"];
+            [fileManager setWorkingDirChildren:sourceFile.lastPathComponent, nil];
+            TestImportProcess *blueImport = [[blueType enqueueImport] block];
+            [blueImport.steps.lastObject cancel];
+
+            Report *report = [store attemptToImportReportFromResource:sourceFile];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+
+            NSString *recordPath = [report.importDir.path stringByAppendingPathComponent:@"dice.obj"];
+
+            expect([fileManager fileExistsAtPath:recordPath]).to.beFalsy();
+
+            [blueImport unblock];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect([fileManager fileExistsAtPath:recordPath]).to.beTruthy();
+            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+
+            NSData *record = [fileManager contentsAtPath:recordPath];
+            NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:record];
+            Report *fromRecord = [[Report alloc] initWithCoder:unarchiver];
+            [unarchiver finishDecoding];
+
+            expect(fromRecord.baseDir).to.equal(report.baseDir);
+            expect(fromRecord.importDir).to.equal(report.importDir);
+            expect(fromRecord.importStatus).to.equal(report.importStatus);
+            expect(fromRecord.isEnabled).to.equal(report.isEnabled);
+            expect(fromRecord.rootFile).to.equal(report.rootFile);
+            expect(fromRecord.sourceFile).to.equal(report.sourceFile);
+            expect(fromRecord.statusMessage).to.equal(report.statusMessage);
+            expect(fromRecord.summary).to.equal(report.summary);
+            expect(fromRecord.title).to.equal(report.title);
         });
 
         it(@"restores persisted record from dice.obj in import dir", ^{
@@ -1274,12 +1345,19 @@ describe(@"ReportStore", ^{
             [fileManager createFilePath:@"restore.dice_import/dice_content/index.blue" contents:[@"Restore me!" dataUsingEncoding:NSUTF8StringEncoding]];
             [fileManager createFilePath:@"restore.dice_import/dice.obj" contents:record];
 
+            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:store.notifications from:store withBlock:nil];
+
             Report *restored = [store attemptToImportReportFromResource:report.importDir];
 
             expect(restored.importStatus).to.equal(ReportImportStatusNewLocal);
+            expect(store.reports).to.haveCountOf(1);
+            expect(store.reports).to.contain(restored);
+            expect(observer.received).to.haveCountOf(0);
 
             assertWithTimeout(1.0, thatEventually(@(restored.isImportFinished)), isTrue());
 
+            expect(store.reports).to.haveCountOf(1);
+            expect(store.reports).to.contain(restored);
             expect(restored.sourceFile).to.equal(report.sourceFile);
             expect(restored.importDir).to.equal(report.importDir);
             expect(restored.baseDir).to.equal(report.baseDir);
@@ -1288,15 +1366,11 @@ describe(@"ReportStore", ^{
             expect(restored.title).to.equal(report.title);
             expect(restored.summary).to.equal(report.summary);
             expect(restored.importStatus).to.equal(ReportImportStatusSuccess);
+            expect(observer.received).to.haveCountOf(1);
+            expect(observer.received.firstObject.wasMainThread).to.beTruthy();
+            expect(observer.received.firstObject.userInfo[@"report"]).to.beIdenticalTo(restored);
         });
 
-        it(@"treats an import dir as a stand-alone documents dir", ^{
-            failure(@"to do");
-        });
-
-        it(@"materializes the report record from the stored import record in the import dir", ^{
-            failure(@"to do");
-        });
     });
 
 #pragma mark - Downloading

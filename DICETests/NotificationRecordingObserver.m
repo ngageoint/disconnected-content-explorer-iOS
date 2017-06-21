@@ -20,6 +20,11 @@
     return self;
 }
 
+- (NSDictionary *)userInfo
+{
+    return _notification.userInfo;
+}
+
 @end
 
 

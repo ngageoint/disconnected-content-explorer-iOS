@@ -365,7 +365,10 @@ ReportStore *_sharedInstance;
     }
 
     if ([report.sourceFile.lastPathComponent hasSuffix:ImportDirSuffix]) {
-        [self restoreImportedReport:report];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self loadRecordForReport:report];
+            [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
+        });
         return;
     }
 
@@ -393,30 +396,30 @@ ReportStore *_sharedInstance;
     }
 }
 
-- (void)restoreImportedReport:(Report *)report
+- (void)loadRecordForReport:(Report *)report
 {
     ensureMainThread();
 
     NSString *recordPath = [report.sourceFile.path stringByAppendingPathComponent:PersistedRecordName];
-    __block NSData *record = nil;
+    NSData *record = [self.fileManager contentsAtPath:recordPath];
+    if (!record) {
+        report.summary = report.statusMessage = @"Error loading previously imported content - no record found.";
+        report.importStatus = ReportImportStatusFailed;
+        return;
+    }
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:record];
+    [report setPropertiesFromCoder:unarchiver];
+    [unarchiver finishDecoding];
+}
 
-    NSBlockOperation *loadRecord = [NSBlockOperation blockOperationWithBlock:^{
-        record = [self.fileManager contentsAtPath:recordPath];
-    }];
-    NSBlockOperation *decodeRecord = [NSBlockOperation blockOperationWithBlock:^{
-        if (!record) {
-            report.summary = report.statusMessage = @"Error loading previously imported content - no record found.";
-            report.importStatus = ReportImportStatusFailed;
-            return;
-        }
-        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:record];
-        [report setPropertiesFromCoder:unarchiver];
-        [unarchiver finishDecoding];
-    }];
-
-    [decodeRecord addDependency:loadRecord];
-    [self.importQueue addOperation:loadRecord];
-    [NSOperationQueue.mainQueue addOperation:decodeRecord];
+- (void)saveRecordForReport:(Report *)report
+{
+    NSMutableData *record = [NSMutableData data];
+    NSKeyedArchiver *coder = [[NSKeyedArchiver alloc] initForWritingWithMutableData:record];
+    [report encodeWithCoder:coder];
+    [coder finishEncoding];
+    NSString *recordPath = [report.importDir.path stringByAppendingPathComponent:PersistedRecordName];
+    [self.fileManager createFileAtPath:recordPath contents:record attributes:nil];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
@@ -689,6 +692,7 @@ ReportStore *_sharedInstance;
             report.summary = report.statusMessage = @"Failed to import content";
         }
         [self clearPendingImport:importProcess];
+        [self saveRecordForReport:report];
         [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": importProcess.report}];
     });
 }
