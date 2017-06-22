@@ -9,6 +9,13 @@
 #import <Foundation/Foundation.h>
 
 
+FOUNDATION_EXPORT NSErrorDomain _Nonnull const DICEDownloadErrorDomain;
+
+NS_ENUM(NSInteger, DICEDownloadErrorCode) {
+    DICEDownloadHttpError,
+    DICEDownloadFileError,
+};
+
 @interface DICEDownload : NSObject
 
 @property (readonly, nonnull) NSURL *url;
@@ -17,10 +24,10 @@
 @property int64_t bytesExpected;
 @property int64_t bytesReceived;
 @property (readonly) NSInteger percentComplete;
+@property BOOL wasSuccessful;
 @property NSInteger httpResponseCode;
 /** either the NSHTTPURLResponse responseMessage or a message from an NSError */
-@property (nullable) NSString *errorMessage;
-@property BOOL wasSuccessful;
+@property (nullable) NSError *error;
 @property (nullable) NSURL *downloadedFile;
 
 - (nullable instancetype)initWithUrl:(nonnull NSURL *)url;

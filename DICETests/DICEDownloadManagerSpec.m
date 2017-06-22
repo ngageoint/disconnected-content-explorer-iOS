@@ -107,7 +107,7 @@ describe(@"DICEDownloadManager", ^{
         [given([task response]) willReturn:response];
         __block BOOL movedFile = NO;
         __block NSThread *downloadThread;
-        [given([mockFileManager moveItemAtURL:tempUrl toURL:destUrl error:NULL]) willDo:^id(NSInvocation *invocation) {
+        [[given([mockFileManager moveItemAtURL:tempUrl toURL:destUrl error:NULL]) withMatcher:anything() forArgument:2] willDo:^id(NSInvocation *invocation) {
             movedFile = NSThread.currentThread == downloadThread;
             return @YES;
         }];
@@ -140,7 +140,7 @@ describe(@"DICEDownloadManager", ^{
             initWithURL:[NSURL URLWithString:@"http://dice.com/test-data"] statusCode:200 HTTPVersion:@"1.1"
             headerFields:@{@"Content-Disposition": @"attachment; filename=test.dat", @"Content-Type": @"application/test-data"}];
         [given([task response]) willReturn:response];
-        [given([mockFileManager moveItemAtURL:tempUrl toURL:destUrl error:NULL]) willReturnBool:YES];
+        [[given([mockFileManager moveItemAtURL:tempUrl toURL:destUrl error:NULL]) withMatcher:anything() forArgument:2] willReturnBool:YES];
         [given([mockDelegate downloadManager:downloadManager willFinishDownload:anything() movingToFile:anything()]) willReturn:nil];
         __block DICEDownload *download;
         [givenVoid([mockDelegate downloadManager:downloadManager didFinishDownload:anything()]) willDo:^id(NSInvocation *invocation) {
@@ -154,7 +154,7 @@ describe(@"DICEDownloadManager", ^{
 
         assertWithTimeout(1.0, thatEventually(download), notNilValue());
 
-        [verify(mockFileManager) moveItemAtURL:tempUrl toURL:destUrl error:NULL];
+        [[verify(mockFileManager) withMatcher:anything() forArgument:2] moveItemAtURL:tempUrl toURL:destUrl error:NULL];
         expect(response.suggestedFilename).to.equal(@"test.dat");
         expect(download.downloadedFile).to.equal(destUrl);
         expect(download.wasSuccessful).to.beTruthy();
@@ -172,7 +172,7 @@ describe(@"DICEDownloadManager", ^{
             initWithURL:[NSURL URLWithString:@"http://dice.com/test-data"] statusCode:200 HTTPVersion:@"1.1"
             headerFields:@{@"Content-Disposition": @"attachment; filename=test.dat", @"Content-Type": @"application/test-data"}];
         [given([task response]) willReturn:response];
-        [given([mockFileManager moveItemAtURL:tempUrl toURL:destUrl error:NULL]) willReturnBool:YES];
+        [[given([mockFileManager moveItemAtURL:tempUrl toURL:destUrl error:NULL]) withMatcher:anything() forArgument:2] willReturnBool:YES];
         [given([mockDelegate downloadManager:downloadManager willFinishDownload:anything() movingToFile:anything()]) willReturn:destUrl];
         __block DICEDownload *download;
         [givenVoid([mockDelegate downloadManager:downloadManager didFinishDownload:anything()]) willDo:^id(NSInvocation *invocation) {
@@ -186,7 +186,7 @@ describe(@"DICEDownloadManager", ^{
 
         assertWithTimeout(1.0, thatEventually(download), notNilValue());
 
-        [verify(mockFileManager) moveItemAtURL:tempUrl toURL:destUrl error:NULL];
+        [[verify(mockFileManager) withMatcher:anything() forArgument:2] moveItemAtURL:tempUrl toURL:destUrl error:NULL];
         expect(response.suggestedFilename).to.equal(@"test.dat");
         expect(download.downloadedFile).to.equal(destUrl);
         expect(download.wasSuccessful).to.beTruthy();
@@ -203,6 +203,8 @@ describe(@"DICEDownloadManager", ^{
         [given([task countOfBytesExpectedToReceive]) willReturnLong:0];
         [given([task countOfBytesReceived]) willReturnLong:0];
         [given([task response]) willReturn:response];
+        NSError *taskError = [NSError errorWithDomain:NSCocoaErrorDomain code:123 userInfo:@{NSLocalizedDescriptionKey: @"test download error"}];
+        [given([task error]) willReturn:taskError];
 
         HCArgumentCaptor *captureDownload = [[HCArgumentCaptor alloc] init];
 
@@ -213,7 +215,7 @@ describe(@"DICEDownloadManager", ^{
         }];
 
         [sessionQueue addOperationWithBlock:^{
-            [downloadManager URLSession:mockSession task:task didCompleteWithError:nil];
+            [downloadManager URLSession:mockSession task:task didCompleteWithError:taskError];
         }];
 
         assertWithTimeout(1.0, thatEventually(@(delegateFinished)), isTrue());
@@ -224,7 +226,8 @@ describe(@"DICEDownloadManager", ^{
         DICEDownload *download = captureDownload.value;
         expect(download.wasSuccessful).to.beFalsy();
         expect(download.httpResponseCode).to.equal(400);
-        expect(download.errorMessage).to.equal([NSString stringWithFormat:@"Server response: (400) %@", [NSHTTPURLResponse localizedStringForStatusCode:400]]);
+        expect(download.error.localizedDescription).to.equal([NSString stringWithFormat:@"Server response: (400) %@; Local error: test download error", [NSHTTPURLResponse localizedStringForStatusCode:400]]);
+        expect(download.error.userInfo[NSUnderlyingErrorKey]).to.beIdenticalTo(taskError);
     });
 
     it(@"notifies the delegate when a client error occurs", ^{
@@ -255,11 +258,46 @@ describe(@"DICEDownloadManager", ^{
         DICEDownload *download = captureDownload.value;
         expect(download.wasSuccessful).to.beFalsy();
         expect(download.httpResponseCode).to.equal(0);
-        expect(download.errorMessage).to.equal(@"Local error: test error");
+        expect(download.error.localizedDescription).to.equal(@"Local error: test error");
     });
 
     it(@"was not successful when moving the temp file fails", ^{
-        failure(@"do it");
+
+        NSURL *tempUrl = [NSURL fileURLWithPath:@"/tmp/abc123" isDirectory:NO];
+        NSURL *destUrl = [downloadDir URLByAppendingPathComponent:@"test.dat"];
+        __block NSError *error = [NSError errorWithDomain:@"DICEDownloadManager" code:NSFileWriteFileExistsError userInfo:@{NSLocalizedDescriptionKey: @"DICEDownloadManager test error"}];
+        NSURLSessionDownloadTask *task = mock(NSURLSessionDownloadTask.class);
+        [given([task taskIdentifier]) willReturnUnsignedInteger:123];
+        [given([task countOfBytesExpectedToReceive]) willReturnLong:9999999];
+        [given([task countOfBytesReceived]) willReturnLong:9999999];
+        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc]
+            initWithURL:[NSURL URLWithString:@"http://dice.com/test-data"] statusCode:200 HTTPVersion:@"1.1"
+            headerFields:@{@"Content-Disposition": @"attachment; filename=test.dat", @"Content-Type": @"application/test-data"}];
+        [given([task response]) willReturn:response];
+        [[given([mockFileManager moveItemAtURL:tempUrl toURL:destUrl error:NULL]) withMatcher:anything() forArgument:2] willDo:^id _Nonnull(NSInvocation * _Nonnull invoc) {
+            NSError * __autoreleasing *errorAddr = NULL;
+            [invoc getArgument:&errorAddr atIndex:4];
+            *errorAddr = error;
+            return @NO;
+        }];
+        [given([mockDelegate downloadManager:downloadManager willFinishDownload:anything() movingToFile:anything()]) willReturn:nil];
+        __block DICEDownload *download;
+        [givenVoid([mockDelegate downloadManager:downloadManager didFinishDownload:anything()]) willDo:^id(NSInvocation *invocation) {
+            download = invocation.mkt_arguments[1];
+            return nil;
+        }];
+
+        [sessionQueue addOperationWithBlock:^{
+            [downloadManager URLSession:mockSession downloadTask:task didFinishDownloadingToURL:tempUrl];
+        }];
+
+        assertWithTimeout(1.0, thatEventually(download), notNilValue());
+
+        [[verify(mockFileManager) withMatcher:anything() forArgument:2] moveItemAtURL:tempUrl toURL:destUrl error:NULL];
+        expect(response.suggestedFilename).to.equal(@"test.dat");
+        expect(download.downloadedFile).to.beNil();
+        expect(download.wasSuccessful).to.beFalsy();
+        expect(download.error.userInfo[NSUnderlyingErrorKey]).to.beIdenticalTo(error);
     });
 
     xit(@"handles duplicate downloaded file names", ^{
@@ -490,6 +528,8 @@ describe(@"DICEDownloadManager", ^{
             return nil;
         }];
 
+        [[given([mockFileManager moveItemAtURL:anything() toURL:anything() error:NULL]) withMatcher:anything() forArgument:2] willReturnBool:YES];
+
         __block BOOL handled = NO;
         void (^handler)() = ^{
             expect(willFinishDownloads).to.haveCountOf(2);
@@ -510,7 +550,7 @@ describe(@"DICEDownloadManager", ^{
             [downloadManager URLSessionDidFinishEventsForBackgroundURLSession:mockSession];
         }];
 
-        assertWithTimeout(1000.0, thatEventually(@(handled)), isTrue());
+        assertWithTimeout(1.0, thatEventually(@(handled)), isTrue());
         expect(willFinishDownloads).to.haveCountOf(2);
         expect(finishedDownloads).to.haveCountOf(2);
         assertThat(willFinishDownloads, hasItem(allOf(

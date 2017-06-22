@@ -576,7 +576,7 @@ ReportStore *_sharedInstance;
         // TODO: mechanism to retry
         report.title = @"Download failed";
         report.importStatus = ReportImportStatusFailed;
-        report.statusMessage = download.errorMessage;
+        report.statusMessage = download.error.localizedDescription;
         report.isEnabled = NO;
         [self.notifications postNotificationName:ReportNotification.reportImportFinished object:self userInfo:@{@"report": report}];
         return;

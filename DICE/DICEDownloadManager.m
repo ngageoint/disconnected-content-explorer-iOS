@@ -9,6 +9,10 @@
 #import "DICEDownloadManager.h"
 #import <stdatomic.h>
 
+
+NSErrorDomain const DICEDownloadErrorDomain = @"mil.nga.giat.DICE.DownloadErrorDomain";
+
+
 @implementation DICEDownload
 
 - (instancetype)initWithUrl:(NSURL *)url
@@ -104,21 +108,22 @@
     if (response && response.statusCode > 0) {
         [errorMessage appendFormat:@"Server response: (%ld) %@", (long)response.statusCode, [NSHTTPURLResponse localizedStringForStatusCode:response.statusCode]];
     }
-    NSString *clientMessage = error.userInfo[NSLocalizedDescriptionKey];
-    if (!clientMessage) {
-        clientMessage = error.localizedDescription;
-    }
+    NSString *clientMessage = error.localizedDescription;
     if (clientMessage) {
         if (errorMessage.length) {
-            [errorMessage appendString:@"\n"];
+            [errorMessage appendString:@"; "];
         }
         [errorMessage appendFormat:@"Local error: %@", clientMessage];
     }
+    NSError *downloadError = [NSError errorWithDomain:DICEDownloadErrorDomain code:0 userInfo:@{
+        NSLocalizedDescriptionKey: [NSString stringWithString:errorMessage],
+        NSUnderlyingErrorKey: error ? error : NSNull.null,
+    }];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         DICEDownload *download = [self downloadForTask:(NSURLSessionDownloadTask *)task];
         [_downloads removeObjectForKey:@(task.taskIdentifier)];
-        download.errorMessage = [NSString stringWithString:errorMessage];
+        download.error = downloadError;
         download.wasSuccessful = NO;
         if (self.delegate) {
             [self.delegate downloadManager:self didFinishDownload:download];
@@ -143,11 +148,23 @@
             destFile = overrideFile;
         }
     }
-    [_fileManager moveItemAtURL:location toURL:destFile error:NULL];
+    // TODO: check move result and set error
+    __block NSError *error = nil;
+    BOOL fileDidMove = [_fileManager moveItemAtURL:location toURL:destFile error:&error];
     dispatch_async(dispatch_get_main_queue(), ^{
         [_downloads removeObjectForKey:@(downloadTask.taskIdentifier)];
-        download.downloadedFile = destFile;
-        download.wasSuccessful = YES;
+        if (fileDidMove) {
+            download.downloadedFile = destFile;
+            download.wasSuccessful = YES;
+        }
+        else {
+            NSError *downloadError = [NSError errorWithDomain:DICEDownloadErrorDomain code:DICEDownloadFileError userInfo:@{
+                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Error moving downloaded file to final destination: %@", error.localizedDescription],
+                NSUnderlyingErrorKey: error ? error : NSNull.null,
+            }];
+            download.wasSuccessful = NO;
+            download.error = downloadError;
+        }
         if (self.delegate) {
             [self.delegate downloadManager:self didFinishDownload:download];
         }
@@ -181,7 +198,6 @@
         download.mimeType = task.response.MIMEType;
         download.fileName = task.response.suggestedFilename;
         download.httpResponseCode = ((NSHTTPURLResponse *)task.response).statusCode;
-        download.errorMessage = [NSHTTPURLResponse localizedStringForStatusCode:download.httpResponseCode];
     }
 
     return download;
