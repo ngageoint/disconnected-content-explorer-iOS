@@ -22,6 +22,7 @@
 #import "DICEDeleteReportProcess.h"
 #import "DICEExtractReportOperation.h"
 #import "FileOperations.h"
+#import "NSFileManager+Convenience.h"
 #import "NSURL+ResourceValues.h"
 
 void ensureMainThread() {
@@ -72,18 +73,6 @@ void ensureMainThread() {
 }
 
 @end
-
-
-@implementation NSFileManager (ReportStore)
-
-- (BOOL)isDirectoryAtUrl:(NSURL *)url
-{
-    BOOL isDir;
-    return [self fileExistsAtPath:url.path isDirectory:&isDir] && isDir;
-}
-
-@end
-
 
 
 static NSString *const PersistedRecordName = @"dice.obj";

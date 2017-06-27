@@ -81,6 +81,7 @@
 		7850CC9236DA9EF5F2A6C026F107304A /* ResourceTypesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3874EC7A03F65B5ECA4C50EC5D46A8E2 /* ResourceTypesTests.m */; };
 		78F25D17D6F1DEBDA8B1E312D25AB76D /* HtmlReportTypeSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = D1A346D07FF62AB077E3017306809DCB /* HtmlReportTypeSpec.m */; };
 		7979D5B4D4EE665AD23AA68D1EB360CA /* DICEDefaultArchiveFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 02548AAC07F73FBE058DB9FE4B18CA8E /* DICEDefaultArchiveFactory.m */; };
+		7B327D1CB9BC7955AFE4D073FA4885E2 /* NSFileManager+Convenience.m in Sources */ = {isa = PBXBuildFile; fileRef = 47DD6E682B5526B96F6861C06B0D4A45 /* NSFileManager+Convenience.m */; };
 		7B775B53327949BC640C588F23C033FF /* Reader-Mark-N@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 82700369A95E41424285EB966DE4C6C4 /* Reader-Mark-N@2x.png */; };
 		7BC45E2720A9A150B8B6414A33029127 /* NSOperation+Blockable.m in Sources */ = {isa = PBXBuildFile; fileRef = F7A7706235A1DF6C533AC8F2D753B988 /* NSOperation+Blockable.m */; };
 		7CA903F152A4E7AA5DFF30BCBFC52440 /* PDFViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE97A42B3CDB087930FD692472448A3 /* PDFViewController.m */; };
@@ -227,12 +228,14 @@
 		3D27834265B35825A573282348A3AF46 /* ReaderThumbRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaderThumbRender.h; sourceTree = "<group>"; };
 		3E0A6175BE4F214F4AD42562F7CB4A9B /* TestOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestOperationQueue.m; sourceTree = "<group>"; };
 		3F367E09F00AEE3932C932E0EC9F98F8 /* TestFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFileManager.h; sourceTree = "<group>"; };
+		3F5766A2D892EF6A7BD9BB643C8C6B30 /* NSFileManager+Convenience.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+Convenience.h"; sourceTree = "<group>"; };
 		3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICEConstants.m; sourceTree = "<group>"; };
 		408B5BAE51B0CCB8040EC7645517FE05 /* DICE-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DICE-Prefix.pch"; sourceTree = "<group>"; };
 		42DC8D0E9D67A6011F44FA39BA1D229F /* Reader-Export@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Export@2x.png"; sourceTree = "<group>"; };
 		44762CB048CF6D190AAC72EBA64BC348 /* NSString+PathUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+PathUtils.h"; sourceTree = "<group>"; };
 		4499ED5CC81FA279C1A21B2E2D9303EF /* CGPDFDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGPDFDocument.m; sourceTree = "<group>"; };
 		46940E01625BD7F3E945302A0F301589 /* NoteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoteViewController.m; sourceTree = "<group>"; };
+		47DD6E682B5526B96F6861C06B0D4A45 /* NSFileManager+Convenience.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+Convenience.m"; sourceTree = "<group>"; };
 		48360F509FDD7869FFF1DD0F573A3692 /* TestReportType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestReportType.m; sourceTree = "<group>"; };
 		4D164ACC176BC15EB043506E393B0950 /* DisclaimerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DisclaimerViewController.h; sourceTree = "<group>"; };
 		4D96811406AAC834C785E138B886954C /* ReaderThumbsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderThumbsView.m; sourceTree = "<group>"; };
@@ -584,6 +587,8 @@
 				CC861A61BDF70FCE3CC766435B72E2FD /* DICEUtiExpert.m */,
 				5D7DF856C2AFF3927424A1719E6A984A /* FileOperations.h */,
 				B52DB2B934C3FDAC88D176B8144E074F /* FileOperations.m */,
+				3F5766A2D892EF6A7BD9BB643C8C6B30 /* NSFileManager+Convenience.h */,
+				47DD6E682B5526B96F6861C06B0D4A45 /* NSFileManager+Convenience.m */,
 				44762CB048CF6D190AAC72EBA64BC348 /* NSString+PathUtils.h */,
 				AAF0C363D23DA45642935CFE000F1293 /* NSString+PathUtils.m */,
 				05A9B038783FD004BCD4C5DC7C95FF14 /* NSURL+ResourceValues.h */,
@@ -1148,6 +1153,7 @@
 				3D12A0793D000300A4799BE983F6C410 /* MapOverlayTableCell.m in Sources */,
 				A2A955DC3241517F69018FF2395B7F9A /* MapViewController.m in Sources */,
 				7748EDD2F7C10B9FEA8CB58BD7252643 /* MatchReportTypeToContentAtPathOperation.m in Sources */,
+				7B327D1CB9BC7955AFE4D073FA4885E2 /* NSFileManager+Convenience.m in Sources */,
 				6B42E32848A560D478BDADA105B6DF0D /* NSString+PathUtils.m in Sources */,
 				07900899AF8B2ED0AC0F0C21FFD94C74 /* NSURL+ResourceValues.m in Sources */,
 				252EBD190BA1BB850F22D4A606590DC6 /* NoteViewController.m in Sources */,
