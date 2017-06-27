@@ -2218,12 +2218,49 @@ describe(@"ReportStore", ^{
             expect(removed.notification.userInfo[@"report"]).to.beIdenticalTo(singleResourceReport);
         });
 
-        it(@"can delete a failed download report with a remote url", ^{
-            failure(@"unimplemented");
+        it(@"can delete a failed download report", ^{
+
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/fail"];
+            Report *failed = [store attemptToImportReportFromResource:url];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
+            download.wasSuccessful = NO;
+            [store downloadManager:downloadManager didFinishDownload:download];
+
+            assertWithTimeout(1.0, thatEventually(@(failed.isImportFinished)), isTrue());
+
+            expect(failed.importStatus).to.equal(ReportImportStatusFailed);
+            expect(store.reports).to.contain(failed);
+
+            [store deleteReport:failed];
+
+            assertWithTimeout(1.0, thatEventually(@(failed.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
+
+            expect(store.reports).notTo.contain(failed);
         });
 
         it(@"can delete a failed import report", ^{
-            failure(@"unimplemented");
+
+            NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"failed.blue"];
+            [fileManager createFilePath:sourceFile.path contents:nil];
+            TestImportProcess *defeatist = [blueType enqueueImport];
+            [defeatist.steps.firstObject cancel];
+
+            Report *doomed = [store attemptToImportReportFromResource:sourceFile];
+
+            assertWithTimeout(1.0, thatEventually(@(doomed.isImportFinished)), isTrue());
+
+            expect(doomed.importStatus).to.equal(ReportImportStatusFailed);
+            expect(doomed.importDir).toNot.beNil();
+            expect(store.reports).to.contain(doomed);
+            expect([fileManager isDirectoryAtUrl:doomed.importDir]).to.beTruthy();
+
+            [store deleteReport:doomed];
+
+            assertWithTimeout(1.0, thatEventually(@(doomed.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
+
+            expect(store.reports).notTo.contain(doomed);
+            expect([fileManager isDirectoryAtUrl:doomed.importDir]).to.beFalsy();
+            expect([fileManager isRegularFileAtUrl:sourceFile]).to.beFalsy();
         });
 
     });
