@@ -430,6 +430,9 @@
 
 - (NSString *)absolutify:(NSString *)absOrRelPath
 {
+    if (absOrRelPath == nil) {
+        return nil;
+    }
     absOrRelPath = absOrRelPath.stringByStandardizingPath;
     if (absOrRelPath.isAbsolutePath) {
         return absOrRelPath;
@@ -439,6 +442,9 @@
 
 - (TestFileManager_Node *)nodeAtPath:(NSString *)path
 {
+    if (path == nil) {
+        return nil;
+    }
     @synchronized (_root) {
         NSArray<NSString *> *names = [self absolutify:path].nodeNames;
         TestFileManager_Node *cursor = _root;

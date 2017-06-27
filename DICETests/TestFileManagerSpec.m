@@ -28,6 +28,8 @@ describe(@"TestFileManager", ^{
 
     it(@"works", ^{
 
+        NSLog(@"SANITY CHECK");
+
         [fileManager setWorkingDirChildren:@"hello.txt", @"dir/", nil];
 
         expect([fileManager fileExistsAtPath:rootDir.path isDirectory:&isDir]).to.beTruthy();
@@ -73,6 +75,8 @@ describe(@"TestFileManager", ^{
         expect([fileManager createFileAtPath:@"/not/in/rootDir.txt" contents:nil attributes:nil]).to.beFalsy();
         expect([fileManager fileExistsAtPath:@"/not/in/rootDir.txt" isDirectory:&isDir]).to.beFalsy();
         expect(isDir).to.beFalsy();
+
+        expect([fileManager fileExistsAtPath:nil]).to.beFalsy();
     });
 
     describe(@"file contents", ^{
