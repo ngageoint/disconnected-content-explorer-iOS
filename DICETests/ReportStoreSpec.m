@@ -192,22 +192,20 @@ describe(@"ReportStore", ^{
             [redType enqueueImport];
             [blueType enqueueImport];
 
-            NSArray *reports = [store loadReports];
+            NSArray<Report *> *reports = [store loadReports];
 
             assertWithTimeout(1.0, thatEventually(reports), everyItem(hasProperty(@"isEnabled", isTrue())));
 
             expect(reports).to.haveCountOf(2);
-            assertThat(reports, hasItems(
-                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report1.red"]),
-                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report2.blue"]),
-                nil));
+            expect(reports[0].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(reports[1].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
 
-            [fileManager setWorkingDirChildren:@"report2.blue", nil];
+            [fileManager removeItemAtURL:reports[0].importDir error:nil];
 
             reports = [store loadReports];
 
             expect(reports).to.haveCountOf(1);
-            assertThat(reports, hasItem(hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report2.blue"])));
+            expect(reports.firstObject.sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
         });
 
         it(@"leaves imported and importing reports in order of discovery", ^{
@@ -221,15 +219,18 @@ describe(@"ReportStore", ^{
             NSArray<Report *> *reports1 = [[store loadReports] copy];
 
             expect(reports1).to.haveCountOf(3);
-            assertThat(reports1, hasItems(
-                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report1.red"]),
-                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report2.blue"]),
-                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report3.red"]),
-                nil));
+            expect(reports1[0].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(reports1[1].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(reports1[2].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
 
             assertWithTimeout(1.0, thatEventually(@(redImport1.isFinished && redImport2.isFinished)), isTrue());
 
-            [fileManager setWorkingDirChildren:@"report2.blue", @"report3.red", @"report11.red", nil];
+            expect(store.reports[0].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
+            expect(store.reports[1].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            expect(store.reports[2].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
+
+            [fileManager removeItemAtURL:store.reports[0].importDir error:nil];
+            [fileManager createFilePath:@"report11.red" contents:nil];
             redImport1 = [redType enqueueImport];
 
             NSArray<Report *> *reports2 = [[store loadReports] copy];
@@ -276,8 +277,8 @@ describe(@"ReportStore", ^{
 
             [fileManager setWorkingDirChildren:@"report1.red", @"report2.blue", nil];
 
-            [redType.enqueueImport cancelAll];
-            [blueType.enqueueImport cancelAll];
+            [[redType enqueueImport] cancelAll];
+            [[blueType enqueueImport] cancelAll];
 
             NSArray *reports = [store loadReports];
 

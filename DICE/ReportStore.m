@@ -206,15 +206,12 @@ ReportStore *_sharedInstance;
 - (NSArray *)loadReports
 {
     ensureMainThread();
-    // TODO: remove deleted reports from list
+    
     NSIndexSet *defunctReports = [_reports indexesOfObjectsPassingTest:^BOOL(Report *report, NSUInteger idx, BOOL *stop) {
-        if ([_fileManager fileExistsAtPath:report.rootFile.path]) {
-            return NO;
+        if (report.importStatus == ReportImportStatusSuccess && ![self.fileManager isDirectoryAtUrl:report.importDir]) {
+            return YES;
         }
-        if ([_fileManager fileExistsAtPath:report.sourceFile.path]) {
-            return NO;
-        }
-        return YES;
+        return NO;
     }];
     if (defunctReports.count > 0) {
         [_reports removeObjectsAtIndexes:defunctReports];
