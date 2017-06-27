@@ -23,6 +23,7 @@
 #import "DICEUtiExpert.h"
 #import "MatchReportTypeToContentAtPathOperation.h"
 #import "TestFileManager.h"
+#import "NSFileManager+Convenience.h"
 #import <stdatomic.h>
 
 
@@ -703,6 +704,13 @@ describe(@"ReportStore", ^{
             expect(report.summary).to.beNil();
         });
 
+        it(@"creates import dir and record for downloads on first progress update", ^{
+            failure(@"do it");
+        });
+
+        it(@"creates import dir and record for downloads on completion", ^{
+            failure(@"do it");
+        });
     });
 
     // #pragma mark - Importing archives
@@ -1373,6 +1381,11 @@ describe(@"ReportStore", ^{
             expect(observer.received.firstObject.userInfo[@"report"]).to.beIdenticalTo(restored);
         });
 
+        it(@"writes a record when a download finishes to save remote source url", ^{
+
+            failure(@"do it");
+        });
+
     });
 
 #pragma mark - Downloading
@@ -1448,6 +1461,7 @@ describe(@"ReportStore", ^{
 
             [store downloadManager:store.downloadManager willFinishDownload:download movingToFile:download.downloadedFile];
             download.wasSuccessful = YES;
+            [fileManager createFilePath:download.downloadedFile.path contents:nil];
             [store downloadManager:store.downloadManager didFinishDownload:download];
 
             assertWithTimeout(1.0, thatEventually(@(import.isFinished)), isTrue());
@@ -1607,7 +1621,7 @@ describe(@"ReportStore", ^{
 
             [store downloadManager:store.downloadManager didFinishDownload:download];
 
-            assertWithTimeout(2.0, thatEventually(@(blueImport.report.isImportFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(blueImport.report.isImportFinished)), isTrue());
 
             expect(report.importStatus).to.equal(ReportImportStatusSuccess);
 
@@ -1616,49 +1630,56 @@ describe(@"ReportStore", ^{
 
         it(@"can re-download the same url after failing to import a downloaded file", ^{
 
-            failure(@"implement prompt to overwrite file with download");
+            TestImportProcess *importProcess = [blueType enqueueImport];
+            importProcess.steps = @[[NSBlockOperation blockOperationWithBlock:^{
+                importProcess.failed = YES;
+            }]];
 
-//            TestImportProcess *importProcess = [blueType enqueueImport];
-//            importProcess.steps = @[[NSBlockOperation blockOperationWithBlock:^{
-//                importProcess.failed = YES;
-//            }]];
-//
-//            NotificationRecordingObserver *obs = [[[[[NotificationRecordingObserver
-//                observe:ReportNotification.reportAdded on:store.notifications from:store withBlock:nil]
-//                observe:ReportNotification.reportRemoved on:store.notifications from:store]
-//                observe:ReportNotification.reportImportFinished on:store.notifications from:store]
-//                observe:ReportNotification.reportDownloadProgress on:store.notifications from:store]
-//                observe:ReportNotification.reportDownloadComplete on:store.notifications from:store];
-//
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
-//            NSURL *downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
-//            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
-//            download.bytesExpected = 999999;
-//            download.bytesReceived = 999999;
-//            download.downloadedFile = downloadedFile;
-//            download.wasSuccessful = YES;
-//            download.httpResponseCode = 200;
-//
-//            Report *report = [store attemptToImportReportFromResource:url];
-//            [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
-//            [store downloadManager:downloadManager didFinishDownload:download];
-//
-//            assertWithTimeout(1.0, thatEventually(obs.received.lastObject.notification.name), equalTo(ReportNotification.reportImportFinished));
-//
-//            expect(store.reports).to.contain(report);
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
-//            NSArray<ReceivedNotification *> *received = obs.received;
-//            expect(received).to.haveCountOf(3);
-//            expect(received[0].notification.name).to.equal(ReportNotification.reportAdded);
-//            expect(received[1].notification.name).to.equal(ReportNotification.reportDownloadComplete);
-//            expect(received[2].notification.name).to.equal(ReportNotification.reportImportFinished);
+            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            NSURL *downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
+            download.bytesExpected = 999999;
+            download.bytesReceived = 999999;
+            download.downloadedFile = downloadedFile;
+            download.wasSuccessful = YES;
+            download.httpResponseCode = 200;
 
+            Report *report = [store attemptToImportReportFromResource:url];
+
+            [verify(downloadManager) downloadUrl:report.remoteSource];
+
+            [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
+            [fileManager createFilePath:downloadedFile.path contents:nil];
+            [store downloadManager:downloadManager didFinishDownload:download];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(store.reports).to.contain(report);
+            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+            expect(report.sourceFile).to.equal(downloadedFile);
+
+            [store retryImportingReport:report];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusDownloading));
+
+            [verify(downloadManager) downloadUrl:report.remoteSource];
+            expect([fileManager fileExistsAtPath:downloadedFile.path]).to.beFalsy();
+            expect([fileManager isDirectoryAtUrl:report.importDir]).to.beTruthy();
+            expect([fileManager isRegularFileAtUrl:[report.importDir URLByAppendingPathComponent:@"dice.obj"]]).to.beTruthy();
+
+            [blueType enqueueImport];
+
+            [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
+            [fileManager createFilePath:downloadedFile.path contents:nil];
+            [store downloadManager:downloadManager didFinishDownload:download];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(report.importStatus).to.equal(ReportImportStatusSuccess);
         });
 
         it(@"can re-download the same url after a download fails", ^{
 
-            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:store.notifications from:store withBlock:nil];
-            [obs observe:ReportNotification.reportDownloadComplete on:store.notifications from:store];
             NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
             DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
             download.bytesExpected = 999999;
@@ -1671,40 +1692,31 @@ describe(@"ReportStore", ^{
 
             [store downloadManager:store.downloadManager didFinishDownload:download];
 
-            assertWithTimeout(1.0, thatEventually(obs.received.lastObject.notification.name), equalTo(ReportNotification.reportImportFinished));
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
 
-            expect(obs.received).to.haveCountOf(1);
-            expect(obs.received.lastObject.notification.name).to.equal(ReportNotification.reportImportFinished);
             expect(report.importStatus).to.equal(ReportImportStatusFailed);
             expect(report.title).to.equal(@"Download failed");
             expect(report.isEnabled).to.beFalsy();
             expect(store.reports).to.contain(report);
 
-            [store.notifications removeObserver:obs];
-            obs = [[[[NotificationRecordingObserver
-                observe:ReportNotification.reportAdded on:store.notifications from:store withBlock:nil]
-                observe:ReportNotification.reportImportFinished on:store.notifications from:store]
-                observe:ReportNotification.reportDownloadProgress on:store.notifications from:store]
-                observe:ReportNotification.reportDownloadComplete on:store.notifications from:store];
-
             [store retryImportingReport:report];
 
-            expect(report.importStatus).to.equal(ReportImportStatusDownloading);
-            expect(obs.received).to.haveCountOf(0);
-            [verifyCount(downloadManager, times(2)) downloadUrl:url];
+            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusDownloading));
 
-            download.bytesReceived = 555555;
-            download.httpResponseCode = 200;
-            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+            [verifyCount(downloadManager, times(2)) downloadUrl:url];
 
             expect(report.importStatus).to.equal(ReportImportStatusDownloading);
             expect(report.downloadProgress).to.equal(download.percentComplete);
 
-            [blueType enqueueImport];
             NSURL *downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
-            [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
+            download.bytesReceived = download.bytesExpected;
+            download.httpResponseCode = 200;
             download.wasSuccessful = YES;
             download.downloadedFile = downloadedFile;
+
+            [blueType enqueueImport];
+
+            [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
             [fileManager createFilePath:downloadedFile.path contents:nil];
             [store downloadManager:downloadManager didFinishDownload:download];
 
@@ -1713,11 +1725,6 @@ describe(@"ReportStore", ^{
             expect(report.isEnabled).to.beTruthy();
             expect(report.sourceFile).to.equal(downloadedFile);
             expect(report.importStatus).to.equal(ReportImportStatusSuccess);
-
-            NSArray<ReceivedNotification *> *received = obs.received;
-            expect(received).to.haveCountOf(3);
-            expect(received[0].notification.name).to.equal(ReportNotification.reportDownloadProgress);
-            expect(received[1].notification.name).to.equal(ReportNotification.reportDownloadComplete);
         });
 
         it(@"does not import downloads finished in the background", ^{

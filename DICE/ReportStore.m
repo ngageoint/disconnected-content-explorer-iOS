@@ -292,10 +292,21 @@ ReportStore *_sharedInstance;
     }
 
     if (report.remoteSource) {
-        [self initializeReport:report forSourceUrl:report.remoteSource];
+        [self clearAndRetryDownloadForReport:report];
     }
+}
 
-    [self beginImportingNewReport:report];
+- (void)clearAndRetryDownloadForReport:(Report *)report
+{
+    report.isEnabled = NO;
+    report.importStatus = ReportImportStatusNewRemote;
+    report.title = report.statusMessage = @"Retrying download";
+    report.summary = report.remoteSource.absoluteString;
+    // TODO: leave import dir and persisted record? option on DICEDeleteReportProcess? maybe just manually delete base dir and source file?
+    DICEDeleteReportProcess *startFresh = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:YES fileManager:self.fileManager];
+    [_pendingImports addObject:startFresh];
+    startFresh.delegate = self;
+    [self.importQueue addOperations:startFresh.steps waitUntilFinished:NO];
 }
 
 - (Report *)initializeReport:(Report *)report forSourceUrl:(NSURL *)url
@@ -336,6 +347,8 @@ ReportStore *_sharedInstance;
 
 - (void)beginImportingNewReport:(Report *)report
 {
+    ensureMainThread();
+
     if (report.importStatus == ReportImportStatusNewLocal) {
         [self beginInspectingFileForReport:report withUti:NULL];
     }
@@ -641,7 +654,7 @@ ReportStore *_sharedInstance;
     report.importStatus = ReportImportStatusDeleting;
     report.statusMessage = @"Deleting content...";
     [self.notifications postNotificationName:ReportNotification.reportChanged object:self userInfo:@{@"report": report}];
-    DICEDeleteReportProcess *delReport = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir fileManager:self.fileManager];
+    DICEDeleteReportProcess *delReport = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:NO fileManager:self.fileManager];
     delReport.delegate = self;
     [_pendingImports addObject:delReport]; // retain so it doesn't get deallocated
     [self.importQueue addOperations:delReport.steps waitUntilFinished:NO];
@@ -734,6 +747,7 @@ ReportStore *_sharedInstance;
 - (void)extractReportArchive:(id<DICEArchive>)archive withBaseDir:(NSString *)baseDir forReport:(Report *)report ofType:(id<ReportType>)reportType
 {
     ensureMainThread();
+
     NSLog(@"extracting report archive %@", report);
     NSURL *extractToDir = report.importDir;
     if (baseDir == nil) {
@@ -925,9 +939,17 @@ ReportStore *_sharedInstance;
 {
     // TODO: handle move failure
     dispatch_async(dispatch_get_main_queue(), ^{
-        process.report.importStatus = ReportImportStatusDeleted;
-        [_reports removeObject:process.report];
-        [self.notifications postNotificationName:ReportNotification.reportRemoved object:self userInfo:@{@"report": process.report}];
+        Report *report = process.report;
+        if (report.importStatus == ReportImportStatusNewRemote) {
+            // it's a retry
+            [self initializeReport:report forSourceUrl:report.remoteSource];
+            [self beginImportingNewReport:report];
+        }
+        else {
+            process.report.importStatus = ReportImportStatusDeleted;
+            [_reports removeObject:process.report];
+            [self.notifications postNotificationName:ReportNotification.reportRemoved object:self userInfo:@{@"report": process.report}];
+        }
     });
 }
 

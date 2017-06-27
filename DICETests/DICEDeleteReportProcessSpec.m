@@ -53,7 +53,7 @@ describe(@"DICEDeleteReportProcess", ^{
         report.importDir = [NSURL fileURLWithPath:@"/dice/reports/source.zip.imported" isDirectory:YES];
         [fileManager createFileAtPath:report.sourceFile.path contents:nil attributes:nil];
         [fileManager createDirectoryAtPath:report.importDir.path withIntermediateDirectories:YES attributes:nil error:NULL];
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
         NSURL *trashContainerDir = del.trashContainerDir;
         NSString *containerName = trashContainerDir.lastPathComponent;
         NSUUID *parsedDirName = [[NSUUID alloc] initWithUUIDString:containerName];
@@ -73,7 +73,7 @@ describe(@"DICEDeleteReportProcess", ^{
         [fileManager createFileAtPath:report.sourceFile.path contents:nil attributes:nil];
         [fileManager createDirectoryAtPath:report.importDir.path withIntermediateDirectories:YES attributes:nil error:NULL];
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
         MkdirOperation *mkdir = (MkdirOperation *) del.steps[0];
         MoveFileOperation *mv1 = (MoveFileOperation *) del.steps[1];
         MoveFileOperation *mv2 = (MoveFileOperation *) del.steps[2];
@@ -98,7 +98,7 @@ describe(@"DICEDeleteReportProcess", ^{
         expect([fileManager fileExistsAtPath:report.importDir.path isDirectory:(BOOL *)&isDir] && isDir).to.beTruthy();
         expect([fileManager fileExistsAtPath:report.sourceFile.path isDirectory:(BOOL *)&isDir] || isDir).to.beFalsy();
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
 
         MkdirOperation *mkdir = (MkdirOperation *)del.steps[0];
         MoveFileOperation *mv = (MoveFileOperation *)del.steps[1];
@@ -124,7 +124,7 @@ describe(@"DICEDeleteReportProcess", ^{
         expect([fileManager fileExistsAtPath:report.importDir.path isDirectory:(BOOL *)&isDir] || isDir).to.beFalsy();
         expect([fileManager fileExistsAtPath:report.sourceFile.path isDirectory:(BOOL *)&isDir] && !isDir).to.beTruthy();
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
 
         MkdirOperation *mkdir = (MkdirOperation *)del.steps[0];
         MoveFileOperation *mv = (MoveFileOperation *)del.steps[1];
@@ -149,7 +149,7 @@ describe(@"DICEDeleteReportProcess", ^{
         expect([fileManager fileExistsAtPath:report.importDir.path isDirectory:(BOOL *)&isDir] && isDir).to.beTruthy();
         expect(report.sourceFile).to.beNil();
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
 
         MkdirOperation *mkdir = (MkdirOperation *)del.steps[0];
         MoveFileOperation *mv = (MoveFileOperation *)del.steps[1];
@@ -174,7 +174,7 @@ describe(@"DICEDeleteReportProcess", ^{
         expect(report.importDir).to.beNil();
         expect([fileManager fileExistsAtPath:report.sourceFile.path isDirectory:(BOOL *)&isDir] && !isDir).to.beTruthy();
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
 
         MkdirOperation *mkdir = (MkdirOperation *)del.steps[0];
         MoveFileOperation *mv = (MoveFileOperation *)del.steps[1];
@@ -197,7 +197,7 @@ describe(@"DICEDeleteReportProcess", ^{
         [fileManager createFileAtPath:report.sourceFile.path contents:nil attributes:nil];
         [fileManager createDirectoryAtPath:report.importDir.path withIntermediateDirectories:YES attributes:nil error:NULL];
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
         MkdirOperation *mkdir = (MkdirOperation *) del.steps[0];
         MoveFileOperation *mv1 = (MoveFileOperation *) del.steps[1];
         MoveFileOperation *mv2 = (MoveFileOperation *) del.steps[2];
@@ -235,7 +235,7 @@ describe(@"DICEDeleteReportProcess", ^{
         [fileManager createFileAtPath:report.sourceFile.path contents:nil attributes:nil];
         [fileManager createDirectoryAtPath:report.importDir.path withIntermediateDirectories:YES attributes:nil error:NULL];
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
         MkdirOperation *mkdir = (MkdirOperation *) del.steps[0];
         MoveFileOperation *mv1 = (MoveFileOperation *) del.steps[1];
         MoveFileOperation *mv2 = (MoveFileOperation *) del.steps[2];
@@ -275,7 +275,7 @@ describe(@"DICEDeleteReportProcess", ^{
         [fileManager createFileAtPath:report.sourceFile.path contents:nil attributes:nil];
         [fileManager createDirectoryAtPath:report.importDir.path withIntermediateDirectories:YES attributes:nil error:NULL];
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
         MoveFileOperation *mv1 = (MoveFileOperation *) del.steps[1];
         MoveFileOperation *mv2 = (MoveFileOperation *) del.steps[2];
         DeleteFileOperation *rm = (DeleteFileOperation *) del.steps[3];
@@ -301,7 +301,7 @@ describe(@"DICEDeleteReportProcess", ^{
         report.sourceFile = [NSURL fileURLWithPath:@"/dice/reports/source.zip"];
         [fileManager createFileAtPath:report.sourceFile.path contents:nil attributes:nil];
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
         DeleteFileOperation *rm = (DeleteFileOperation *) del.steps[2];
 
         id<DICEDeleteReportProcessDelegate> delegate = mockProtocol(@protocol(DICEDeleteReportProcessDelegate));
@@ -325,7 +325,7 @@ describe(@"DICEDeleteReportProcess", ^{
         report.importDir = [NSURL fileURLWithPath:@"/dice/reports/source.zip.imported" isDirectory:YES];
         [fileManager createDirectoryAtPath:report.importDir.path withIntermediateDirectories:YES attributes:nil error:NULL];
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
         DeleteFileOperation *rm = (DeleteFileOperation *) del.steps[2];
 
         id<DICEDeleteReportProcessDelegate> delegate = mockProtocol(@protocol(DICEDeleteReportProcessDelegate));
@@ -349,7 +349,7 @@ describe(@"DICEDeleteReportProcess", ^{
         report.sourceFile = [NSURL fileURLWithPath:@"/dice/reports/source.zip"];
         report.importDir = [NSURL fileURLWithPath:@"/dice/reports/source.zip.imported" isDirectory:YES];
 
-        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir fileManager:fileManager];
+        DICEDeleteReportProcess *del = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:trashDir preservingMetaData:NO fileManager:fileManager];
 
         id<DICEDeleteReportProcessDelegate> delegate = mockProtocol(@protocol(DICEDeleteReportProcessDelegate));
         del.delegate = delegate;

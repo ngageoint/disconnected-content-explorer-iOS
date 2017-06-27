@@ -163,7 +163,7 @@
             return proc;
         }
     }
-    failure([NSString stringWithFormat:@"tried to create process from empty to queue to import report %@", report]);
+    failure([NSString stringWithFormat:@"tried to create process from empty queue to import report %@", report]);
     return nil;
 }
 

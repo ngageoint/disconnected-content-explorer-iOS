@@ -17,7 +17,7 @@
     atomic_uint _filesRemainingToMove;
 }
 
-- (instancetype)initWithReport:(Report *)report trashDir:(NSURL *)trashDir fileManager:(NSFileManager *)fileManager
+- (instancetype)initWithReport:(Report *)report trashDir:(NSURL *)trashDir preservingMetaData:(BOOL)preserveMetaData fileManager:(NSFileManager *)fileManager
 {
     self = [super initWithReport:report];
 
@@ -26,6 +26,7 @@
     }
 
     _trashDir = trashDir;
+    _isPreservingMetaData = preserveMetaData;
     _fileManager = fileManager;
     NSString *trashContainerName = [NSUUID UUID].UUIDString;
     _trashContainerDir = [_trashDir URLByAppendingPathComponent:trashContainerName isDirectory:YES];
@@ -40,10 +41,12 @@
 
     NSMutableArray *steps = [NSMutableArray array];
 
+    NSURL *contentDir = preserveMetaData ? report.baseDir : report.importDir;
+
     BOOL isDir = NO;
-    if (report.importDir && [_fileManager fileExistsAtPath:report.importDir.path isDirectory:&isDir] && isDir) {
-        NSURL *trashImportDir = [_trashContainerDir URLByAppendingPathComponent:report.importDir.lastPathComponent isDirectory:YES];
-        _moveContentToTrash = [[MoveFileOperation alloc] initWithSourceUrl:report.importDir destUrl:trashImportDir fileManager:_fileManager];
+    if (contentDir && [_fileManager fileExistsAtPath:contentDir.path isDirectory:&isDir] && isDir) {
+        NSURL *trashContentDir = [_trashContainerDir URLByAppendingPathComponent:contentDir.lastPathComponent isDirectory:YES];
+        _moveContentToTrash = [[MoveFileOperation alloc] initWithSourceUrl:contentDir destUrl:trashContentDir fileManager:_fileManager];
         _moveContentToTrash.queuePriority = NSOperationQueuePriorityHigh;
         _moveContentToTrash.qualityOfService = NSQualityOfServiceUserInitiated;
         [_moveContentToTrash addDependency:makeTrashDir];
