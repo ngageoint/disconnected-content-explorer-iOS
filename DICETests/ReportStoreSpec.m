@@ -252,8 +252,22 @@ describe(@"ReportStore", ^{
 
         it(@"leaves failed download reports", ^{
 
+            Report *failedDownload = [store attemptToImportReportFromResource:[NSURL URLWithString:@"http://dice.com/leavemebe"]];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:failedDownload.remoteSource];
+            download.wasSuccessful = NO;
+            [store downloadManager:downloadManager didFinishDownload:download];
 
-            failure(@"TODO: is this what we want?");
+            assertWithTimeout(1.0, thatEventually(@(failedDownload.isImportFinished)), isTrue());
+
+            expect(failedDownload.importStatus).to.equal(ReportImportStatusFailed);
+            expect(store.reports).to.contain(failedDownload);
+
+            NSArray<Report *> *loaded = [store loadReports];
+
+            expect(loaded).to.haveCountOf(1);
+            expect(loaded).to.contain(failedDownload);
+            expect(store.reports).to.haveCountOf(1);
+            expect(store.reports).to.contain(failedDownload);
         });
 
         it(@"sends notifications about added reports", ^{
@@ -2268,6 +2282,7 @@ describe(@"ReportStore", ^{
     describe(@"notifications", ^{
 
         it(@"works as expected", ^{
+
             NSMutableArray<NSNotification *> *notes = [NSMutableArray array];
             NSNotificationCenter *notifications = [[NSNotificationCenter alloc] init];
             [notifications addObserverForName:@"test.notification" object:self queue:nil usingBlock:^(NSNotification * _Nonnull note) {
