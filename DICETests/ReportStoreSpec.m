@@ -540,10 +540,6 @@ describe(@"ReportStore", ^{
             [notifications removeObserver:observer];
         });
 
-        it(@"removes special characters from file name to make import dir", ^{
-            failure(@"unimplemented");
-        });
-
         it(@"posts a failure notification if no report type matches the content", ^{
 
             [fileManager setWorkingDirChildren:@"oops.der", nil];
@@ -610,8 +606,6 @@ describe(@"ReportStore", ^{
 
     describe(@"importing directories from the documents directory", ^{
 
-        // TODO: the utility of this is debatable
-
         it(@"ignores import directories", ^{
 
             [fileManager setWorkingDirChildren:@"ignore.dice_import/blue_content/index.blue", nil];
@@ -625,8 +619,6 @@ describe(@"ReportStore", ^{
             expect(report.baseDir).to.beNil();
             expect(report.rootFile).to.beNil();
             expect(report.isEnabled).to.beFalsy();
-
-            failure(@"revisit how this behaves with respect to persistence");
         });
 
         it(@"moves the directory to an import dir", ^{
@@ -1394,11 +1386,6 @@ describe(@"ReportStore", ^{
             expect(observer.received).to.haveCountOf(1);
             expect(observer.received.firstObject.wasMainThread).to.beTruthy();
             expect(observer.received.firstObject.userInfo[@"report"]).to.beIdenticalTo(restored);
-        });
-
-        it(@"writes a record when a download finishes to save remote source url", ^{
-
-            failure(@"do it");
         });
 
     });
