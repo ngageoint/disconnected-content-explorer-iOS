@@ -97,6 +97,7 @@
 		8B87E64315D24837CBFED19EBCA228D6 /* ReportAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 966964E745E3CB3E49DACA4A56B9467B /* ReportAPI.m */; };
 		8DE82581CDFD6A3B4F70D2EED01679CE /* libPods-DICE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06DA312F799121714D2DBD69EDF84DCA /* libPods-DICE.a */; };
 		92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD30535F2071163B7FD0422E5800DA4 /* DICEConstants.m */; };
+		94567A563A0D4920C44660BCFA56C7F9 /* DICE.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B90497BE37F4505F998DC52BE74AC721 /* DICE.xcdatamodeld */; };
 		9487A2D2D324B045EFB5955C0B4BC53D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B509885B6330B98E360935E6572E0715 /* CoreData.framework */; };
 		94FF34B63D94FD5FF4F7C1939CA50348 /* FileOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = B82A854EE26DF131B30A67A556A520F5 /* FileOperationsSpec.m */; };
 		9602A9539E46F3BC3E122C542DCD253C /* ParseJsonOperationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 080F57BCEBAADB3EA412455DB8C3B9E2 /* ParseJsonOperationSpec.m */; };
@@ -269,6 +270,7 @@
 		71823824ECE6B247628DED6883846040 /* Reader-Print@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Print@2x.png"; sourceTree = "<group>"; };
 		724FB948F04530F70D6D08E7D98ECE0C /* ReaderContentPage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReaderContentPage.m; sourceTree = "<group>"; };
 		7325570DB6549C485CB4A9C18216BDDF /* DICENavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DICENavigationController.m; sourceTree = "<group>"; };
+		753869D5DDC54FE40B3447900DDD69E3 /* DICE.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DICE.xcdatamodel; sourceTree = "<group>"; };
 		75BE4F7BEA3ACD93EFB5BB29E343981F /* ThumbsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThumbsViewController.h; sourceTree = "<group>"; };
 		75CA0FFE00A5F7BF1EBF96A92AC87878 /* NoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoteViewController.h; sourceTree = "<group>"; };
 		76296D1D02A987FDB352581A81BD358D /* Reader-Thumbs@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Reader-Thumbs@2x.png"; sourceTree = "<group>"; };
@@ -799,6 +801,7 @@
 		B3BF4950F080E99B61F9DD85AECB164C /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B90497BE37F4505F998DC52BE74AC721 /* DICE.xcdatamodeld */,
 				95A08FF8CBD67518C76EE0744CB0B933 /* DICEDeleteReportProcess.h */,
 				1611C781F31E5FEA6E01DBABFDDD637A /* DICEDeleteReportProcess.m */,
 				C600E068D6F92B4C2A716D449656BE8C /* DICEExtractReportOperation.h */,
@@ -1125,6 +1128,7 @@
 				CF9E3904A5B856BD7AB3949ADF350A2E /* AppDelegate.m in Sources */,
 				E52B5F7F205C75C6F759ABB9BC67F63E /* CGPDFDocument.m in Sources */,
 				DABC01706281F348119A687D2F85BFEC /* ContentEnumerationInfo.m in Sources */,
+				94567A563A0D4920C44660BCFA56C7F9 /* DICE.xcdatamodeld in Sources */,
 				92A0F40B7B9165C903C37AD64715B841 /* DICEConstants.m in Sources */,
 				7979D5B4D4EE665AD23AA68D1EB360CA /* DICEDefaultArchiveFactory.m in Sources */,
 				ED0858851EF7BA605859DDA8F5F83652 /* DICEDeleteReportProcess.m in Sources */,
@@ -1469,6 +1473,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		B90497BE37F4505F998DC52BE74AC721 /* DICE.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				753869D5DDC54FE40B3447900DDD69E3 /* DICE.xcdatamodel */,
+			);
+			currentVersion = 753869D5DDC54FE40B3447900DDD69E3 /* DICE.xcdatamodel */;
+			path = DICE.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = D12F51E3886BBF4E0C3F556A8B3CCE5C /* Project object */;
 }
