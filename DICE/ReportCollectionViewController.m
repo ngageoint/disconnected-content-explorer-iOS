@@ -54,7 +54,8 @@
     
     [views enumerateObjectsUsingBlock:^(UIViewController<ReportCollectionView> *view, NSUInteger idx, BOOL *stop) {
         view.delegate = self;
-        view.reports = [[ReportStore sharedInstance] reports];
+        // TODO: core_data
+//        view.reports = [[ReportStore sharedInstance] reports];
         view.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     }];
     
@@ -64,8 +65,9 @@
     firstView.view.frame = self.collectionSubview.bounds;
     [self.collectionSubview addSubview: firstView.view];
     recentPasteboardURLKey = @"RECENT_PASTEBOARD_URL_KEY";
-    
-    [[ReportStore sharedInstance] loadReports];
+
+    // TODO: core_data
+//    [[ReportStore sharedInstance] loadReports];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkPasteboardForReport) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 

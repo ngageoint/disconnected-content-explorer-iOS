@@ -22,12 +22,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportImportFinished object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportExtractProgress object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportsLoaded object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportRemoved object:nil];
-    
+
+    // TODO: core_data
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportImportFinished object:nil];
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportExtractProgress object:nil];
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportsLoaded object:nil];
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportList:) name:ReportNotification.reportRemoved object:nil];
+
     self.title = @"Disconnected Interactive Content Explorer";
     
     self.tableView.delegate = self;
@@ -44,23 +45,24 @@
 
 - (void)refreshControlValueChanged
 {
-    [[ReportStore sharedInstance] loadReports];
+    // TODO: core_data
+//    [[ReportStore sharedInstance] loadReports];
 }
 
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 
 - (void)refreshReportList:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([notification.name isEqualToString:[ReportNotification reportsLoaded]]) {
+        // TODO: core_data
+//        if ([notification.name isEqualToString:[ReportNotification reportsLoaded]]) {
             [_tableViewController.refreshControl endRefreshing];
-        }
+//        }
         [_tableView reloadData];
     });
 }
@@ -113,14 +115,9 @@
         return cell;
     }
 
-    NSString *thumbnailPath = nil;
-    if (report.baseDir) {
-        if (report.thumbnail.length > 0) {
-            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.thumbnail];
-        }
-        else if (report.tileThumbnail.length > 0) {
-            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.tileThumbnail];
-        }
+    NSString *thumbnailPath = report.thumbnail.path;
+    if (thumbnailPath == nil) {
+        thumbnailPath = report.tileThumbnail.path;
     }
 
     if (thumbnailPath == nil) {

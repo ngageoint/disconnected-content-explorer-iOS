@@ -39,20 +39,14 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportImportFinished:) name:[ReportNotification reportImportFinished] object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:[ReportNotification reportExtractProgress] object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reportImportFinished:) name:[ReportNotification reportImportFinished] object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUnzipProgress:) name:[ReportNotification reportExtractProgress] object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(emailDataExport:) name:[JavaScriptNotification geoJSONExported] object:nil];
     
     _unzipStatusLabel = [[UILabel alloc] init];
-    
-    if (self && [self respondsToSelector:@selector(setNeedsStatusBarAppearanceUpdate)]) {
-        // iOS 7
-        [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate)];
-    }
-    else {
-        // iOS 6
-        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
-    }
+
+    // TODO: is this necessary?
+    [self setNeedsStatusBarAppearanceUpdate];
     
     _webView.delegate = self;
     _webView.scrollView.delegate = self;

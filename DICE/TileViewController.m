@@ -22,14 +22,15 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportExtractProgress object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportDownloadProgress object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportDownloadComplete object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportImportFinished object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportAdded object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportRemoved object:nil];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportsLoaded object:nil];
+
+    // TODO: core_data
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportExtractProgress object:nil];
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportDownloadProgress object:nil];
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateReportImportProgress:) name:ReportNotification.reportDownloadComplete object:nil];
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportImportFinished object:nil];
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportAdded object:nil];
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportRemoved object:nil];
+//    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refreshReportTiles:) name:ReportNotification.reportsLoaded object:nil];
 
     [self.tileView setDataSource:self];
     [self.tileView setDelegate:self];
@@ -61,7 +62,8 @@
 
 - (void)refreshControlValueChanged
 {
-    [[ReportStore sharedInstance] loadReports];
+    // TODO: core_data
+//    [[ReportStore sharedInstance] loadReports];
 }
 
 
@@ -103,16 +105,11 @@
         return cell;
     }
 
-    NSString *thumbnailPath = nil;
-    if (report.baseDir) {
-        if (report.tileThumbnail.length > 0) {
-            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.tileThumbnail];
-        }
-        else if (report.thumbnail.length > 0) {
-            thumbnailPath = [report.baseDir.path stringByAppendingPathComponent:report.thumbnail];
-        }
+    NSString *thumbnailPath = report.tileThumbnail.path;
+    if (thumbnailPath == nil) {
+        thumbnailPath = report.thumbnail.path;
     }
-    
+
     if (thumbnailPath) {
         UIImage *image = [UIImage imageWithContentsOfFile:thumbnailPath];
         cell.reportImage.image = image;
@@ -154,9 +151,11 @@
 - (void)refreshReportTiles:(NSNotification *)notification
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([notification.name isEqualToString:[ReportNotification reportsLoaded]]) {
+        // TODO: core_data
+//        if ([notification.name isEqualToString:[ReportNotification reportsLoaded]]) {
             [self.refreshControl endRefreshing];
-        }
+//        }
+
         [self.tileView reloadData];
     });
 }
