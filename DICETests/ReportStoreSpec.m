@@ -712,11 +712,65 @@ describe(@"ReportStore", ^{
         });
 
         it(@"creates import dir and record for downloads on first progress update", ^{
-            failure(@"do it");
+
+            NSURL *downloadUrl = [NSURL URLWithString:@"http://dice.com/persist-me"];
+            Report *report = [store attemptToImportReportFromResource:downloadUrl];
+
+            expect(report.remoteSource).to.equal(downloadUrl);
+            expect(report.importDir).to.beNil();
+
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:report.remoteSource];
+            download.bytesExpected = 123456789;
+            download.bytesReceived = 12345678;
+            download.fileName = @"persist-me.zip";
+
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            expect(report.importDir).toNot.beNil();
+            expect([fileManager isDirectoryAtUrl:report.importDir]).to.beTruthy();
+            expect([fileManager isRegularFileAtUrl:[report.importDir URLByAppendingPathComponent:@"dice.obj"]]).to.beTruthy();
+
+            NSData *record = [fileManager contentsAtPath:[report.importDir.path stringByAppendingPathComponent:@"dice.obj"]];
+            NSKeyedUnarchiver *coder = [[NSKeyedUnarchiver alloc] initForReadingWithData:record];
+            Report *loaded = [[Report alloc] initWithCoder:coder];
+            [coder finishDecoding];
+
+            expect(loaded.remoteSource).to.equal(downloadUrl);
+            expect(loaded.importDir).to.equal(report.importDir);
+            expect(loaded.importStatus).to.equal(ReportImportStatusDownloading);
         });
 
         it(@"creates import dir and record for downloads on completion", ^{
-            failure(@"do it");
+
+            NSURL *downloadUrl = [NSURL URLWithString:@"http://dice.com/persist-me"];
+            Report *report = [store attemptToImportReportFromResource:downloadUrl];
+
+            expect(report.remoteSource).to.equal(downloadUrl);
+            expect(report.importDir).to.beNil();
+
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:report.remoteSource];
+            download.bytesExpected = 123456789;
+            download.bytesReceived = 12345678;
+            download.fileName = @"persist-me.zip";
+
+            NSURL *downloadFile = [reportsDir URLByAppendingPathComponent:download.fileName];
+            [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadFile];
+            download.downloadedFile = downloadFile;
+            [store downloadManager:downloadManager didFinishDownload:download];
+
+            expect(report.importDir).toNot.beNil();
+            expect([fileManager isDirectoryAtUrl:report.importDir]).to.beTruthy();
+            expect([fileManager isRegularFileAtUrl:[report.importDir URLByAppendingPathComponent:@"dice.obj"]]).to.beTruthy();
+
+            NSData *record = [fileManager contentsAtPath:[report.importDir.path stringByAppendingPathComponent:@"dice.obj"]];
+            NSKeyedUnarchiver *coder = [[NSKeyedUnarchiver alloc] initForReadingWithData:record];
+            Report *loaded = [[Report alloc] initWithCoder:coder];
+            [coder finishDecoding];
+
+            expect(loaded.remoteSource).to.equal(downloadUrl);
+            expect(loaded.importDir).to.equal(report.importDir);
+            expect(loaded.sourceFile).to.equal(downloadFile);
+            expect(loaded.importStatus).to.equal(ReportImportStatusNewLocal);
         });
     });
 
@@ -1388,6 +1442,38 @@ describe(@"ReportStore", ^{
             expect(observer.received.firstObject.userInfo[@"report"]).to.beIdenticalTo(restored);
         });
 
+
+        it(@"correlates download messages to persisted records before they are loaded", ^{
+
+            NSURL *downloadUrl = [NSURL URLWithString:@"http://dice.com/test.blue"];
+            Report *previouslyStartedDownload = [[Report alloc] init];
+            previouslyStartedDownload.remoteSource = downloadUrl;
+            previouslyStartedDownload.importStatus = ReportImportStatusDownloading;
+            previouslyStartedDownload.importDir = [reportsDir URLByAppendingPathComponent:@"test.dice_import"];
+
+            NSMutableData *record = [NSMutableData data];
+            NSKeyedArchiver *coder = [[NSKeyedArchiver alloc] initForWritingWithMutableData:record];
+            [previouslyStartedDownload encodeWithCoder:coder];
+
+            [fileManager createFilePath:@"test.dice_import/dice.obj" contents:record];
+
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:downloadUrl];
+            download.bytesExpected = 999999;
+            download.bytesReceived = 888888;
+            download.httpResponseCode = 200;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            expect(store.reports).to.haveCount(1);
+
+            Report *report = store.reports.firstObject;
+
+            expect(report.remoteSource).to.equal(downloadUrl);
+
+            [store loadReports];
+
+            expect(store.reports).to.haveCount(1);
+            expect(store.reports.firstObject).to.beIdenticalTo(report);
+        });
     });
 
 #pragma mark - Downloading
@@ -1412,6 +1498,10 @@ describe(@"ReportStore", ^{
             [verify(downloadManager) downloadUrl:url];
             expect(report.importStatus).to.equal(ReportImportStatusDownloading);
             expect(store.reports).to.contain(report);
+        });
+
+        it(@"saves a report before the download begins", ^{
+            failure(@"do it");
         });
 
         it(@"posts a report added notification before the download begins", ^{
