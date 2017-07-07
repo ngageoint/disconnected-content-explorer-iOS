@@ -21,9 +21,24 @@
     return status == ReportImportStatusSuccess || status == ReportImportStatusFailed;
 }
 
+- (NSURL *)thumbnail
+{
+    if (self.baseDir == nil || self.thumbnailPath == nil) {
+        return nil;
+    }
+    return [self.baseDir URLByAppendingPathComponent:self.thumbnailPath isDirectory:NO];
+}
+
+- (NSURL *)tileThumbnail
+{
+    if (self.baseDir == nil || self.tileThumbnailPath == nil) {
+        return nil;
+    }
+    return [self.baseDir URLByAppendingPathComponent:self.tileThumbnailPath isDirectory:NO];
+}
+
 - (instancetype)setPropertiesFromJsonDescriptor:(NSDictionary *)descriptor
 {
-    // TODO: core_data: use self.managedObjectContext?
     [descriptor enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         if ([NSNull.null isEqual:obj]) {
             return;
@@ -45,10 +60,10 @@
             self.lon = obj;
         }
         if ([@"thumbnail" isEqualToString:key]) {
-            self.thumbnailUrl = obj;
+            self.thumbnailPath = obj;
         }
         if ([@"tile_thumbnail" isEqualToString:key]) {
-            self.tileThumbnailUrl = obj;
+            self.tileThumbnailPath = obj;
         }
     }];
 

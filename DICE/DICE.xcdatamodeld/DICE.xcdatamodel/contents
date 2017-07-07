@@ -20,14 +20,12 @@
         <attribute name="sourceFileUrl" optional="YES" attributeType="String" customClassName="NSURLToNSStringValueTransformer" syncable="YES"/>
         <attribute name="statusMessage" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="summary" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="thumbnail" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
-        <attribute name="thumbnailUrl" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="tileThumbnail" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
-        <attribute name="tileThumbnailUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="thumbnailPath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="tileThumbnailPath" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="uti" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Report" positionX="-63" positionY="-18" width="128" height="420"/>
+        <element name="Report" positionX="-63" positionY="-18" width="128" height="390"/>
     </elements>
 </model>

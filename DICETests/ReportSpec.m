@@ -227,43 +227,19 @@ describe(@"Report", ^{
             });
         });
 
-        describe(@"thumbnail", ^{
+        describe(@"rootFile", ^{
 
             itBehavesLike(@"a kvo compliant derived transient attribute", ^{
 
-                NSURL *thumbnail = [NSURL fileURLWithPath:@"/dice/test.dice_import/content/thumbnail.png" isDirectory:NO];
+                NSURL *rootFile = [NSURL fileURLWithPath:@"/dice/test.dice_import/content/index.html" isDirectory:NO];
                 return @{
-                    kPersistentAttr: @"thumbnailUrl",
-                    kPersistentValue: @"file:///dice/test.dice_import/content/thumbnail.png",
-                    kTransientAttr: @"thumbnail",
-                    kTransientValue: thumbnail
+                    kPersistentAttr: @"rootFileUrl",
+                    kPersistentValue: @"file:///dice/test.dice_import/content/index.html",
+                    kTransientAttr: @"rootFile",
+                    kTransientValue: rootFile
                 };
             });
-
-            it(@"appends relative thumbnail path to base dir", ^{
-                
-            });
         });
-
-        describe(@"tileThumbnail", ^{
-
-            itBehavesLike(@"a kvo compliant derived transient attribute", ^{
-
-                NSURL *tileThumbnail = [NSURL fileURLWithPath:@"/dice/test.dice_import/content/tile_thumbnail.png" isDirectory:NO];
-                return @{
-                    kPersistentAttr: @"tileThumbnailUrl",
-                    kPersistentValue: @"file:///dice/test.dice_import/content/tile_thumbnail.png",
-                    kTransientAttr: @"tileThumbnail",
-                    kTransientValue: tileThumbnail
-                };
-            });
-
-            it(@"appends relative tile thumbnail path to base dir", ^{
-                
-            });
-
-        });
-
     });
 
     describe(@"validation", ^{
@@ -280,6 +256,28 @@ describe(@"Report", ^{
 
         });
 
+    });
+
+    it(@"appends thumbnail path to base dir for thumbnail url", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/test.dice_import" isDirectory:YES];
+        report.baseDir = [report.importDir URLByAppendingPathComponent:@"content" isDirectory:YES];
+        report.thumbnailPath = @"images/thumbnail.png";
+
+        expect(report.thumbnail).to.equal([NSURL fileURLWithPath:@"/dice/test.dice_import/content/images/thumbnail.png" isDirectory:NO]);
+        expect(report.thumbnailPath).to.equal(@"images/thumbnail.png");
+    });
+
+    it(@"appends tile thumbnail path to base dir for tile thumbnail url", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/test.dice_import" isDirectory:YES];
+        report.baseDir = [report.importDir URLByAppendingPathComponent:@"content" isDirectory:YES];
+        report.tileThumbnailPath = @"images/thumbnail.png";
+
+        expect(report.tileThumbnail).to.equal([NSURL fileURLWithPath:@"/dice/test.dice_import/content/images/thumbnail.png" isDirectory:NO]);
+        expect(report.tileThumbnailPath).to.equal(@"images/thumbnail.png");
     });
 
     it(@"updates report from json descriptor", ^{
@@ -301,8 +299,8 @@ describe(@"Report", ^{
         expect(report.summary).to.equal(@"Test the JSON meta-data mechanism");
         expect(report.lat).to.equal(@39.8);
         expect(report.lon).to.equal(@-104.8);
-        expect(report.thumbnail).to.equal(@"images/test.png");
-        expect(report.tileThumbnail).to.equal(@"images/test-tile.png");
+        expect(report.thumbnailPath).to.equal(@"images/test.png");
+        expect(report.tileThumbnailPath).to.equal(@"images/test-tile.png");
         expect(report.importStatus).to.equal(ReportImportStatusNew);
         expect(report.isImportFinished).to.equal(NO);
     });
@@ -316,8 +314,8 @@ describe(@"Report", ^{
         report.summary = @"It's a test";
         report.lat = nil;
         report.lon = nil;
-        report.thumbnail = [NSURL fileURLWithPath:@"/reports/test/default.png"];
-        report.tileThumbnail = [NSURL fileURLWithPath:@"/reports/test/default_tile.png"];
+        report.thumbnailPath = @"test/default.png";
+        report.tileThumbnailPath = @"test/default_tile.png";
 
         [report setPropertiesFromJsonDescriptor:@{
             @"description": @"new description",
@@ -326,11 +324,11 @@ describe(@"Report", ^{
 
         expect(report.contentId).to.equal(@"org.dice.test");
         expect(report.title).to.equal(@"Test");
-        expect(report.summary).to.equal(@"It's a test");
+        expect(report.summary).to.equal(@"new description");
         expect(report.lat).to.beNil();
         expect(report.lon).to.beNil();
-        expect(report.thumbnail).to.equal([NSURL fileURLWithPath:@"/reports/test/default.png"]);
-        expect(report.tileThumbnail).to.equal([NSURL fileURLWithPath:@"/reports/test/default_tile.png"]);
+        expect(report.thumbnailPath).to.equal(@"test/default.png");
+        expect(report.tileThumbnailPath).to.equal(@"my_tile.png");
         expect(report.importStatus).to.equal(ReportImportStatusNew);
         expect(report.isImportFinished).to.equal(NO);
     });

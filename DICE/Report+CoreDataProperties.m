@@ -19,10 +19,6 @@ static NSString * const kBaseDir = @"baseDir";
 static NSString * const kBaseDirPersistent = @"baseDirUrl";
 static NSString * const kRootFile = @"rootFile";
 static NSString * const kRootFilePersistent = @"rootFileUrl";
-static NSString * const kThumbnail = @"thumbnail";
-static NSString * const kThumbnailPersistent = @"thumbnailUrl";
-static NSString * const kTileThumbnail = @"tileThumbnail";
-static NSString * const kTileThumbnailPersistent = @"tileThumbnailUrl";
 
 static NSDictionary * persistentAttrForTransientAttr;
 
@@ -38,8 +34,6 @@ static NSDictionary * persistentAttrForTransientAttr;
         kImportDir: kImportDirPersistent,
         kBaseDir: kBaseDirPersistent,
         kRootFile: kRootFilePersistent,
-        kThumbnail: kThumbnailPersistent,
-        kTileThumbnail: kTileThumbnailPersistent,
     };
 }
 
@@ -61,8 +55,8 @@ static NSDictionary * persistentAttrForTransientAttr;
 @dynamic sourceFileUrl;
 @dynamic statusMessage;
 @dynamic summary;
-@dynamic thumbnailUrl;
-@dynamic tileThumbnailUrl;
+@dynamic thumbnailPath;
+@dynamic tileThumbnailPath;
 @dynamic title;
 @dynamic uti;
 
@@ -170,38 +164,6 @@ static NSDictionary * persistentAttrForTransientAttr;
 - (void)setRootFile:(NSURL *)rootFile
 {
     [self setTransientValue:rootFile forKey:kRootFile persistentKey:kRootFilePersistent persistentValue:rootFile.absoluteString];
-}
-
-- (void)setThumbnailUrl:(NSString *)thumbnailUrl
-{
-    NSURL *transient = [NSURL URLWithString:thumbnailUrl];
-    [self setTransientValue:transient forKey:kThumbnail persistentKey:kThumbnailPersistent persistentValue:thumbnailUrl];
-}
-
-- (NSURL *)thumbnail
-{
-    return [self wrappedAccessValueForKey:kThumbnail];
-}
-
-- (void)setThumbnail:(NSURL *)thumbnail
-{
-    [self setTransientValue:thumbnail forKey:kThumbnail persistentKey:kThumbnailPersistent persistentValue:thumbnail.absoluteString];
-}
-
-- (void)setTileThumbnailUrl:(NSString *)tileThumbnailUrl
-{
-    NSURL *transient = [NSURL URLWithString:tileThumbnailUrl];
-    [self setTransientValue:transient forKey:kTileThumbnail persistentKey:kTileThumbnailPersistent persistentValue:tileThumbnailUrl];
-}
-
-- (NSURL *)tileThumbnail
-{
-    return [self wrappedAccessValueForKey:kTileThumbnail];
-}
-
-- (void)setTileThumbnail:(NSURL *)tileThumbnail
-{
-    [self setTransientValue:tileThumbnail forKey:kTileThumbnail persistentKey:kTileThumbnailPersistent persistentValue:tileThumbnail.absoluteString];
 }
 
 @end

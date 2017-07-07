@@ -34,10 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, copy) NSString *sourceFileUrl;
 @property (nullable, nonatomic, copy) NSString *statusMessage;
 @property (nullable, nonatomic, copy) NSString *summary;
-@property (nullable, nonatomic, retain) NSURL *thumbnail;
-@property (nullable, nonatomic, copy) NSString *thumbnailUrl;
-@property (nullable, nonatomic, retain) NSURL *tileThumbnail;
-@property (nullable, nonatomic, copy) NSString *tileThumbnailUrl;
+@property (nullable, nonatomic, copy) NSString *thumbnailPath;
+@property (nullable, nonatomic, copy) NSString *tileThumbnailPath;
 @property (nullable, nonatomic, copy) NSString *title;
 @property (nullable, nonatomic, copy) NSString *uti;
 

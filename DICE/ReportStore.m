@@ -259,8 +259,8 @@ ReportStore *_sharedInstance;
     report.contentId = nil;
     report.statusMessage = nil;
     report.summary = nil;
-    report.thumbnail = nil;
-    report.tileThumbnail = nil;
+    report.thumbnailPath = nil;
+    report.tileThumbnailPath = nil;
     report.title = nil;
 
     if ([url.scheme.lowercaseString hasPrefix:@"http"]) {
