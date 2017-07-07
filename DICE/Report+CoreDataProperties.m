@@ -24,8 +24,24 @@ static NSString * const kThumbnailPersistent = @"thumbnailUrl";
 static NSString * const kTileThumbnail = @"tileThumbnail";
 static NSString * const kTileThumbnailPersistent = @"tileThumbnailUrl";
 
+static NSDictionary * persistentAttrForTransientAttr;
 
 @implementation Report (CoreDataProperties)
+
++ (void)initialize
+{
+    [super initialize];
+
+    persistentAttrForTransientAttr = @{
+        kRemoteSource: kRemoteSourcePersistent,
+        kSourceFile: kSourceFilePersistent,
+        kImportDir: kImportDirPersistent,
+        kBaseDir: kBaseDirPersistent,
+        kRootFile: kRootFilePersistent,
+        kThumbnail: kThumbnailPersistent,
+        kTileThumbnail: kTileThumbnailPersistent,
+    };
+}
 
 + (NSFetchRequest<Report *> *)fetchRequest {
 	return [[NSFetchRequest alloc] initWithEntityName:@"Report"];
@@ -66,6 +82,14 @@ static NSString * const kTileThumbnailPersistent = @"tileThumbnailUrl";
     [self setPrimitiveValue:value forKey:key];
     [self didChangeValueForKey:persistentKey];
     [self didChangeValueForKey:key];
+}
+
+- (void)awakeFromFetch
+{
+    [persistentAttrForTransientAttr.allValues enumerateObjectsUsingBlock:^(id  _Nonnull persistentKey, NSUInteger idx, BOOL * _Nonnull stop) {
+        id persistentValue = [self primitiveValueForKey:persistentKey];
+        [self setValue:persistentValue forKey:persistentKey];
+    }];
 }
 
 - (void)setRemoteSourceUrl:(NSString *)remoteSourceUrl

@@ -114,6 +114,42 @@ describe(@"Report", ^{
 
             it(@"wraps attribute access", ^{
 
+                NSString *persistentAttr = data[kPersistentAttr];
+                id persistentValue = data[kPersistentValue];
+                NSString *transientAttr = data[kTransientAttr];
+                id transientValue = data[kTransientValue];
+
+                Report *report = [Report MR_createEntityInContext:context];
+                [report setValue:persistentValue forKey:persistentAttr];
+
+                expect([context save:NULL]).to.beTruthy();
+                expect(report.isFault).to.beFalsy();
+
+                [context refreshObject:report mergeChanges:NO];
+
+                expect(report.isFault).to.beTruthy();
+
+                SEL accessorSelector = NSSelectorFromString(transientAttr);
+                IMP accessorMethod = [report methodForSelector:accessorSelector];
+                id (*callAccessor)(id, SEL) = (void *)accessorMethod;
+                id value = callAccessor(report, accessorSelector);
+
+                expect(report.isFault).to.beFalsy();
+                expect(value).to.equal(transientValue);
+                expect([report primitiveValueForKey:persistentAttr]).to.equal(persistentValue);
+
+                [context refreshObject:report mergeChanges:NO];
+
+                expect(report.isFault).to.beTruthy();
+
+                accessorSelector = NSSelectorFromString(persistentAttr);
+                accessorMethod = [report methodForSelector:accessorSelector];
+                callAccessor = (void *)accessorMethod;
+                value = callAccessor(report, accessorSelector);
+
+                expect(report.isFault).to.beFalsy();
+                expect(value).to.equal(persistentValue);
+                expect([report primitiveValueForKey:transientAttr]).to.equal(transientValue);
             });
 
             it(@"sets the transient value on fetch", ^{
