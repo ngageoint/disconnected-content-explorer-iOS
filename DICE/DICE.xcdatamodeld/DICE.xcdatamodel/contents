@@ -1,24 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="12141" systemVersion="16F73" minimumToolsVersion="Automatic" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
     <entity name="Report" representedClassName="Report" syncable="YES">
+        <attribute name="baseDir" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
         <attribute name="baseDirUrl" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="contentId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="downloadProgress" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="downloadSize" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="importDir" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
         <attribute name="importDirUrl" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="importStatus" attributeType="Integer 16" minValueString="0" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="isEnabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="lat" optional="YES" attributeType="Decimal" syncable="YES"/>
         <attribute name="lon" optional="YES" attributeType="Decimal" syncable="YES"/>
+        <attribute name="remoteSource" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
         <attribute name="remoteSourceUrl" optional="YES" attributeType="String" customClassName="NSURL" syncable="YES"/>
-        <attribute name="rootFileName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="rootFile" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
+        <attribute name="rootFileUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sourceFile" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
         <attribute name="sourceFileUrl" optional="YES" attributeType="String" customClassName="NSURLToNSStringValueTransformer" syncable="YES"/>
         <attribute name="statusMessage" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="summary" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="thumbnail" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
         <attribute name="thumbnailUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="tileThumbnail" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
         <attribute name="tileThumbnailUrl" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="uti" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Report" positionX="-63" positionY="-18" width="128" height="285"/>
+        <element name="Report" positionX="-63" positionY="-18" width="128" height="420"/>
     </elements>
 </model>

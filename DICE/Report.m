@@ -5,50 +5,14 @@
 
 #import "Report.h"
 
+
 @implementation Report
 
-- (id) init {
-    self = [super init];
-    
-    return self;
-}
+@synthesize cacheFiles;
 
-// TODO: core_data: ivars or transient properties?
-// TODO: core_data: implement setters
-
-- (NSURL *)remoteSource
+- (NSUInteger)downloadPercent
 {
-    return nil;
-}
-
-- (NSURL *)sourceFile
-{
-    return nil;
-}
-
-- (NSURL *)importDir
-{
-    return nil;
-}
-
-- (NSURL *)baseDir
-{
-    return nil;
-}
-
-- (NSURL *)rootFile
-{
-    return nil;
-}
-
-- (NSURL *)thumbnail
-{
-    return nil;
-}
-
-- (NSURL *)tileThumbnail
-{
-    return nil;
+    return (NSUInteger)((double)self.downloadProgress / (double)self.downloadSize);
 }
 
 - (BOOL)isImportFinished
