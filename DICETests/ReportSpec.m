@@ -154,6 +154,20 @@ describe(@"Report", ^{
 
             it(@"sets the transient value on fetch", ^{
 
+                NSString *persistentAttr = data[kPersistentAttr];
+                id persistentValue = data[kPersistentValue];
+                NSString *transientAttr = data[kTransientAttr];
+                id transientValue = data[kTransientValue];
+
+                Report *report = [NSEntityDescription insertNewObjectForEntityForName:@"Report" inManagedObjectContext:context];
+                [report setValue:persistentValue forKey:persistentAttr];
+                [context MR_saveToPersistentStoreAndWait];
+
+                NSManagedObjectContext *fetchContext = [NSManagedObjectContext MR_contextWithParent:[NSManagedObjectContext MR_rootSavingContext]];
+                Report *fetched = [report MR_inContext:fetchContext];
+
+                expect([fetched valueForKey:transientAttr]).to.equal(transientValue);
+                expect([fetched valueForKey:persistentAttr]).to.equal(persistentValue);
             });
         });
 
