@@ -5,6 +5,7 @@ target :DICE do
   pod 'objective-zip', '~>1.0.0'
   pod 'WebViewJavascriptBridge', '4.1.4'
   pod 'geopackage-ios', '~> 1.2.1'
+  pod 'MagicalRecord', '~> 2.3'
 end
 
 target :DICETests do
