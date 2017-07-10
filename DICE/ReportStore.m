@@ -80,6 +80,12 @@ ReportStore *_sharedInstance;
     return _sharedInstance;
 }
 
+- (instancetype)init
+{
+    [NSException raise:NSGenericException format:@"cannot call default init on %@", self.class];
+    return nil;
+}
+
 - (instancetype)initWithReportsDir:(NSURL *)reportsDir
     exclusions:(NSArray *)exclusions
     utiExpert:(DICEUtiExpert *)utiExpert
