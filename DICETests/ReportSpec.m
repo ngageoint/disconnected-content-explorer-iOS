@@ -241,10 +241,10 @@ describe(@"Report", ^{
 
             itBehavesLike(@"a kvo compliant derived transient attribute", ^{
 
-                NSURL *baseDir = [NSURL fileURLWithPath:@"/dice/test.dice_import/content" isDirectory:YES];
+                NSURL *baseDir = [NSURL fileURLWithPath:@"/dice/test.zip.dice_import/content" isDirectory:YES];
                 return @{
                     kPersistentAttr: @"baseDirUrl",
-                    kPersistentValue: @"file:///dice/test.dice_import/content/",
+                    kPersistentValue: @"file:///dice/test.zip.dice_import/content/",
                     kTransientAttr: @"baseDir",
                     kTransientValue: baseDir,
                     kValidatingAttrs: @{
@@ -444,8 +444,90 @@ describe(@"Report", ^{
             });
         });
 
-        it(@"validates base dir is child of import dir", ^{
+        describe(@"baseDir must be child of importDir", ^{
 
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/import_dir_sibling/";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidBaseDirErrorCode)
+                };
+            });
+            
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/non_child_ancestor/";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidBaseDirErrorCode)
+                };
+            });
+        });
+
+        describe(@"rootFile must be descendant of baseDir", ^{
+
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/index.html";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/content/index.html";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidRootFileErrorCode)
+                };
+            });
+            
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/index.html";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/content/subdir/index.html";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidRootFileErrorCode)
+                };
+            });
         });
 
         it(@"validates thumbnail path is relative", ^{

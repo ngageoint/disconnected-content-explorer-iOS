@@ -119,6 +119,17 @@ static NSDictionary * persistentAttrForTransientAttr;
         *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidImportDirErrorCode userInfo:info];
         return NO;
     }
+    else if (self.baseDir && self.importDir) {
+        NSString *baseDirParent = self.baseDir.path.stringByStandardizingPath.stringByDeletingLastPathComponent;
+        NSString *importDir = self.importDir.path.stringByStandardizingPath;
+        if (![baseDirParent isEqualToString:importDir]) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: base dir is not a child of import dir"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
+            return NO;
+        }
+    }
 
     if (self.rootFile && self.baseDir == nil) {
         NSDictionary *info = @{
@@ -126,6 +137,9 @@ static NSDictionary * persistentAttrForTransientAttr;
         };
         *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
         return NO;
+    }
+    else if (self.rootFile) {
+        
     }
 
     *error = nil;
