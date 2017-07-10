@@ -476,7 +476,7 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/non_child_ancestor/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/non_child_descendant/";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
@@ -536,14 +536,146 @@ describe(@"Report", ^{
             });
         });
 
-        it(@"validates thumbnail path is relative", ^{
+        describe(@"thubnailPath require baseDir", ^{
 
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = nil;
+                    report.thumbnailPath = @"img/thumb.png";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.thumbnailPath = @"img/thumb.png";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidBaseDirErrorCode)
+                };
+            });
         });
 
-        it(@"validates tile thumbnail path is relative", ^{
+        describe(@"tileThumbnailPath requires baseDir", ^{
 
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = nil;
+                    report.tileThumbnailPath = @"img/tile.png";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.tileThumbnailPath = @"img/tile.png";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidBaseDirErrorCode)
+                };
+            });
         });
 
+        describe(@"thumbnailPath must be relative", ^{
+
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.thumbnailPath = @"/dice/test.zip.dice_import/content/thumb.png";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.thumbnailPath = @"img/thumb.png";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidThumbnailErrorCode)
+                };
+            });
+        });
+
+        describe(@"tileThumbnailPath must be relative", ^{
+
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.tileThumbnailPath = @"/dice/test.zip.dice_import/content/tile.png";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.tileThumbnailPath = @"img/tile.png";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidThumbnailErrorCode)
+                };
+            });
+        });
+
+        describe(@"thumbnails cannot be empty strings", ^{
+
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.thumbnailPath = @"";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.thumbnailPath = @"img/tile.png";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidThumbnailErrorCode)
+                };
+            });
+
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.tileThumbnailPath = @"";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.tileThumbnailPath = @"img/tile.png";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidThumbnailErrorCode)
+                };
+            });
+        });
     });
 
     it(@"appends thumbnail path to base dir for thumbnail url", ^{

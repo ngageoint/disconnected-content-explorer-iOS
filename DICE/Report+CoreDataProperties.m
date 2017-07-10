@@ -150,6 +150,54 @@ static NSDictionary * persistentAttrForTransientAttr;
         }
     }
 
+    if (self.thumbnailPath) {
+        if (self.thumbnailPath.length == 0) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: thumbnail path cannot be empty string"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidThumbnailErrorCode userInfo:info];
+            return NO;
+        }
+        if (self.baseDir == nil) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: record has thumbnail path, but no base dir"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
+            return NO;
+        }
+        if (self.thumbnailPath.isAbsolutePath) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: thunbnail path must be relative"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidThumbnailErrorCode userInfo:info];
+            return NO;
+        }
+    }
+
+    if (self.tileThumbnailPath) {
+        if (self.tileThumbnailPath.length == 0) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: tile thumbnail path cannot be empty string"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidThumbnailErrorCode userInfo:info];
+            return NO;
+        }
+        if (self.baseDir == nil) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: record has tile thumbnail path, but no base dir"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
+            return NO;
+        }
+        if (self.tileThumbnailPath.isAbsolutePath) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: tile thunbnail path must be relative"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidThumbnailErrorCode userInfo:info];
+            return NO;
+        }
+    }
+
     *error = nil;
     return YES;
 }
