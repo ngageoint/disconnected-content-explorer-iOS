@@ -119,8 +119,12 @@ describe(@"Report", ^{
                 id persistentValue = data[kPersistentValue];
                 NSString *transientAttr = data[kTransientAttr];
                 id transientValue = data[kTransientValue];
+                NSDictionary *otherAttrs = data[kValidatingAttrs];
 
                 Report *report = [Report MR_createEntityInContext:context];
+                if (otherAttrs) {
+                    [report setValuesForKeysWithDictionary:otherAttrs];
+                }
                 report.sourceFileUrl = @"file:///dice/test.zip";
                 [report setValue:persistentValue forKey:persistentAttr];
 
@@ -244,7 +248,8 @@ describe(@"Report", ^{
                     kTransientAttr: @"baseDir",
                     kTransientValue: baseDir,
                     kValidatingAttrs: @{
-                        @"sourceFileUrl": @"file:///dice/test.zip"
+                        @"sourceFileUrl": @"file:///dice/test.zip",
+                        @"importDirUrl": @"file:///dice/test.zip.dice_import/"
                     }
                 };
             });
@@ -261,7 +266,9 @@ describe(@"Report", ^{
                     kTransientAttr: @"rootFile",
                     kTransientValue: rootFile,
                     kValidatingAttrs: @{
-                        @"sourceFileUrl": @"file:///dice/test.zip"
+                        @"sourceFileUrl": @"file:///dice/test.zip",
+                        @"importDirUrl": @"file:///dice/test.zip.dice_import/",
+                        @"baseDirUrl": @"file:///dice/test.zip.dice_import/content"
                     }
                 };
             });
@@ -413,8 +420,28 @@ describe(@"Report", ^{
             });
         });
 
-        it(@"cannot have root file without base dir", ^{
+        describe(@"rootFile requires baseDir", ^{
 
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = nil;
+                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/content/index.html";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/content/index.html";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidBaseDirErrorCode)
+                };
+            });
         });
 
         it(@"validates base dir is child of import dir", ^{

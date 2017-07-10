@@ -104,15 +104,32 @@ static NSDictionary * persistentAttrForTransientAttr;
 
 - (BOOL)validateForSave:(NSError * _Nullable __autoreleasing *)error
 {
-    if (self.remoteSource || self.sourceFile) {
-        *error = nil;
-        return YES;
+    if (self.remoteSource == nil && self.sourceFile == nil) {
+        NSDictionary *info = @{
+            NSLocalizedDescriptionKey: @"validation: record must have a remote or local source URL"
+        };
+        *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidSourceUrlErrorCode userInfo:info];
+        return NO;
     }
-    NSDictionary *info = @{
-        NSLocalizedDescriptionKey: @"validation: record must have a remote or local source URL"
-    };
-    *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidSourceUrlErrorCode userInfo:info];
-    return NO;
+
+    if (self.baseDir && self.importDir == nil) {
+        NSDictionary *info = @{
+            NSLocalizedDescriptionKey: @"validation: record has base dir, but no import dir"
+        };
+        *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidImportDirErrorCode userInfo:info];
+        return NO;
+    }
+
+    if (self.rootFile && self.baseDir == nil) {
+        NSDictionary *info = @{
+            NSLocalizedDescriptionKey: @"validation: record has root file, but no base dir"
+        };
+        *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
+        return NO;
+    }
+
+    *error = nil;
+    return YES;
 }
 
 - (void)setRemoteSourceUrl:(NSString *)remoteSourceUrl
