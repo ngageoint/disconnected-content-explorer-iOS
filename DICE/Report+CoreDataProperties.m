@@ -7,7 +7,7 @@
 //
 
 #import "Report+CoreDataProperties.h"
-
+#import "DICEConstants.h"
 
 static NSString * const kRemoteSource = @"remoteSource";
 static NSString * const kRemoteSourcePersistent = @"remoteSourceUrl";
@@ -84,6 +84,35 @@ static NSDictionary * persistentAttrForTransientAttr;
         id persistentValue = [self primitiveValueForKey:persistentKey];
         [self setValue:persistentValue forKey:persistentKey];
     }];
+}
+
+- (BOOL)validateForInsert:(NSError * _Nullable __autoreleasing *)error
+{
+    if (![super validateForInsert:error]) {
+        return NO;
+    }
+    return [self validateForSave:error];
+}
+
+- (BOOL)validateForUpdate:(NSError * _Nullable __autoreleasing *)error
+{
+    if (![super validateForInsert:error]) {
+        return NO;
+    }
+    return [self validateForSave:error];
+}
+
+- (BOOL)validateForSave:(NSError * _Nullable __autoreleasing *)error
+{
+    if (self.remoteSource || self.sourceFile) {
+        *error = nil;
+        return YES;
+    }
+    NSDictionary *info = @{
+        NSLocalizedDescriptionKey: @"validation: record must have a remote or local source URL"
+    };
+    *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidSourceUrlErrorCode userInfo:info];
+    return NO;
 }
 
 - (void)setRemoteSourceUrl:(NSString *)remoteSourceUrl

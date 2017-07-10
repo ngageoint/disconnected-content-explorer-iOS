@@ -20,6 +20,9 @@ NSInteger const DICE_CACHE_FEATURES_MAX_FEATURES_PER_TABLE = 500;
 NSInteger const DICE_FEATURES_MAX_ZOOM = 21;
 NSInteger const DICE_FEATURE_TILES_MIN_ZOOM_OFFSET = 0;
 
+#pragma mark - errors
+NSString * const DICEPersistenceErrorDomain = @"mil.dod.nga.dice.error.persistence";
+
 @implementation DICEConstants
 
 @end

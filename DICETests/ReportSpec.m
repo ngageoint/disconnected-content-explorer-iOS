@@ -15,6 +15,8 @@
 #import <stdatomic.h>
 #import <MagicalRecord/MagicalRecord.h>
 #import "KVOBlockObserver.h"
+#import "DICEConstants.h"
+
 
 
 SpecBegin(Report)
@@ -41,6 +43,7 @@ describe(@"Report", ^{
         static NSString * const kPersistentValue = @"persistentValue";
         static NSString * const kTransientAttr = @"transientKey";
         static NSString * const kTransientValue = @"transientValue";
+        static NSString * const kValidatingAttrs = @"validatingAttrs";
 
         sharedExamplesFor(@"a kvo compliant derived transient attribute", ^(NSDictionary *data) {
 
@@ -55,8 +58,6 @@ describe(@"Report", ^{
                 NSKeyValueObservingOptions kvoOptions = NSKeyValueObservingOptionPrior | NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew;
                 KVOBlockObserver *persistentKvo = [KVOBlockObserver recordObservationsOfKeyPath:persistentAttr ofObject:report options:kvoOptions];
                 KVOBlockObserver *transientKvo = [KVOBlockObserver recordObservationsOfKeyPath:transientAttr ofObject:report options:kvoOptions];
-
-                expect([context save:NULL]).to.beTruthy();
 
                 [report setValue:transientValue forKey:transientAttr];
 
@@ -120,6 +121,7 @@ describe(@"Report", ^{
                 id transientValue = data[kTransientValue];
 
                 Report *report = [Report MR_createEntityInContext:context];
+                report.sourceFileUrl = @"file:///dice/test.zip";
                 [report setValue:persistentValue forKey:persistentAttr];
 
                 expect([context save:NULL]).to.beTruthy();
@@ -158,14 +160,29 @@ describe(@"Report", ^{
                 id persistentValue = data[kPersistentValue];
                 NSString *transientAttr = data[kTransientAttr];
                 id transientValue = data[kTransientValue];
+                NSDictionary *otherAttrs = data[kValidatingAttrs];
 
-                Report *report = [NSEntityDescription insertNewObjectForEntityForName:@"Report" inManagedObjectContext:context];
+                Report *report = [Report MR_createEntityInContext:context];
+                if (otherAttrs) {
+                    [report setValuesForKeysWithDictionary:otherAttrs];
+                }
                 [report setValue:persistentValue forKey:persistentAttr];
-                [context MR_saveToPersistentStoreAndWait];
+
+                __block BOOL saved = NO;
+                __block NSError *saveError;
+                waitUntilTimeout(1.0, ^(DoneCallback done) {
+                    [context MR_saveToPersistentStoreWithCompletion:^(BOOL contextDidSave, NSError * _Nullable error) {
+                        saved = contextDidSave;
+                        saveError = error;
+                        done();
+                    }];
+                });
 
                 NSManagedObjectContext *fetchContext = [NSManagedObjectContext MR_contextWithParent:[NSManagedObjectContext MR_rootSavingContext]];
                 Report *fetched = [report MR_inContext:fetchContext];
 
+                expect(saved).to.beTruthy();
+                expect(saveError).to.beNil();
                 expect([fetched valueForKey:transientAttr]).to.equal(transientValue);
                 expect([fetched valueForKey:persistentAttr]).to.equal(persistentValue);
             });
@@ -208,7 +225,10 @@ describe(@"Report", ^{
                     kPersistentAttr: @"importDirUrl",
                     kPersistentValue: @"file:///dice/test.dice_import/",
                     kTransientAttr: @"importDir",
-                    kTransientValue: importDir
+                    kTransientValue: importDir,
+                    kValidatingAttrs: @{
+                        @"sourceFileUrl": @"file:///dice/test.zip"
+                    }
                 };
             });
         });
@@ -222,7 +242,10 @@ describe(@"Report", ^{
                     kPersistentAttr: @"baseDirUrl",
                     kPersistentValue: @"file:///dice/test.dice_import/content/",
                     kTransientAttr: @"baseDir",
-                    kTransientValue: baseDir
+                    kTransientValue: baseDir,
+                    kValidatingAttrs: @{
+                        @"sourceFileUrl": @"file:///dice/test.zip"
+                    }
                 };
             });
         });
@@ -236,7 +259,10 @@ describe(@"Report", ^{
                     kPersistentAttr: @"rootFileUrl",
                     kPersistentValue: @"file:///dice/test.dice_import/content/index.html",
                     kTransientAttr: @"rootFile",
-                    kTransientValue: rootFile
+                    kTransientValue: rootFile,
+                    kValidatingAttrs: @{
+                        @"sourceFileUrl": @"file:///dice/test.zip"
+                    }
                 };
             });
         });
@@ -244,15 +270,162 @@ describe(@"Report", ^{
 
     describe(@"validation", ^{
 
+        NSString * const kMakeValid = @"makeValid";
+        NSString * const kMakeInvalid = @"makeInvalid";
+        NSString * const kErrorCode = @"errorCode";
+
+        sharedExamplesFor(@"an entity with common insert and update validation", ^(NSDictionary *data) {
+
+            it(@"is invalid for insert and update with expected error code", ^{
+
+                NSNumber *errorCode = data[kErrorCode];
+                void (^makeEntityInvalid)(Report *) = data[kMakeInvalid];
+                void (^makeEntityValid)(Report *) = data[kMakeValid];
+                __block NSError *error = nil;
+
+                Report *report = [Report MR_createEntityInContext:context];
+                makeEntityInvalid(report);
+
+                expect([report validateForInsert:&error]).to.beFalsy();
+                expect(error).toNot.beNil();
+                expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+
+                error = nil;
+
+                expect([report validateForUpdate:&error]).to.beFalsy();
+                expect(error).toNot.beNil();
+                expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+
+                error = nil;
+
+                expect([context save:&error]).to.beFalsy();
+                expect(error).toNot.beNil();
+                expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+
+                makeEntityValid(report);
+
+                expect([report validateForInsert:&error]).to.beTruthy();
+                expect(error).to.beNil();
+
+                expect([report validateForUpdate:&error]).to.beTruthy();
+                expect(error).to.beNil();
+
+                expect([context save:&error]).to.beTruthy();
+                expect(error).to.beNil();
+
+                makeEntityInvalid(report);
+
+                expect([report validateForInsert:&error]).to.beFalsy();
+                expect(error).toNot.beNil();
+                expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+
+                error = nil;
+
+                expect([report validateForUpdate:&error]).to.beFalsy();
+                expect(error).toNot.beNil();
+                expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+                
+                error = nil;
+                
+                expect([context save:&error]).to.beFalsy();
+                expect(error).toNot.beNil();
+                expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+            });
+        });
+
+        describe(@"source file validation", ^{
+
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFile = nil;
+                    report.remoteSource = nil;
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidSourceUrlErrorCode)
+                };
+            });
+        });
+
+        describe(@"remote source validation", ^{
+
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFile = nil;
+                    report.remoteSource = nil;
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.remoteSourceUrl = @"http://dice.com/test.zip";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidSourceUrlErrorCode)
+                };
+            });
+        });
+
+        describe(@"source file + remote source validation", ^{
+
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFile = nil;
+                    report.remoteSource = nil;
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.remoteSourceUrl = @"http://dice.com/test.zip";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidSourceUrlErrorCode)
+                };
+            });
+        });
+
+        describe(@"baseDir requires importDir", ^{
+
+            itBehavesLike(@"an entity with common insert and update validation", ^{
+
+                void (^makeInvalid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = nil;
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                };
+                void (^makeValid)(Report *report) = ^(Report *report) {
+                    report.sourceFileUrl = @"file:///dice/test.zip";
+                    report.importDirUrl = @"file:///dice/test.zip.dice_import/";
+                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                };
+                return @{
+                    kMakeInvalid: makeInvalid,
+                    kMakeValid: makeValid,
+                    kErrorCode: @(DICEInvalidImportDirErrorCode)
+                };
+            });
+        });
+
+        it(@"cannot have root file without base dir", ^{
+
+        });
+
         it(@"validates base dir is child of import dir", ^{
 
         });
 
-        it(@"validates thumbnail descends from base dir", ^{
+        it(@"validates thumbnail path is relative", ^{
 
         });
 
-        it(@"validates tile thumbnail descends from base dir", ^{
+        it(@"validates tile thumbnail path is relative", ^{
 
         });
 
