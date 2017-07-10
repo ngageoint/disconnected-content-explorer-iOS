@@ -259,10 +259,10 @@ describe(@"Report", ^{
 
             itBehavesLike(@"a kvo compliant derived transient attribute", ^{
 
-                NSURL *rootFile = [NSURL fileURLWithPath:@"/dice/test.dice_import/content/index.html" isDirectory:NO];
+                NSURL *rootFile = [NSURL fileURLWithPath:@"/dice/test.zip.dice_import/content/index.html" isDirectory:NO];
                 return @{
                     kPersistentAttr: @"rootFileUrl",
-                    kPersistentValue: @"file:///dice/test.dice_import/content/index.html",
+                    kPersistentValue: @"file:///dice/test.zip.dice_import/content/index.html",
                     kTransientAttr: @"rootFile",
                     kTransientValue: rootFile,
                     kValidatingAttrs: @{
@@ -296,18 +296,21 @@ describe(@"Report", ^{
                 expect([report validateForInsert:&error]).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+                expect(error.domain).to.equal(DICEPersistenceErrorDomain);
 
                 error = nil;
 
                 expect([report validateForUpdate:&error]).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+                expect(error.domain).to.equal(DICEPersistenceErrorDomain);
 
                 error = nil;
 
                 expect([context save:&error]).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+                expect(error.domain).to.equal(DICEPersistenceErrorDomain);
 
                 makeEntityValid(report);
 
@@ -325,18 +328,21 @@ describe(@"Report", ^{
                 expect([report validateForInsert:&error]).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+                expect(error.domain).to.equal(DICEPersistenceErrorDomain);
 
                 error = nil;
 
                 expect([report validateForUpdate:&error]).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+                expect(error.domain).to.equal(DICEPersistenceErrorDomain);
                 
                 error = nil;
                 
                 expect([context save:&error]).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
+                expect(error.domain).to.equal(DICEPersistenceErrorDomain);
             });
         });
 

@@ -112,14 +112,14 @@ static NSDictionary * persistentAttrForTransientAttr;
         return NO;
     }
 
-    if (self.baseDir && self.importDir == nil) {
-        NSDictionary *info = @{
-            NSLocalizedDescriptionKey: @"validation: record has base dir, but no import dir"
-        };
-        *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidImportDirErrorCode userInfo:info];
-        return NO;
-    }
-    else if (self.baseDir && self.importDir) {
+    if (self.baseDir) {
+        if (self.importDir == nil) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: record has base dir, but no import dir"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidImportDirErrorCode userInfo:info];
+            return NO;
+        }
         NSString *baseDirParent = self.baseDir.path.stringByStandardizingPath.stringByDeletingLastPathComponent;
         NSString *importDir = self.importDir.path.stringByStandardizingPath;
         if (![baseDirParent isEqualToString:importDir]) {
@@ -131,15 +131,23 @@ static NSDictionary * persistentAttrForTransientAttr;
         }
     }
 
-    if (self.rootFile && self.baseDir == nil) {
-        NSDictionary *info = @{
-            NSLocalizedDescriptionKey: @"validation: record has root file, but no base dir"
-        };
-        *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
-        return NO;
-    }
-    else if (self.rootFile) {
-        
+    if (self.rootFile) {
+        if (self.baseDir == nil) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: record has root file, but no base dir"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
+            return NO;
+        }
+        NSString *rootFilePath = self.rootFile.path.stringByStandardizingPath;
+        NSString *baseDirPath = self.baseDir.path.stringByStandardizingPath;
+        if (![rootFilePath hasPrefix:baseDirPath]) {
+            NSDictionary *info = @{
+                NSLocalizedDescriptionKey: @"validation: root file is not a descendant of base dir"
+            };
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidRootFileErrorCode userInfo:info];
+            return NO;
+        }
     }
 
     *error = nil;
