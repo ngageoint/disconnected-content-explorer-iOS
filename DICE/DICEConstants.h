@@ -25,7 +25,10 @@ FOUNDATION_EXPORT NSString * const DICEPersistenceErrorDomain;
 
 typedef NS_ENUM(NSUInteger, DICEPersistenceErrorCode) {
     DICEInvalidSourceUrlErrorCode,
-    DICEInvalidImportDirErrorCode
+    DICEInvalidImportDirErrorCode,
+    DICEInvalidBaseDirErrorCode,
+    DICEInvalidRootFileErrorCode,
+    DICEInvalidThumbnailErrorCode,
 };
 
 @interface DICEConstants : NSObject
