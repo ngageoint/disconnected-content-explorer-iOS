@@ -8,7 +8,16 @@
 
 @implementation Report
 
-@synthesize cacheFiles;
+@synthesize cacheFiles = _cacheFiles;
+
+- (NSManagedObject *)initWithEntity:(NSEntityDescription *)entity insertIntoManagedObjectContext:(NSManagedObjectContext *)context
+{
+    self = [super initWithEntity:entity insertIntoManagedObjectContext:context];
+
+    _cacheFiles = [NSMutableArray array];
+
+    return self;
+}
 
 - (NSUInteger)downloadPercent
 {

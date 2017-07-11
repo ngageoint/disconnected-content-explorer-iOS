@@ -700,6 +700,21 @@ describe(@"Report", ^{
         expect(report.tileThumbnailPath).to.equal(@"images/thumbnail.png");
     });
 
+    it(@"intializes cache files", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+
+        expect(report.cacheFiles).toNot.beNil();
+
+        report.sourceFileUrl = @"file:///dice/test.zip";
+        [context MR_saveToPersistentStoreAndWait];
+
+        NSManagedObjectContext *fetchContext = [NSManagedObjectContext MR_context];
+        Report *fetched = [fetchContext objectWithID:report.objectID];
+
+        expect(fetched.cacheFiles).toNot.beNil();
+    });
+
     it(@"updates report from json descriptor", ^{
 
         Report *report = [Report MR_createEntityInContext:context];

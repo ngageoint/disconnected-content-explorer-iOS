@@ -33,7 +33,7 @@ typedef NS_ENUM(int16_t, ReportImportStatus) {
 @property (readonly, nullable) NSURL *thumbnail;
 @property (readonly, nullable) NSURL *tileThumbnail;
 
-@property (nonnull) NSMutableArray<ReportCache *> * cacheFiles;
+@property (readonly, nonnull) NSMutableArray<ReportCache *> * cacheFiles;
 
 /**
  Set the properties of this report from key-value pairs in the given
