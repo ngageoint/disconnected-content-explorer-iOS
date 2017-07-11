@@ -77,7 +77,7 @@
  */
 - (void)retryImportingReport:(nonnull Report *)report;
 
-- (nullable Report *)reportForID:(nonnull NSString *)reportID;
+- (nullable Report *)reportForContentId:(nonnull NSString *)contentId;
 
 - (void)deleteReport:(nonnull Report *)report;
 

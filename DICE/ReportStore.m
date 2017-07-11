@@ -7,6 +7,8 @@
 //
 
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <MagicalRecord/MagicalRecord.h>
+
 #import "ImportProcess.h"
 #import "DICEDownloadManager.h"
 #import "ReportStore.h"
@@ -49,7 +51,6 @@ static NSString *const ImportDirSuffix = @".dice_import";
 @end
 
 
-// TODO: thread safety for reports array
 @implementation ReportStore
 {
     NSMutableArray<Report *> *_reports;
@@ -135,6 +136,8 @@ ReportStore *_sharedInstance;
     return self;
 }
 
+#pragma mark - public api
+
 - (void)setDownloadManager:(DICEDownloadManager *)downloadManager
 {
     _downloadManager = downloadManager;
@@ -163,7 +166,6 @@ ReportStore *_sharedInstance;
     }];
     if (defunctReports.count > 0) {
         [_reports removeObjectsAtIndexes:defunctReports];
-        // TODO: dispatch reports changed notification, or just wait till load is complete
     }
 
     NSArray *files = [self.fileManager contentsOfDirectoryAtURL:self.reportsDir includingPropertiesForKeys:@[NSURLFileResourceTypeKey] options:0 error:nil];
@@ -187,13 +189,6 @@ ReportStore *_sharedInstance;
 
         [self attemptToImportReportFromResource:reportUrl];
     }
-
-    // TODO: restore or replace with different view to indicate empty list and link to fetch examples
-    // TODO: tests for user guide report
-//    if (_reports.count == 0)
-//    {
-//        [reports addObject:[self getUserGuideReport]];
-//    }
 }
 
 - (void)attemptToImportReportFromResource:(NSURL *)reportUrl
@@ -236,17 +231,111 @@ ReportStore *_sharedInstance;
     }
 }
 
-- (void)clearAndRetryDownloadForReport:(Report *)report
+- (Report *)reportForContentId:(NSString *)contentId
 {
+    // TODO: query by contentId
+    return nil;
+}
+
+- (void)deleteReport:(Report *)report
+{
+    ensureMainThread();
+
+    // TODO: update status message if report cannot be deleted
+    if (![_reports containsObject:report]) {
+        return;
+    }
+    if (!report.isImportFinished) {
+        return;
+    }
     report.isEnabled = NO;
-    report.importStatus = ReportImportStatusNewRemote;
-    report.title = report.statusMessage = @"Retrying download";
-    report.summary = report.remoteSource.absoluteString;
-    // TODO: leave import dir and persisted record? option on DICEDeleteReportProcess? maybe just manually delete base dir and source file?
-    DICEDeleteReportProcess *startFresh = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:YES fileManager:self.fileManager];
-    [_pendingImports addObject:startFresh];
-    startFresh.delegate = self;
-    [self.importQueue addOperations:startFresh.steps waitUntilFinished:NO];
+    report.importStatus = ReportImportStatusDeleting;
+    report.statusMessage = @"Deleting content...";
+    DICEDeleteReportProcess *delReport = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:NO fileManager:self.fileManager];
+    delReport.delegate = self;
+    [_pendingImports addObject:delReport]; // retain so it doesn't get deallocated
+    [self.importQueue addOperations:delReport.steps waitUntilFinished:NO];
+}
+
+#pragma mark - ImportDelegate methods
+
+- (void)reportWasUpdatedByImportProcess:(ImportProcess *)import
+{
+    // TODO: notifications
+}
+
+- (void)importDidFinishForImportProcess:(ImportProcess *)importProcess
+{
+    if ([importProcess isKindOfClass:[DICEDeleteReportProcess class]]) {
+        vlog(@"delete process finished for report %@", importProcess.report);
+        // TODO: what if it failed?
+        // TODO: worry about background task? we didn't begin one for this import process
+        [_pendingImports removeObject:importProcess];
+        return;
+    }
+    vlog(@"import did finish for report %@", importProcess.report);
+    // TODO: only use json descriptor if new import, else use NSCoding serialized Report object
+    NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:importProcess.report];
+    // TODO: assign contentId if nil
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // TODO: leave failed imports so user can decide what to do, retry, delete, etc?
+        vlog(@"finalizing import for report %@", importProcess.report);
+        Report *report = importProcess.report;
+        if (importProcess.wasSuccessful) {
+            if (descriptor) {
+                [report setPropertiesFromJsonDescriptor:descriptor];
+            }
+            // TODO: this is a hack to ensure only nilling the summary if the import process didn't change it until
+            // the ui changes to use the statusMessage property instead of just summary.  then, ReportStore won't
+            // bother ever setting the summary and just set statusMessage instead.
+            else if ([@"Importing content..." isEqualToString:report.summary]) {
+                report.summary = nil;
+            }
+            if (!report.baseDir) {
+                report.baseDir = report.importDir;
+            }
+            if (!report.rootFile) {
+                report.rootFile = [report.baseDir URLByAppendingPathComponent:report.sourceFile.lastPathComponent];
+            }
+            // TODO: check rootFile uti
+            NSLog(@"enabling report %@", report);
+            report.isEnabled = YES;
+            report.importStatus = ReportImportStatusSuccess;
+            report.statusMessage = @"Import complete";
+        }
+        else {
+            NSLog(@"disabling report %@ after unsuccessful import", report);
+            report.isEnabled = NO;
+            report.importStatus = ReportImportStatusFailed;
+            report.summary = report.statusMessage = @"Failed to import content";
+        }
+        [self clearPendingImport:importProcess];
+    });
+}
+
+#pragma mark - private methods
+
+- (nullable Report *)reportForUrl:(NSURL *)pathUrl
+{
+    // TODO: check pathUrl child of reportsDir, return fail Report if not
+
+    NSCompoundPredicate *urlPredicateTemplate = [[NSCompoundPredicate alloc] initWithType:NSOrPredicateType subpredicates:@[
+        [NSPredicate predicateWithFormat:@"remoteSourceUrl == $URL"],
+        [NSPredicate predicateWithFormat:@"sourceFileUrl == $URL"],
+        [NSPredicate predicateWithFormat:@"importDirUrl == $URL"]
+    ]];
+
+    NSError *error;
+    NSFetchRequest *urlQuery = [NSFetchRequest fetchRequestWithEntityName:@"Report"];
+    urlQuery.predicate = [urlPredicateTemplate predicateWithSubstitutionVariables:@{@"URL": pathUrl.absoluteString}];
+    NSArray<Report *> *result = [self.reportDb executeFetchRequest:urlQuery error:&error];
+
+    if (result.count > 1) {
+        // TODO: should not happen
+    }
+    // TODO: check error
+
+    return result.firstObject;
 }
 
 - (Report *)initializeReport:(Report *)report forSourceUrl:(NSURL *)url
@@ -255,7 +344,7 @@ ReportStore *_sharedInstance;
     report.remoteSource = nil;
     report.baseDir = nil;
     report.rootFile = nil;
-    report.uti = NULL;
+    report.uti = nil;
     report.importStatus = ReportImportStatusNew;
     report.downloadProgress = 0;
     report.downloadSize = 0;
@@ -307,9 +396,8 @@ ReportStore *_sharedInstance;
 {
     ensureMainThread();
 
-    Report *report = [self initializeReport:[[Report alloc] init] forSourceUrl:reportUrl];
-    [_reports addObject:report];
-
+    Report *report = [Report MR_createEntityInContext:self.reportDb];
+    [self initializeReport:report forSourceUrl:reportUrl];
     return report;
 }
 
@@ -444,6 +532,8 @@ ReportStore *_sharedInstance;
     [self.importQueue addOperation:mv];
 }
 
+#pragma mark - downloading
+
 - (void)downloadManager:(DICEDownloadManager *)downloadManager didReceiveDataForDownload:(DICEDownload *)download
 {
     ensureMainThread();
@@ -533,101 +623,20 @@ ReportStore *_sharedInstance;
     return report;
 }
 
-- (void)deleteReport:(Report *)report
+- (void)clearAndRetryDownloadForReport:(Report *)report
 {
-    ensureMainThread();
-
-    // TODO: update status message if report cannot be deleted
-    if (![_reports containsObject:report]) {
-        return;
-    }
-    if (!report.isImportFinished) {
-        return;
-    }
     report.isEnabled = NO;
-    report.importStatus = ReportImportStatusDeleting;
-    report.statusMessage = @"Deleting content...";
-    DICEDeleteReportProcess *delReport = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:NO fileManager:self.fileManager];
-    delReport.delegate = self;
-    [_pendingImports addObject:delReport]; // retain so it doesn't get deallocated
-    [self.importQueue addOperations:delReport.steps waitUntilFinished:NO];
+    report.importStatus = ReportImportStatusNewRemote;
+    report.title = report.statusMessage = @"Retrying download";
+    report.summary = report.remoteSource.absoluteString;
+    // TODO: leave import dir and persisted record? option on DICEDeleteReportProcess? maybe just manually delete base dir and source file?
+    DICEDeleteReportProcess *startFresh = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:YES fileManager:self.fileManager];
+    [_pendingImports addObject:startFresh];
+    startFresh.delegate = self;
+    [self.importQueue addOperations:startFresh.steps waitUntilFinished:NO];
 }
 
-#pragma mark - ImportDelegate methods
-
-- (void)reportWasUpdatedByImportProcess:(ImportProcess *)import
-{
-    // TODO: notifications
-}
-
-- (void)importDidFinishForImportProcess:(ImportProcess *)importProcess
-{
-    if ([importProcess isKindOfClass:[DICEDeleteReportProcess class]]) {
-        vlog(@"delete process finished for report %@", importProcess.report);
-        // TODO: what if it failed?
-        // TODO: worry about background task? we didn't begin one for this import process
-        [_pendingImports removeObject:importProcess];
-        return;
-    }
-    vlog(@"import did finish for report %@", importProcess.report);
-    // TODO: only use json descriptor if new import, else use NSCoding serialized Report object
-    NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:importProcess.report];
-    // TODO: assign contentId if nil
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // TODO: leave failed imports so user can decide what to do, retry, delete, etc?
-        vlog(@"finalizing import for report %@", importProcess.report);
-        Report *report = importProcess.report;
-        if (importProcess.wasSuccessful) {
-            if (descriptor) {
-                [report setPropertiesFromJsonDescriptor:descriptor];
-            }
-            // TODO: this is a hack to ensure only nilling the summary if the import process didn't change it until
-            // the ui changes to use the statusMessage property instead of just summary.  then, ReportStore won't
-            // bother ever setting the summary and just set statusMessage instead.
-            else if ([@"Importing content..." isEqualToString:report.summary]) {
-                report.summary = nil;
-            }
-            if (!report.baseDir) {
-                report.baseDir = report.importDir;
-            }
-            if (!report.rootFile) {
-                report.rootFile = [report.baseDir URLByAppendingPathComponent:report.sourceFile.lastPathComponent];
-            }
-            // TODO: check rootFile uti
-            NSLog(@"enabling report %@", report);
-            report.isEnabled = YES;
-            report.importStatus = ReportImportStatusSuccess;
-            report.statusMessage = @"Import complete";
-        }
-        else {
-            NSLog(@"disabling report %@ after unsuccessful import", report);
-            report.isEnabled = NO;
-            report.importStatus = ReportImportStatusFailed;
-            report.summary = report.statusMessage = @"Failed to import content";
-        }
-        [self clearPendingImport:importProcess];
-    });
-}
-
-#pragma mark - private_methods
-
-- (nullable Report *)reportForUrl:(NSURL *)pathUrl
-{
-    // TODO: check pathUrl child of reportsDir, return fail Report if not
-
-    NSCompoundPredicate *urlPredicateTemplate = [[NSCompoundPredicate alloc] initWithType:NSOrPredicateType subpredicates:@[
-        [NSPredicate predicateWithFormat:@"remoteSourceUrl == $URL"],
-        [NSPredicate predicateWithFormat:@"sourceFileUrl == $URL"],
-        [NSPredicate predicateWithFormat:@"importDirUrl == $URL"]
-    ]];
-
-    NSError *error;
-    NSFetchRequest *urlQuery = [NSFetchRequest fetchRequestWithEntityName:@"Report"];
-    urlQuery.predicate = [urlPredicateTemplate predicateWithSubstitutionVariables:@{@"URL": pathUrl.absoluteString}];
-    NSArray<Report *> *result = [self.reportDb executeFetchRequest:urlQuery error:&error];
-
-    return result.firstObject;
-}
+#pragma mark - archives
 
 /**
  * invoke on main thread
@@ -816,6 +825,8 @@ ReportStore *_sharedInstance;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     return json;
 }
+
+#pragma mark - deleting
 
 - (void)filesDidMoveToTrashByDeleteReportProcess:(DICEDeleteReportProcess *)process
 {

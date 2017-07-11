@@ -57,14 +57,18 @@
 {
     NSDictionary *params = [DICENavigationController parseQueryParametersFromURL:target];
     NSString *srcScheme = params[@"srcScheme"];
-    NSString *reportID = params[@"reportID"];
+    NSString *contentId = params[@"contentId"];
+    if (contentId == nil) {
+        // backward compatibility
+        contentId = params[@"reportID"];
+    }
     NSString *resource = params[@"resource"];
     
-    if (!reportID) {
+    if (!contentId) {
         return;
     }
     
-    Report *report = [[ReportStore sharedInstance] reportForID:reportID];
+    Report *report = [[ReportStore sharedInstance] reportForContentId:contentId];
     
     if (!report) {
         return;
