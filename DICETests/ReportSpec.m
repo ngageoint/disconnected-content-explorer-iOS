@@ -710,7 +710,7 @@ describe(@"Report", ^{
         [context MR_saveToPersistentStoreAndWait];
 
         NSManagedObjectContext *fetchContext = [NSManagedObjectContext MR_context];
-        Report *fetched = [fetchContext objectWithID:report.objectID];
+        Report *fetched = [fetchContext existingObjectWithID:report.objectID error:NULL];
 
         expect(fetched.cacheFiles).toNot.beNil();
     });
