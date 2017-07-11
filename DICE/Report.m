@@ -53,7 +53,7 @@
             return;
         }
 
-        if ([@"reportID" isEqualToString:key] || [@"contentId" isEqualToString:key]) {
+        if ([@"contentId" isEqualToString:key] || [@"content_id" isEqualToString:key] || [@"reportID" isEqualToString:key]) {
             self.contentId = obj;
         }
         if ([@"title" isEqualToString:key]) {
@@ -71,7 +71,7 @@
         if ([@"thumbnail" isEqualToString:key]) {
             self.thumbnailPath = obj;
         }
-        if ([@"tile_thumbnail" isEqualToString:key]) {
+        if ([@"tileThumbnail" isEqualToString:key] || [@"tile_thumbnail" isEqualToString:key]) {
             self.tileThumbnailPath = obj;
         }
     }];

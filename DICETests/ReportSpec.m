@@ -726,7 +726,7 @@ describe(@"Report", ^{
             @"lat": @39.8,
             @"lon": @-104.8,
             @"thumbnail": @"images/test.png",
-            @"tile_thumbnail": @"images/test-tile.png",
+            @"tileThumbnail": @"images/test-tile.png",
         }];
 
         expect(report.contentId).to.equal(@"abc123");
@@ -754,7 +754,7 @@ describe(@"Report", ^{
 
         [report setPropertiesFromJsonDescriptor:@{
             @"description": @"new description",
-            @"tile_thumbnail": @"my_tile.png",
+            @"tileThumbnail": @"my_tile.png",
         }];
 
         expect(report.contentId).to.equal(@"org.dice.test");
