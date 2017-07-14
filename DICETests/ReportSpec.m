@@ -678,6 +678,20 @@ describe(@"Report", ^{
         });
     });
 
+    it(@"sets dateAdded to now on creation", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+
+        assertThatDouble(report.dateAdded.timeIntervalSinceReferenceDate, closeTo([NSDate date].timeIntervalSinceReferenceDate, 0.001));
+    });
+
+    it(@"sets dateLastAccessed to now on creation", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+
+        assertThatDouble(report.dateAdded.timeIntervalSinceReferenceDate, closeTo([NSDate date].timeIntervalSinceReferenceDate, 0.001));
+    });
+
     it(@"appends thumbnail path to base dir for thumbnail url", ^{
 
         Report *report = [Report MR_createEntityInContext:context];

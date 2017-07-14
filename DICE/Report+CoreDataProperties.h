@@ -18,8 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSURL *baseDir;
 @property (nullable, nonatomic, copy) NSString *baseDirUrl;
 @property (nullable, nonatomic, copy) NSString *contentId;
+@property (nullable, nonatomic, copy) NSDate *dateAdded;
+@property (nullable, nonatomic, copy) NSDate *dateLastAccessed;
 @property (nonatomic) int64_t downloadProgress;
 @property (nonatomic) int64_t downloadSize;
+@property (nonatomic) int16_t extractPercent;
 @property (nullable, nonatomic, retain) NSURL *importDir;
 @property (nullable, nonatomic, copy) NSString *importDirUrl;
 @property (nonatomic) int16_t importStatus;
