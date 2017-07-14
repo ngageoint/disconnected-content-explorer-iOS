@@ -78,8 +78,8 @@ describe(@"NSFileManager", ^{
 
 describe(@"ReportStore", ^{
 
-    __block NSPersistentStoreCoordinator *reportDbCoordinator;
     __block NSManagedObjectContext *reportDb;
+    __block NSManagedObjectContext *verifyDb;
     __block TestReportType *redType;
     __block TestReportType *blueType;
     __block TestFileManager *fileManager;
@@ -92,13 +92,11 @@ describe(@"ReportStore", ^{
     __block void (^backgroundTaskHandler)(void);
     __block NSURL *reportsDir;
 
-    beforeAll(^{
+    beforeEach(^{
 
         [MagicalRecord setupCoreDataStackWithInMemoryStore];
         reportDb = [NSManagedObjectContext MR_defaultContext];
-    });
-
-    beforeEach(^{
+        verifyDb = [NSManagedObjectContext MR_context];
 
         NSString *testNameComponent = ((SPTSpec *)SPTCurrentSpec).name;
         NSRange doubleUnderscore = [testNameComponent rangeOfString:@"__" options:NSBackwardsSearch];
@@ -136,11 +134,6 @@ describe(@"ReportStore", ^{
             return nil;
         }];
 
-        NSFetchRequest *allReports = [Report fetchRequest];
-        NSBatchDeleteRequest *clearReports = [[NSBatchDeleteRequest alloc] initWithFetchRequest:allReports];
-        __block NSError *error = nil;
-        expect([reportDb executeRequest:clearReports error:&error]).to.beTruthy();
-
         redType = [[TestReportType alloc] initWithExtension:@"red" fileManager:fileManager];
         blueType = [[TestReportType alloc] initWithExtension:@"blue" fileManager:fileManager];
 
@@ -166,33 +159,30 @@ describe(@"ReportStore", ^{
         stopMocking(archiveFactory);
         stopMocking(app);
         fileManager = nil;
-
-        NSArray<NSPersistentStore *> *stores = [reportDbCoordinator.persistentStores copy];
-        for (NSPersistentStore *store in stores) {
-            NSError *error;
-            [reportDbCoordinator removePersistentStore:store error:&error];
-        }
+        [MagicalRecord cleanUp];
     });
 
     afterAll(^{
         
     });
 
-    describe(@"importing stand-alone files from the documents directory", ^{
+    fdescribe(@"importing stand-alone files from the documents directory", ^{
 
         it(@"imports a report with the capable report type", ^{
 
-            failure(@"todo");
+            [fileManager setWorkingDirChildren:@"report.red", nil];
+            TestImportProcess *redImport = [redType enqueueImport];
+            [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
-//            [fileManager setWorkingDirChildren:@"report.red", nil];
-//            TestImportProcess *redImport = [redType enqueueImport];
-//            [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            expect(store.reports).to.haveCountOf(1);
-//            expect(store.reports).to.contain(report);
-//            expect(report).to.beIdenticalTo(redImport.report);
+            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
+
+            expect(redImport.report).toNot.beNil();
+            expect(redImport.report.isEnabled).to.beTruthy();
+
+            Report *storedReport = [redImport.report MR_inContext:verifyDb];
+
+            expect(storedReport).toNot.beNil();
+            expect(storedReport.isEnabled).to.beTruthy();
         });
 
         it(@"moves source file to base dir in import dir before importing", ^{

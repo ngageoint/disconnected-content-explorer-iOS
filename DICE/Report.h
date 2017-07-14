@@ -10,9 +10,10 @@
 
 typedef NS_ENUM(int16_t, ReportImportStatus) {
     ReportImportStatusNew,
-    ReportImportStatusNewRemote,
     ReportImportStatusDownloading,
-    ReportImportStatusNewLocal,
+    ReportImportStatusInspectingSourceFile,
+    ReportImportStatusInspectingContent,
+    ReportImportStatusInspectingArchive,
     ReportImportStatusExtracting,
     ReportImportStatusImporting,
     ReportImportStatusSuccess,

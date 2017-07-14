@@ -27,6 +27,7 @@
 #import "NSFileManager+Convenience.h"
 #import "NSURL+ResourceValues.h"
 
+
 void ensureMainThread() {
     if (!NSThread.isMainThread) {
         [NSException raise:NSInternalInconsistencyException format:@"expected main thread"];
@@ -44,7 +45,56 @@ void ensureMainThread() {
 @end
 
 
+/*
+ The import state machine:
+
+ new                -> readyToInspect|downloading
+ readyToInspect     -> inspectingArchive|inspectingContent
+ inspectingContent  -> readyToImport|failed(inspection)
+ readyToImport      -> importing
+ importing          -> success|failed(import)
+ inspectingArchive  -> extracting|failed(inspection)
+ extracting         -> readyToImport|failed(extraction)
+ downloading        -> readyToInspect|failed(download)
+
+ all states:
+ 0: new
+ 1: readyToInspect
+ 2: inspectingArchive
+ 3: extracting
+ 4: inspectingContent
+ 5: readyToImport
+ 6: importing
+ 7: downloading
+ 8: success
+ 9: failed
+ */
+
+@protocol StateTransition <NSObject>
+
+- (NSNumber *)from;
+- (NSNumber *)to;
+- (BOOL)perform;
+- (NSError *)error;
+
+@end
+
+
 static NSString *const ImportDirSuffix = @".dice_import";
+
+
+@interface ReportImportContext
+
+@property id<ReportType> type;
+@property id<DICEArchive> archive;
+@property NSString *baseDirInArchive;
+
+@end
+
+
+@implementation NSDictionary (ReportImportContext)
+
+@end
 
 
 @interface ReportStore () <UnzipDelegate, DICEDeleteReportProcessDelegate>
@@ -59,8 +109,7 @@ static NSString *const ImportDirSuffix = @".dice_import";
     NSURL *_trashDir;
     UIBackgroundTaskIdentifier _importBackgroundTaskId;
     BOOL _backgroundTimeExpired;
-    void *ARCHIVE_MATCH_CONTEXT;
-    void *CONTENT_MATCH_CONTEXT;
+    NSDictionary<NSManagedObjectID *, ReportImportContext *> *_transientImportContext;
 }
 
 dispatch_once_t _sharedInstanceOnce;
@@ -122,9 +171,6 @@ ReportStore *_sharedInstance;
     [predicates addObject:excludeTrashDir];
     [predicates addObjectsFromArray:exclusions];
     _reportsDirExclusions = [NSCompoundPredicate orPredicateWithSubpredicates:predicates];
-
-    ARCHIVE_MATCH_CONTEXT = &ARCHIVE_MATCH_CONTEXT;
-    CONTENT_MATCH_CONTEXT = &CONTENT_MATCH_CONTEXT;
 
     // TODO: handle errors more goodly
     NSError *err;
@@ -208,14 +254,16 @@ ReportStore *_sharedInstance;
 
     // TODO: assumes reportUrl is in docs directory
     // TODO: check if this report might have been imported before, e.g., from this same url or perhaps a hash, then prompt to overwrite
-    // TODO: handle resuming suspended imports
     Report *report = [self reportForUrl:reportUrl];
     if (report) {
         return;
     }
 
-    report = [self addNewReportForUrl:reportUrl];
-    [self beginImportingNewReport:report];
+    [self.reportDb performBlock:^{
+        Report *report = [Report MR_createEntityInContext:self.reportDb];
+        [self initializeReport:report forSourceUrl:reportUrl];
+        [self saveReport:report enteringState:ReportImportStatusNew];
+    }];
 }
 
 - (void)retryImportingReport:(Report *)report
@@ -241,79 +289,36 @@ ReportStore *_sharedInstance;
 {
     ensureMainThread();
 
-    // TODO: update status message if report cannot be deleted
-    if (![_reports containsObject:report]) {
-        return;
-    }
     if (!report.isImportFinished) {
         return;
     }
     report.isEnabled = NO;
     report.importStatus = ReportImportStatusDeleting;
     report.statusMessage = @"Deleting content...";
-    DICEDeleteReportProcess *delReport = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:NO fileManager:self.fileManager];
+    DICEDeleteReportProcess *delReport = [[DICEDeleteReportProcess alloc]
+        initWithReport:report trashDir:_trashDir preservingMetaData:NO fileManager:self.fileManager];
     delReport.delegate = self;
     [_pendingImports addObject:delReport]; // retain so it doesn't get deallocated
     [self.importQueue addOperations:delReport.steps waitUntilFinished:NO];
 }
 
-#pragma mark - ImportDelegate methods
-
-- (void)reportWasUpdatedByImportProcess:(ImportProcess *)import
+- (void)reportDbDidSave:(NSNotification *)note
 {
-    // TODO: notifications
+
 }
 
-- (void)importDidFinishForImportProcess:(ImportProcess *)importProcess
+- (void)reportDbWillSave:(NSNotification *)note
 {
-    if ([importProcess isKindOfClass:[DICEDeleteReportProcess class]]) {
-        vlog(@"delete process finished for report %@", importProcess.report);
-        // TODO: what if it failed?
-        // TODO: worry about background task? we didn't begin one for this import process
-        [_pendingImports removeObject:importProcess];
-        return;
+    NSSet<NSManagedObject *> *updates = self.reportDb.updatedObjects;
+    for (Report *report in updates) {
+        NSNumber *oldState = report.changedValues[@"importStatus"];
+        if (oldState) {
+            // verify valid state transition
+            ReportImportStatus oldStateInt = (int16_t)oldState.intValue;
+            //            [self enterStateOfReport:report leavingState:oldState];
+        }
     }
-    vlog(@"import did finish for report %@", importProcess.report);
-    // TODO: only use json descriptor if new import, else use NSCoding serialized Report object
-    NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:importProcess.report];
-    // TODO: assign contentId if nil
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // TODO: leave failed imports so user can decide what to do, retry, delete, etc?
-        vlog(@"finalizing import for report %@", importProcess.report);
-        Report *report = importProcess.report;
-        if (importProcess.wasSuccessful) {
-            if (descriptor) {
-                [report setPropertiesFromJsonDescriptor:descriptor];
-            }
-            // TODO: this is a hack to ensure only nilling the summary if the import process didn't change it until
-            // the ui changes to use the statusMessage property instead of just summary.  then, ReportStore won't
-            // bother ever setting the summary and just set statusMessage instead.
-            else if ([@"Importing content..." isEqualToString:report.summary]) {
-                report.summary = nil;
-            }
-            if (!report.baseDir) {
-                report.baseDir = report.importDir;
-            }
-            if (!report.rootFile) {
-                report.rootFile = [report.baseDir URLByAppendingPathComponent:report.sourceFile.lastPathComponent];
-            }
-            // TODO: check rootFile uti
-            NSLog(@"enabling report %@", report);
-            report.isEnabled = YES;
-            report.importStatus = ReportImportStatusSuccess;
-            report.statusMessage = @"Import complete";
-        }
-        else {
-            NSLog(@"disabling report %@ after unsuccessful import", report);
-            report.isEnabled = NO;
-            report.importStatus = ReportImportStatusFailed;
-            report.summary = report.statusMessage = @"Failed to import content";
-        }
-        [self clearPendingImport:importProcess];
-    });
 }
-
-#pragma mark - private methods
 
 - (nullable Report *)reportForUrl:(NSURL *)pathUrl
 {
@@ -329,16 +334,17 @@ ReportStore *_sharedInstance;
     NSFetchRequest *urlQuery = [NSFetchRequest fetchRequestWithEntityName:@"Report"];
     urlQuery.predicate = [urlPredicateTemplate predicateWithSubstitutionVariables:@{@"URL": pathUrl.absoluteString}];
     NSArray<Report *> *result = [self.reportDb executeFetchRequest:urlQuery error:&error];
-
+    if (result == nil || error) {
+        // TODO: check error
+    }
     if (result.count > 1) {
         // TODO: should not happen
     }
-    // TODO: check error
 
     return result.firstObject;
 }
 
-- (Report *)initializeReport:(Report *)report forSourceUrl:(NSURL *)url
+- (void)initializeReport:(Report *)report forSourceUrl:(NSURL *)url
 {
     report.sourceFile = nil;
     report.remoteSource = nil;
@@ -360,141 +366,216 @@ ReportStore *_sharedInstance;
 
     if ([url.scheme.lowercaseString hasPrefix:@"http"]) {
         report.remoteSource = url;
-        report.importStatus = ReportImportStatusNewRemote;
-        report.title = report.statusMessage = @"Downloading...";
-        report.summary = url.absoluteString;
     }
     else if (url.isFileURL) {
         report.sourceFile = url;
-        report.importStatus = ReportImportStatusNewLocal;
-        report.title = url.lastPathComponent;
-        report.uti = (__bridge NSString *)[self.utiExpert preferredUtiForExtension:url.pathExtension conformingToUti:NULL];
-    }
-
-    return report;
-}
-
-- (void)beginImportingNewReport:(Report *)report
-{
-    ensureMainThread();
-
-    if (report.importStatus == ReportImportStatusNewLocal) {
-        [self beginInspectingFileForReport:report withUti:NULL];
-    }
-    else if (report.importStatus == ReportImportStatusNewRemote) {
-        report.importStatus = ReportImportStatusDownloading;
-        [self.downloadManager downloadUrl:report.remoteSource];
     }
 }
 
-/**
- * Add a new report record for the given URL and serially post a ReportAdded notification.
- * @param reportUrl
- * @return
- */
-- (Report *)addNewReportForUrl:(NSURL *)reportUrl
+#pragma mark - state transition methods
+
+- (void)saveReport:(Report *)report enteringState:(ReportImportStatus)enteringState
 {
-    ensureMainThread();
+    ReportImportStatus leavingState = report.importStatus;
+    report.importStatus = enteringState;
 
-    Report *report = [Report MR_createEntityInContext:self.reportDb];
-    [self initializeReport:report forSourceUrl:reportUrl];
-    return report;
-}
+    SEL transitionSel = NULL;
 
-- (void)beginInspectingFileForReport:(Report *)report withUti:(CFStringRef)reportUti
-{
-    ensureMainThread();
-
-    // TODO: identify the task name for the report, or just use one task for all pending imports?
-    if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
-        _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice.background_import" expirationHandler:^{
-            _backgroundTimeExpired = YES;
-            [self suspendAndClearPendingImports];
-        }];
+    if (enteringState ==  ReportImportStatusNew) {
+        transitionSel = @selector(beginInspectingNewReport:);
+    }
+    else if (enteringState == ReportImportStatusInspectingSourceFile) {
+        transitionSel = @selector(beginInspectingSourceFileForReport:);
+    }
+    else if (enteringState == ReportImportStatusDownloading) {
+        transitionSel = @selector(beginDownloadingRemoteSourceOfReport:);
+    }
+    else if (enteringState == ReportImportStatusInspectingContent) {
+        transitionSel = @selector(beginInspectingSourceFileContentOfReport:);
+    }
+    else if (enteringState == ReportImportStatusInspectingArchive) {
+        transitionSel = @selector(beginInspectingSourceFileArchiveOfReport:);
+    }
+    else if (enteringState != ReportImportStatusNew || enteringState != ReportImportStatusFailed) {
+        [NSException raise:NSInternalInconsistencyException format:@"erroneous transition to unknown state %d for report\n%@", enteringState, report];
     }
 
-    report.statusMessage = report.summary = @"Inspecting new content";
-
-    if (reportUti == NULL) {
-        reportUti = [self.utiExpert preferredUtiForExtension:report.sourceFile.pathExtension conformingToUti:NULL];
+    NSError *error;
+    if (![self.reportDb save:&error]) {
+        vlog(@"error saving report before transition from state %d to %d\n%@", leavingState, enteringState, report);
     }
-
-    if ([self.utiExpert uti:reportUti conformsToUti:kUTTypeZipArchive]) {
-        // get zip file listing on background thread
-        // find appropriate report type for archive contents
-        id<DICEArchive> archive = [self.archiveFactory createArchiveForResource:report.sourceFile withUti:reportUti];
-        InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc]
-            initWithReport:report reportArchive:archive candidateReportTypes:self.reportTypes utiExpert:self.utiExpert];
-        [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:ARCHIVE_MATCH_CONTEXT];
-        [self.importQueue addOperation:op];
-    }
-    else {
-        // TODO: incorporate report uti here as well
-        MatchReportTypeToContentAtPathOperation *op =
-            [[MatchReportTypeToContentAtPathOperation alloc] initWithReport:report candidateTypes:self.reportTypes];
-        [op addObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) options:0 context:CONTENT_MATCH_CONTEXT];
-        [self.importQueue addOperation:op];
-    }
-}
-
-// TODO: i hate this method
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
-{
-    [object removeObserver:self forKeyPath:NSStringFromSelector(@selector(isFinished)) context:context];
-
-    // extract archive or get matched report type
-    Report *report;
-    void (^nextStep)() = nil;
-    if (context == CONTENT_MATCH_CONTEXT) {
-        MatchReportTypeToContentAtPathOperation *op = object;
-        report = op.report;
-        id<ReportType> type = op.matchedReportType;
-        if (type) {
-            NSLog(@"matched report type %@ to report %@", type, report);
-            nextStep = ^{
-                [self moveSourceFileToImportDirOfReport:report importAsType:type];
-            };
-        }
-    }
-    else if (context == ARCHIVE_MATCH_CONTEXT) {
-        InspectReportArchiveOperation *op = object;
-        report = op.report;
-        id<ReportType> type = op.matchedPredicate.reportType;
-        if (type) {
-            NSLog(@"matched report type %@ to report archive %@", type, report);
-            nextStep = ^{
-                [self extractReportArchive:op.reportArchive withBaseDir:op.archiveBaseDir forReport:op.report ofType:type];
-            };
-        }
-    }
-    else {
-        [NSException raise:NSInternalInconsistencyException format:@"unexpected observed value for key path %@ of object %@", keyPath, object];
-    }
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (nextStep) {
-            // TODO: probably fine on main thread, but who knows? possibly move to import queue
-            // TODO: normalize to proper file names
-            NSError *err = nil;
-            NSString *importDirName = [report.sourceFile.lastPathComponent stringByAppendingString:ImportDirSuffix];
-            report.importDir = [self.reportsDir URLByAppendingPathComponent:importDirName isDirectory:YES];
-            if ([self.fileManager fileExistsAtPath:report.importDir.path]) {
-                // TODO: prompt to make new report or overwrite existing
-            }
-            BOOL created = [self.fileManager createDirectoryAtURL:report.importDir withIntermediateDirectories:YES attributes:nil error:&err];
-            if (!created) {
-                // TODO: coping with failure
-            }
-            nextStep();
-        }
-        else {
-            NSLog(@"no report type found for report archive %@", report);
-            report.summary = @"Unknown content type";
-            report.importStatus = ReportImportStatusFailed;
+    if (enteringState == ReportImportStatusFailed) {
+        dispatch_async(dispatch_get_main_queue(), ^{
             [self finishBackgroundTaskIfImportsFinished];
+        });
+        return;
+    }
+    else if (enteringState == leavingState) {
+        return;
+    }
+
+    IMP transitionImp = [self methodForSelector:transitionSel];
+    void (*transition)(id, SEL, Report *) = (void *)transitionImp;
+    [self.reportDb performBlock:^{
+        transition(self, transitionSel, report);
+    }];
+}
+
+- (void)beginInspectingNewReport:(Report *)report
+{
+    if (report.sourceFile) {
+        [self saveReport:report enteringState:ReportImportStatusInspectingSourceFile];
+    }
+    else if (report.remoteSource) {
+        [self saveReport:report enteringState:ReportImportStatusDownloading];
+    }
+
+    [NSException raise:NSInternalInconsistencyException format:@"report has no source url:\n%@", report];
+}
+
+- (void)beginInspectingSourceFileForReport:(Report *)report
+{
+    if (report.importStatus != ReportImportStatusInspectingSourceFile) {
+        [NSException raise:NSInternalInconsistencyException format:@"invalid report state: %d", report.importStatus];
+    }
+
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        // TODO: identify the task name for the report, or just use one task for all pending imports?
+        if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
+            _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice.background_import" expirationHandler:^{
+                _backgroundTimeExpired = YES;
+                [self suspendAndClearPendingImports];
+            }];
         }
     });
+
+    report.statusMessage = @"Inspecting new content";
+    report.title = report.sourceFile.lastPathComponent;
+
+    if (report.uti == nil || [self.utiExpert isDynamicUti:(__bridge CFStringRef)report.uti]) {
+        CFStringRef uti = [self.utiExpert preferredUtiForExtension:report.sourceFile.pathExtension conformingToUti:NULL];
+        if (uti && ![self.utiExpert isDynamicUti:uti]) {
+            report.uti = (__bridge NSString *)uti;
+        }
+        else {
+            report.uti = nil;
+        }
+    }
+
+    CFStringRef uti = (__bridge CFStringRef)report.uti;
+    if ([self.utiExpert uti:uti conformsToUti:kUTTypeZipArchive]) {
+        [self saveReport:report enteringState:ReportImportStatusInspectingArchive];
+    }
+    else {
+        [self saveReport:report enteringState:ReportImportStatusInspectingContent];
+    }
 }
+
+- (void)beginDownloadingRemoteSourceOfReport:(Report *)report
+{
+    report.title = report.statusMessage = @"Downloading...";
+    report.summary = report.remoteSourceUrl;
+    [self saveReport:report enteringState:report.importStatus];
+    [self.downloadManager downloadUrl:report.remoteSource];
+}
+
+- (void)beginInspectingSourceFileArchiveOfReport:(Report *)report
+{
+    // get zip file listing on background thread
+    // find appropriate report type for archive contents
+    CFStringRef uti = (__bridge CFStringRef)report.uti;
+    id<DICEArchive> archive = [self.archiveFactory createArchiveForResource:report.sourceFile withUti:uti];
+    InspectReportArchiveOperation *op = [[InspectReportArchiveOperation alloc]
+        initWithReport:report reportArchive:archive candidateReportTypes:self.reportTypes utiExpert:self.utiExpert];
+    __weak InspectReportArchiveOperation *completedOp = op;
+    op.completionBlock = ^{
+        [self archiveInspectionDidFinish:completedOp];
+    };
+    [self.importQueue addOperation:op];
+}
+
+- (void)beginExtractingSourceFileArchiveOfReport:(Report *)report
+{
+    ReportImportContext *importContext = _transientImportContext[report.objectID];
+    id<ReportType> type = importContext.type;
+    id<DICEArchive> archive = importContext.archive;
+    NSString *baseDir = importContext.baseDirInArchive;
+    [self extractReportArchive:archive baseDirInArchive:baseDir forReport:report ofType:type];
+}
+
+- (void)beginInspectingSourceFileContentOfReport:(Report *)report
+{
+    // TODO: incorporate report uti here as well
+    MatchReportTypeToContentAtPathOperation *op =
+    [[MatchReportTypeToContentAtPathOperation alloc] initWithReport:report candidateTypes:self.reportTypes];
+    __weak MatchReportTypeToContentAtPathOperation *completedOp = op;
+    op.completionBlock = ^{
+        [self contentInspectionDidFinish:completedOp];
+    };
+    [self.importQueue addOperation:op];
+}
+
+- (void)beginImportingReport:(Report *)report
+{
+
+}
+
+#pragma mark - private methods
+
+- (void)archiveInspectionDidFinish:(InspectReportArchiveOperation *)op
+{
+    Report *report = op.report;
+    id<ReportType> type = op.matchedPredicate.reportType;
+    if (type == nil) {
+        [self noTypeFoundForReport:report];
+        return;
+    }
+    [self.reportDb performBlock:^{
+        vlog(@"matched report type %@ to report archive %@", type, report);
+        [self makeImportDirForReport:report];
+        [self saveReport:report enteringState:ReportImportStatusExtracting];
+    }];
+}
+
+- (void)contentInspectionDidFinish:(MatchReportTypeToContentAtPathOperation *)op
+{
+    Report *report = op.report;
+    id<ReportType> type = op.matchedReportType;
+    if (type == nil) {
+        [self noTypeFoundForReport:report];
+        return;
+    }
+    [self.reportDb performBlock:^{
+        vlog(@"matched report type %@ to report %@", type, report);
+        [self makeImportDirForReport:report];
+        [self moveSourceFileToImportDirOfReport:report importAsType:type];
+        [self saveReport:report enteringState:ReportImportStatusImporting];
+    }];
+}
+
+- (void)noTypeFoundForReport:(Report *)report
+{
+    [self.reportDb performBlock:^{
+        vlog(@"no report type found for report %@", report.sourceFile);
+        report.statusMessage = @"Unknown content type";
+    }];
+}
+
+- (void)makeImportDirForReport:(Report *)report;
+{
+    NSError *err = nil;
+    NSString *importDirName = [report.sourceFile.lastPathComponent stringByAppendingString:ImportDirSuffix];
+    report.importDir = [self.reportsDir URLByAppendingPathComponent:importDirName isDirectory:YES];
+    if ([self.fileManager fileExistsAtPath:report.importDir.path]) {
+        // TODO: prompt to make new report or overwrite existing
+    }
+    BOOL created = [self.fileManager createDirectoryAtURL:report.importDir withIntermediateDirectories:YES attributes:nil error:&err];
+    if (!created) {
+        // TODO: coping with failure
+    }
+}
+
+
 
 - (void)moveSourceFileToImportDirOfReport:(Report *)report importAsType:(id<ReportType>)reportType
 {
@@ -512,33 +593,100 @@ ReportStore *_sharedInstance;
         mv.destUrl = report.rootFile;
     }
 
-    __weak MoveFileOperation *mvCaptured = mv;
-    void (^afterMove)() = ^{
-        if (mvCaptured.fileWasMoved) {
-            [self.importQueue addOperationWithBlock:^{
-                [self importReport:report asReportType:reportType];
-            }];
+    [self saveReport:report enteringState:report.importStatus];
+
+    __weak MoveFileOperation *completedMove = mv;
+    mv.completionBlock = ^{
+        if (completedMove.fileWasMoved) {
+            [self importReport:report asReportType:reportType];
+            return;
         }
-        else {
-            NSLog(@"error moving report source file %@ to %@: %@", report.sourceFile, report.rootFile, mvCaptured.error.localizedDescription);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                report.importStatus = ReportImportStatusFailed;
-                report.statusMessage = [NSString stringWithFormat:@"Error moving source file %@ to import directory: %@",
-                    report.sourceFile.lastPathComponent, mvCaptured.error.localizedDescription];
-            });
-        }
-    };
-    mv.completionBlock = afterMove;
+        [self.reportDb performBlock:^{
+            vlog(@"error moving report source file to import dir of report %@: %@", report, completedMove.error);
+            report.importStatus = ReportImportStatusFailed;
+            report.statusMessage = [NSString stringWithFormat:
+                @"Error moving source file %@ to import directory: %@",
+                report.sourceFile.lastPathComponent, completedMove.error.localizedDescription];
+            NSError *error;
+            if (![self.reportDb save:&error]) {
+                vlog(@"error saving report record after failed move to import dir: %@\n%@", error, report);
+            }
+        }];
+    };;
     [self.importQueue addOperation:mv];
 }
 
-#pragma mark - downloading
+- (void)importReport:(Report *)report asReportType:(id<ReportType>)type
+{
+    vlog(@"creating import process for report %@", report);
+    ImportProcess *importProcess = [type createProcessToImportReport:report toDir:self.reportsDir];
+    // TODO: check nil importProcess
+    importProcess.delegate = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"queuing import process for report %@", report);
+        [_pendingImports addObject:importProcess];
+        report.importStatus = ReportImportStatusImporting;
+        report.summary = report.statusMessage = @"Importing content...";
+        [self.importQueue addOperations:importProcess.steps waitUntilFinished:NO];
+    });
+}
+
+#pragma mark - import delegate methods
+
+- (void)reportWasUpdatedByImportProcess:(ImportProcess *)import
+{
+    // TODO: persist
+}
+
+- (void)importDidFinishForImportProcess:(ImportProcess *)importProcess
+{
+    if ([importProcess isKindOfClass:[DICEDeleteReportProcess class]]) {
+        vlog(@"delete process finished for report %@", importProcess.report);
+        // TODO: what if it failed?
+        // TODO: worry about background task? we didn't begin one for this import process
+        [_pendingImports removeObject:importProcess];
+        return;
+    }
+    vlog(@"import did finish for report %@", importProcess.report);
+    NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:importProcess.report];
+    // TODO: assign contentId if nil
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // TODO: leave failed imports so user can decide what to do, retry, delete, etc?
+        vlog(@"finalizing import for report %@", importProcess.report);
+        Report *report = importProcess.report;
+        if (importProcess.wasSuccessful) {
+            if (descriptor) {
+                [report setPropertiesFromJsonDescriptor:descriptor];
+            }
+            // TODO: this is a hack to ensure only nilling the summary if the import process didn't change it until
+            // the ui changes to use the statusMessage property instead of just summary.  then, ReportStore won't
+            // bother ever setting the summary and just set statusMessage instead.
+            else if ([@"Importing content..." isEqualToString:report.summary]) {
+                report.summary = nil;
+            }
+            // TODO: check rootFile uti
+            vlog(@"enabling report %@", report);
+            report.isEnabled = YES;
+            report.importStatus = ReportImportStatusSuccess;
+            report.statusMessage = @"Import complete";
+        }
+        else {
+            vlog(@"disabling report %@ after unsuccessful import", report);
+            report.isEnabled = NO;
+            report.importStatus = ReportImportStatusFailed;
+            report.summary = report.statusMessage = @"Failed to import content";
+        }
+        [self clearPendingImport:importProcess];
+    });
+}
+
+#pragma mark - download delegate methods
 
 - (void)downloadManager:(DICEDownloadManager *)downloadManager didReceiveDataForDownload:(DICEDownload *)download
 {
     ensureMainThread();
 
-    Report *report = [self getOrAddReportForDownload:download];
+    Report *report = [self reportForDownload:download];
     if (download.percentComplete == report.downloadProgress) {
         return;
     }
@@ -550,14 +698,14 @@ ReportStore *_sharedInstance;
 {
     ensureMainThread();
 
-    Report *report = [self getOrAddReportForDownload:download];
+    Report *report = [self reportForDownload:download];
     report.sourceFile = destFile;
     return nil;
 }
 
 - (void)downloadManager:(DICEDownloadManager *)downloadManager didFinishDownload:(DICEDownload *)download
 {
-    ensureMainThread();
+    assert(false);
 
     if (downloadManager.isFinishingBackgroundEvents) {
         // the app was launched into the background to finish background downloads, so defer expensive
@@ -565,7 +713,7 @@ ReportStore *_sharedInstance;
         return;
     }
 
-    Report *report = [self getOrAddReportForDownload:download];
+    Report *report = [self reportForDownload:download];
 
     if (!download.wasSuccessful || download.downloadedFile == nil) {
         // TODO: mechanism to retry
@@ -577,7 +725,7 @@ ReportStore *_sharedInstance;
     }
 
     report.title = download.downloadedFile.lastPathComponent;
-    report.importStatus = ReportImportStatusNewLocal;
+    report.importStatus = ReportImportStatusInspectingSourceFile;
     report.statusMessage = @"Download complete";
     report.downloadProgress = 100;
     /*
@@ -602,15 +750,15 @@ ReportStore *_sharedInstance;
     }
 
     // TODO: fail on null or dynamic uti?
-    [self beginInspectingFileForReport:report withUti:uti];
+    [self beginInspectingSourceFileForReport:report];
 }
 
 /**
- * Retrieve or create a report record for the given download.
+ * Retrieve the report record for the given download.
  * @param download
  * @return
  */
-- (Report *)getOrAddReportForDownload:(DICEDownload *)download
+- (Report *)reportForDownload:(DICEDownload *)download
 {
     ensureMainThread();
 
@@ -618,22 +766,25 @@ ReportStore *_sharedInstance;
     if (report) {
         return report;
     }
-    report = [self addNewReportForUrl:download.url];
-    report.importStatus = ReportImportStatusDownloading;
-    return report;
+    // TODO: cancel download?
+    vlog(@"no record for download @ url %@", download.url);
+    return nil;
 }
 
 - (void)clearAndRetryDownloadForReport:(Report *)report
 {
-    report.isEnabled = NO;
-    report.importStatus = ReportImportStatusNewRemote;
-    report.title = report.statusMessage = @"Retrying download";
-    report.summary = report.remoteSource.absoluteString;
-    // TODO: leave import dir and persisted record? option on DICEDeleteReportProcess? maybe just manually delete base dir and source file?
-    DICEDeleteReportProcess *startFresh = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:YES fileManager:self.fileManager];
-    [_pendingImports addObject:startFresh];
-    startFresh.delegate = self;
-    [self.importQueue addOperations:startFresh.steps waitUntilFinished:NO];
+    assert(false);
+//    ensureMainThread();
+//
+//    report.isEnabled = NO;
+//    report.importStatus = ReportImportStatusNewRemote;
+//    report.title = report.statusMessage = @"Retrying download";
+//    report.summary = report.remoteSource.absoluteString;
+//    // TODO: leave import dir and persisted record? option on DICEDeleteReportProcess? maybe just manually delete base dir and source file?
+//    DICEDeleteReportProcess *startFresh = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:YES fileManager:self.fileManager];
+//    [_pendingImports addObject:startFresh];
+//    startFresh.delegate = self;
+//    [self.importQueue addOperations:startFresh.steps waitUntilFinished:NO];
 }
 
 #pragma mark - archives
@@ -641,14 +792,13 @@ ReportStore *_sharedInstance;
 /**
  * invoke on main thread
  */
-- (void)extractReportArchive:(id<DICEArchive>)archive withBaseDir:(NSString *)baseDir forReport:(Report *)report ofType:(id<ReportType>)reportType
+- (void)extractReportArchive:(id<DICEArchive>)archive baseDirInArchive:(NSString *)baseDir forReport:(Report *)report ofType:(id<ReportType>)reportType
 {
     ensureMainThread();
 
-    NSLog(@"extracting report archive %@", report);
+    vlog(@"extracting report archive %@", report.sourceFile);
     NSURL *extractToDir = report.importDir;
     if (baseDir == nil) {
-        // TODO: more robust check for possible conflicting base dirs?
         baseDir = @"dice_content";
         extractToDir = [extractToDir URLByAppendingPathComponent:baseDir isDirectory:YES];
         NSError *mkdirError;
@@ -708,29 +858,18 @@ ReportStore *_sharedInstance;
     });
 }
 
-- (void)importReport:(Report *)report asReportType:(id<ReportType>)type
-{
-    vlog(@"creating import process for report %@", report);
-    ImportProcess *importProcess = [type createProcessToImportReport:report toDir:self.reportsDir];
-    // TODO: check nil importProcess
-    importProcess.delegate = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"queuing import process for report %@", report);
-        [_pendingImports addObject:importProcess];
-        report.importStatus = ReportImportStatusImporting;
-        report.summary = report.statusMessage = @"Importing content...";
-        [self.importQueue addOperations:importProcess.steps waitUntilFinished:NO];
-    });
-}
+#pragma mark - background handling
 
 - (void)clearPendingImport:(ImportProcess *)importProcess
 {
+    ensureMainThread();
+
     NSLog(@"clearing pending import for report %@, pending imports remainging %lu", importProcess.report, (unsigned long) _pendingImports.count);
     NSUInteger pos = [_pendingImports indexOfObject:importProcess];
     if (pos == NSNotFound) {
         if (_importBackgroundTaskId != UIBackgroundTaskInvalid) {
             [NSException raise:NSInternalInconsistencyException format:
-                @"attempt to remove pending import process for report %@, but there was no such process", importProcess.report];
+             @"attempt to remove pending import process for report %@, but there was no such process", importProcess.report];
         }
     }
     else {
@@ -741,6 +880,8 @@ ReportStore *_sharedInstance;
 
 - (void)suspendAndClearPendingImports
 {
+    ensureMainThread();
+
     self.importQueue.suspended = YES;
 
     for (ImportProcess *importProcess in _pendingImports) {
@@ -748,6 +889,7 @@ ReportStore *_sharedInstance;
     }
     [_pendingImports removeAllObjects];
 
+    // TODO: core data fetch
     for (Report *report in _reports) {
         if (!report.isReadyForShutdown) {
             report.importStatus = ReportImportStatusFailed;
@@ -774,6 +916,8 @@ ReportStore *_sharedInstance;
 
 - (void)finishBackgroundTaskIfImportsFinished
 {
+    ensureMainThread();
+
     if (_pendingImports.count > 0) {
         return;
     }
@@ -789,6 +933,8 @@ ReportStore *_sharedInstance;
 
 - (void)endBackgroundTask
 {
+    ensureMainThread();
+
     if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
         [NSException raise:NSInternalInconsistencyException
             format:@"multiple attempts to end the background task - no pending imports remain but background task id is invalid"];
@@ -810,9 +956,6 @@ ReportStore *_sharedInstance;
 
 - (NSDictionary *)parseJsonDescriptorIfAvailableForReport:(Report *)report
 {
-    if (!report.baseDir) {
-        return nil;
-    }
     NSString *descriptorPath = [report.baseDir.path stringByAppendingPathComponent:@"dice.json"];
     NSData *jsonData = [self.fileManager contentsAtPath:descriptorPath];
     if (jsonData == nil || jsonData.length == 0) {
@@ -831,18 +974,19 @@ ReportStore *_sharedInstance;
 - (void)filesDidMoveToTrashByDeleteReportProcess:(DICEDeleteReportProcess *)process
 {
     // TODO: handle move failure
-    dispatch_async(dispatch_get_main_queue(), ^{
-        Report *report = process.report;
-        if (report.importStatus == ReportImportStatusNewRemote) {
-            // it's a retry
-            [self initializeReport:report forSourceUrl:report.remoteSource];
-            [self beginImportingNewReport:report];
-        }
-        else {
-            process.report.importStatus = ReportImportStatusDeleted;
-            [_reports removeObject:process.report];
-        }
-    });
+    assert(false);
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        Report *report = process.report;
+//        if (report.importStatus == ReportImportStatusNewRemote) {
+//            // it's a retry
+//            [self initializeReport:report forSourceUrl:report.remoteSource];
+//            [self beginImportingNewReport:report];
+//        }
+//        else {
+//            process.report.importStatus = ReportImportStatusDeleted;
+//            [_reports removeObject:process.report];
+//        }
+//    });
 }
 
 - (void)noFilesFoundToDeleteByDeleteReportProcess:(DICEDeleteReportProcess *)process

@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, copy) NSDecimalNumber *lon;
 @property (nullable, nonatomic, retain) NSURL *remoteSource;
 @property (nullable, nonatomic, copy) NSString *remoteSourceUrl;
+@property (nullable, nonatomic, copy) NSString *reportTypeId;
 @property (nullable, nonatomic, retain) NSURL *rootFile;
 @property (nullable, nonatomic, copy) NSString *rootFileUrl;
 @property (nullable, nonatomic, retain) NSURL *sourceFile;
