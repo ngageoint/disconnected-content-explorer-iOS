@@ -79,12 +79,4 @@
     return self;
 }
 
-- (NSString *)description
-{
-    if (self.isFault) {
-        return @"Report: Core Data Fault";
-    }
-    return [NSString stringWithFormat:@"Report: %@ (%@)", [self primitiveValueForKey:@"title"], [self primitiveValueForKey:@"sourceFile"]];
-}
-
 @end
