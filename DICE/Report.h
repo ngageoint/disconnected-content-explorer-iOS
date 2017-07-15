@@ -31,6 +31,8 @@ typedef NS_ENUM(int16_t, ReportImportStatus) {
 @property (readonly, nonatomic) NSUInteger downloadPercent;
 
 @property (readonly) BOOL isImportFinished;
+@property (readonly, nullable) NSURL *baseDir;
+@property (readonly, nullable) NSURL *rootFile;
 @property (readonly, nullable) NSURL *thumbnail;
 @property (readonly, nullable) NSURL *tileThumbnail;
 

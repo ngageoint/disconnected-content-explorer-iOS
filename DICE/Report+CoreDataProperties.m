@@ -15,10 +15,6 @@ static NSString * const kSourceFile = @"sourceFile";
 static NSString * const kSourceFilePersistent = @"sourceFileUrl";
 static NSString * const kImportDir = @"importDir";
 static NSString * const kImportDirPersistent = @"importDirUrl";
-static NSString * const kBaseDir = @"baseDir";
-static NSString * const kBaseDirPersistent = @"baseDirUrl";
-static NSString * const kRootFile = @"rootFile";
-static NSString * const kRootFilePersistent = @"rootFileUrl";
 
 static NSDictionary * persistentAttrForTransientAttr;
 
@@ -32,8 +28,6 @@ static NSDictionary * persistentAttrForTransientAttr;
         kRemoteSource: kRemoteSourcePersistent,
         kSourceFile: kSourceFilePersistent,
         kImportDir: kImportDirPersistent,
-        kBaseDir: kBaseDirPersistent,
-        kRootFile: kRootFilePersistent,
     };
 }
 
@@ -41,17 +35,21 @@ static NSDictionary * persistentAttrForTransientAttr;
 	return [[NSFetchRequest alloc] initWithEntityName:@"Report"];
 }
 
-@dynamic baseDirUrl;
+@dynamic baseDirName;
 @dynamic contentId;
+@dynamic dateAdded;
+@dynamic dateLastAccessed;
 @dynamic downloadProgress;
 @dynamic downloadSize;
+@dynamic extractPercent;
 @dynamic importDirUrl;
 @dynamic importStatus;
 @dynamic isEnabled;
 @dynamic lat;
 @dynamic lon;
 @dynamic remoteSourceUrl;
-@dynamic rootFileUrl;
+@dynamic reportTypeId;
+@dynamic rootFilePath;
 @dynamic sourceFileUrl;
 @dynamic statusMessage;
 @dynamic summary;
@@ -86,6 +84,12 @@ static NSDictionary * persistentAttrForTransientAttr;
     }];
 }
 
+- (void)awakeFromInsert
+{
+    self.dateAdded = [NSDate date];
+    self.dateLastAccessed = self.dateAdded;
+}
+
 - (BOOL)validateForInsert:(NSError * _Nullable __autoreleasing *)error
 {
     if (![super validateForInsert:error]) {
@@ -112,38 +116,34 @@ static NSDictionary * persistentAttrForTransientAttr;
         return NO;
     }
 
-    if (self.baseDir) {
+    if (self.baseDirName) {
         if (self.importDir == nil) {
             NSDictionary *info = @{
                 NSLocalizedDescriptionKey: @"validation: record has base dir, but no import dir"
             };
-            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidImportDirErrorCode userInfo:info];
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
             return NO;
         }
-        NSString *baseDirParent = self.baseDir.path.stringByStandardizingPath.stringByDeletingLastPathComponent;
-        NSString *importDir = self.importDir.path.stringByStandardizingPath;
-        if (![baseDirParent isEqualToString:importDir]) {
+        if (self.baseDirName.pathComponents.count != 1) {
             NSDictionary *info = @{
-                NSLocalizedDescriptionKey: @"validation: base dir is not a child of import dir"
+                NSLocalizedDescriptionKey: @"validation: base dir name must be exactly one path component"
             };
             *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
             return NO;
         }
     }
 
-    if (self.rootFile) {
-        if (self.baseDir == nil) {
+    if (self.rootFilePath) {
+        if (self.baseDirName == nil) {
             NSDictionary *info = @{
                 NSLocalizedDescriptionKey: @"validation: record has root file, but no base dir"
             };
-            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidBaseDirErrorCode userInfo:info];
+            *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidRootFileErrorCode userInfo:info];
             return NO;
         }
-        NSString *rootFilePath = self.rootFile.path.stringByStandardizingPath;
-        NSString *baseDirPath = self.baseDir.path.stringByStandardizingPath;
-        if (![rootFilePath hasPrefix:baseDirPath]) {
+        if (self.rootFilePath.isAbsolutePath) {
             NSDictionary *info = @{
-                NSLocalizedDescriptionKey: @"validation: root file is not a descendant of base dir"
+                NSLocalizedDescriptionKey: @"validation: root file path is absolute, but must be relative"
             };
             *error = [NSError errorWithDomain:DICEPersistenceErrorDomain code:DICEInvalidRootFileErrorCode userInfo:info];
             return NO;
@@ -248,38 +248,6 @@ static NSDictionary * persistentAttrForTransientAttr;
 - (void)setImportDir:(NSURL *)importDir
 {
     [self setTransientValue:importDir forKey:kImportDir persistentKey:kImportDirPersistent persistentValue:importDir.absoluteString];
-}
-
-- (void)setBaseDirUrl:(NSString *)baseDirUrl
-{
-    NSURL *transient = [NSURL URLWithString:baseDirUrl];
-    [self setTransientValue:transient forKey:kBaseDir persistentKey:kBaseDirPersistent persistentValue:baseDirUrl];
-}
-
-- (NSURL *)baseDir
-{
-    return [self wrappedAccessValueForKey:kBaseDir];
-}
-
-- (void)setBaseDir:(NSURL *)baseDir
-{
-    [self setTransientValue:baseDir forKey:kBaseDir persistentKey:kBaseDirPersistent persistentValue:baseDir.absoluteString];
-}
-
-- (void)setRootFileUrl:(NSString *)rootFileUrl
-{
-    NSURL *transient = [NSURL URLWithString:rootFileUrl];
-    [self setTransientValue:transient forKey:kRootFile persistentKey:kRootFilePersistent persistentValue:rootFileUrl];
-}
-
-- (NSURL *)rootFile
-{
-    return [self wrappedAccessValueForKey:kRootFile];
-}
-
-- (void)setRootFile:(NSURL *)rootFile
-{
-    [self setTransientValue:rootFile forKey:kRootFile persistentKey:kRootFilePersistent persistentValue:rootFile.absoluteString];
 }
 
 @end

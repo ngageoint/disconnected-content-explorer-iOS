@@ -38,7 +38,7 @@ describe(@"ExplodedHtmlImportProcess", ^{
 
         NSURL *baseDirUrl = [reportsDir URLByAppendingPathComponent:@"ehip_spec" isDirectory:YES];
         NSURL *indexUrl = [baseDirUrl URLByAppendingPathComponent:@"index.html"];
-        report.rootFile = baseDirUrl;
+        report.rootFilePath = @"index.html";
         ExplodedHtmlImportProcess *import = [[ExplodedHtmlImportProcess alloc] initWithReport:report];
         KVOBlockObserver *observer = [[KVOBlockObserver alloc] initWithBlock:nil];
         [observer observeKeyPath:NSStringFromSelector(@selector(rootFile)) ofObject:report inContext:NULL options:NSKeyValueObservingOptionNew];

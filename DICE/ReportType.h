@@ -37,6 +37,8 @@
 
 @protocol ReportType <NSObject>
 
+- (nonnull NSString *)reportTypeId;
+
 // TODO: pre-load path attributes and pass to method; use NSURL:resourceValuesForKeys:error:
 - (BOOL)couldImportFromPath:(nonnull NSURL *)path;
 /**

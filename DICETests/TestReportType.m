@@ -71,7 +71,7 @@
         dispatch_sync(dispatch_get_main_queue(), ^{
             if (my.report.baseDir && !my.report.rootFile) {
                 NSString *indexName = [NSString stringWithFormat:@"index.%@", self.typeExtension];
-                my.report.rootFile = [my.report.baseDir URLByAppendingPathComponent:indexName];
+                my.report.rootFilePath = [my.report.baseDir URLByAppendingPathComponent:indexName];
             }
             [my.delegate reportWasUpdatedByImportProcess:my];
         });
@@ -112,10 +112,19 @@
 
 
 @implementation TestReportType
+{
+    NSString *_reportTypeId;
+    NSObject *_lock;
+}
 
 - (instancetype)init
 {
     return [self initWithExtension:nil fileManager:nil];
+}
+
+- (NSString *)reportTypeId
+{
+    return _reportTypeId;
 }
 
 - (instancetype)initWithExtension:(NSString *)ext fileManager:(NSFileManager *)fileManager
@@ -124,15 +133,17 @@
         [NSException raise:NSInvalidArgumentException format:@"ext is nil"];
     }
     self = [super init];
+    _reportTypeId = [@"TestReportType." stringByAppendingString:ext];
     _extension = ext;
     _fileManager = fileManager;
     _importProcessQueue = [NSMutableArray array];
+    _lock = [[NSObject alloc] init];
     return self;
 }
 
 - (TestImportProcess *)enqueueImport
 {
-    @synchronized (self) {
+    @synchronized (_lock) {
         TestImportProcess *proc = [[TestImportProcess alloc] initWithTypeExtension:self.extension];
         [self.importProcessQueue addObject:proc];
         return proc;
@@ -155,7 +166,7 @@
 
 - (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
 {
-    @synchronized (self) {
+    @synchronized (_lock) {
         if (self.importProcessQueue.count) {
             TestImportProcess *proc = self.importProcessQueue.firstObject;
             [self.importProcessQueue removeObjectAtIndex:0];
@@ -169,7 +180,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"TestReportType.%@ (%@)", self.extension, super.description];
+    return [NSString stringWithFormat:@"%@ (%@)", self.reportTypeId, super.description];
 }
 
 @end

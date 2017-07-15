@@ -15,8 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSFetchRequest<Report *> *)fetchRequest;
 
-@property (nullable, nonatomic, retain) NSURL *baseDir;
-@property (nullable, nonatomic, copy) NSString *baseDirUrl;
+@property (nullable, nonatomic, copy) NSString *baseDirName;
 @property (nullable, nonatomic, copy) NSString *contentId;
 @property (nullable, nonatomic, copy) NSDate *dateAdded;
 @property (nullable, nonatomic, copy) NSDate *dateLastAccessed;
@@ -32,8 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSURL *remoteSource;
 @property (nullable, nonatomic, copy) NSString *remoteSourceUrl;
 @property (nullable, nonatomic, copy) NSString *reportTypeId;
-@property (nullable, nonatomic, retain) NSURL *rootFile;
-@property (nullable, nonatomic, copy) NSString *rootFileUrl;
+@property (nullable, nonatomic, copy) NSString *rootFilePath;
 @property (nullable, nonatomic, retain) NSURL *sourceFile;
 @property (nullable, nonatomic, copy) NSString *sourceFileUrl;
 @property (nullable, nonatomic, copy) NSString *statusMessage;

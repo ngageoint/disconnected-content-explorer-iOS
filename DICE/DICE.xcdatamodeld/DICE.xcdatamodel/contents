@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="12141" systemVersion="16F73" minimumToolsVersion="Automatic" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
     <entity name="Report" representedClassName="Report" syncable="YES">
-        <attribute name="baseDir" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
-        <attribute name="baseDirUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="baseDirName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="contentId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="dateAdded" attributeType="Date" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="dateLastAccessed" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -17,8 +16,8 @@
         <attribute name="lon" optional="YES" attributeType="Decimal" syncable="YES"/>
         <attribute name="remoteSource" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
         <attribute name="remoteSourceUrl" optional="YES" attributeType="String" customClassName="NSURL" syncable="YES"/>
-        <attribute name="rootFile" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
-        <attribute name="rootFileUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="reportTypeId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="rootFilePath" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="sourceFile" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
         <attribute name="sourceFileUrl" optional="YES" attributeType="String" customClassName="NSURLToNSStringValueTransformer" syncable="YES"/>
         <attribute name="statusMessage" optional="YES" attributeType="String" syncable="YES"/>
@@ -29,6 +28,6 @@
         <attribute name="uti" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Report" positionX="-63" positionY="-18" width="128" height="390"/>
+        <element name="Report" positionX="-63" positionY="-18" width="128" height="420"/>
     </elements>
 </model>

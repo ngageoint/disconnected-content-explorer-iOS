@@ -30,9 +30,26 @@
     return status == ReportImportStatusSuccess || status == ReportImportStatusFailed;
 }
 
+- (NSURL *)baseDir
+{
+    if (self.importDir && self.baseDirName) {
+        return [self.importDir URLByAppendingPathComponent:self.baseDirName isDirectory:YES];
+    }
+    return nil;
+}
+
+- (NSURL *)rootFile
+{
+    NSURL *baseDir = self.baseDir;
+    if (baseDir) {
+        return [baseDir URLByAppendingPathComponent:self.rootFilePath];
+    }
+    return nil;
+}
+
 - (NSURL *)thumbnail
 {
-    if (self.baseDir == nil || self.thumbnailPath == nil) {
+    if (self.baseDirName == nil || self.thumbnailPath == nil) {
         return nil;
     }
     return [self.baseDir URLByAppendingPathComponent:self.thumbnailPath isDirectory:NO];
@@ -40,7 +57,7 @@
 
 - (NSURL *)tileThumbnail
 {
-    if (self.baseDir == nil || self.tileThumbnailPath == nil) {
+    if (self.baseDirName == nil || self.tileThumbnailPath == nil) {
         return nil;
     }
     return [self.baseDir URLByAppendingPathComponent:self.tileThumbnailPath isDirectory:NO];

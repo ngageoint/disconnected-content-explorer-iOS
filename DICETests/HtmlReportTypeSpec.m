@@ -109,7 +109,7 @@ describe(@"HtmlReportType", ^{
     it(@"creates an exploded html report import process for a directory report url", ^{
         NSURL *reportPath = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
         Report *report = [[Report alloc] init];
-        report.rootFile = reportPath;
+        report.sourceFile = reportsDir;
         NSString *indexPath = [reportPath.path stringByAppendingPathComponent:@"index.html"];
         [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeDirectory}];
         [given([fileManager attributesOfItemAtPath:indexPath error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
@@ -121,7 +121,7 @@ describe(@"HtmlReportType", ^{
     it(@"creates a noop import process for an html file report url", ^{
         NSURL *reportPath = [reportsDir URLByAppendingPathComponent:@"test_report.html" isDirectory:NO];
         Report *report = [[Report alloc] init];
-        report.rootFile = reportPath;
+        report.sourceFile = reportPath;
         [given([fileManager attributesOfItemAtPath:reportPath.path error:nil]) willReturn:@{NSFileType: NSFileTypeRegular}];
         ImportProcess *import = [htmlReportType createProcessToImportReport:report toDir:reportsDir];
         expect(import).to.beInstanceOf(NoopImportProcess.class);

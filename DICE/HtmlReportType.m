@@ -94,6 +94,11 @@
     return [self initWithFileManager:[NSFileManager defaultManager]];
 }
 
+- (NSString *)reportTypeId
+{
+    return @"mil.nga.dice.report_type.html";
+}
+
 - (BOOL)couldImportFromPath:(NSURL *)filePath
 {
     // TODO: use uti expert

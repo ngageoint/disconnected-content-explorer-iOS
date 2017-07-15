@@ -16,7 +16,7 @@
 #import <MagicalRecord/MagicalRecord.h>
 #import "KVOBlockObserver.h"
 #import "DICEConstants.h"
-
+#import <objc/runtime.h>
 
 
 SpecBegin(Report)
@@ -35,6 +35,56 @@ describe(@"Report", ^{
 
         context = nil;
         [MagicalRecord cleanUp];
+    });
+
+    it(@"is synced to the model", ^{
+
+        NSSet<NSString *> *customEntityAttributes = [NSSet setWithObjects:
+            @"importDir",
+            @"remoteSource",
+            @"sourceFile",
+            nil];
+
+        NSSet<NSString *> *nonModelHelpers = [NSSet setWithObjects:
+            @"baseDir",
+            @"cacheFiles",
+            @"downloadPercent",
+            @"isImportFinished",
+            @"rootFile",
+            @"tileThumbnail",
+            @"thumbnail",
+            nil];
+
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Report" inManagedObjectContext:context];
+        for (NSPropertyDescription *entityProp in entity.properties) {
+            const char *propName = entityProp.name.UTF8String;
+            objc_property_t prop = class_getProperty(Report.class, propName);
+
+            BOOL isDynamic = NO;
+            if (prop) {
+                const char *attrs = property_getAttributes(prop);
+                NSString *attrStr = [NSString stringWithUTF8String:attrs];
+                NSArray<NSString *> *components = [attrStr componentsSeparatedByString:@","];
+                isDynamic = [components containsObject:@"D"];
+                if (!isDynamic && ![customEntityAttributes containsObject:entityProp.name]) {
+                    failure([NSString stringWithFormat:@"non-custom property %@ is not @dynamic", entityProp.name]);
+                }
+            }
+            else {
+                failure([NSString stringWithFormat:@"no declared property for model-defined attribute %@", entityProp.name]);
+            }
+        }
+
+        unsigned int propCount;
+        objc_property_t *props = class_copyPropertyList(Report.class, &propCount);
+        for (int p = 0; p < propCount; p++) {
+            objc_property_t prop = props[p];
+            const char *propName = property_getName(prop);
+            NSString *propNameStr = [NSString stringWithUTF8String:propName];
+            if (!entity.propertiesByName[propNameStr] && ![nonModelHelpers containsObject:propNameStr]) {
+                failure([NSString stringWithFormat:@"non-helper property %@ has no associated model attribute", propNameStr]);
+            }
+        }
     });
 
     describe(@"transient cached attributes", ^{
@@ -182,13 +232,24 @@ describe(@"Report", ^{
                     }];
                 });
 
-                NSManagedObjectContext *fetchContext = [NSManagedObjectContext MR_contextWithParent:[NSManagedObjectContext MR_rootSavingContext]];
-                Report *fetched = [report MR_inContext:fetchContext];
-
                 expect(saved).to.beTruthy();
                 expect(saveError).to.beNil();
-                expect([fetched valueForKey:transientAttr]).to.equal(transientValue);
-                expect([fetched valueForKey:persistentAttr]).to.equal(persistentValue);
+
+                NSManagedObjectContext *fetchContext = [NSManagedObjectContext MR_contextWithParent:[NSManagedObjectContext MR_rootSavingContext]];
+                NSManagedObjectID *reportId = report.objectID;
+                [fetchContext performBlockAndWait:^{
+                    NSError *error;
+                    Report *fetched = [fetchContext objectWithID:reportId];
+
+                    expect(fetched).toNot.beNil();
+                    expect(error).to.beNil();
+
+                    id fetchedTransientValue = [fetched valueForKey:transientAttr];
+                    id fetchedPersistentValue = [fetched valueForKey:persistentAttr];
+
+                    expect(fetchedTransientValue).to.equal(transientValue);
+                    expect(fetchedPersistentValue).to.equal(persistentValue);
+                }];
             });
         });
 
@@ -236,43 +297,6 @@ describe(@"Report", ^{
                 };
             });
         });
-
-        describe(@"baseDir", ^{
-
-            itBehavesLike(@"a kvo compliant derived transient attribute", ^{
-
-                NSURL *baseDir = [NSURL fileURLWithPath:@"/dice/test.zip.dice_import/content" isDirectory:YES];
-                return @{
-                    kPersistentAttr: @"baseDirUrl",
-                    kPersistentValue: @"file:///dice/test.zip.dice_import/content/",
-                    kTransientAttr: @"baseDir",
-                    kTransientValue: baseDir,
-                    kValidatingAttrs: @{
-                        @"sourceFileUrl": @"file:///dice/test.zip",
-                        @"importDirUrl": @"file:///dice/test.zip.dice_import/"
-                    }
-                };
-            });
-        });
-
-        describe(@"rootFile", ^{
-
-            itBehavesLike(@"a kvo compliant derived transient attribute", ^{
-
-                NSURL *rootFile = [NSURL fileURLWithPath:@"/dice/test.zip.dice_import/content/index.html" isDirectory:NO];
-                return @{
-                    kPersistentAttr: @"rootFileUrl",
-                    kPersistentValue: @"file:///dice/test.zip.dice_import/content/index.html",
-                    kTransientAttr: @"rootFile",
-                    kTransientValue: rootFile,
-                    kValidatingAttrs: @{
-                        @"sourceFileUrl": @"file:///dice/test.zip",
-                        @"importDirUrl": @"file:///dice/test.zip.dice_import/",
-                        @"baseDirUrl": @"file:///dice/test.zip.dice_import/content"
-                    }
-                };
-            });
-        });
     });
 
     describe(@"validation", ^{
@@ -293,53 +317,62 @@ describe(@"Report", ^{
                 Report *report = [Report MR_createEntityInContext:context];
                 makeEntityInvalid(report);
 
-                expect([report validateForInsert:&error]).to.beFalsy();
+                BOOL valid = [report validateForInsert:&error];
+                expect(valid).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
                 expect(error.domain).to.equal(DICEPersistenceErrorDomain);
 
                 error = nil;
 
-                expect([report validateForUpdate:&error]).to.beFalsy();
+                valid = [report validateForUpdate:&error];
+                expect(valid).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
                 expect(error.domain).to.equal(DICEPersistenceErrorDomain);
 
                 error = nil;
 
-                expect([context save:&error]).to.beFalsy();
+                valid = [context save:&error];
+                expect(valid).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
                 expect(error.domain).to.equal(DICEPersistenceErrorDomain);
 
                 makeEntityValid(report);
 
-                expect([report validateForInsert:&error]).to.beTruthy();
+                valid = [report validateForInsert:&error];
+                expect(valid).to.beTruthy();
                 expect(error).to.beNil();
 
-                expect([report validateForUpdate:&error]).to.beTruthy();
+                valid = [report validateForUpdate:&error];
+                expect(valid).to.beTruthy();
                 expect(error).to.beNil();
 
-                expect([context save:&error]).to.beTruthy();
+                valid = [context save:&error];
+                expect(valid).to.beTruthy();
                 expect(error).to.beNil();
 
                 makeEntityInvalid(report);
+                valid = [report validateForInsert:&error];
 
-                expect([report validateForInsert:&error]).to.beFalsy();
+                expect(valid).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
                 expect(error.domain).to.equal(DICEPersistenceErrorDomain);
 
                 error = nil;
+                valid = [report validateForUpdate:&error];
 
-                expect([report validateForUpdate:&error]).to.beFalsy();
+                expect(valid).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
                 expect(error.domain).to.equal(DICEPersistenceErrorDomain);
                 
                 error = nil;
+                valid = [context save:&error];
                 
-                expect([context save:&error]).to.beFalsy();
+                expect(valid).to.beFalsy();
                 expect(error).toNot.beNil();
                 expect(error.code).to.equal(errorCode.unsignedIntegerValue);
                 expect(error.domain).to.equal(DICEPersistenceErrorDomain);
@@ -411,17 +444,17 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = nil;
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                 };
                 return @{
                     kMakeInvalid: makeInvalid,
                     kMakeValid: makeValid,
-                    kErrorCode: @(DICEInvalidImportDirErrorCode)
+                    kErrorCode: @(DICEInvalidBaseDirErrorCode)
                 };
             });
         });
@@ -433,36 +466,36 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = nil;
-                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/content/index.html";
+                    report.baseDirName = nil;
+                    report.rootFilePath = @"index.html";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
-                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/content/index.html";
+                    report.baseDirName = @"content";
+                    report.rootFilePath = @"index.html";
                 };
                 return @{
                     kMakeInvalid: makeInvalid,
                     kMakeValid: makeValid,
-                    kErrorCode: @(DICEInvalidBaseDirErrorCode)
+                    kErrorCode: @(DICEInvalidRootFileErrorCode)
                 };
             });
         });
 
-        describe(@"baseDir must be child of importDir", ^{
+        describe(@"baseDirName must be single path component", ^{
 
             itBehavesLike(@"an entity with common insert and update validation", ^{
 
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/import_dir_sibling/";
+                    report.baseDirName = @"multiple/components";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"single_component";
                 };
                 return @{
                     kMakeInvalid: makeInvalid,
@@ -476,12 +509,12 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/non_child_descendant/";
+                    report.baseDirName = @"/leading_slash";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"relative";
                 };
                 return @{
                     kMakeInvalid: makeInvalid,
@@ -491,21 +524,21 @@ describe(@"Report", ^{
             });
         });
 
-        describe(@"rootFile must be descendant of baseDir", ^{
+        describe(@"rootFilePath must be relative", ^{
 
             itBehavesLike(@"an entity with common insert and update validation", ^{
 
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
-                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/index.html";
+                    report.baseDirName = @"content";
+                    report.rootFilePath = @"/index.html";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
-                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/content/index.html";
+                    report.baseDirName = @"content";
+                    report.rootFilePath = @"index.html";
                 };
                 return @{
                     kMakeInvalid: makeInvalid,
@@ -519,14 +552,14 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
-                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/index.html";
+                    report.baseDirName = @"content";
+                    report.rootFilePath = @"/nested/index.html";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
-                    report.rootFileUrl = @"file:///dice/test.zip.dice_import/content/subdir/index.html";
+                    report.baseDirName = @"content";
+                    report.rootFilePath = @"nested/index.html";
                 };
                 return @{
                     kMakeInvalid: makeInvalid,
@@ -536,20 +569,20 @@ describe(@"Report", ^{
             });
         });
 
-        describe(@"thubnailPath require baseDir", ^{
+        describe(@"thubnailPath requires baseDir", ^{
 
             itBehavesLike(@"an entity with common insert and update validation", ^{
 
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = nil;
+                    report.baseDirName = nil;
                     report.thumbnailPath = @"img/thumb.png";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.thumbnailPath = @"img/thumb.png";
                 };
                 return @{
@@ -567,13 +600,13 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = nil;
+                    report.baseDirName = nil;
                     report.tileThumbnailPath = @"img/tile.png";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.tileThumbnailPath = @"img/tile.png";
                 };
                 return @{
@@ -591,13 +624,13 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.thumbnailPath = @"/dice/test.zip.dice_import/content/thumb.png";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.thumbnailPath = @"img/thumb.png";
                 };
                 return @{
@@ -615,13 +648,13 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.tileThumbnailPath = @"/dice/test.zip.dice_import/content/tile.png";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.tileThumbnailPath = @"img/tile.png";
                 };
                 return @{
@@ -639,13 +672,13 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.thumbnailPath = @"";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.thumbnailPath = @"img/tile.png";
                 };
                 return @{
@@ -660,13 +693,13 @@ describe(@"Report", ^{
                 void (^makeInvalid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.tileThumbnailPath = @"";
                 };
                 void (^makeValid)(Report *report) = ^(Report *report) {
                     report.sourceFileUrl = @"file:///dice/test.zip";
                     report.importDirUrl = @"file:///dice/test.zip.dice_import/";
-                    report.baseDirUrl = @"file:///dice/test.zip.dice_import/content/";
+                    report.baseDirName = @"content";
                     report.tileThumbnailPath = @"img/tile.png";
                 };
                 return @{
@@ -692,11 +725,56 @@ describe(@"Report", ^{
         assertThatDouble(report.dateAdded.timeIntervalSinceReferenceDate, closeTo([NSDate date].timeIntervalSinceReferenceDate, 0.001));
     });
 
+    it(@"appends base dir name to import dir for base dir url", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/test.dice_import"];
+        report.baseDirName = @"content";
+
+        expect(report.baseDir).to.equal([NSURL fileURLWithPath:@"/dice/test.dice_import/content" isDirectory:YES]);
+    });
+
+    it(@"appends root file path to base dir url for root file url", ^{
+        Report *report = [Report MR_createEntityInContext:context];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/test.dice_import"];
+        report.baseDirName = @"content";
+        report.rootFilePath = @"index.html";
+
+        expect(report.rootFile).to.equal([NSURL fileURLWithPath:@"/dice/test.dice_import/content/index.html" isDirectory:NO]);
+
+        report.rootFilePath = @"nested/index.html";
+
+        expect(report.rootFile).to.equal([NSURL fileURLWithPath:@"/dice/test.dice_import/content/nested/index.html" isDirectory:NO]);
+    });
+
+    it(@"returns nil base dir if import dir or base dir name is nil", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/test.dice_import"];
+        report.baseDirName = nil;
+
+        expect(report.baseDir).to.beNil();
+
+        report.importDir = nil;
+        report.baseDirName = @"content";
+
+        expect(report.baseDir).to.beNil();
+    });
+
+    it(@"returns nil root file if base dir name is nil", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/test.dice_import"];
+        report.baseDirName = nil;
+
+        expect(report.rootFile).to.beNil();
+    });
+
     it(@"appends thumbnail path to base dir for thumbnail url", ^{
 
         Report *report = [Report MR_createEntityInContext:context];
         report.importDir = [NSURL fileURLWithPath:@"/dice/test.dice_import" isDirectory:YES];
-        report.baseDir = [report.importDir URLByAppendingPathComponent:@"content" isDirectory:YES];
+        report.baseDirName = @"content";
         report.thumbnailPath = @"images/thumbnail.png";
 
         expect(report.thumbnail).to.equal([NSURL fileURLWithPath:@"/dice/test.dice_import/content/images/thumbnail.png" isDirectory:NO]);
@@ -707,7 +785,7 @@ describe(@"Report", ^{
 
         Report *report = [Report MR_createEntityInContext:context];
         report.importDir = [NSURL fileURLWithPath:@"/dice/test.dice_import" isDirectory:YES];
-        report.baseDir = [report.importDir URLByAppendingPathComponent:@"content" isDirectory:YES];
+        report.baseDirName = @"content";
         report.tileThumbnailPath = @"images/thumbnail.png";
 
         expect(report.tileThumbnail).to.equal([NSURL fileURLWithPath:@"/dice/test.dice_import/content/images/thumbnail.png" isDirectory:NO]);
@@ -724,9 +802,11 @@ describe(@"Report", ^{
         [context MR_saveToPersistentStoreAndWait];
 
         NSManagedObjectContext *fetchContext = [NSManagedObjectContext MR_context];
-        Report *fetched = [fetchContext existingObjectWithID:report.objectID error:NULL];
+        [fetchContext performBlockAndWait:^{
+            Report *fetched = [fetchContext existingObjectWithID:report.objectID error:NULL];
 
-        expect(fetched.cacheFiles).toNot.beNil();
+            expect(fetched.cacheFiles).toNot.beNil();
+        }];
     });
 
     it(@"updates report from json descriptor", ^{
