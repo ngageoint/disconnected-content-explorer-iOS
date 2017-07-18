@@ -114,7 +114,7 @@
     return [[HtmlReportTypeMatchPredicate alloc] initWithReportType:self];
 }
 
-- (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
+- (ImportProcess *)createProcessToImportReport:(Report *)report
 {
     NSDictionary *attrs = [self.fileManager attributesOfItemAtPath:report.rootFile.path error:nil];
     if ([self isHtmlBaseDir:report.baseDir attributes:attrs]) {

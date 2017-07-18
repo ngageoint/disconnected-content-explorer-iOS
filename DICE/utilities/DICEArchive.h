@@ -24,14 +24,14 @@
 - (nonnull NSURL *)archiveUrl;
 - (nonnull CFStringRef)archiveUTType;
 
-- (uint64_t)calculateArchiveSizeExtractedWithError:(NSError **)error;
+- (uint64_t)calculateArchiveSizeExtractedWithError:(NSError * _Nullable * _Nullable)error;
 
-- (void)enumerateEntriesUsingBlock:(void (^)(id<DICEArchiveEntry>))block error:(NSError **)error;
+- (void)enumerateEntriesUsingBlock:(void (^_Nonnull)(_Nullable id<DICEArchiveEntry>))block error:(NSError * _Nullable * _Nullable)error;
 
 // TODO: add these later if necessary
 //- (nullable id<DICEArchiveEntry>)seekToFirstArchiveEntry;
 //- (nullable id<DICEArchiveEntry>)seekToNextArdhiveEntry;
-- (BOOL)openCurrentArchiveEntryWithError:(NSError **)error;
+- (BOOL)openCurrentArchiveEntryWithError:(NSError * _Nullable * _Nullable)error;
 
 /**
  * Read the lesser of the given buffer's capacity or bytes available from the current entry.

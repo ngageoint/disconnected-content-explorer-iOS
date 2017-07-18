@@ -68,13 +68,13 @@
         [my.delegate reportWasUpdatedByImportProcess:my];
     }];
     NSBlockOperation *op2 = [NSBlockOperation blockOperationWithBlock:^{
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        [self.report.managedObjectContext performBlockAndWait:^{
             if (my.report.baseDir && !my.report.rootFile) {
                 NSString *indexName = [NSString stringWithFormat:@"index.%@", self.typeExtension];
-                my.report.rootFilePath = [my.report.baseDir URLByAppendingPathComponent:indexName];
+                my.report.rootFilePath = indexName;
             }
             [my.delegate reportWasUpdatedByImportProcess:my];
-        });
+        }];
     }];
     op1.name = @"TestImportProcess-1";
     op2.name = @"TestImportProcess-2";
@@ -164,7 +164,7 @@
     return [[TestReportTypeMatchPredicate alloc] initWithType:self];
 }
 
-- (ImportProcess *)createProcessToImportReport:(Report *)report toDir:(NSURL *)destDir
+- (ImportProcess *)createProcessToImportReport:(Report *)report
 {
     @synchronized (_lock) {
         if (self.importProcessQueue.count) {

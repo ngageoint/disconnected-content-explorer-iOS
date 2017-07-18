@@ -31,6 +31,9 @@
 
 - (nullable instancetype)initWithReport:(nonnull Report *)report NS_DESIGNATED_INITIALIZER;
 
+// TODO: this method will be better to lazily create the operations rather than having to do it in a subclass constructor
+//- (nullable NSArray<NSOperation *> *)prepareExecutionSteps;
+
 /**
  * Cancel all the NSOperation steps for this ImportProcess.
  * Subclasses should override and call this method to perform any cleanup associated

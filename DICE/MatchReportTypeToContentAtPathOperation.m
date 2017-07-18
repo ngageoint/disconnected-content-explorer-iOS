@@ -27,9 +27,14 @@
 - (void)main
 {
     @autoreleasepool {
+        __block NSURL *sourceFile;
+        [self.report.managedObjectContext performBlockAndWait:^{
+            sourceFile = self.report.sourceFile;
+        }];
         [_candidates enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             id<ReportType> candidate = obj;
-            if ([candidate couldImportFromPath:self.report.sourceFile]) {
+            // TODO: can't just use sourceFile here now that reports will move to import dir
+            if ([candidate couldImportFromPath:sourceFile]) {
                 _matchedReportType = candidate;
                 *stop = YES;
             }

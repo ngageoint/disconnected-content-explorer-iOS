@@ -54,16 +54,15 @@
 - (nonnull id<ReportTypeMatchPredicate>)createContentMatchingPredicate;
 
 /**
- * Create the ImportProcess with the steps to import the given report from its URL.
- * Implement this method in a thread-safe manner.  This method will run on a background
- * thread in case file operations are necessary to create the ImportProcess.
+ * Create the ImportProcess with the steps to import the content of the given report from
+ * its base directory.  Implement this method in a thread-safe manner.  This method will 
+ * run on a background thread in case file operations are necessary to create the ImportProcess.
  *
  * @param report
- * @param destDir
- * @return
+ * @return nil if this type cannot import the content of the given report
  */
 // TODO: remove toDir and import to Report.importDir
-- (nullable ImportProcess *)createProcessToImportReport:(nonnull Report *)report toDir:(nonnull NSURL *)destDir;
+- (nullable ImportProcess *)createProcessToImportReport:(nonnull Report *)report;
 
 @end
 

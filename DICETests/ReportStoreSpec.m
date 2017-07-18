@@ -26,6 +26,7 @@
 #import "TestFileManager.h"
 #import "NSFileManager+Convenience.h"
 #import <stdatomic.h>
+#import <objc/runtime.h>
 
 
 
@@ -49,9 +50,101 @@
 @end
 
 
+@implementation NSNotification (ManagedObjectContextInfo)
+
+- (NSSet<Report *> *)insertedObjects
+{
+    return self.userInfo[NSInsertedObjectsKey];
+}
+- (NSSet<Report *> *)updatedObjects
+{
+    return self.userInfo[NSUpdatedObjectsKey];
+}
+- (NSSet<Report *> *)deletedObjects
+{
+    return self.userInfo[NSDeletedObjectsKey];
+}
+
+@end
+
+
+@implementation NSSet (ReportStoreSpect)
+
+- (Report *)reportWithSourceUrl:(NSURL *)url
+{
+    for (Report *report in self) {
+        if ([url isEqual:report.sourceFile] || [url isEqual:report.remoteSource]) {
+            return report;
+        }
+    }
+    return nil;
+}
+
+@end
+
+
+static void *kObservers = &kObservers;
+
+@implementation NSManagedObjectContext (ReportStoreSpec)
+
+- (id)observe:(NSString *)name withBlock:(void ((^)(NSNotification *note)))block
+{
+    NSMutableArray *observers = objc_getAssociatedObject(self, kObservers);
+    if (observers == nil) {
+        observers = [NSMutableArray array];
+        objc_setAssociatedObject(self, kObservers, observers, OBJC_ASSOCIATION_RETAIN);
+    }
+    id observer = [NSNotificationCenter.defaultCenter addObserverForName:name object:self queue:nil usingBlock:block];
+    [observers addObject:observer];
+    return observer;
+}
+
+- (void)removeNotificationObserver:(id)observer
+{
+    [NSNotificationCenter.defaultCenter removeObserver:observer name:nil object:self];
+    NSMutableArray *observers = objc_getAssociatedObject(self, kObservers);
+    [observers removeObject:observer];
+}
+
+- (void)clearNotificationObservers
+{
+    NSMutableArray *observers = objc_getAssociatedObject(self, kObservers);
+    NSUInteger remaining = observers.count;
+    while (remaining) {
+        remaining -= 1;
+        id observer = observers[remaining];
+        [self removeNotificationObserver:observer];
+    }
+    objc_setAssociatedObject(self, kObservers, nil, OBJC_ASSOCIATION_ASSIGN);
+}
+
+@end
+
+
+static dispatch_queue_t backgroundQueue;
+
+void onMainThread(void(^block)())
+{
+    dispatch_sync(dispatch_get_main_queue(), block);
+}
+
+void onMainThreadLater(void(^block)())
+{
+    dispatch_async(dispatch_get_main_queue(), block);
+}
+
+void inBackground(void(^block)())
+{
+    dispatch_sync(backgroundQueue, block);
+}
+
+void inBackgroundLater(void(^block)())
+{
+    dispatch_async(backgroundQueue, block);
+}
+
+
 SpecBegin(ReportStore)
-
-
 
 describe(@"NSFileManager", ^{
 
@@ -91,12 +184,31 @@ describe(@"ReportStore", ^{
     __block NSUInteger backgroundTaskId;
     __block void (^backgroundTaskHandler)(void);
     __block NSURL *reportsDir;
+    __block NSMutableArray<NSNotification *> *saveNotes;
+    __block NSMutableArray<NSNotification *> *changeNotes;
+
+    beforeAll(^{
+        backgroundQueue = dispatch_queue_create("ReportStoreSpec-bg-serial", DISPATCH_QUEUE_SERIAL);
+    });
 
     beforeEach(^{
 
         [MagicalRecord setupCoreDataStackWithInMemoryStore];
-        reportDb = [NSManagedObjectContext MR_defaultContext];
-        verifyDb = [NSManagedObjectContext MR_context];
+        reportDb = [NSManagedObjectContext MR_rootSavingContext];
+        verifyDb = [NSManagedObjectContext MR_defaultContext];
+
+        saveNotes = [NSMutableArray array];
+        [reportDb observe:NSManagedObjectContextWillSaveNotification withBlock:^(NSNotification * _Nonnull note) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [saveNotes addObject:note];
+            });
+        }];
+        changeNotes = [NSMutableArray array];
+        [reportDb observe:NSManagedObjectContextObjectsDidChangeNotification withBlock:^(NSNotification * _Nonnull note) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [changeNotes addObject:note];
+            });
+        }];
 
         NSString *testNameComponent = ((SPTSpec *)SPTCurrentSpec).name;
         NSRange doubleUnderscore = [testNameComponent rangeOfString:@"__" options:NSBackwardsSearch];
@@ -138,7 +250,8 @@ describe(@"ReportStore", ^{
         blueType = [[TestReportType alloc] initWithExtension:@"blue" fileManager:fileManager];
 
         // initialize a new ReportStore to ensure all tests are independent
-        store = [[ReportStore alloc] initWithReportsDir:reportsDir
+        store = [[ReportStore alloc] initWithReportTypes:@[redType, blueType]
+            reportsDir:reportsDir
             exclusions:nil
             utiExpert:[[DICEUtiExpert alloc] init]
             archiveFactory:archiveFactory
@@ -147,11 +260,6 @@ describe(@"ReportStore", ^{
             reportDb:reportDb
             application:app];
         store.downloadManager = downloadManager;
-
-        store.reportTypes = @[
-            redType,
-            blueType
-        ];
     });
 
     afterEach(^{
@@ -159,16 +267,54 @@ describe(@"ReportStore", ^{
         stopMocking(archiveFactory);
         stopMocking(app);
         fileManager = nil;
+        [reportDb clearNotificationObservers];
+        [verifyDb clearNotificationObservers];
         [MagicalRecord cleanUp];
     });
 
     afterAll(^{
-        
     });
 
-    fdescribe(@"importing stand-alone files from the documents directory", ^{
+    describe(@"importing stand-alone files from the documents directory", ^{
 
-        it(@"imports a report with the capable report type", ^{
+        it(@"starts in new state", ^{
+
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
+            __block Report *report = nil;
+            [reportDb observe:NSManagedObjectContextWillSaveNotification withBlock:^(NSNotification *note) {
+                Report *inserted = [reportDb.insertedObjects reportWithSourceUrl:source];
+                if (inserted) {
+                    onMainThread(^{
+                        if (report) {
+                            onMainThread(^{
+                                failure(@"too many inserted objects for source url");
+                            });
+                        }
+                        else {
+                            report = inserted;
+                        }
+                    });
+                    if (report) {
+                        expect(report.importStatus).to.equal(ReportImportStatusNew);
+                    }
+                }
+            }];
+
+            [fileManager setWorkingDirChildren:@"report.red", nil];
+            [redType enqueueImport];
+            [store attemptToImportReportFromResource:source];
+
+            assertWithTimeout(1.0, thatEventually(report), notNilValue());
+        });
+
+        it(@"moves from new to inspecting source file content", ^{
+
+//            [fileManager setWorkingDirChildren:@"report.red", nil];
+//            TestImportProcess *redImport = [redType enqueueImport];
+//            [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO]];
+        });
+
+        fit(@"imports a report with the capable report type", ^{
 
             [fileManager setWorkingDirChildren:@"report.red", nil];
             TestImportProcess *redImport = [redType enqueueImport];
@@ -2286,9 +2432,11 @@ describe(@"ReportStore", ^{
 
         it(@"sets the report status when finished deleting", ^{
 
-            [store deleteReport:singleResourceReport];
-
-            assertWithTimeout(1.0, thatEventually(@(singleResourceReport.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
+            failure(@"todo");
+            
+//            [store deleteReport:singleResourceReport];
+//
+//            assertWithTimeout(1.0, thatEventually(@(singleResourceReport.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
         });
 
         it(@"creates the trash dir if it does not exist", ^{

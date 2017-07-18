@@ -872,10 +872,25 @@ describe(@"Report", ^{
         report.importStatus = ReportImportStatusDownloading;
         expect(report.isImportFinished).to.equal(NO);
 
-        report.importStatus = ReportImportStatusExtracting;
+        report.importStatus = ReportImportStatusInspectingSourceFile;
         expect(report.isImportFinished).to.equal(NO);
 
-        report.importStatus = ReportImportStatusImporting;
+        report.importStatus = ReportImportStatusInspectingArchive;
+        expect(report.isImportFinished).to.equal(NO);
+
+        report.importStatus = ReportImportStatusInspectingContent;
+        expect(report.isImportFinished).to.equal(NO);
+
+        report.importStatus = ReportImportStatusExtractingContent;
+        expect(report.isImportFinished).to.equal(NO);
+
+        report.importStatus = ReportImportStatusMovingContent;
+        expect(report.isImportFinished).to.equal(NO);
+
+        report.importStatus = ReportImportStatusDeleting;
+        expect(report.isImportFinished).to.equal(NO);
+
+        report.importStatus = ReportImportStatusDeleted;
         expect(report.isImportFinished).to.equal(NO);
 
         report.importStatus = ReportImportStatusFailed;

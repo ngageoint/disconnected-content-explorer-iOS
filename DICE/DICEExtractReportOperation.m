@@ -12,13 +12,12 @@
 
 }
 
-- (instancetype)initWithReport:(Report *)report reportType:(id<ReportType>)reportType extractedBaseDir:(NSURL *)baseDir archive:(id<DICEArchive>)archive extractToDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager
+- (instancetype)initWithReport:(Report *)report reportType:(id<ReportType>)reportType archive:(id<DICEArchive>)archive extractToDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager
 {
     self = [super initWithArchive:archive destDir:destDir fileManager:fileManager];
 
     _report = report;
     _reportType = reportType;
-    _extractedReportBaseDir = baseDir;
 
     return self;
 }

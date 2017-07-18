@@ -25,7 +25,7 @@
 /**
  The list of ReportType objects for handling report files
  */
-@property (nonnull) NSArray<id<ReportType>> *reportTypes;
+@property (nonnull, readonly) NSArray<id<ReportType>> *reportTypes;
 @property (nonnull, readonly) NSURL *reportsDir;
 @property (nonnull, readonly) NSCompoundPredicate *reportsDirExclusions;
 @property (nonnull, readonly) DICEUtiExpert *utiExpert;
@@ -46,7 +46,8 @@
 
  @return the initialized ReportStore
  */
-- (nullable instancetype)initWithReportsDir:(nonnull NSURL *)reportsDir
+- (nullable instancetype)initWithReportTypes:(NSArray<id<ReportType>> *)reportTypes
+    reportsDir:(nonnull NSURL *)reportsDir
     exclusions:(nullable NSArray<NSPredicate *> *)exclusions
     utiExpert:(nonnull DICEUtiExpert *)utiExpert
     archiveFactory:(nonnull id<DICEArchiveFactory>)archiveFactory

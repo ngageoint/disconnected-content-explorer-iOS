@@ -14,8 +14,7 @@
 
 @property (readonly) Report *report;
 @property (readonly) id<ReportType> reportType;
-@property (readonly) NSURL *extractedReportBaseDir;
 
-- (instancetype)initWithReport:(Report *)report reportType:(id<ReportType>)reportType extractedBaseDir:(NSURL *)baseDir archive:(id<DICEArchive>)archive extractToDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager;
+- (instancetype)initWithReport:(Report *)report reportType:(id<ReportType>)reportType archive:(id<DICEArchive>)archive extractToDir:(NSURL *)destDir fileManager:(NSFileManager *)fileManager;
 
 @end
