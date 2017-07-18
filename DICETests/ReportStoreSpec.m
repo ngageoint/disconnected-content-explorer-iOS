@@ -320,15 +320,17 @@ describe(@"ReportStore", ^{
             TestImportProcess *redImport = [redType enqueueImport];
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
-            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
+            assertWithTimeout(100.0, thatEventually(@(redImport.isFinished)), isTrue());
 
-            expect(redImport.report).toNot.beNil();
-            expect(redImport.report.isEnabled).to.beTruthy();
+            [reportDb performBlockAndWait:^{
+                Report *report = redImport.report;
+                expect(report).toNot.beNil();
+                expect(report.isEnabled).to.beTruthy();
+            }];
 
-            Report *storedReport = [redImport.report MR_inContext:verifyDb];
-
-            expect(storedReport).toNot.beNil();
-            expect(storedReport.isEnabled).to.beTruthy();
+            Report *report = [redImport.report MR_inContext:verifyDb];
+            expect(report).toNot.beNil();
+            expect(report.isEnabled).to.beTruthy();
         });
 
         it(@"moves source file to base dir in import dir before importing", ^{

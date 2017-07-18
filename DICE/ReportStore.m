@@ -457,9 +457,7 @@ ReportStore *_sharedInstance;
         [NSException raise:NSInternalInconsistencyException format:@"report has no source url:\n%@", report];
     }
 
-    [self.reportDb performBlock:^{
-        [self saveReport:report enteringState:next];
-    }];
+    [self saveReport:report enteringState:next];
 }
 
 - (void)beginInspectingSourceFileForReport:(Report *)report
@@ -495,9 +493,7 @@ ReportStore *_sharedInstance;
         next = ReportImportStatusInspectingContent;
     }
 
-    [self.reportDb performBlock:^{
-        [self saveReport:report enteringState:next];
-    }];
+    [self saveReport:report enteringState:next];
 }
 
 - (void)beginDownloadingRemoteSourceOfReport:(Report *)report
@@ -688,6 +684,7 @@ ReportStore *_sharedInstance;
 {
     if ([importProcess isKindOfClass:[DICEDeleteReportProcess class]]) {
         vlog(@"delete process finished for report %@", importProcess.report);
+        // TODO: core data delete from persistent store
         // TODO: what if it failed?
         // TODO: worry about background task? we didn't begin one for this import process
         dispatch_sync(_sync, ^{
