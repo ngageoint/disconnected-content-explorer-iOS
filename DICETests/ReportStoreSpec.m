@@ -68,7 +68,7 @@
 @end
 
 
-@implementation NSSet (ReportStoreSpect)
+@implementation NSSet (ReportStoreSpec)
 
 - (Report *)reportWithSourceUrl:(NSURL *)url
 {
@@ -173,6 +173,10 @@ describe(@"ReportStore", ^{
 
     __block NSManagedObjectContext *reportDb;
     __block NSManagedObjectContext *verifyDb;
+    __block NSFetchedResultsController *verifyResults;
+    __block NSPredicate *isImportFinished;
+    __block NSPredicate *hasSourceUrl;
+    __block NSPredicate *sourceUrlIsFinished;
     __block TestReportType *redType;
     __block TestReportType *blueType;
     __block TestFileManager *fileManager;
@@ -196,9 +200,15 @@ describe(@"ReportStore", ^{
         [MagicalRecord setupCoreDataStackWithInMemoryStore];
         reportDb = [NSManagedObjectContext MR_rootSavingContext];
         verifyDb = [NSManagedObjectContext MR_defaultContext];
+        NSFetchRequest *fetchRequest = [Report fetchRequest];
+        fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"dateAdded" ascending:NO]];
+        verifyResults = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:verifyDb sectionNameKeyPath:nil cacheName:nil];
+        isImportFinished = [NSPredicate predicateWithFormat:@"importStatus IN %@", @[@(ReportImportStatusFailed), @(ReportImportStatusSuccess)]];
+        hasSourceUrl = [NSPredicate predicateWithFormat:@"sourceFileUrl == $url.absoluteString OR remoteSourceUrl == $url.absoluteString"];
+        sourceUrlIsFinished = [NSCompoundPredicate andPredicateWithSubpredicates:@[hasSourceUrl, isImportFinished]];
 
         saveNotes = [NSMutableArray array];
-        [reportDb observe:NSManagedObjectContextWillSaveNotification withBlock:^(NSNotification * _Nonnull note) {
+        [reportDb observe:NSManagedObjectContextDidSaveNotification withBlock:^(NSNotification * _Nonnull note) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [saveNotes addObject:note];
             });
@@ -267,6 +277,38 @@ describe(@"ReportStore", ^{
         stopMocking(archiveFactory);
         stopMocking(app);
         fileManager = nil;
+
+        /*
+         wait for all of MagicalRecord's NSManagedObjectContextDidSaveNotification handlers
+         to finish processing before calling [MagicalRecord cleanUp].  these handlers 
+         dispatch_async to the main thread to merge the notification changes from the root
+         saving context to the default/main context.  if cleanup has already been called,
+         the root context is nil, and when the notification handler tries to retrieve 
+         the root context, [NSManagedObjectContext MR_rootSavingContext] throws an
+         exception from a failed assertion that the root context is not nil.
+         */
+        NSURL *cleanupSourceFile = [NSURL fileURLWithPath:@"/MagicalRecord_cleanup"];
+        [reportDb performBlock:^{
+            Report *cleanupBarrier = [Report MR_createEntityInContext:reportDb];
+            cleanupBarrier.sourceFile = cleanupSourceFile;
+        }];
+        waitUntil(^(DoneCallback done) {
+            [reportDb observe:NSManagedObjectContextDidSaveNotification withBlock:^(NSNotification *note) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [reportDb performBlock:^{
+                        if ([[note insertedObjects] reportWithSourceUrl:cleanupSourceFile]) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                done();
+                            });
+                        };
+                    }];
+                });
+            }];
+            [reportDb performBlock:^{
+                [reportDb save:NULL];
+            }];
+        });
+
         [reportDb clearNotificationObservers];
         [verifyDb clearNotificationObservers];
         [MagicalRecord cleanUp];
@@ -316,11 +358,20 @@ describe(@"ReportStore", ^{
 
         fit(@"imports a report with the capable report type", ^{
 
+            NSURL *sourceUrl = [reportsDir URLByAppendingPathComponent:@"report.red"];
+            id<NSFetchedResultsControllerDelegate> verify = mockProtocol(@protocol(NSFetchedResultsControllerDelegate));
+            verifyResults.delegate = verify;
+            verifyResults.fetchRequest.predicate =
+                [sourceUrlIsFinished predicateWithSubstitutionVariables:@{@"url": sourceUrl}];
+            [givenVoid([verify controllerDidChangeContent:verifyResults]) willDo:^id _Nonnull(NSInvocation * _Nonnull invoc) {
+                return nil;
+            }];
+
             [fileManager setWorkingDirChildren:@"report.red", nil];
             TestImportProcess *redImport = [redType enqueueImport];
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
 
-            assertWithTimeout(100.0, thatEventually(@(redImport.isFinished)), isTrue());
+            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
 
             [reportDb performBlockAndWait:^{
                 Report *report = redImport.report;
@@ -328,9 +379,27 @@ describe(@"ReportStore", ^{
                 expect(report.isEnabled).to.beTruthy();
             }];
 
-            Report *report = [redImport.report MR_inContext:verifyDb];
+            NSFetchRequest *finishedReportFetch = [Report fetchRequest];
+            finishedReportFetch.predicate = [sourceUrlIsFinished predicateWithSubstitutionVariables:@{@"url": sourceUrl}];
+            HCFutureValue finishedReportCount = ^{
+                NSUInteger count = [verifyDb countForFetchRequest:finishedReportFetch error:NULL];
+                if (count == NSNotFound) {
+                    return @0;
+                }
+                return @(count);
+            };
+
+            assertWithTimeout(1.0, finishedReportCount, equalToUnsignedInteger(1));
+
+            [verifyResults performFetch:NULL];
+
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.firstObject;
             expect(report).toNot.beNil();
             expect(report.isEnabled).to.beTruthy();
+
+            NSLog(@"test finished");
         });
 
         it(@"moves source file to base dir in import dir before importing", ^{

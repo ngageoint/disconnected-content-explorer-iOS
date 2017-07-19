@@ -423,9 +423,6 @@ ReportStore *_sharedInstance;
     
     if (report.isImportFinished) {
         [_transientImportContext removeObjectForKey:report.objectID];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self finishBackgroundTaskIfImportsFinished];
-        });
         return;
     }
     else if (enteringState != ReportImportStatusNew && enteringState == leavingState) {
@@ -927,15 +924,24 @@ ReportStore *_sharedInstance;
 
 - (void)finishBackgroundTaskIfImportsFinished
 {
-    // TODO: figure out suspending imports that are extracting or otherwise without an import process
-    //    NSUInteger pendingReport = [_reports indexOfObjectPassingTest:^BOOL(Report *report, NSUInteger idx, BOOL *stop) {
-    //        return !report.isReadyForShutdown;
-    //    }];
-    //    if (pendingReport != NSNotFound) {
-    //        return;
-    //    }
+    NSPredicate *pendingReportsPredicate = [NSPredicate predicateWithFormat:@"NOT(importStatus IN %@)",
+        @[@(ReportImportStatusDownloading), @(ReportImportStatusSuccess), @(ReportImportStatusFailed)]];
+    NSFetchRequest *fetchPendingReports = [Report fetchRequest];
+    fetchPendingReports.predicate = pendingReportsPredicate;
 
     dispatch_sync(_sync, ^{
+        __block NSError *error;
+        __block NSUInteger pendingReportCount;
+        [self.reportDb performBlockAndWait:^{
+            pendingReportCount = [self.reportDb countForFetchRequest:fetchPendingReports error:&error];
+        }];
+        if (error || pendingReportCount == NSNotFound) {
+            vlog(@"error counting pending reports: %@", error);
+            return;
+        }
+        if (pendingReportCount) {
+            return;
+        }
         if (_pendingImports.count == 0) {
             [self endBackgroundTask];
         }
