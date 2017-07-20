@@ -46,7 +46,7 @@
 
  @return the initialized ReportStore
  */
-- (nullable instancetype)initWithReportTypes:(NSArray<id<ReportType>> *)reportTypes
+- (nullable instancetype)initWithReportTypes:(NSArray<id<ReportType>> * _Nonnull)reportTypes
     reportsDir:(nonnull NSURL *)reportsDir
     exclusions:(nullable NSArray<NSPredicate *> *)exclusions
     utiExpert:(nonnull DICEUtiExpert *)utiExpert
@@ -56,6 +56,8 @@
     reportDb:(nonnull NSManagedObjectContext *)reportDb
     application:(nonnull UIApplication *)application
     NS_DESIGNATED_INITIALIZER;
+
+- (void)addReportsDirExclusion:(nonnull NSPredicate *)rule;
 
 /**
  Load/refresh the list of reports based on the contents of the app's file system.
@@ -82,10 +84,8 @@
 
 - (void)deleteReport:(nonnull Report *)report;
 
-- (void)addReportsDirExclusion:(nonnull NSPredicate *)rule;
+- (void)resumePendingImports;
 
-- (void)appDidEnterBackground;
-
-- (void)appWillEnterForeground;
+- (void)suspendPendingImports;
 
 @end

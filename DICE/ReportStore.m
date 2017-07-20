@@ -307,75 +307,14 @@ ReportStore *_sharedInstance;
     });
 }
 
-- (nullable Report *)reportForUrl:(NSURL *)pathUrl
+- (void)resumePendingImports
 {
-    NSFetchRequest *urlQuery = [Report fetchRequest];
-    urlQuery.predicate = [NSCompoundPredicate orPredicateWithSubpredicates:@[
-       [NSPredicate predicateWithFormat:@"remoteSourceUrl == %@", pathUrl.absoluteString],
-       [NSPredicate predicateWithFormat:@"sourceFileUrl == %@", pathUrl.absoluteString],
-       [NSPredicate predicateWithFormat:@"importDirUrl == %@", pathUrl.absoluteString]
-    ]];
-    __block Report *report;
-    [self.reportDb performBlockAndWait:^{
-        NSError *error;
-        NSArray<Report *> *result = [self.reportDb executeFetchRequest:urlQuery error:&error];
-        if (result == nil || error) {
-            // TODO: check error
-            return;
-        }
-        if (result.count > 1) {
-            // TODO: should not happen
-            return;
-        }
-        report = result.firstObject;
-    }];
 
-    return report;
 }
 
-- (nullable id<ReportType>)reportTypeForId:(NSString *)reportTypeId
+- (void)suspendPendingImports
 {
-    if (reportTypeId == nil) {
-        return nil;
-    }
-    for (id<ReportType> type in self.reportTypes) {
-        if ([reportTypeId isEqualToString:type.reportTypeId]) {
-            return type;
-        }
-    }
-    return nil;
-}
 
-- (void)initializeReport:(Report *)report forSourceUrl:(NSURL *)url
-{
-    report.contentId = nil;
-    report.baseDirName = nil;
-    report.dateAdded = [NSDate date];
-    report.dateLastAccessed = report.dateAdded;
-    report.downloadProgress = 0;
-    report.downloadSize = 0;
-    report.extractPercent = 0;
-    report.importDirUrl = nil;
-    report.importStatus = ReportImportStatusNew;
-    report.isEnabled = NO;
-    report.lat = nil;
-    report.lon = nil;
-    report.remoteSource = nil;
-    report.rootFilePath = nil;
-    report.sourceFile = nil;
-    report.statusMessage = nil;
-    report.summary = nil;
-    report.thumbnailPath = nil;
-    report.tileThumbnailPath = nil;
-    report.title = nil;
-    report.uti = nil;
-
-    if ([url.scheme.lowercaseString hasPrefix:@"http"]) {
-        report.remoteSource = url;
-    }
-    else if (url.isFileURL) {
-        report.sourceFile = url;
-    }
 }
 
 #pragma mark - state transition methods
@@ -609,6 +548,77 @@ ReportStore *_sharedInstance;
 }
 
 #pragma mark - private methods
+
+- (nullable Report *)reportForUrl:(NSURL *)pathUrl
+{
+    NSFetchRequest *urlQuery = [Report fetchRequest];
+    urlQuery.predicate = [NSCompoundPredicate orPredicateWithSubpredicates:@[
+       [NSPredicate predicateWithFormat:@"remoteSourceUrl == %@", pathUrl.absoluteString],
+       [NSPredicate predicateWithFormat:@"sourceFileUrl == %@", pathUrl.absoluteString],
+       [NSPredicate predicateWithFormat:@"importDirUrl == %@", pathUrl.absoluteString]
+    ]];
+    __block Report *report;
+    [self.reportDb performBlockAndWait:^{
+        NSError *error;
+        NSArray<Report *> *result = [self.reportDb executeFetchRequest:urlQuery error:&error];
+        if (result == nil || error) {
+            // TODO: check error
+            return;
+        }
+        if (result.count > 1) {
+            // TODO: should not happen
+            return;
+        }
+        report = result.firstObject;
+    }];
+
+    return report;
+}
+
+- (nullable id<ReportType>)reportTypeForId:(NSString *)reportTypeId
+{
+    if (reportTypeId == nil) {
+        return nil;
+    }
+    for (id<ReportType> type in self.reportTypes) {
+        if ([reportTypeId isEqualToString:type.reportTypeId]) {
+            return type;
+        }
+    }
+    return nil;
+}
+
+- (void)initializeReport:(Report *)report forSourceUrl:(NSURL *)url
+{
+    report.contentId = nil;
+    report.baseDirName = nil;
+    report.dateAdded = [NSDate date];
+    report.dateLastAccessed = report.dateAdded;
+    report.downloadProgress = 0;
+    report.downloadSize = 0;
+    report.extractPercent = 0;
+    report.importDirUrl = nil;
+    report.importStatus = ReportImportStatusNew;
+    report.isEnabled = NO;
+    report.lat = nil;
+    report.lon = nil;
+    report.remoteSource = nil;
+    report.rootFilePath = nil;
+    report.sourceFile = nil;
+    report.statusMessage = nil;
+    report.summary = nil;
+    report.thumbnailPath = nil;
+    report.tileThumbnailPath = nil;
+    report.title = nil;
+    report.uti = nil;
+
+    if ([url.scheme.lowercaseString hasPrefix:@"http"]) {
+        report.remoteSource = url;
+    }
+    else if (url.isFileURL) {
+        report.sourceFile = url;
+    }
+}
 
 - (void)archiveInspectionDidFinish:(InspectReportArchiveOperation *)op
 {
@@ -959,16 +969,6 @@ ReportStore *_sharedInstance;
         [self.application endBackgroundTask:_importBackgroundTaskId];
         _importBackgroundTaskId = UIBackgroundTaskInvalid;
     });
-}
-
-- (void)appDidEnterBackground
-{
-
-}
-
-- (void)appWillEnterForeground
-{
-    
 }
 
 - (NSDictionary *)parseJsonDescriptorIfAvailableForReport:(Report *)report

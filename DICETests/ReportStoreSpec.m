@@ -50,7 +50,15 @@
 @end
 
 
-@implementation NSNotification (ManagedObjectContextInfo)
+@interface NSNotification (ReportStoreSpec)
+
+@property (readonly) NSSet<Report *> *insertedObjects;
+@property (readonly) NSSet<Report *> *updatedObjects;
+@property (readonly) NSSet<Report *> *deletedObjects;
+
+@end
+
+@implementation NSNotification (ReportStoreSpec)
 
 - (NSSet<Report *> *)insertedObjects
 {
@@ -68,6 +76,12 @@
 @end
 
 
+@interface NSSet (ReportStoreSpec)
+
+- (Report *)reportWithSourceUrl:(NSURL *)url;
+
+@end
+
 @implementation NSSet (ReportStoreSpec)
 
 - (Report *)reportWithSourceUrl:(NSURL *)url
@@ -83,9 +97,17 @@
 @end
 
 
-static void *kObservers = &kObservers;
+@interface NSManagedObjectContext (ReportStoreSpect)
+
+- (id)observe:(NSString *)name withBlock:(void ((^)(NSNotification *note)))block;
+- (void)removeNotificationObserver:(id)observer;
+- (void)clearNotificationObservers;
+
+@end
 
 @implementation NSManagedObjectContext (ReportStoreSpec)
+
+static void *kObservers = &kObservers;
 
 - (id)observe:(NSString *)name withBlock:(void ((^)(NSNotification *note)))block
 {
@@ -116,6 +138,28 @@ static void *kObservers = &kObservers;
         [self removeNotificationObserver:observer];
     }
     objc_setAssociatedObject(self, kObservers, nil, OBJC_ASSOCIATION_ASSIGN);
+}
+
+@end
+
+
+@interface Report (ReportStoreSpec)
+
+@property (readonly) NSPredicate *sourceFileFinishedPredicate;
+
+@end
+
+@implementation Report (ReportStoreSpec)
+
+- (NSPredicate *)sourceFileFinishedPredicate
+{
+    __block NSPredicate *predicate;
+    [self.managedObjectContext performBlockAndWait:^{
+        NSAssert(self.sourceFileUrl != nil, @"source file is nil for report\n%@", self);
+        predicate = [NSPredicate predicateWithFormat:@"sourceFileUrl == %@ AND importStatus IN %@",
+            self.sourceFileUrl, @[@(ReportImportStatusFailed), @(ReportImportStatusSuccess)]];
+    }];
+    return predicate;
 }
 
 @end
@@ -323,24 +367,6 @@ describe(@"ReportStore", ^{
 
             NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
             __block Report *report = nil;
-            [reportDb observe:NSManagedObjectContextWillSaveNotification withBlock:^(NSNotification *note) {
-                Report *inserted = [reportDb.insertedObjects reportWithSourceUrl:source];
-                if (inserted) {
-                    onMainThread(^{
-                        if (report) {
-                            onMainThread(^{
-                                failure(@"too many inserted objects for source url");
-                            });
-                        }
-                        else {
-                            report = inserted;
-                        }
-                    });
-                    if (report) {
-                        expect(report.importStatus).to.equal(ReportImportStatusNew);
-                    }
-                }
-            }];
 
             [fileManager setWorkingDirChildren:@"report.red", nil];
             [redType enqueueImport];
@@ -351,21 +377,22 @@ describe(@"ReportStore", ^{
 
         it(@"moves from new to inspecting source file content", ^{
 
-//            [fileManager setWorkingDirChildren:@"report.red", nil];
-//            TestImportProcess *redImport = [redType enqueueImport];
-//            [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO]];
+            [fileManager setWorkingDirChildren:@"report.red", nil];
+            TestImportProcess *redImport = [redType enqueueImport];
+            [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO]];
+
         });
 
-        fit(@"imports a report with the capable report type", ^{
+        it(@"imports a report with the capable report type", ^{
 
             NSURL *sourceUrl = [reportsDir URLByAppendingPathComponent:@"report.red"];
             id<NSFetchedResultsControllerDelegate> verify = mockProtocol(@protocol(NSFetchedResultsControllerDelegate));
             verifyResults.delegate = verify;
-            verifyResults.fetchRequest.predicate =
-                [sourceUrlIsFinished predicateWithSubstitutionVariables:@{@"url": sourceUrl}];
+            verifyResults.fetchRequest.predicate = [sourceUrlIsFinished predicateWithSubstitutionVariables:@{@"url": sourceUrl}];
             [givenVoid([verify controllerDidChangeContent:verifyResults]) willDo:^id _Nonnull(NSInvocation * _Nonnull invoc) {
                 return nil;
             }];
+            [verifyResults performFetch:NULL];
 
             [fileManager setWorkingDirChildren:@"report.red", nil];
             TestImportProcess *redImport = [redType enqueueImport];
@@ -379,27 +406,11 @@ describe(@"ReportStore", ^{
                 expect(report.isEnabled).to.beTruthy();
             }];
 
-            NSFetchRequest *finishedReportFetch = [Report fetchRequest];
-            finishedReportFetch.predicate = [sourceUrlIsFinished predicateWithSubstitutionVariables:@{@"url": sourceUrl}];
-            HCFutureValue finishedReportCount = ^{
-                NSUInteger count = [verifyDb countForFetchRequest:finishedReportFetch error:NULL];
-                if (count == NSNotFound) {
-                    return @0;
-                }
-                return @(count);
-            };
-
-            assertWithTimeout(1.0, finishedReportCount, equalToUnsignedInteger(1));
-
-            [verifyResults performFetch:NULL];
-
             assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
 
             Report *report = verifyResults.fetchedObjects.firstObject;
             expect(report).toNot.beNil();
             expect(report.isEnabled).to.beTruthy();
-
-            NSLog(@"test finished");
         });
 
         it(@"moves source file to base dir in import dir before importing", ^{
