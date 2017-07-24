@@ -576,12 +576,12 @@ describe(@"ReportStore", ^{
             [verifyResults performFetch:NULL];
 
             Report *report = [Report MR_createEntityInContext:verifyDb];
-            report.sourceFile = source;
-            report.importDir = [reportsDir URLByAppendingPathComponent:@"report.red.dice_import" isDirectory:YES];
             report.importState = ReportImportStatusInspectingContent;
             report.importStateToEnter = ReportImportStatusMovingContent;
+            report.sourceFile = source;
             report.uti = UTI_RED;
             report.reportTypeId = redType.reportTypeId;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"report.red.dice_import" isDirectory:YES];
 
             [verifyDb MR_saveToPersistentStoreAndWait];
 
@@ -608,6 +608,37 @@ describe(@"ReportStore", ^{
             expect([fileManager isRegularFileAtUrl:report.rootFile]).to.beTruthy();
             expect(movedSourceFileTo).to.equal(report.rootFile.path);
             expect(movedOnImportQueue).to.beTruthy();
+        });
+
+        it(@"transitions from digesting to success", ^{
+
+            [fileManager setWorkingDirChildren:@"report.red", nil];
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
+            verifyResults.fetchRequest.predicate = [Report predicateForSourceUrl:source];
+            [verifyResults performFetch:NULL];
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusMovingContent;
+            report.importStateToEnter = ReportImportStatusDigesting;
+            report.uti = UTI_RED;
+            report.reportTypeId = redType.reportTypeId;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"report.red.dice_import" isDirectory:YES];
+            report.baseDirName = @"dice_content";
+            report.rootFilePath = @"report.red";
+
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            TestImportProcess *importProcess = [redType enqueueImport];
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusSuccess));
+
+            Report *imported = [importProcess.report MR_inContext:verifyDb];
+
+            expect(imported).to.equal(report);
+            expect(importProcess.isFinished).to.beTruthy();
+            expect(report.isEnabled).to.beTruthy();
         });
 
         it(@"imports a report with the capable report type", ^{

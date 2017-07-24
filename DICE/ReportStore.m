@@ -987,7 +987,7 @@ ReportStore *_sharedInstance;
 
 - (void)finishBackgroundTaskIfImportsFinished
 {
-    NSPredicate *pendingReportsPredicate = [NSPredicate predicateWithFormat:@"NOT(importStatus IN %@)",
+    NSPredicate *pendingReportsPredicate = [NSPredicate predicateWithFormat:@"NOT(importState IN %@)",
         @[@(ReportImportStatusDownloading), @(ReportImportStatusSuccess), @(ReportImportStatusFailed)]];
     NSFetchRequest *fetchPendingReports = [Report fetchRequest];
     fetchPendingReports.predicate = pendingReportsPredicate;
