@@ -565,9 +565,49 @@ describe(@"ReportStore", ^{
             expect(report.reportTypeId).to.equal(redType.reportTypeId);
             expect(report.importDir).to.equal([reportsDir URLByAppendingPathComponent:@"report.red.dice_import" isDirectory:YES]);
             expect(report.baseDirName).to.beNil();
-            __block BOOL isDir;
-            expect([fileManager fileExistsAtPath:report.importDir.path isDirectory:&isDir]).to.beTruthy();
-            expect(isDir).to.beTruthy();
+            expect([fileManager isDirectoryAtUrl:report.importDir]).to.beTruthy();
+        });
+
+        it(@"transitions from moving content to digesting", ^{
+
+            [fileManager setWorkingDirChildren:@"report.red", nil];
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
+            verifyResults.fetchRequest.predicate = [Report predicateForSourceUrl:source];
+            [verifyResults performFetch:NULL];
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"report.red.dice_import" isDirectory:YES];
+            report.importState = ReportImportStatusInspectingContent;
+            report.importStateToEnter = ReportImportStatusMovingContent;
+            report.uti = UTI_RED;
+            report.reportTypeId = redType.reportTypeId;
+
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            __block BOOL movedOnImportQueue = NO;
+            __block NSString *movedSourceFileTo;
+            fileManager.onMoveItemAtPath = ^BOOL(NSString * _Nonnull sourcePath, NSString * _Nonnull destPath, NSError *__autoreleasing  _Nullable * _Nullable error) {
+                if ([sourcePath isEqualToString:source.path]) {
+                    movedSourceFileTo = destPath;
+                    movedOnImportQueue = NSOperationQueue.currentQueue == importQueue;
+                }
+                return YES;
+            };
+
+            [store advancePendingImports];
+
+            assertWithTimeout(10.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusDigesting));
+
+            [reportDb waitForQueueToDrain];
+
+            expect(report.importState).to.equal(ReportImportStatusMovingContent);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusDigesting);
+            expect(report.baseDirName).toNot.beNil();
+            expect([fileManager isDirectoryAtUrl:report.baseDir]).to.beTruthy();
+            expect([fileManager isRegularFileAtUrl:report.rootFile]).to.beTruthy();
+            expect(movedSourceFileTo).to.equal(report.rootFile.path);
+            expect(movedOnImportQueue).to.beTruthy();
         });
 
         it(@"imports a report with the capable report type", ^{
