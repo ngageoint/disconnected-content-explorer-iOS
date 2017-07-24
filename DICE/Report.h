@@ -20,7 +20,12 @@ typedef NS_ENUM(int16_t, ReportImportStatus) {
     ReportImportStatusSuccess,
     ReportImportStatusFailed,
     ReportImportStatusDeleting,
-    ReportImportStatusDeleted
+    ReportImportStatusDeleted,
+    // TODO: when app suspends/background task expires, swap the current state with this one.
+    // if the current state is not complete, stop that state and assign it to the next state
+    // so when the app wakes again, the report can transition from suspended to the previous
+    // unfinished state.
+    ReportImportStatusSuspended,
 };
 
 
