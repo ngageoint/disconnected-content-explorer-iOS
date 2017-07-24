@@ -26,8 +26,9 @@
 
 - (BOOL)isImportFinished
 {
-    ReportImportStatus status = self.importStatus;
-    return status == ReportImportStatusSuccess || status == ReportImportStatusFailed;
+    ReportImportStatus state = self.importState;
+    ReportImportStatus stateToEnter = self.importStateToEnter;
+    return state == stateToEnter && (state == ReportImportStatusSuccess || state == ReportImportStatusFailed);
 }
 
 - (NSURL *)baseDir

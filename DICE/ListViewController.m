@@ -110,7 +110,7 @@
     cell.userInteractionEnabled = cell.textLabel.enabled = cell.detailTextLabel.enabled = report.isEnabled;
     cell.imageView.image = [UIImage imageNamed:@"dice-default"];
 
-    if (report.importStatus == ReportImportStatusFailed) {
+    if (report.importState == ReportImportStatusFailed) {
         cell.imageView.image = [UIImage imageNamed:@"dice-error"];
         return cell;
     }

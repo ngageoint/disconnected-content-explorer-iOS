@@ -50,11 +50,19 @@
     id<DICEArchiveFactory> archiveFactory = [[DICEDefaultArchiveFactory alloc] initWithUtiExpert:utiExpert];
     NSOperationQueue *importQueue = [[NSOperationQueue alloc] init];
     NSFileManager *fileManager = NSFileManager.defaultManager;
-    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
     NSURL *reportsDir = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:NULL];
 
-    _store = [[ReportStore alloc] initWithReportsDir:reportsDir exclusions:exclusions utiExpert:utiExpert archiveFactory:archiveFactory importQueue:importQueue fileManager:fileManager notifications:notificationCenter application:application];
-    ReportStore.sharedInstance = _store;
+    NSManagedObjectContext *reportDb = nil;
+
+    NSArray *reportTypes = @[
+        [[HtmlReportType alloc] initWithFileManager:fileManager]
+    ];
+
+    _store = [[ReportStore alloc] initWithReportTypes:reportTypes
+        reportsDir:reportsDir exclusions:exclusions
+        utiExpert:utiExpert archiveFactory:archiveFactory
+        importQueue:importQueue fileManager:fileManager
+        reportDb:reportDb application:application];
 
     _downloadManager = [[DICEDownloadManager alloc] initWithDownloadDir:reportsDir fileManager:fileManager delegate:_store];
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"dice.download"];
@@ -62,10 +70,6 @@
     configuration.discretionary = YES;
     _downloadManager.downloadSession = [NSURLSession sessionWithConfiguration:configuration delegate:_downloadManager delegateQueue:importQueue];
     _store.downloadManager = _downloadManager;
-
-    _store.reportTypes = @[
-        [[HtmlReportType alloc] initWithFileManager:_store.fileManager]
-    ];
 
     // initialize offline map polygons
     // TODO: potentially thread this

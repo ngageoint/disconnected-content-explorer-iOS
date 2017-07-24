@@ -39,7 +39,7 @@ void ensureMainThread() {
 
 - (BOOL)isReadyForShutdown
 {
-    return self.isImportFinished || self.importStatus == ReportImportStatusDownloading;
+    return self.isImportFinished || self.importState == ReportImportStatusDownloading;
 }
 
 @end

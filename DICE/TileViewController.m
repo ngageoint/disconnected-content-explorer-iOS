@@ -100,7 +100,7 @@
         return cell;
     }
 
-    if (report.importStatus == ReportImportStatusFailed) {
+    if (report.importState == ReportImportStatusFailed) {
         cell.reportImage.image = [UIImage imageNamed:@"dice-error"];
         return cell;
     }

@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface Report (CoreDataProperties)
 
 + (NSFetchRequest<Report *> *)fetchRequest;
++ (NSPredicate *)predicateForSourceUrl:(NSURL *)source;
 
 @property (nullable, nonatomic, copy) NSString *baseDirName;
 @property (nullable, nonatomic, copy) NSString *contentId;
@@ -24,7 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) int16_t extractPercent;
 @property (nullable, nonatomic, retain) NSURL *importDir;
 @property (nullable, nonatomic, copy) NSString *importDirUrl;
-@property (nonatomic) int16_t importStatus;
+@property (nonatomic) ReportImportStatus importState;
+@property (nonatomic) ReportImportStatus importStateToEnter;
 @property (nonatomic) BOOL isEnabled;
 @property (nullable, nonatomic, copy) NSDecimalNumber *lat;
 @property (nullable, nonatomic, copy) NSDecimalNumber *lon;

@@ -830,7 +830,8 @@ describe(@"Report", ^{
         expect(report.lon).to.equal(@-104.8);
         expect(report.thumbnailPath).to.equal(@"images/test.png");
         expect(report.tileThumbnailPath).to.equal(@"images/test-tile.png");
-        expect(report.importStatus).to.equal(ReportImportStatusNew);
+        expect(report.importState).to.equal(ReportImportStatusNew);
+        expect(report.importStateToEnter).to.equal(ReportImportStatusNew);
         expect(report.isImportFinished).to.equal(NO);
     });
 
@@ -858,7 +859,8 @@ describe(@"Report", ^{
         expect(report.lon).to.beNil();
         expect(report.thumbnailPath).to.equal(@"test/default.png");
         expect(report.tileThumbnailPath).to.equal(@"my_tile.png");
-        expect(report.importStatus).to.equal(ReportImportStatusNew);
+        expect(report.importState).to.equal(ReportImportStatusNew);
+        expect(report.importStateToEnter).to.equal(ReportImportStatusNew);
         expect(report.isImportFinished).to.equal(NO);
     });
 
@@ -866,38 +868,62 @@ describe(@"Report", ^{
 
         Report *report = [Report MR_createEntityInContext:context];
 
-        expect(report.importStatus).to.equal(ReportImportStatusNew);
-        expect(report.isImportFinished).to.equal(NO);
+        ReportImportStatus incomplete[9] = {
+            ReportImportStatusNew,
+            ReportImportStatusDownloading,
+            ReportImportStatusInspectingSourceFile,
+            ReportImportStatusInspectingArchive,
+            ReportImportStatusExtractingContent,
+            ReportImportStatusInspectingContent,
+            ReportImportStatusMovingContent,
+            ReportImportStatusDeleting,
+            ReportImportStatusDeleted,
+        };
 
-        report.importStatus = ReportImportStatusDownloading;
-        expect(report.isImportFinished).to.equal(NO);
+        NSUInteger remaining = 9;
+        while (remaining) {
+            remaining -= 1;
+            report.importState = incomplete[remaining];
+            NSUInteger combo = 9;
+            while (combo) {
+                combo -= 1;
+                report.importStateToEnter = incomplete[combo];
+                if (report.isImportFinished) {
+                    failure([NSString stringWithFormat:@"current %d, entering %d", report.importState, report.importStateToEnter]);
+                }
+            }
 
-        report.importStatus = ReportImportStatusInspectingSourceFile;
-        expect(report.isImportFinished).to.equal(NO);
+            report.importStateToEnter = ReportImportStatusSuccess;
+            if (report.isImportFinished) {
+                failure([NSString stringWithFormat:@"current %d, entering %d", report.importState, report.importStateToEnter]);
+            }
+            report.importStateToEnter = ReportImportStatusFailed;
+            if (report.isImportFinished) {
+                failure([NSString stringWithFormat:@"current %d, entering %d", report.importState, report.importStateToEnter]);
+            }
 
-        report.importStatus = ReportImportStatusInspectingArchive;
-        expect(report.isImportFinished).to.equal(NO);
+            report.importStateToEnter = report.importState;
+            report.importState = ReportImportStatusSuccess;
+            if (report.isImportFinished) {
+                failure([NSString stringWithFormat:@"current %d, entering %d", report.importState, report.importStateToEnter]);
+            }
+            report.importState = ReportImportStatusFailed;
+            if (report.isImportFinished) {
+                failure([NSString stringWithFormat:@"current %d, entering %d", report.importState, report.importStateToEnter]);
+            }
+        }
 
-        report.importStatus = ReportImportStatusInspectingContent;
-        expect(report.isImportFinished).to.equal(NO);
+        report.importState = ReportImportStatusFailed;
+        report.importStateToEnter = ReportImportStatusFailed;
+        expect(report.isImportFinished).to.beTruthy();
+        report.importStateToEnter = ReportImportStatusSuccess;
+        expect(report.isImportFinished).to.beFalsy();
 
-        report.importStatus = ReportImportStatusExtractingContent;
-        expect(report.isImportFinished).to.equal(NO);
-
-        report.importStatus = ReportImportStatusMovingContent;
-        expect(report.isImportFinished).to.equal(NO);
-
-        report.importStatus = ReportImportStatusDeleting;
-        expect(report.isImportFinished).to.equal(NO);
-
-        report.importStatus = ReportImportStatusDeleted;
-        expect(report.isImportFinished).to.equal(NO);
-
-        report.importStatus = ReportImportStatusFailed;
-        expect(report.isImportFinished).to.equal(YES);
-
-        report.importStatus = ReportImportStatusSuccess;
-        expect(report.isImportFinished).to.equal(YES);
+        report.importState = ReportImportStatusSuccess;
+        report.importStateToEnter = ReportImportStatusSuccess;
+        expect(report.isImportFinished).to.beTruthy();
+        report.importStateToEnter = ReportImportStatusFailed;
+        expect(report.isImportFinished).to.beFalsy();
     });
 
     afterEach(^{

@@ -31,8 +31,14 @@ static NSDictionary * persistentAttrForTransientAttr;
     };
 }
 
-+ (NSFetchRequest<Report *> *)fetchRequest {
++ (NSFetchRequest<Report *> *)fetchRequest
+{
 	return [[NSFetchRequest alloc] initWithEntityName:@"Report"];
+}
+
++ (NSPredicate *)predicateForSourceUrl:(NSURL *)source
+{
+    return [NSPredicate predicateWithFormat:@"sourceFileUrl == %@ OR remoteSourceUrl == %@", source.absoluteString, source.absoluteString];
 }
 
 @dynamic baseDirName;
@@ -43,7 +49,8 @@ static NSDictionary * persistentAttrForTransientAttr;
 @dynamic downloadSize;
 @dynamic extractPercent;
 @dynamic importDirUrl;
-@dynamic importStatus;
+@dynamic importState;
+@dynamic importStateToEnter;
 @dynamic isEnabled;
 @dynamic lat;
 @dynamic lon;

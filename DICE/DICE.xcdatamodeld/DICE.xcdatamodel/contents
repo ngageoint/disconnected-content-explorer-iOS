@@ -10,7 +10,8 @@
         <attribute name="extractPercent" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="importDir" optional="YES" transient="YES" customClassName="NSURL" syncable="YES"/>
         <attribute name="importDirUrl" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="importStatus" attributeType="Integer 16" minValueString="0" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="importState" attributeType="Integer 16" minValueString="0" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="importStateToEnter" attributeType="Integer 16" minValueString="0" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="isEnabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="lat" optional="YES" attributeType="Decimal" syncable="YES"/>
         <attribute name="lon" optional="YES" attributeType="Decimal" syncable="YES"/>
@@ -28,6 +29,6 @@
         <attribute name="uti" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Report" positionX="-63" positionY="-18" width="128" height="420"/>
+        <element name="Report" positionX="-63" positionY="-18" width="128" height="435"/>
     </elements>
 </model>
