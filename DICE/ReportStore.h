@@ -84,6 +84,11 @@
 
 - (void)deleteReport:(nonnull Report *)report;
 
+/**
+ Begin the next state transition for reports that are ready for their respective next step in the import process.
+ */
+- (void)advancePendingImports;
+
 - (void)resumePendingImports;
 
 - (void)suspendPendingImports;

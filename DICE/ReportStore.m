@@ -121,6 +121,8 @@ static NSString *const ImportDirSuffix = @".dice_import";
     UIBackgroundTaskIdentifier _importBackgroundTaskId;
     NSMutableDictionary<NSManagedObjectID *, ReportImportContext *> *_transientImportContext;
     dispatch_queue_t _sync;
+    NSPredicate *_pendingImportPredicate;
+    NSPredicate *_readyForShutdownPredicate;
 }
 
 dispatch_once_t _sharedInstanceOnce;
@@ -143,8 +145,15 @@ ReportStore *_sharedInstance;
 
 - (instancetype)init
 {
-    [NSException raise:NSGenericException format:@"cannot call default init on %@", self.class];
-    return nil;
+    return [self initWithReportTypes:@[]
+        reportsDir:[[NSURL alloc] init]
+        exclusions:@[]
+        utiExpert:[[DICEUtiExpert alloc] init]
+        archiveFactory:[[DICEDefaultArchiveFactory alloc] init]
+        importQueue:[[NSOperationQueue alloc] init]
+        fileManager:NSFileManager.defaultManager
+        reportDb:[[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType]
+        application:UIApplication.sharedApplication];
 }
 
 - (instancetype)initWithReportTypes:(NSArray *)reportTypes
@@ -174,6 +183,12 @@ ReportStore *_sharedInstance;
     _application = application;
     _importBackgroundTaskId = UIBackgroundTaskInvalid;
     _trashDir = [_reportsDir URLByAppendingPathComponent:@"dice.trash" isDirectory:YES];
+    _pendingImportPredicate = [NSPredicate predicateWithFormat:
+        @"NOT(importState IN %@)",
+        @[@(ReportImportStatusSuccess), @(ReportImportStatusFailed)]];
+    _readyForShutdownPredicate = [NSPredicate predicateWithFormat:
+        @"NOT(importState IN %@)",
+        @[@(ReportImportStatusDownloading), @(ReportImportStatusSuccess), @(ReportImportStatusFailed)]];
 
     if (exclusions == nil) {
         exclusions = [NSMutableArray array];
@@ -264,7 +279,7 @@ ReportStore *_sharedInstance;
     [self.reportDb performBlock:^{
         Report *report = [Report MR_createEntityInContext:self.reportDb];
         [self initializeReport:report forSourceUrl:reportUrl];
-        [self saveReport:report enteringState:ReportImportStatusNew];
+        [self beginInspectingNewReport:report];
     }];
 }
 
@@ -296,7 +311,7 @@ ReportStore *_sharedInstance;
         return;
     }
     report.isEnabled = NO;
-    report.importStatus = ReportImportStatusDeleting;
+    report.importState = ReportImportStatusDeleting;
     report.statusMessage = @"Deleting content...";
     DICEDeleteReportProcess *delReport = [[DICEDeleteReportProcess alloc]
         initWithReport:report trashDir:_trashDir preservingMetaData:NO fileManager:self.fileManager];
@@ -305,6 +320,23 @@ ReportStore *_sharedInstance;
         [_pendingImports addObject:delReport]; // retain so it doesn't get deallocated
         [self.importQueue addOperations:delReport.steps waitUntilFinished:NO];
     });
+}
+
+- (void)advancePendingImports
+{
+    NSFetchRequest *pendingImportFetch = [Report fetchRequest];
+    pendingImportFetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"dateAdded" ascending:NO]];
+    pendingImportFetch.predicate = _pendingImportPredicate;
+    [self.reportDb performBlock:^{
+        NSError *error = nil;
+        NSArray<Report *> *reports = [self.reportDb executeFetchRequest:pendingImportFetch error:&error];
+        if (reports == nil || error) {
+            vlog(@"error fetching pending reports: %@", error);
+        }
+        for (Report *report in reports) {
+            [self beginNextStateForReport:report];
+        }
+    }];
 }
 
 - (void)resumePendingImports
@@ -321,11 +353,24 @@ ReportStore *_sharedInstance;
 
 - (void)saveReport:(Report *)report enteringState:(ReportImportStatus)enteringState
 {
-    ReportImportStatus leavingState = report.importStatus;
-    report.importStatus = enteringState;
+    report.importStateToEnter = enteringState;
+
+    NSError *error;
+    if (![self.reportDb save:&error]) {
+        vlog(@"error saving report before transition from state %d to %d\n%@", report.importState, enteringState, report);
+    }
+}
+
+- (void)beginNextStateForReport:(Report *)report
+{
+    ReportImportStatus leavingState = report.importState;
+    ReportImportStatus enteringState = report.importStateToEnter;
+
+    if (leavingState == enteringState) {
+        return;
+    }
 
     SEL transitionSel = NULL;
-
     if (enteringState ==  ReportImportStatusNew) {
         _transientImportContext[report.objectID] = [[ReportImportContext alloc] init];
         transitionSel = @selector(beginInspectingNewReport:);
@@ -351,31 +396,23 @@ ReportStore *_sharedInstance;
     else if (enteringState == ReportImportStatusDigesting) {
         transitionSel = @selector(beginDigestingContentOfReport:);
     }
-    else if (!report.isImportFinished) {
-        [NSException raise:NSInternalInconsistencyException format:@"erroneous transition to unknown state %d for report\n%@", enteringState, report];
-    }
-
-    NSError *error;
-    if (![self.reportDb save:&error]) {
-        vlog(@"error saving report before transition from state %d to %d\n%@", leavingState, enteringState, report);
-    }
-    
-    if (report.isImportFinished) {
+    else if (report.isImportFinished) {
         [_transientImportContext removeObjectForKey:report.objectID];
         return;
     }
-    else if (enteringState != ReportImportStatusNew && enteringState == leavingState) {
-        return;
+    else {
+        [NSException raise:NSInternalInconsistencyException format:@"erroneous transition to unknown state %d for report\n%@", enteringState, report];
     }
 
     if (transitionSel == NULL) {
         [NSException raise:NSInternalInconsistencyException
-            format:@"no selector for transition from %d to %d for report:\n%@", report.importStatus, enteringState, report];
+            format:@"no selector for transition from %d to %d for report:\n%@", leavingState, enteringState, report];
     }
 
     IMP transitionImp = [self methodForSelector:transitionSel];
     void (*transition)(id, SEL, Report *) = (void *)transitionImp;
     [self.reportDb performBlock:^{
+        report.importState = enteringState;
         transition(self, transitionSel, report);
     }];
 }
@@ -436,7 +473,7 @@ ReportStore *_sharedInstance;
 {
     report.title = @"Downloading...";
     report.statusMessage = [NSString stringWithFormat:@"downloading %@", report.remoteSourceUrl];
-    [self saveReport:report enteringState:report.importStatus];
+    [self saveReport:report enteringState:report.importState];
     [self.downloadManager downloadUrl:report.remoteSource];
 }
 
@@ -507,7 +544,7 @@ ReportStore *_sharedInstance;
         mv.destUrl = report.rootFile;
     }
 
-    [self saveReport:report enteringState:report.importStatus];
+    [self saveReport:report enteringState:report.importState];
 
     void (^afterMove)() = ^{
         if (mv.fileWasMoved) {
@@ -536,9 +573,8 @@ ReportStore *_sharedInstance;
     ImportProcess *importProcess = [type createProcessToImportReport:report];
     // TODO: check nil importProcess
     importProcess.delegate = self;
-    report.importStatus = ReportImportStatusDigesting;
     report.statusMessage = @"Proccessing content...";
-    [self saveReport:report enteringState:report.importStatus];
+    [self saveReport:report enteringState:report.importState];
     vlog(@"queuing import process for report %@", report);
     dispatch_async(_sync, ^{
         // retain the import process so arc does not deallocate it
@@ -598,10 +634,12 @@ ReportStore *_sharedInstance;
     report.downloadSize = 0;
     report.extractPercent = 0;
     report.importDirUrl = nil;
-    report.importStatus = ReportImportStatusNew;
+    report.importState = ReportImportStatusNew;
     report.isEnabled = NO;
     report.lat = nil;
     report.lon = nil;
+    report.importState = ReportImportStatusNew;
+    report.importStateToEnter = ReportImportStatusNew;
     report.remoteSource = nil;
     report.rootFilePath = nil;
     report.sourceFile = nil;
@@ -651,8 +689,8 @@ ReportStore *_sharedInstance;
         NSString *importDirName = [report.sourceFile.lastPathComponent stringByAppendingString:ImportDirSuffix];
         report.importDir = [self.reportsDir URLByAppendingPathComponent:importDirName isDirectory:YES];
         report.baseDirName = baseDirName;
-        [self saveReport:report enteringState:nextState];
         [self makeImportDirForReport:report];
+        [self saveReport:report enteringState:nextState];
     }];
 }
 
@@ -678,6 +716,21 @@ ReportStore *_sharedInstance;
         vlog(@"error creating import dir for report:%@\n%@", error, report)
         // TODO: coping with failure
     }
+}
+
+- (NSDictionary *)parseJsonDescriptorIfAvailableForReport:(Report *)report
+{
+    NSString *descriptorPath = [report.baseDir.path stringByAppendingPathComponent:@"dice.json"];
+    NSData *jsonData = [self.fileManager contentsAtPath:descriptorPath];
+    if (jsonData == nil || jsonData.length == 0) {
+        descriptorPath = [report.baseDir.path stringByAppendingPathComponent:@"metadata.json"];
+        jsonData = [self.fileManager contentsAtPath:descriptorPath];
+    }
+    if (jsonData == nil || jsonData.length == 0) {
+        return nil;
+    }
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    return json;
 }
 
 #pragma mark - import delegate methods
@@ -762,14 +815,14 @@ ReportStore *_sharedInstance;
     if (!download.wasSuccessful || download.downloadedFile == nil) {
         // TODO: mechanism to retry
         report.title = @"Download failed";
-        report.importStatus = ReportImportStatusFailed;
+        report.importState = ReportImportStatusFailed;
         report.statusMessage = download.error.localizedDescription;
         report.isEnabled = NO;
         return;
     }
 
     report.title = download.downloadedFile.lastPathComponent;
-    report.importStatus = ReportImportStatusInspectingSourceFile;
+    report.importState = ReportImportStatusInspectingSourceFile;
     report.statusMessage = @"Download complete";
     report.downloadProgress = 100;
     /*
@@ -971,27 +1024,12 @@ ReportStore *_sharedInstance;
     });
 }
 
-- (NSDictionary *)parseJsonDescriptorIfAvailableForReport:(Report *)report
-{
-    NSString *descriptorPath = [report.baseDir.path stringByAppendingPathComponent:@"dice.json"];
-    NSData *jsonData = [self.fileManager contentsAtPath:descriptorPath];
-    if (jsonData == nil || jsonData.length == 0) {
-        descriptorPath = [report.baseDir.path stringByAppendingPathComponent:@"metadata.json"];
-        jsonData = [self.fileManager contentsAtPath:descriptorPath];
-    }
-    if (jsonData == nil || jsonData.length == 0) {
-        return nil;
-    }
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
-    return json;
-}
-
 #pragma mark - deleting
 
 - (void)filesDidMoveToTrashByDeleteReportProcess:(DICEDeleteReportProcess *)process
 {
     // TODO: handle move failure
-    assert(false);
+    NSAssert(false, @"TODO");
 //    dispatch_async(dispatch_get_main_queue(), ^{
 //        Report *report = process.report;
 //        if (report.importStatus == ReportImportStatusNewRemote) {

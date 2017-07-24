@@ -102,6 +102,7 @@
 - (id)observe:(NSString *)name withBlock:(void ((^)(NSNotification *note)))block;
 - (void)removeNotificationObserver:(id)observer;
 - (void)clearNotificationObservers;
+- (void)waitForQueueToDrain;
 
 @end
 
@@ -140,26 +141,45 @@ static void *kObservers = &kObservers;
     objc_setAssociatedObject(self, kObservers, nil, OBJC_ASSOCIATION_ASSIGN);
 }
 
-@end
-
-
-@interface Report (ReportStoreSpec)
-
-@property (readonly) NSPredicate *sourceFileFinishedPredicate;
-
-@end
-
-@implementation Report (ReportStoreSpec)
-
-- (NSPredicate *)sourceFileFinishedPredicate
+- (void)waitForQueueToDrain
 {
-    __block NSPredicate *predicate;
-    [self.managedObjectContext performBlockAndWait:^{
-        NSAssert(self.sourceFileUrl != nil, @"source file is nil for report\n%@", self);
-        predicate = [NSPredicate predicateWithFormat:@"sourceFileUrl == %@ AND importStatus IN %@",
-            self.sourceFileUrl, @[@(ReportImportStatusFailed), @(ReportImportStatusSuccess)]];
-    }];
-    return predicate;
+    [self performBlockAndWait:^{}];
+}
+
+@end
+
+
+static NSString * const UTI_RED = @"dice.test.red";
+static NSString * const UTI_BLUE = @"dice.test.blue";
+
+
+@interface TestDICEUtiExpert : DICEUtiExpert
+
+@end
+
+
+@implementation TestDICEUtiExpert
+
+- (CFStringRef)probableUtiForResource:(NSURL *)resource conformingToUti:(CFStringRef)constraint
+{
+    if ([@"red" isEqualToString:resource.pathExtension]) {
+        return (__bridge CFStringRef)UTI_RED;
+    }
+    else if ([@"blue" isEqualToString:resource.pathExtension]) {
+        return (__bridge CFStringRef)UTI_BLUE;
+    }
+    return [super probableUtiForResource:resource conformingToUti:constraint];
+}
+
+- (CFStringRef)preferredUtiForExtension:(NSString *)ext conformingToUti:(CFStringRef)constraint
+{
+    if ([@"red" isEqualToString:ext]) {
+        return (__bridge CFStringRef _Nullable)(UTI_RED);
+    }
+    else if ([@"blue" isEqualToString:ext]) {
+        return (__bridge CFStringRef _Nullable)(UTI_BLUE);
+    }
+    return [super preferredUtiForExtension:ext conformingToUti:constraint];
 }
 
 @end
@@ -213,11 +233,36 @@ describe(@"NSFileManager", ^{
 
 });
 
+describe(@"dynamic utis", ^{
+
+    __block CFStringRef uti1;
+
+    beforeEach(^{
+
+        uti1 = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"red", NULL);
+    });
+
+    it(@"creates a dynamic uti for an extension", ^{
+
+        expect(UTTypeIsDynamic(uti1)).to.beTruthy();
+    });
+
+    it(@"retrieves the same uti for file extension in same process", ^{
+
+        CFStringRef uti2 = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"red", NULL);
+
+        expect(UTTypeIsDynamic(uti2)).to.beTruthy();
+        expect(UTTypeEqual(uti1, uti2)).to.beTruthy();
+        expect((__bridge NSString *)uti1).to.equal((__bridge NSString *)uti2);
+    });
+});
+
 describe(@"ReportStore", ^{
 
     __block NSManagedObjectContext *reportDb;
     __block NSManagedObjectContext *verifyDb;
     __block NSFetchedResultsController *verifyResults;
+    __block id<NSFetchedResultsControllerDelegate> verifyResultsDelegate;
     __block NSPredicate *isImportFinished;
     __block NSPredicate *hasSourceUrl;
     __block NSPredicate *sourceUrlIsFinished;
@@ -247,7 +292,9 @@ describe(@"ReportStore", ^{
         NSFetchRequest *fetchRequest = [Report fetchRequest];
         fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"dateAdded" ascending:NO]];
         verifyResults = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:verifyDb sectionNameKeyPath:nil cacheName:nil];
-        isImportFinished = [NSPredicate predicateWithFormat:@"importStatus IN %@", @[@(ReportImportStatusFailed), @(ReportImportStatusSuccess)]];
+        verifyResultsDelegate = mockProtocol(@protocol(NSFetchedResultsControllerDelegate));
+        verifyResults.delegate = verifyResultsDelegate;
+        isImportFinished = [NSPredicate predicateWithFormat:@"importState IN %@", @[@(ReportImportStatusFailed), @(ReportImportStatusSuccess)]];
         hasSourceUrl = [NSPredicate predicateWithFormat:@"sourceFileUrl == $url.absoluteString OR remoteSourceUrl == $url.absoluteString"];
         sourceUrlIsFinished = [NSCompoundPredicate andPredicateWithSubpredicates:@[hasSourceUrl, isImportFinished]];
 
@@ -307,7 +354,7 @@ describe(@"ReportStore", ^{
         store = [[ReportStore alloc] initWithReportTypes:@[redType, blueType]
             reportsDir:reportsDir
             exclusions:nil
-            utiExpert:[[DICEUtiExpert alloc] init]
+            utiExpert:[[TestDICEUtiExpert alloc] init]
             archiveFactory:archiveFactory
             importQueue:importQueue
             fileManager:fileManager
@@ -336,7 +383,7 @@ describe(@"ReportStore", ^{
             Report *cleanupBarrier = [Report MR_createEntityInContext:reportDb];
             cleanupBarrier.sourceFile = cleanupSourceFile;
         }];
-        waitUntil(^(DoneCallback done) {
+        waitUntilTimeout(1.0, ^(DoneCallback done) {
             [reportDb observe:NSManagedObjectContextDidSaveNotification withBlock:^(NSNotification *note) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [reportDb performBlock:^{
@@ -361,26 +408,166 @@ describe(@"ReportStore", ^{
     afterAll(^{
     });
 
-    describe(@"importing stand-alone files from the documents directory", ^{
+    describe(@"state transitions", ^{
 
-        it(@"starts in new state", ^{
+        it(@"transitions when next state does not equal current state", ^{
 
-            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
-            __block Report *report = nil;
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test.red"];
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusNew;
+            report.importStateToEnter = ReportImportStatusInspectingSourceFile;
+            [verifyDb save:NULL];
 
-            [fileManager setWorkingDirChildren:@"report.red", nil];
-            [redType enqueueImport];
-            [store attemptToImportReportFromResource:source];
+            [store advancePendingImports];
 
-            assertWithTimeout(1.0, thatEventually(report), notNilValue());
+            [reportDb waitForQueueToDrain];
+            [verifyDb refreshObject:report mergeChanges:YES];
+
+            expect(report.importState).to.equal(ReportImportStatusInspectingSourceFile);
+            expect(report.uti).to.equal(UTI_RED);
         });
 
-        it(@"moves from new to inspecting source file content", ^{
+        it(@"does not transition when next state equals current state", ^{
 
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test.red"];
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusInspectingSourceFile;
+            report.importStateToEnter = ReportImportStatusInspectingSourceFile;
+            [verifyDb save:NULL];
+
+            [store advancePendingImports];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb refreshObject:report mergeChanges:YES];
+
+            expect(report.importState).to.equal(ReportImportStatusInspectingSourceFile);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
+            expect(report.uti).to.beNil();
+        });
+
+    });
+
+    describe(@"initial transition", ^{
+
+        it(@"starts in new state to enter inspecting source file when source url is file", ^{
+
+            [verifyResults performFetch:NULL];
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
             [fileManager setWorkingDirChildren:@"report.red", nil];
-            TestImportProcess *redImport = [redType enqueueImport];
-            [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO]];
+            [store attemptToImportReportFromResource:source];
 
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.lastObject;
+
+            expect(report.importState).to.equal(ReportImportStatusNew);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
+        });
+
+        it(@"starts in new state to enter downloading when source url starts with http", ^{
+
+            [verifyResults performFetch:NULL];
+            NSURL *source = [NSURL URLWithString:@"https://dice.com/test.zip"];
+            [store attemptToImportReportFromResource:source];
+
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.lastObject;
+
+            expect(report.importState).to.equal(ReportImportStatusNew);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusDownloading);
+        });
+
+        it(@"transitions from new to inspecting source file", ^{
+
+            [verifyResults performFetch:NULL];
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
+            [fileManager setWorkingDirChildren:@"report.red", nil];
+            [store attemptToImportReportFromResource:source];
+
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.lastObject;
+
+            expect(report.importState).to.equal(ReportImportStatusNew);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
+
+            [store advancePendingImports];
+
+            expect(report.importState).to.equal(ReportImportStatusNew);
+
+            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToInt(ReportImportStatusInspectingSourceFile));
+        });
+
+        it(@"has a uti when inspecting source file completes", ^{
+
+            [verifyResults performFetch:NULL];
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
+            [fileManager setWorkingDirChildren:@"report.red", nil];
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.importState = ReportImportStatusNew;
+            report.importStateToEnter = ReportImportStatusInspectingSourceFile;
+            report.sourceFile = source;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusInspectingSourceFile));
+
+            expect(report.uti).to.equal(UTI_RED);
+        });
+    });
+
+    fdescribe(@"importing stand-alone files from the documents directory", ^{
+
+        beforeEach(^{
+        });
+
+        it(@"transitions from inspecting source file to inspecting content", ^{
+
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
+            verifyResults.fetchRequest.predicate = [Report predicateForSourceUrl:source];
+            [verifyResults performFetch:NULL];
+            [store attemptToImportReportFromResource:source];
+
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.firstObject;
+
+            expect(report.importState).to.equal(ReportImportStatusNew);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusInspectingContent));
+        });
+
+        it(@"transitions from inspecting content to moving content", ^{
+
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
+            verifyResults.fetchRequest.predicate = [Report predicateForSourceUrl:source];
+            [verifyResults performFetch:NULL];
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusInspectingSourceFile;
+            report.importStateToEnter = ReportImportStatusInspectingContent;
+            report.uti = UTI_RED;
+
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusMovingContent));
+
+            expect(report.reportTypeId).to.equal(redType.reportTypeId);
+            expect(report.importDir).to.equal([reportsDir URLByAppendingPathComponent:@"report.red.dice_import" isDirectory:YES]);
+            expect(report.baseDirName).to.beNil();
+            __block BOOL isDir;
+            expect([fileManager fileExistsAtPath:report.importDir.path isDirectory:&isDir]).to.beTruthy();
+            expect(isDir).to.beTruthy();
         });
 
         it(@"imports a report with the capable report type", ^{
@@ -459,7 +646,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(report.sourceFile).to.equal(sourceFile);
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
 //
 //            expect(atomic_load((atomic_bool *)&sourceFileMoved)).to.beTruthy();
 //
@@ -494,7 +681,7 @@ describe(@"ReportStore", ^{
 //            NSNotification *note = received.notification;
 //
 //            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importStatus).to.equal(ReportImportStatusSuccess);
+//            expect(report.importState).to.equal(ReportImportStatusSuccess);
 //            expect(received.wasMainThread).to.equal(YES);
         });
 
@@ -514,7 +701,7 @@ describe(@"ReportStore", ^{
 //            NSNotification *note = received.notification;
 //
 //            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importStatus).to.equal(ReportImportStatusSuccess);
+//            expect(report.importState).to.equal(ReportImportStatusSuccess);
 //            expect(received.wasMainThread).to.equal(YES);
         });
 
@@ -535,7 +722,7 @@ describe(@"ReportStore", ^{
 //            NSNotification *note = received.notification;
 //
 //            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
 //            expect(received.wasMainThread).to.equal(YES);
         });
 
@@ -560,7 +747,7 @@ describe(@"ReportStore", ^{
 //            NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.green"];
 //            Report *report = [store attemptToImportReportFromResource:url];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusFailed));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusFailed));
 //
 //            expect(report.summary).to.equal(@"Unknown content type");
         });
@@ -576,7 +763,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(store.reports).to.contain(report);
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
 //
 //            expect(report.title).to.equal(report.sourceFile.lastPathComponent);
 //            expect(report.summary).to.equal(@"Importing content...");
@@ -633,7 +820,7 @@ describe(@"ReportStore", ^{
 //            expect(store.reports).to.haveCountOf(1);
 //            expect(store.reports.firstObject).to.beIdenticalTo(notificationReport);
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
 //
 //            notificationReport = nil;
 //            [observer.received removeAllObjects];
@@ -664,7 +851,7 @@ describe(@"ReportStore", ^{
 //            NSNotification *note = obs.received.firstObject.notification;
 //
 //            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
         });
 
         it(@"can retry a failed import after deleting the report", ^{
@@ -681,7 +868,7 @@ describe(@"ReportStore", ^{
 //            NSNotification *note = obs.received.firstObject.notification;
 //
 //            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
 //
 //            [store deleteReport:report];
 //
@@ -695,7 +882,7 @@ describe(@"ReportStore", ^{
 //
 //            assertWithTimeout(1.0, thatEventually(@(retry.isImportFinished)), isTrue());
 //
-//            expect(retry.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(retry.importState).to.equal(ReportImportStatusFailed);
 //            expect(obs.received).to.haveCountOf(2);
 //            expect(obs.received[0].notification.userInfo[@"report"]).to.beIdenticalTo(report);
 //            expect(obs.received[1].notification.userInfo[@"report"]).to.beIdenticalTo(retry);
@@ -730,7 +917,7 @@ describe(@"ReportStore", ^{
 //
 //            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
 //
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
 //            expect(report.sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"ignore.dice_import" isDirectory:YES]);
 //            expect(report.importDir).to.beNil();
 //            expect(report.baseDir).to.beNil();
@@ -866,7 +1053,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(loaded.remoteSource).to.equal(downloadUrl);
 //            expect(loaded.importDir).to.equal(report.importDir);
-//            expect(loaded.importStatus).to.equal(ReportImportStatusDownloading);
+//            expect(loaded.importState).to.equal(ReportImportStatusDownloading);
         });
 
         it(@"creates import dir and record for downloads on completion", ^{
@@ -901,7 +1088,7 @@ describe(@"ReportStore", ^{
 //            expect(loaded.remoteSource).to.equal(downloadUrl);
 //            expect(loaded.importDir).to.equal(report.importDir);
 //            expect(loaded.sourceFile).to.equal(downloadFile);
-//            expect(loaded.importStatus).to.equal(ReportImportStatusNewLocal);
+//            expect(loaded.importState).to.equal(ReportImportStatusNewLocal);
         });
     });
 
@@ -934,7 +1121,7 @@ describe(@"ReportStore", ^{
 //
 //            report = [store attemptToImportReportFromResource:archiveUrl];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusExtracting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusExtracting));
 //
 //            expect(report.sourceFile).to.equal(archiveUrl);
 //            expect(report.importDir).to.equal(importDir);
@@ -974,11 +1161,11 @@ describe(@"ReportStore", ^{
 //
 //            report = [store attemptToImportReportFromResource:archiveUrl];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusExtracting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusExtracting));
 //
 //            expect(createdBaseDir).to.beTruthy();
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
 //
 //            expect(report.baseDir).to.equal(baseDir);
 //
@@ -1010,7 +1197,7 @@ describe(@"ReportStore", ^{
 //            fileManager.onCreateDirectoryAtPath = ^BOOL(NSString *path, BOOL intermediates, NSError **error) {
 //                if ([path isEqualToString:baseDir.path]) {
 //                    // the archive extraction implicitly creates base dir on background thread
-//                    createdArchiveBaseDir = [report.baseDir isEqual:baseDir] && report.importStatus == ReportImportStatusExtracting && !NSThread.isMainThread;
+//                    createdArchiveBaseDir = [report.baseDir isEqual:baseDir] && report.importState == ReportImportStatusExtracting && !NSThread.isMainThread;
 //                }
 //                else {
 //                    createdUnexpectedDir = ![path isEqualToString:importDir.path];
@@ -1027,11 +1214,11 @@ describe(@"ReportStore", ^{
 //
 //            report = [store attemptToImportReportFromResource:archiveUrl];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusExtracting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusExtracting));
 //
 //            expect(report.baseDir).to.equal(baseDir);
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
 //
 //            expect(createdArchiveBaseDir).to.beTruthy();
 //
@@ -1084,7 +1271,7 @@ describe(@"ReportStore", ^{
 //
 //            Report *report = [store attemptToImportReportFromResource:archiveUrl];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
 //
 //            expect(deleteArchive).toNot.beNil();
 //            expect(queuedOnMainThread).to.beTruthy();
@@ -1095,7 +1282,7 @@ describe(@"ReportStore", ^{
 //            assertWithTimeout(1.0, thatEventually(@(deleteArchive.isFinished)), isTrue());
 //
 //            expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.beFalsy();
-//            expect(report.importStatus).to.equal(ReportImportStatusImporting);
+//            expect(report.importState).to.equal(ReportImportStatusImporting);
 //
 //            [blueImport unblock];
 //
@@ -1147,7 +1334,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(extract).toNot.beNil();
 //            expect(extract.wasSuccessful).to.beFalsy();
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
 //            expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.equal(YES);
 //            expect(deleteArchive).to.beNil();
 //            
@@ -1197,7 +1384,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(received.wasMainThread).to.equal(YES);
 //            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importStatus).to.equal(ReportImportStatusExtracting);
+//            expect(report.importState).to.equal(ReportImportStatusExtracting);
 //
 //            [extract unblock];
 //
@@ -1405,7 +1592,7 @@ describe(@"ReportStore", ^{
 //
 //            Report *report = [store attemptToImportReportFromResource:archiveUrl];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusFailed));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusFailed));
 //
 //            expect(extract.isFinished).to.equal(YES);
 //            expect(extract.wasSuccessful).to.equal(NO);
@@ -1458,7 +1645,7 @@ describe(@"ReportStore", ^{
 //            
 //            expect(extract.isFinished).to.equal(YES);
 //            expect(extract.wasSuccessful).to.equal(NO);
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
 //            expect(report.summary).to.equal(@"Failed to extract archive contents");
 //
 //            ReceivedNotification *received = observer.received.lastObject;
@@ -1579,7 +1766,7 @@ describe(@"ReportStore", ^{
             //
             //            assertWithTimeout(1.0, thatEventually(@(failedDownload.isImportFinished)), isTrue());
             //
-            //            expect(failedDownload.importStatus).to.equal(ReportImportStatusFailed);
+            //            expect(failedDownload.importState).to.equal(ReportImportStatusFailed);
             //            expect(store.reports).to.contain(failedDownload);
             //
             //            NSArray<Report *> *loaded = [store loadReports];
@@ -1640,7 +1827,7 @@ describe(@"ReportStore", ^{
 //
 //            Report *report = [store attemptToImportReportFromResource:sourceFile];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
 //
 //            NSString *recordPath = [report.importDir.path stringByAppendingPathComponent:@"dice.obj"];
 //
@@ -1651,7 +1838,7 @@ describe(@"ReportStore", ^{
 //            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
 //
 //            expect([fileManager fileExistsAtPath:recordPath]).to.beTruthy();
-//            expect(report.importStatus).to.equal(ReportImportStatusSuccess);
+//            expect(report.importState).to.equal(ReportImportStatusSuccess);
 //
 //            NSData *record = [fileManager contentsAtPath:recordPath];
 //            NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:record];
@@ -1660,7 +1847,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(fromRecord.baseDir).to.equal(report.baseDir);
 //            expect(fromRecord.importDir).to.equal(report.importDir);
-//            expect(fromRecord.importStatus).to.equal(report.importStatus);
+//            expect(fromRecord.importState).to.equal(report.importState);
 //            expect(fromRecord.isEnabled).to.equal(report.isEnabled);
 //            expect(fromRecord.rootFile).to.equal(report.rootFile);
 //            expect(fromRecord.sourceFile).to.equal(report.sourceFile);
@@ -1680,7 +1867,7 @@ describe(@"ReportStore", ^{
 //
 //            Report *report = [store attemptToImportReportFromResource:sourceFile];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
 //
 //            NSString *recordPath = [report.importDir.path stringByAppendingPathComponent:@"dice.obj"];
 //
@@ -1691,7 +1878,7 @@ describe(@"ReportStore", ^{
 //            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
 //
 //            expect([fileManager fileExistsAtPath:recordPath]).to.beTruthy();
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
 //
 //            NSData *record = [fileManager contentsAtPath:recordPath];
 //            NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:record];
@@ -1700,7 +1887,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(fromRecord.baseDir).to.equal(report.baseDir);
 //            expect(fromRecord.importDir).to.equal(report.importDir);
-//            expect(fromRecord.importStatus).to.equal(report.importStatus);
+//            expect(fromRecord.importState).to.equal(report.importState);
 //            expect(fromRecord.isEnabled).to.equal(report.isEnabled);
 //            expect(fromRecord.rootFile).to.equal(report.rootFile);
 //            expect(fromRecord.sourceFile).to.equal(report.sourceFile);
@@ -1721,7 +1908,7 @@ describe(@"ReportStore", ^{
 //            report.uti = @"dice.test.blue";
 //            report.title = @"Persistence Test";
 //            report.summary = @"Persisted content";
-//            report.importStatus = ReportImportStatusSuccess;
+//            report.importState = ReportImportStatusSuccess;
 //
 //            NSMutableData *record = [NSMutableData data];
 //            NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:record];
@@ -1735,7 +1922,7 @@ describe(@"ReportStore", ^{
 //
 //            Report *restored = [store attemptToImportReportFromResource:report.importDir];
 //
-//            expect(restored.importStatus).to.equal(ReportImportStatusNewLocal);
+//            expect(restored.importState).to.equal(ReportImportStatusNewLocal);
 //            expect(store.reports).to.haveCountOf(1);
 //            expect(store.reports).to.contain(restored);
 //            expect(observer.received).to.haveCountOf(0);
@@ -1751,7 +1938,7 @@ describe(@"ReportStore", ^{
 //            expect(restored.uti).to.equal(report.uti);
 //            expect(restored.title).to.equal(report.title);
 //            expect(restored.summary).to.equal(report.summary);
-//            expect(restored.importStatus).to.equal(ReportImportStatusSuccess);
+//            expect(restored.importState).to.equal(ReportImportStatusSuccess);
 //            expect(observer.received).to.haveCountOf(1);
 //            expect(observer.received.firstObject.wasMainThread).to.beTruthy();
 //            expect(observer.received.firstObject.userInfo[@"report"]).to.beIdenticalTo(restored);
@@ -1765,7 +1952,7 @@ describe(@"ReportStore", ^{
 //            NSURL *downloadUrl = [NSURL URLWithString:@"http://dice.com/test.blue"];
 //            Report *previouslyStartedDownload = [[Report alloc] init];
 //            previouslyStartedDownload.remoteSource = downloadUrl;
-//            previouslyStartedDownload.importStatus = ReportImportStatusDownloading;
+//            previouslyStartedDownload.importState = ReportImportStatusDownloading;
 //            previouslyStartedDownload.importDir = [reportsDir URLByAppendingPathComponent:@"test.dice_import"];
 //
 //            NSMutableData *record = [NSMutableData data];
@@ -1805,7 +1992,7 @@ describe(@"ReportStore", ^{
 //            Report *report = [store attemptToImportReportFromResource:url];
 //
 //            [verify(downloadManager) downloadUrl:url];
-//            expect(report.importStatus).to.equal(ReportImportStatusDownloading);
+//            expect(report.importState).to.equal(ReportImportStatusDownloading);
 //            expect(store.reports).to.contain(report);
         });
 
@@ -1817,7 +2004,7 @@ describe(@"ReportStore", ^{
 //            Report *report = [store attemptToImportReportFromResource:url];
 //
 //            [verify(downloadManager) downloadUrl:url];
-//            expect(report.importStatus).to.equal(ReportImportStatusDownloading);
+//            expect(report.importState).to.equal(ReportImportStatusDownloading);
 //            expect(store.reports).to.contain(report);
         });
 
@@ -1840,7 +2027,7 @@ describe(@"ReportStore", ^{
 //            NSDictionary *userInfo = note.userInfo;
 //
 //            expect(userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importStatus).to.equal(ReportImportStatusDownloading);
+//            expect(report.importState).to.equal(ReportImportStatusDownloading);
         });
 
         it(@"posts download progress notifications", ^{
@@ -1980,7 +2167,7 @@ describe(@"ReportStore", ^{
 //            download.downloadedFile = url;
 //            [store downloadManager:store.downloadManager didFinishDownload:download];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToInteger(ReportImportStatusImporting));
 //
 //            expect(blueImport.report).to.beIdenticalTo(report);
 //
@@ -2015,7 +2202,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(obs.received).to.haveCountOf(1);
 //            expect(obs.received.lastObject.notification.name).to.equal(ReportNotification.reportImportFinished);
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
 //            expect(report.isEnabled).to.beFalsy();
         });
 
@@ -2052,7 +2239,7 @@ describe(@"ReportStore", ^{
 //
 //            assertWithTimeout(1.0, thatEventually(@(blueImport.report.isImportFinished)), isTrue());
 //
-//            expect(report.importStatus).to.equal(ReportImportStatusSuccess);
+//            expect(report.importState).to.equal(ReportImportStatusSuccess);
 //
 //            [NSFileHandle deswizzleAllClassMethods];
         });
@@ -2086,12 +2273,12 @@ describe(@"ReportStore", ^{
 //            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
 //
 //            expect(store.reports).to.contain(report);
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
 //            expect(report.sourceFile).to.equal(downloadedFile);
 //
 //            [store retryImportingReport:report];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusDownloading));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusDownloading));
 //
 //            [verify(downloadManager) downloadUrl:report.remoteSource];
 //            expect([fileManager fileExistsAtPath:downloadedFile.path]).to.beFalsy();
@@ -2106,7 +2293,7 @@ describe(@"ReportStore", ^{
 //
 //            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
 //
-//            expect(report.importStatus).to.equal(ReportImportStatusSuccess);
+//            expect(report.importState).to.equal(ReportImportStatusSuccess);
         });
 
         it(@"can re-download the same url after a download fails", ^{
@@ -2127,18 +2314,18 @@ describe(@"ReportStore", ^{
 //
 //            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
 //
-//            expect(report.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(report.importState).to.equal(ReportImportStatusFailed);
 //            expect(report.title).to.equal(@"Download failed");
 //            expect(report.isEnabled).to.beFalsy();
 //            expect(store.reports).to.contain(report);
 //
 //            [store retryImportingReport:report];
 //
-//            assertWithTimeout(1.0, thatEventually(@(report.importStatus)), equalToUnsignedInteger(ReportImportStatusDownloading));
+//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusDownloading));
 //
 //            [verifyCount(downloadManager, times(2)) downloadUrl:url];
 //
-//            expect(report.importStatus).to.equal(ReportImportStatusDownloading);
+//            expect(report.importState).to.equal(ReportImportStatusDownloading);
 //            expect(report.downloadProgress).to.equal(download.percentComplete);
 //
 //            NSURL *downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
@@ -2157,7 +2344,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(report.isEnabled).to.beTruthy();
 //            expect(report.sourceFile).to.equal(downloadedFile);
-//            expect(report.importStatus).to.equal(ReportImportStatusSuccess);
+//            expect(report.importState).to.equal(ReportImportStatusSuccess);
         });
 
         it(@"does not import downloads finished in the background", ^{
@@ -2191,9 +2378,9 @@ describe(@"ReportStore", ^{
 //            Report *inProgressReport = obs.received[0].notification.userInfo[@"report"];
 //            Report *finishedReport = obs.received[2].notification.userInfo[@"report"];
 //
-//            expect(inProgressReport.importStatus).to.equal(ReportImportStatusDownloading);
+//            expect(inProgressReport.importState).to.equal(ReportImportStatusDownloading);
 //            expect(inProgressReport.remoteSource).to.equal(inProgress.url);
-//            expect(finishedReport.importStatus).to.equal(ReportImportStatusDownloading);
+//            expect(finishedReport.importState).to.equal(ReportImportStatusDownloading);
 //            expect(finishedReport.sourceFile).to.equal(finishedFile);
 //            expect(obs.received[0].notification.userInfo[@"report"]).to.beIdenticalTo(inProgressReport);
 //            expect(obs.received[1].notification.userInfo[@"report"]).to.beIdenticalTo(inProgressReport);
@@ -2207,7 +2394,7 @@ describe(@"ReportStore", ^{
 //
 //            expect(obs.received[3].notification.name).to.equal(ReportNotification.reportDownloadComplete);
 //            expect(obs.received[3].notification.userInfo[@"report"]).to.beIdenticalTo(finishedReport);
-//            expect(finishedReport.importStatus).to.equal(ReportImportStatusNewLocal);
+//            expect(finishedReport.importState).to.equal(ReportImportStatusNewLocal);
 //
 //            assertWithTimeout(1.0, thatEventually(@(finishedReport.isImportFinished)), isTrue());
         });
@@ -2303,8 +2490,8 @@ describe(@"ReportStore", ^{
 //            [store loadReports];
 //
 //            assertWithTimeout(1000.0, thatEventually(@(
-//                blueImport.report.importStatus == ReportImportStatusImporting &&
-//                redImport.report.importStatus == ReportImportStatusImporting)), isTrue());
+//                blueImport.report.importState == ReportImportStatusImporting &&
+//                redImport.report.importState == ReportImportStatusImporting)), isTrue());
 //
 //            [verifyCount(app, times(1)) beginBackgroundTaskWithName:anything() expirationHandler:anything()];
 //            [[verifyCount(app, never()) withMatcher:anything()] endBackgroundTask:0];
@@ -2452,7 +2639,7 @@ describe(@"ReportStore", ^{
 //            expect(deleteFromTrash.queuePriority).to.equal(NSOperationQueuePriorityLow);
 //            expect(deleteFromTrash.qualityOfService).to.equal(NSQualityOfServiceBackground);
 //
-//            assertWithTimeout(1.0, thatEventually(@(singleResourceReport.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
+//            assertWithTimeout(1.0, thatEventually(@(singleResourceReport.importState)), equalToUnsignedInteger(ReportImportStatusDeleted));
         });
 
         it(@"immediately disables the report, sets its summary, status, and sends change notification", ^{
@@ -2468,7 +2655,7 @@ describe(@"ReportStore", ^{
 //            [store deleteReport:singleResourceReport];
 //
 //            expect(singleResourceReport.isEnabled).to.equal(NO);
-//            expect(singleResourceReport.importStatus).to.equal(ReportImportStatusDeleting);
+//            expect(singleResourceReport.importState).to.equal(ReportImportStatusDeleting);
 //            expect(singleResourceReport.statusMessage).to.equal(@"Deleting content...");
 //            expect(observer.received).to.haveCountOf(1);
 //            expect(observer.received.firstObject.notification.userInfo[@"report"]).to.beIdenticalTo(singleResourceReport);
@@ -2500,14 +2687,14 @@ describe(@"ReportStore", ^{
 //
 //            assertWithTimeout(1.0, thatEventually(moveOp), isNot(nilValue()));
 //
-//            expect(singleResourceReport.importStatus).to.equal(ReportImportStatusDeleting);
+//            expect(singleResourceReport.importState).to.equal(ReportImportStatusDeleting);
 //
 //            [moveOp unblock];
 //
 //            assertWithTimeout(1.0, thatEventually(@(moveOp.isFinished)), isTrue());
 //            assertWithTimeout(1.0, thatEventually(store.reports), isNot(hasItem(singleResourceReport)));
 //
-//            expect(singleResourceReport.importStatus).to.equal(ReportImportStatusDeleted);
+//            expect(singleResourceReport.importState).to.equal(ReportImportStatusDeleted);
 //
 //            [deleteOp unblock];
         });
@@ -2518,7 +2705,7 @@ describe(@"ReportStore", ^{
             
 //            [store deleteReport:singleResourceReport];
 //
-//            assertWithTimeout(1.0, thatEventually(@(singleResourceReport.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
+//            assertWithTimeout(1.0, thatEventually(@(singleResourceReport.importState)), equalToUnsignedInteger(ReportImportStatusDeleted));
         });
 
         it(@"creates the trash dir if it does not exist", ^{
@@ -2655,13 +2842,13 @@ describe(@"ReportStore", ^{
 //
 //            Report *importingReport = [store attemptToImportReportFromResource:importingReportUrl];
 //
-//            assertWithTimeout(1.0, thatEventually(@(importingReport.importStatus)), equalToUnsignedInteger(ReportImportStatusImporting));
+//            assertWithTimeout(1.0, thatEventually(@(importingReport.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
 //
-//            expect(importingReport.importStatus).to.equal(ReportImportStatusImporting);
+//            expect(importingReport.importState).to.equal(ReportImportStatusImporting);
 //
 //            [store deleteReport:importingReport];
 //
-//            expect(importingReport.importStatus).to.equal(ReportImportStatusImporting);
+//            expect(importingReport.importState).to.equal(ReportImportStatusImporting);
 //
 //            [process unblock];
 //
@@ -2696,12 +2883,12 @@ describe(@"ReportStore", ^{
 //
 //            assertWithTimeout(1.0, thatEventually(@(failed.isImportFinished)), isTrue());
 //
-//            expect(failed.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(failed.importState).to.equal(ReportImportStatusFailed);
 //            expect(store.reports).to.contain(failed);
 //
 //            [store deleteReport:failed];
 //
-//            assertWithTimeout(1.0, thatEventually(@(failed.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
+//            assertWithTimeout(1.0, thatEventually(@(failed.importState)), equalToUnsignedInteger(ReportImportStatusDeleted));
 //
 //            expect(store.reports).notTo.contain(failed);
         });
@@ -2719,14 +2906,14 @@ describe(@"ReportStore", ^{
 //
 //            assertWithTimeout(1.0, thatEventually(@(doomed.isImportFinished)), isTrue());
 //
-//            expect(doomed.importStatus).to.equal(ReportImportStatusFailed);
+//            expect(doomed.importState).to.equal(ReportImportStatusFailed);
 //            expect(doomed.importDir).toNot.beNil();
 //            expect(store.reports).to.contain(doomed);
 //            expect([fileManager isDirectoryAtUrl:doomed.importDir]).to.beTruthy();
 //
 //            [store deleteReport:doomed];
 //
-//            assertWithTimeout(1.0, thatEventually(@(doomed.importStatus)), equalToUnsignedInteger(ReportImportStatusDeleted));
+//            assertWithTimeout(1.0, thatEventually(@(doomed.importState)), equalToUnsignedInteger(ReportImportStatusDeleted));
 //
 //            expect(store.reports).notTo.contain(doomed);
 //            expect([fileManager isDirectoryAtUrl:doomed.importDir]).to.beFalsy();
