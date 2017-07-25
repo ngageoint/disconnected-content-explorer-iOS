@@ -383,7 +383,7 @@ describe(@"ReportStore", ^{
             Report *cleanupBarrier = [Report MR_createEntityInContext:reportDb];
             cleanupBarrier.sourceFile = cleanupSourceFile;
         }];
-        waitUntilTimeout(1.0, ^(DoneCallback done) {
+        waitUntil(^(DoneCallback done) {
             [reportDb observe:NSManagedObjectContextDidSaveNotification withBlock:^(NSNotification *note) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [reportDb performBlock:^{
@@ -520,7 +520,7 @@ describe(@"ReportStore", ^{
         });
     });
 
-    fdescribe(@"importing stand-alone files from the documents directory", ^{
+    describe(@"importing stand-alone files from the documents directory", ^{
 
         beforeEach(^{
         });
@@ -530,6 +530,7 @@ describe(@"ReportStore", ^{
             NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
             verifyResults.fetchRequest.predicate = [Report predicateForSourceUrl:source];
             [verifyResults performFetch:NULL];
+            [fileManager setWorkingDirChildren:@"report.red", nil];
             [store attemptToImportReportFromResource:source];
 
             assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
@@ -634,10 +635,15 @@ describe(@"ReportStore", ^{
 
             assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusSuccess));
 
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusSuccess));
+
             Report *imported = [importProcess.report MR_inContext:verifyDb];
 
             expect(imported).to.equal(report);
             expect(importProcess.isFinished).to.beTruthy();
+            expect(report.isImportFinished).to.beTruthy();
             expect(report.isEnabled).to.beTruthy();
         });
 
@@ -657,197 +663,79 @@ describe(@"ReportStore", ^{
             Report *report = verifyResults.fetchedObjects.firstObject;
             expect(report).toNot.beNil();
             expect(report.isEnabled).to.beTruthy();
+            expect(report.importState).to.equal(ReportImportStatusSuccess);
+            expect(report.importStateToEnter).to.equal(report.importState);
         });
 
-        it(@"posts a notification when the import begins", ^{
+        it(@"fails if the file does not exist", ^{
 
-            failure(@"todo");
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test.red"];
+            verifyResults.fetchRequest.predicate = [Report predicateForSourceUrl:source];
+            [verifyResults performFetch:NULL];
+            [store attemptToImportReportFromResource:source];
 
-//            [fileManager setWorkingDirChildren:@"report.red", nil];
-//            NotificationRecordingObserver *observer = [NotificationRecordingObserver
-//                observe:ReportNotification.reportImportBegan on:store.notifications from:store withBlock:nil];
-//            [redType enqueueImport];
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            expect(observer.received.count).to.equal(1);
-//
-//            ReceivedNotification *received = observer.received.lastObject;
-//            NSNotification *note = received.notification;
-//
-//            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importState).to.equal(ReportImportStatusSuccess);
-//            expect(received.wasMainThread).to.equal(YES);
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.firstObject;
+
+            expect(report).notTo.beNil();
+            expect(report.importState).to.equal(ReportImportStatusNew);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusFailed));
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(report.importState).to.equal(ReportImportStatusFailed);
+            expect(report.isEnabled).to.beFalsy();
+            expect(report.statusMessage).to.equal(@"Import failed");
+            expect(report.summary).to.equal(@"File test.red does not exist");
         });
 
-        it(@"posts a notification when the import finishes successfully", ^{
+        it(@"fails if there is no applicable report type", ^{
 
-            failure(@"todo");
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"unknown.green"];
+            verifyResults.fetchRequest.predicate = [Report predicateForSourceUrl:source];
+            [verifyResults performFetch:NULL];
+            [fileManager setWorkingDirChildren:@"unknown.green", nil];
+            [store attemptToImportReportFromResource:source];
 
-//            [fileManager setWorkingDirChildren:@"report.red", nil];
-//            NotificationRecordingObserver *observer = [NotificationRecordingObserver
-//                observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
-//            [redType enqueueImport];
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            ReceivedNotification *received = observer.received.lastObject;
-//            NSNotification *note = received.notification;
-//
-//            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importState).to.equal(ReportImportStatusSuccess);
-//            expect(received.wasMainThread).to.equal(YES);
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.firstObject;
+
+            expect(report).notTo.beNil();
+            expect(report.importState).to.equal(ReportImportStatusNew);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusInspectingContent));
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusFailed));
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(report.importState).to.equal(ReportImportStatusFailed);
+            expect(report.isEnabled).to.beFalsy();
+            expect(report.statusMessage).to.equal(@"Import failed");
+            expect(report.summary).to.equal(@"No supported content found");
         });
 
-        it(@"posts a notification when the import finishes unsuccessfully", ^{
-
+        it(@"fails if the source file was not moved", ^{
             failure(@"todo");
-
-//            [fileManager setWorkingDirChildren:@"report.red", nil];
-//            NotificationRecordingObserver *observer = [NotificationRecordingObserver
-//                observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
-//            TestImportProcess *redImport = [redType enqueueImport];
-//            [redImport.steps.firstObject cancel];
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            ReceivedNotification *received = observer.received.lastObject;
-//            NSNotification *note = received.notification;
-//
-//            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importState).to.equal(ReportImportStatusFailed);
-//            expect(received.wasMainThread).to.equal(YES);
         });
 
-        it(@"returns a report even if the url cannot be imported", ^{
-
+        it(@"does not start a new import for a file already importing", ^{
             failure(@"todo");
-
-//            [fileManager setWorkingDirChildren:@"report.green", nil];
-//            NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.green"];
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            expect(report).notTo.beNil();
-//            expect(report.sourceFile).to.equal(url);
-//            expect(store.reports).to.contain(report);
-        });
-
-        it(@"assigns an error message if the report type was unknown", ^{
-
-            failure(@"todo");
-
-//            [fileManager setWorkingDirChildren:@"report.green", nil];
-//            NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.green"];
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusFailed));
-//
-//            expect(report.summary).to.equal(@"Unknown content type");
-        });
-
-        it(@"immediately adds the report to the report list", ^{
-
-            failure(@"todo");
-
-//            [fileManager setWorkingDirChildren:@"report.red", nil];
-//            TestImportProcess *import = [[redType enqueueImport] block];
-//            NSURL *url = [reportsDir URLByAppendingPathComponent:@"report.red"];
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            expect(store.reports).to.contain(report);
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
-//
-//            expect(report.title).to.equal(report.sourceFile.lastPathComponent);
-//            expect(report.summary).to.equal(@"Importing content...");
-//            expect(report.isEnabled).to.equal(NO);
-//            
-//            [import unblock];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            expect(store.reports).to.contain(report);
-        });
-
-        it(@"sends a notification serially about adding the report", ^{
-
-            failure(@"todo");
-
-//            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportAdded on:notifications from:store withBlock:nil];
-//
-//            TestImportProcess *importProcess = [[redType enqueueImport] block];
-//
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report1.red"]];
-//
-//            expect(observer.received.count).to.equal(1);
-//
-//            ReceivedNotification *received = observer.received.firstObject;
-//            Report *receivedReport = received.notification.userInfo[@"report"];
-//            expect(received.notification.name).to.equal(ReportNotification.reportAdded);
-//            expect(receivedReport).to.beIdenticalTo(report);
-//
-//            [importProcess unblock];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            [notifications removeObserver:observer];
-        });
-
-        it(@"does not start an import for a report file already importing", ^{
-
-            failure(@"todo");
-
-//            [fileManager setWorkingDirChildren:@"report1.red", nil];
-//            TestImportProcess *import = [[redType enqueueImport] block];
-//            NotificationRecordingObserver *observer = [NotificationRecordingObserver
-//                observe:ReportNotification.reportAdded on:notifications from:store withBlock:nil];
-//            NSURL *reportUrl = [reportsDir URLByAppendingPathComponent:@"report1.red"];
-//            Report *report = [store attemptToImportReportFromResource:reportUrl];
-//            Report *reportAgain = [store attemptToImportReportFromResource:reportUrl];
-//
-//            expect(store.reports).to.haveCountOf(1);
-//            expect(reportAgain).to.beIdenticalTo(report);
-//            expect(observer.received).to.haveCountOf(1);
-//            Report *notificationReport = observer.received.firstObject.notification.userInfo[@"report"];
-//            expect(notificationReport).to.beIdenticalTo(report);
-//            expect(store.reports).to.haveCountOf(1);
-//            expect(store.reports.firstObject).to.beIdenticalTo(notificationReport);
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
-//
-//            notificationReport = nil;
-//            [observer.received removeAllObjects];
-//
-//            Report *sameReport = [store attemptToImportReportFromResource:reportUrl];
-//
-//            [import unblock];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
-//
-//            expect(sameReport).to.beIdenticalTo(report);
-//            expect(store.reports).to.haveCountOf(1);
-//            expect(observer.received).to.haveCountOf(0);
-//
-//            [notifications removeObserver:observer];
-        });
-
-        it(@"posts a failure notification if no report type matches the content", ^{
-
-            failure(@"todo");
-
-//            [fileManager setWorkingDirChildren:@"oops.der", nil];
-//            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"oops.der"]];
-//
-//            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(1));
-//
-//            NSNotification *note = obs.received.firstObject.notification;
-//
-//            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importState).to.equal(ReportImportStatusFailed);
         });
 
         it(@"can retry a failed import after deleting the report", ^{
@@ -1809,6 +1697,17 @@ describe(@"ReportStore", ^{
             //            assertWithTimeout(1.0, thatEventually(observer.received), hasCountOf(1));
         });
         
+    });
+
+    describe(@"autonomous operation", ^{
+
+        it(@"advances when a statec change occurs", ^{
+            failure(@"todo");
+        });
+
+        it(@"does not advance if a save occurs without changing import state", ^{
+            failure(@"todo");
+        });
     });
 
     describe(@"persistence", ^{
