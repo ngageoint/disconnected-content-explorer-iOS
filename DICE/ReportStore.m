@@ -379,7 +379,6 @@ ReportStore *_sharedInstance;
 
     SEL transitionSel = NULL;
     if (enteringState ==  ReportImportStatusNew) {
-        _transientImportContext[report.objectID] = [[ReportImportContext alloc] init];
         transitionSel = @selector(enterInspectingNewReport:);
     }
     else if (enteringState == ReportImportStatusInspectingSourceFile) {
@@ -403,12 +402,11 @@ ReportStore *_sharedInstance;
     else if (enteringState == ReportImportStatusDigesting) {
         transitionSel = @selector(enterDigestingContentOfReport:);
     }
-    else if (report.isImportFinished) {
-        [_transientImportContext removeObjectForKey:report.objectID];
-        return;
+    else if (enteringState == ReportImportStatusSuccess || enteringState == ReportImportStatusFailed) {
+        transitionSel = @selector(enterFinishedStateOfReport:);
     }
     else {
-        [NSException raise:NSInternalInconsistencyException format:@"erroneous transition to unknown state %d for report\n%@", enteringState, report];
+        [NSException raise:NSInternalInconsistencyException format:@"erroneous transition to unknown state %d:\n%@", enteringState, report];
     }
 
     if (transitionSel == NULL) {
@@ -436,7 +434,8 @@ ReportStore *_sharedInstance;
     else {
         [NSException raise:NSInternalInconsistencyException format:@"report has no source url:\n%@", report];
     }
-
+    
+    _transientImportContext[report.objectID] = [[ReportImportContext alloc] init];
     [self saveReport:report enteringState:next];
 }
 
@@ -450,6 +449,13 @@ ReportStore *_sharedInstance;
             }];
         }
     });
+
+    if (![self.fileManager fileExistsAtPath:report.sourceFile.path]) {
+        report.statusMessage = @"Import failed";
+        report.summary = [NSString stringWithFormat:@"File %@ does not exist", report.sourceFile.lastPathComponent];
+        [self saveReport:report enteringState:ReportImportStatusFailed];
+        return;
+    }
 
     report.statusMessage = @"Inspecting new content";
     report.title = report.sourceFile.lastPathComponent;
@@ -590,6 +596,13 @@ ReportStore *_sharedInstance;
     });
 }
 
+- (void)enterFinishedStateOfReport:(Report *)report
+{
+    [_transientImportContext removeObjectForKey:report.objectID];
+    report.isEnabled = report.importStateToEnter == ReportImportStatusSuccess;
+    [self saveReport:report enteringState:report.importState];
+}
+
 #pragma mark - private methods
 
 - (void)reportDbWillSave:(NSNotification *)note
@@ -600,16 +613,17 @@ ReportStore *_sharedInstance;
     }
     else if (self.reportDb.updatedObjects.count) {
         [self.reportDb.updatedObjects enumerateObjectsUsingBlock:^(__kindof Report * _Nonnull report, BOOL * _Nonnull stop) {
-            if (report.changedValues[@"importStateToEnter"] != [report primitiveValueForKey:@"importState"]) {
+            if (![report.changedValues[@"importStateToEnter"] isEqualToValue:@(report.importState)]) {
                 *stop = advance = YES;
             }
         }];
     }
-    if (advance){
+    if (advance) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self advancePendingImports];
         });
     }
+    vlog(@"no import state changes require advancing");
 }
 
 - (nullable Report *)reportForUrl:(NSURL *)pathUrl
@@ -725,7 +739,8 @@ ReportStore *_sharedInstance;
 {
     [self.reportDb performBlock:^{
         vlog(@"no report type found for report %@", report.sourceFile);
-        report.statusMessage = @"Unknown content type";
+        report.statusMessage = @"Import failed";
+        report.summary = @"No supported content found";
         [self saveReport:report enteringState:ReportImportStatusFailed];
     }];
 }
@@ -784,24 +799,22 @@ ReportStore *_sharedInstance;
         vlog(@"import did finish for report %@", importProcess.report);
         NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:importProcess.report];
         Report *report = importProcess.report;
+        ReportImportStatus finishState;
         if (importProcess.wasSuccessful) {
             if (descriptor) {
                 [report setPropertiesFromJsonDescriptor:descriptor];
             }
             // TODO: check rootFile uti
-            vlog(@"enabling report %@", report);
-            report.isEnabled = YES;
-            report.importState = ReportImportStatusSuccess;
             report.statusMessage = @"Import complete";
+            finishState = ReportImportStatusSuccess;
         }
         else {
             vlog(@"disabling report %@ after unsuccessful import", report);
-            report.isEnabled = NO;
-            report.importState = ReportImportStatusFailed;
             report.statusMessage = @"Failed to import content";
+            finishState = ReportImportStatusFailed;
         }
         [self clearPendingImport:importProcess];
-        [self saveReport:report enteringState:report.importState];
+        [self saveReport:report enteringState:finishState];
     }];
 }
 
