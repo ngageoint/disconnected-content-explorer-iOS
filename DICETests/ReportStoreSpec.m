@@ -413,6 +413,7 @@ describe(@"ReportStore", ^{
         it(@"transitions when next state does not equal current state", ^{
 
             NSURL *source = [reportsDir URLByAppendingPathComponent:@"test.red"];
+            [fileManager setWorkingDirChildren:@"test.red", nil];
             Report *report = [Report MR_createEntityInContext:verifyDb];
             report.sourceFile = source;
             report.importState = ReportImportStatusNew;
@@ -731,11 +732,73 @@ describe(@"ReportStore", ^{
         });
 
         it(@"fails if the source file was not moved", ^{
-            failure(@"todo");
+
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test.red" isDirectory:NO];
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.uti = UTI_RED;
+            report.reportTypeId = redType.reportTypeId;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"test.red.dice_import" isDirectory:YES];
+            report.importState = ReportImportStatusInspectingContent;
+            report.importStateToEnter = ReportImportStatusMovingContent;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            [fileManager setWorkingDirChildren:@"test.red", @"test.red.dice_import/", nil];
+            fileManager.onMoveItemAtPath = ^BOOL(NSString * _Nonnull sourcePath, NSString * _Nonnull destPath, NSError *__autoreleasing  _Nullable * _Nullable error) {
+                *error = [NSError errorWithDomain:@"dice.test" code:357 userInfo:@{NSLocalizedDescriptionKey: @"doomed to failure"}];
+                return NO;
+            };
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusFailed));
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+
+            expect(report.importState).to.equal(ReportImportStatusFailed);
+            expect(report.isEnabled).to.beFalsy();
+            expect(report.statusMessage).to.equal(@"Import failed");
+            expect(report.summary).to.equal(@"Error moving content to import directory: doomed to failure");
         });
 
         it(@"does not start a new import for a file already importing", ^{
-            failure(@"todo");
+
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test.red"];
+            [verifyResults performFetch:NULL];
+            [fileManager setWorkingDirChildren:@"test.red", nil];
+            [store attemptToImportReportFromResource:source];
+
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.firstObject;
+
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
+
+            [store attemptToImportReportFromResource:source];
+            [store advancePendingImports];
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(1);
+            expect(verifyResults.fetchedObjects.firstObject).to.equal(report);
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusInspectingContent));
+
+            [store advancePendingImports];
+            [store attemptToImportReportFromResource:source];
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusMovingContent));
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(1);
+            expect(verifyResults.fetchedObjects.firstObject).to.equal(report);
+        });
+
+        it(@"does not start a new import for a file already imported", ^{
+            failure(@"todo: if file is already imported and source file exists, prompt to overwrite or import as new");
         });
 
         it(@"can retry a failed import after deleting the report", ^{

@@ -565,9 +565,10 @@ ReportStore *_sharedInstance;
         }
         else {
             vlog(@"error moving report source file to import dir of report %@: %@", report, mv.error);
-            report.statusMessage = [NSString stringWithFormat:
-                @"Error moving source file %@ to import directory: %@",
-                report.sourceFile.lastPathComponent, mv.error.localizedDescription];
+            report.statusMessage = @"Import failed";
+            report.summary = [NSString stringWithFormat:
+                @"Error moving content to import directory: %@",
+                mv.error.localizedDescription];
             [self saveReport:report enteringState:ReportImportStatusFailed];
         }
     };
