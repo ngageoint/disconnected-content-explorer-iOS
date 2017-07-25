@@ -641,28 +641,16 @@ describe(@"ReportStore", ^{
             expect(report.isEnabled).to.beTruthy();
         });
 
-        it(@"imports a report with the capable report type", ^{
+        it(@"imports a report successfully end to end", ^{
 
-            NSURL *sourceUrl = [reportsDir URLByAppendingPathComponent:@"report.red"];
-            id<NSFetchedResultsControllerDelegate> verify = mockProtocol(@protocol(NSFetchedResultsControllerDelegate));
-            verifyResults.delegate = verify;
-            verifyResults.fetchRequest.predicate = [sourceUrlIsFinished predicateWithSubstitutionVariables:@{@"url": sourceUrl}];
-            [givenVoid([verify controllerDidChangeContent:verifyResults]) willDo:^id _Nonnull(NSInvocation * _Nonnull invoc) {
-                return nil;
-            }];
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red"];
+            verifyResults.fetchRequest.predicate = [sourceUrlIsFinished predicateWithSubstitutionVariables:@{@"url": source}];
             [verifyResults performFetch:NULL];
 
+            [store resumePendingImports];
             [fileManager setWorkingDirChildren:@"report.red", nil];
-            TestImportProcess *redImport = [redType enqueueImport];
+            [redType enqueueImport];
             [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"report.red"]];
-
-            assertWithTimeout(1.0, thatEventually(@(redImport.isFinished)), isTrue());
-
-            [reportDb performBlockAndWait:^{
-                Report *report = redImport.report;
-                expect(report).toNot.beNil();
-                expect(report.isEnabled).to.beTruthy();
-            }];
 
             assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
 

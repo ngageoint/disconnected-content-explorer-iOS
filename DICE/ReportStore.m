@@ -184,7 +184,7 @@ ReportStore *_sharedInstance;
     _importBackgroundTaskId = UIBackgroundTaskInvalid;
     _trashDir = [_reportsDir URLByAppendingPathComponent:@"dice.trash" isDirectory:YES];
     _pendingImportPredicate = [NSPredicate predicateWithFormat:
-        @"NOT(importState IN %@)",
+        @"NOT(importState IN %@) AND importState != importStateToEnter",
         @[@(ReportImportStatusSuccess), @(ReportImportStatusFailed)]];
     _readyForShutdownPredicate = [NSPredicate predicateWithFormat:
         @"NOT(importState IN %@)",
@@ -341,7 +341,11 @@ ReportStore *_sharedInstance;
 
 - (void)resumePendingImports
 {
-
+    [NSNotificationCenter.defaultCenter addObserver:self
+        selector:@selector(reportDbWillSave:)
+        name:NSManagedObjectContextWillSaveNotification
+        object:self.reportDb];
+    [self advancePendingImports];
 }
 
 - (void)suspendPendingImports
@@ -585,6 +589,26 @@ ReportStore *_sharedInstance;
 
 #pragma mark - private methods
 
+- (void)reportDbWillSave:(NSNotification *)note
+{
+    __block BOOL advance = NO;
+    if (self.reportDb.insertedObjects.count) {
+        advance = YES;
+    }
+    else if (self.reportDb.updatedObjects.count) {
+        [self.reportDb.updatedObjects enumerateObjectsUsingBlock:^(__kindof Report * _Nonnull report, BOOL * _Nonnull stop) {
+            if (report.changedValues[@"importStateToEnter"] != [report primitiveValueForKey:@"importState"]) {
+                *stop = advance = YES;
+            }
+        }];
+    }
+    if (advance){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self advancePendingImports];
+        });
+    }
+}
+
 - (nullable Report *)reportForUrl:(NSURL *)pathUrl
 {
     NSFetchRequest *urlQuery = [Report fetchRequest];
@@ -764,16 +788,17 @@ ReportStore *_sharedInstance;
             // TODO: check rootFile uti
             vlog(@"enabling report %@", report);
             report.isEnabled = YES;
+            report.importState = ReportImportStatusSuccess;
             report.statusMessage = @"Import complete";
-            [self saveReport:report enteringState:ReportImportStatusSuccess];
         }
         else {
             vlog(@"disabling report %@ after unsuccessful import", report);
             report.isEnabled = NO;
+            report.importState = ReportImportStatusFailed;
             report.statusMessage = @"Failed to import content";
-            [self saveReport:report enteringState:ReportImportStatusFailed];
         }
         [self clearPendingImport:importProcess];
+        [self saveReport:report enteringState:report.importState];
     }];
 }
 
@@ -995,6 +1020,9 @@ ReportStore *_sharedInstance;
     dispatch_sync(_sync, ^{
         __block NSError *error;
         __block NSUInteger pendingReportCount;
+        if (_pendingImports.count > 0) {
+            return;
+        }
         [self.reportDb performBlockAndWait:^{
             pendingReportCount = [self.reportDb countForFetchRequest:fetchPendingReports error:&error];
         }];
@@ -1005,9 +1033,7 @@ ReportStore *_sharedInstance;
         if (pendingReportCount) {
             return;
         }
-        if (_pendingImports.count == 0) {
-            [self endBackgroundTask];
-        }
+        [self endBackgroundTask];
     });
 }
 
@@ -1015,8 +1041,8 @@ ReportStore *_sharedInstance;
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
-            [NSException raise:NSInternalInconsistencyException
-                format:@"multiple attempts to end the background task - no pending imports remain but background task id is invalid"];
+            vlog(@"no active background task to end");
+            return;
         }
         vlog(@"ending background task %lu", (unsigned long) _importBackgroundTaskId);
         [self.application endBackgroundTask:_importBackgroundTaskId];
