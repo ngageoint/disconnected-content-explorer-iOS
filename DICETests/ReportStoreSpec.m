@@ -659,69 +659,6 @@ describe(@"ReportStore", ^{
             expect(report.isEnabled).to.beTruthy();
         });
 
-        it(@"moves source file to base dir in import dir before importing", ^{
-
-            failure(@"todo");
-
-//            NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"report.red"];
-//            NSURL *importDir = [reportsDir URLByAppendingPathComponent:@"report.red.dice_import" isDirectory:YES];
-//            NSURL *baseDir = [importDir URLByAppendingPathComponent:@"dice_content" isDirectory:YES];
-//            NSURL *rootFile = [baseDir URLByAppendingPathComponent:sourceFile.lastPathComponent];
-//
-//            __block atomic_bool assignedToReportBeforeCreated; atomic_init(&assignedToReportBeforeCreated, NO);
-//            __block atomic_bool createdImportDirOnMainThread; atomic_init(&createdImportDirOnMainThread, NO);
-//            __block atomic_bool sourceFileMoved; atomic_init(&sourceFileMoved, NO);
-//            __block atomic_bool movedOnBackgroundThread; atomic_init(&movedOnBackgroundThread, NO);
-//            __block atomic_bool movedBeforeImport; atomic_init(&movedBeforeImport, NO);
-//
-//            __block Report *report;
-//
-//            fileManager.onCreateDirectoryAtPath = ^BOOL(NSString *path, BOOL createIntermediates, NSError **err) {
-//                if ([path isEqualToString:importDir.path]) {
-//                    atomic_store((atomic_bool *)&createdImportDirOnMainThread, NSThread.isMainThread);
-//                }
-//                else if ([path isEqualToString:baseDir.path]) {
-//                    BOOL val = [report.baseDir.path isEqualToString:path] && [report.rootFile isEqual:rootFile] && createIntermediates;
-//                    atomic_store((atomic_bool *)&assignedToReportBeforeCreated, val);
-//                }
-//                return YES;
-//            };
-//            fileManager.onMoveItemAtPath = ^BOOL(NSString *sourcePath, NSString *destPath, NSError *__autoreleasing *error) {
-//                if ([sourcePath isEqualToString:sourceFile.path] && [destPath isEqualToString:rootFile.path]) {
-//                    atomic_store((atomic_bool *)&sourceFileMoved, [report.rootFile isEqual:rootFile]);
-//                    atomic_store((atomic_bool *)&movedOnBackgroundThread, !NSThread.isMainThread);
-//                }
-//                return YES;
-//            };
-//            TestImportProcess *importProcess = [[redType enqueueImport] block];
-//            importQueue.onAddOperation = ^(NSOperation *op) {
-//                if (op == importProcess.steps.firstObject) {
-//                    atomic_store((atomic_bool *)&movedBeforeImport, (_Bool)sourceFileMoved);
-//                }
-//            };
-//
-//            [fileManager setWorkingDirChildren:sourceFile.lastPathComponent, nil];
-//            report = [store attemptToImportReportFromResource:sourceFile];
-//
-//            expect(report.sourceFile).to.equal(sourceFile);
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
-//
-//            expect(atomic_load((atomic_bool *)&sourceFileMoved)).to.beTruthy();
-//
-//            [importProcess unblock];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            expect(report.sourceFile).to.equal(sourceFile);
-//            expect(report.importDir).to.equal(importDir);
-//            expect(report.baseDir).to.equal(baseDir);
-//            expect(report.rootFile).to.equal(rootFile);
-//            expect(atomic_load((atomic_bool *)&assignedToReportBeforeCreated)).to.beTruthy();
-//            expect(atomic_load((atomic_bool *)&movedBeforeImport)).to.beTruthy();
-//            expect(atomic_load((atomic_bool *)&movedOnBackgroundThread)).to.beTruthy();
-        });
-
         it(@"posts a notification when the import begins", ^{
 
             failure(@"todo");
