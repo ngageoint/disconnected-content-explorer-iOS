@@ -279,7 +279,7 @@ ReportStore *_sharedInstance;
     [self.reportDb performBlock:^{
         Report *report = [Report MR_createEntityInContext:self.reportDb];
         [self initializeReport:report forSourceUrl:reportUrl];
-        [self beginInspectingNewReport:report];
+        [self enterInspectingNewReport:report];
     }];
 }
 
@@ -334,13 +334,16 @@ ReportStore *_sharedInstance;
             vlog(@"error fetching pending reports: %@", error);
         }
         for (Report *report in reports) {
-            [self beginNextStateForReport:report];
+            [self enterNextStateForReport:report];
         }
     }];
 }
 
 - (void)resumePendingImports
 {
+    [NSNotificationCenter.defaultCenter removeObserver:self
+        name:NSManagedObjectContextWillSaveNotification
+        object:self.reportDb];
     [NSNotificationCenter.defaultCenter addObserver:self
         selector:@selector(reportDbWillSave:)
         name:NSManagedObjectContextWillSaveNotification
@@ -365,40 +368,40 @@ ReportStore *_sharedInstance;
     }
 }
 
-- (void)beginNextStateForReport:(Report *)report
+- (void)enterNextStateForReport:(Report *)report
 {
     ReportImportStatus leavingState = report.importState;
     ReportImportStatus enteringState = report.importStateToEnter;
 
     if (leavingState == enteringState) {
-        return;
+        [NSException raise:NSInternalInconsistencyException format:@"entering state from same leaving state %d:\n%@", leavingState, report];
     }
 
     SEL transitionSel = NULL;
     if (enteringState ==  ReportImportStatusNew) {
         _transientImportContext[report.objectID] = [[ReportImportContext alloc] init];
-        transitionSel = @selector(beginInspectingNewReport:);
+        transitionSel = @selector(enterInspectingNewReport:);
     }
     else if (enteringState == ReportImportStatusInspectingSourceFile) {
-        transitionSel = @selector(beginInspectingSourceFileForReport:);
+        transitionSel = @selector(enterInspectingSourceFileForReport:);
     }
     else if (enteringState == ReportImportStatusDownloading) {
-        transitionSel = @selector(beginDownloadingRemoteSourceOfReport:);
+        transitionSel = @selector(enterDownloadingRemoteSourceOfReport:);
     }
     else if (enteringState == ReportImportStatusInspectingContent) {
-        transitionSel = @selector(beginInspectingSourceFileContentOfReport:);
+        transitionSel = @selector(enterInspectingSourceFileContentOfReport:);
     }
     else if (enteringState == ReportImportStatusInspectingArchive) {
-        transitionSel = @selector(beginInspectingSourceFileArchiveOfReport:);
+        transitionSel = @selector(enterInspectingSourceFileArchiveOfReport:);
     }
     else if (enteringState == ReportImportStatusExtractingContent) {
-        transitionSel = @selector(beginExtractingSourceFileArchiveOfReport:);
+        transitionSel = @selector(enterExtractingSourceFileArchiveOfReport:);
     }
     else if (enteringState == ReportImportStatusMovingContent) {
-        transitionSel = @selector(beginMovingSourceFileContentOfReport:);
+        transitionSel = @selector(enterMovingSourceFileContentOfReport:);
     }
     else if (enteringState == ReportImportStatusDigesting) {
-        transitionSel = @selector(beginDigestingContentOfReport:);
+        transitionSel = @selector(enterDigestingContentOfReport:);
     }
     else if (report.isImportFinished) {
         [_transientImportContext removeObjectForKey:report.objectID];
@@ -421,7 +424,7 @@ ReportStore *_sharedInstance;
     }];
 }
 
-- (void)beginInspectingNewReport:(Report *)report
+- (void)enterInspectingNewReport:(Report *)report
 {
     ReportImportStatus next;
     if (report.sourceFile) {
@@ -437,7 +440,7 @@ ReportStore *_sharedInstance;
     [self saveReport:report enteringState:next];
 }
 
-- (void)beginInspectingSourceFileForReport:(Report *)report
+- (void)enterInspectingSourceFileForReport:(Report *)report
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         // TODO: identify the task name for the report, or just use one task for all pending imports?
@@ -473,7 +476,7 @@ ReportStore *_sharedInstance;
     [self saveReport:report enteringState:next];
 }
 
-- (void)beginDownloadingRemoteSourceOfReport:(Report *)report
+- (void)enterDownloadingRemoteSourceOfReport:(Report *)report
 {
     report.title = @"Downloading...";
     report.statusMessage = [NSString stringWithFormat:@"downloading %@", report.remoteSourceUrl];
@@ -481,7 +484,7 @@ ReportStore *_sharedInstance;
     [self.downloadManager downloadUrl:report.remoteSource];
 }
 
-- (void)beginInspectingSourceFileArchiveOfReport:(Report *)report
+- (void)enterInspectingSourceFileArchiveOfReport:(Report *)report
 {
     // get zip file listing on background thread
     // find appropriate report type for archive contents
@@ -497,7 +500,7 @@ ReportStore *_sharedInstance;
     [self.importQueue addOperation:op];
 }
 
-- (void)beginInspectingSourceFileContentOfReport:(Report *)report
+- (void)enterInspectingSourceFileContentOfReport:(Report *)report
 {
     // TODO: incorporate report uti here as well
     MatchReportTypeToContentAtPathOperation *op =
@@ -509,7 +512,7 @@ ReportStore *_sharedInstance;
     [self.importQueue addOperation:op];
 }
 
-- (void)beginExtractingSourceFileArchiveOfReport:(Report *)report
+- (void)enterExtractingSourceFileArchiveOfReport:(Report *)report
 {
     id<ReportType> type = [self reportTypeForId:report.reportTypeId];
     ReportImportContext *importContext = _transientImportContext[report.objectID];
@@ -534,7 +537,7 @@ ReportStore *_sharedInstance;
     [self.importQueue addOperation:extract];
 }
 
-- (void)beginMovingSourceFileContentOfReport:(Report *)report
+- (void)enterMovingSourceFileContentOfReport:(Report *)report
 {
     MoveFileOperation *mv = [[[MoveFileOperation alloc]
         initWithSourceUrl:report.sourceFile destUrl:nil fileManager:self.fileManager] createDestDirs:YES];
@@ -569,7 +572,7 @@ ReportStore *_sharedInstance;
     [self.importQueue addOperation:mv];
 }
 
-- (void)beginDigestingContentOfReport:(Report *)report
+- (void)enterDigestingContentOfReport:(Report *)report
 {
     vlog(@"creating import process for report %@", report);
     id<ReportType> type = [self reportTypeForId:report.reportTypeId];
@@ -577,7 +580,7 @@ ReportStore *_sharedInstance;
     ImportProcess *importProcess = [type createProcessToImportReport:report];
     // TODO: check nil importProcess
     importProcess.delegate = self;
-    report.statusMessage = @"Proccessing content...";
+    report.statusMessage = @"Digesting content...";
     [self saveReport:report enteringState:report.importState];
     vlog(@"queuing import process for report %@", report);
     dispatch_async(_sync, ^{
@@ -872,7 +875,7 @@ ReportStore *_sharedInstance;
     }
 
     // TODO: fail on null or dynamic uti?
-    [self beginInspectingSourceFileForReport:report];
+    [self enterInspectingSourceFileForReport:report];
 }
 
 /**
