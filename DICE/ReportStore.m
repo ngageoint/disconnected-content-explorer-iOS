@@ -805,6 +805,12 @@ ReportStore *_sharedInstance;
             if (descriptor) {
                 [report setPropertiesFromJsonDescriptor:descriptor];
             }
+            if (report.rootFile && !report.uti) {
+                CFStringRef uti = [self.utiExpert probableUtiForResource:report.rootFile conformingToUti:NULL];
+                if (![self.utiExpert isDynamicUti:uti]) {
+                    report.uti = (__bridge NSString *)uti;
+                }
+            }
             // TODO: check rootFile uti
             report.statusMessage = @"Import complete";
             finishState = ReportImportStatusSuccess;

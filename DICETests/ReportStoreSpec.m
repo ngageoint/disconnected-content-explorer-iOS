@@ -143,7 +143,13 @@ static void *kObservers = &kObservers;
 
 - (void)waitForQueueToDrain
 {
-    [self performBlockAndWait:^{}];
+    waitUntil(^(DoneCallback done) {
+        [self performBlock:^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                done();
+            });
+        }];
+    });
 }
 
 @end
@@ -463,6 +469,7 @@ describe(@"ReportStore", ^{
 
             Report *report = verifyResults.fetchedObjects.lastObject;
 
+            expect(report.title).to.equal(source.lastPathComponent);
             expect(report.importState).to.equal(ReportImportStatusNew);
             expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
         });
@@ -501,30 +508,9 @@ describe(@"ReportStore", ^{
 
             assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToInt(ReportImportStatusInspectingSourceFile));
         });
-
-        it(@"has a uti when inspecting source file completes", ^{
-
-            [verifyResults performFetch:NULL];
-            NSURL *source = [reportsDir URLByAppendingPathComponent:@"report.red" isDirectory:NO];
-            [fileManager setWorkingDirChildren:@"report.red", nil];
-
-            Report *report = [Report MR_createEntityInContext:verifyDb];
-            report.importState = ReportImportStatusNew;
-            report.importStateToEnter = ReportImportStatusInspectingSourceFile;
-            report.sourceFile = source;
-            [verifyDb MR_saveToPersistentStoreAndWait];
-            [store advancePendingImports];
-
-            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusInspectingSourceFile));
-
-            expect(report.uti).to.equal(UTI_RED);
-        });
     });
 
     describe(@"importing stand-alone files from the documents directory", ^{
-
-        beforeEach(^{
-        });
 
         it(@"transitions from inspecting source file to inspecting content", ^{
 
@@ -538,12 +524,16 @@ describe(@"ReportStore", ^{
 
             Report *report = verifyResults.fetchedObjects.firstObject;
 
+            expect(report.sourceFile).to.equal(source);
             expect(report.importState).to.equal(ReportImportStatusNew);
             expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
 
             [store advancePendingImports];
 
             assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusInspectingContent));
+
+            expect(report.importState).to.equal(ReportImportStatusInspectingSourceFile);
+            expect(report.uti).to.equal(UTI_RED);
         });
 
         it(@"transitions from inspecting content to moving content", ^{
@@ -606,6 +596,7 @@ describe(@"ReportStore", ^{
             expect(report.importState).to.equal(ReportImportStatusMovingContent);
             expect(report.importStateToEnter).to.equal(ReportImportStatusDigesting);
             expect(report.baseDirName).toNot.beNil();
+            expect(report.rootFilePath).to.equal(@"report.red");
             expect([fileManager isDirectoryAtUrl:report.baseDir]).to.beTruthy();
             expect([fileManager isRegularFileAtUrl:report.rootFile]).to.beTruthy();
             expect(movedSourceFileTo).to.equal(report.rootFile.path);
@@ -666,6 +657,7 @@ describe(@"ReportStore", ^{
             expect(report.isEnabled).to.beTruthy();
             expect(report.importState).to.equal(ReportImportStatusSuccess);
             expect(report.importStateToEnter).to.equal(report.importState);
+            expect(report.rootFilePath).to.equal(@"report.red");
         });
 
         it(@"fails if the file does not exist", ^{
@@ -857,105 +849,212 @@ describe(@"ReportStore", ^{
 
         it(@"ignores import directories", ^{
 
-            failure(@"todo");
+            [verifyResults performFetch:NULL];
+            NSURL *importDirSource = [reportsDir URLByAppendingPathComponent:@"ignore.dice_import" isDirectory:YES];
+            [fileManager setWorkingDirChildren:@"ignore.dice_import/blue_content/index.blue", nil];
+            [store attemptToImportReportFromResource:importDirSource];
 
-//            [fileManager setWorkingDirChildren:@"ignore.dice_import/blue_content/index.blue", nil];
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"ignore.dice_import" isDirectory:YES]];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            expect(report.importState).to.equal(ReportImportStatusFailed);
-//            expect(report.sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"ignore.dice_import" isDirectory:YES]);
-//            expect(report.importDir).to.beNil();
-//            expect(report.baseDir).to.beNil();
-//            expect(report.rootFile).to.beNil();
-//            expect(report.isEnabled).to.beFalsy();
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(0);
+
+            NSURL *otherSource = [reportsDir URLByAppendingPathComponent:@"import_me" isDirectory:YES];
+            [fileManager createFilePath:@"import_me/" contents:nil];
+            [store attemptToImportReportFromResource:otherSource];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(1);
+            Report *report = verifyResults.fetchedObjects.firstObject;
+            expect(report.sourceFile).to.equal(otherSource);
         });
 
-        it(@"moves the directory to an import dir", ^{
+        it(@"transitions from new to inspecting source file", ^{
 
-            failure(@"todo");
+            [verifyResults performFetch:NULL];
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
+            [fileManager setWorkingDirChildren:@"test_report/", nil];
+            [store attemptToImportReportFromResource:source];
 
-//            [fileManager setWorkingDirChildren:@"blue_base/index.blue", nil];
-//            TestImportProcess *blueImport = [[blueType enqueueImport] block];
-//
-//            Report *report = [store attemptToImportReportFromResource:[reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]];
-//
-//            assertWithTimeout(1.0, thatEventually(report.baseDir), notNilValue());
-//
-//            expect(report.importDir).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base.dice_import" isDirectory:YES]);
-//            expect(report.baseDir).to.equal([report.importDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]);
-//            expect(report.rootFile).to.beNil();
-//
-//            [blueImport unblock];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
-//
-//            NSURL *importDir = [reportsDir URLByAppendingPathComponent:@"blue_base.dice_import" isDirectory:YES];
-//            NSURL *baseDir = [importDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
-//            NSURL *rootFile = [baseDir URLByAppendingPathComponent:@"index.blue"];
-//
-//            expect(report.sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES]);
-//            expect(report.importDir).to.equal(importDir);
-//            expect(report.baseDir).to.equal(baseDir);
-//            expect(report.rootFile).to.equal(rootFile);
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.firstObject;
+
+            expect(report.sourceFile).to.equal(source);
+            expect(report.importState).to.equal(ReportImportStatusNew);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusInspectingContent));
+
+            expect(report.uti).to.beNil();
+        });
+
+        it(@"transitions from inspecting content to moving content", ^{
+
+            [verifyResults performFetch:NULL];
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
+            [fileManager setWorkingDirChildren:@"test_report/index.blue", nil];
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusInspectingSourceFile;
+            report.importStateToEnter = ReportImportStatusInspectingContent;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"test_report.dice_import" isDirectory:YES];
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusMovingContent));
+
+            expect(report.reportTypeId).to.equal(blueType.reportTypeId);
+        });
+
+        it(@"transitions from moving content to digesting", ^{
+
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
+            [fileManager setWorkingDirChildren:@"test_report/index.blue", nil];
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusInspectingContent;
+            report.importStateToEnter = ReportImportStatusMovingContent;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"test_report.dice_import" isDirectory:YES];
+            report.reportTypeId = redType.reportTypeId;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            __block BOOL movedSourceFileOnImportQueue = NO;
+            NSString *baseDirPath = [report.importDir.path stringByAppendingPathComponent:@"test_report"];
+            fileManager.onMoveItemAtPath = ^BOOL(NSString * _Nonnull sourcePath, NSString * _Nonnull destPath, NSError *__autoreleasing  _Nullable * _Nullable error) {
+                if ([sourcePath isEqualToString:source.path] && [destPath isEqualToString:baseDirPath]) {
+                    movedSourceFileOnImportQueue = NSOperationQueue.currentQueue == importQueue;
+                }
+                return YES;
+            };
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusDigesting));
+
+            expect(report.importState).to.equal(ReportImportStatusMovingContent);
+            expect(report.baseDirName).to.equal(@"test_report");
+            expect(report.rootFilePath).to.beNil();
+            expect(movedSourceFileOnImportQueue).to.beTruthy();
+            expect([fileManager fileExistsAtPath:report.sourceFile.path]).to.beFalsy();
+            expect([fileManager isDirectoryAtUrl:report.baseDir]).to.beTruthy();
+        });
+
+        it(@"transitions from digesting to success", ^{
+
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test_report" isDirectory:YES];
+            [fileManager setWorkingDirChildren:@"test_report.dice_import/test_report/index.blue", nil];
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusMovingContent;
+            report.importStateToEnter = ReportImportStatusDigesting;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"test_report.dice_import" isDirectory:YES];
+            report.reportTypeId = blueType.reportTypeId;
+            report.baseDirName = @"test_report";
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            TestImportProcess *importProcess = [blueType enqueueImport];
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusSuccess));
+
+            expect(report.importState).to.equal(ReportImportStatusDigesting);
+            expect(report.rootFilePath).to.equal(@"index.blue");
+            expect(report.uti).to.equal(UTI_BLUE);
+            expect(importProcess.isFinished).to.beTruthy();
+            expect(importProcess.wasSuccessful).to.beTruthy();
+            Report *imported = [importProcess.report MR_inContext:verifyDb];
+            expect(imported).to.equal(report);
         });
 
         it(@"parses the report descriptor if present in base dir as metadata.json", ^{
 
-            failure(@"todo");
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
+            [fileManager setWorkingDirChildren:@"blue_base.dice_import/blue_base/index.blue", nil];
+            NSString *jsonDescriptor = @"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}";
+            [fileManager createFilePath:@"blue_base.dice_import/blue_base/metadata.json" contents:[jsonDescriptor dataUsingEncoding:NSUTF8StringEncoding]];
 
-//            [fileManager setWorkingDirChildren:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", nil];
-//            [fileManager createFilePath:@"blue_base/metadata.json" contents:
-//                [@"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}"
-//                    dataUsingEncoding:NSUTF8StringEncoding]];
-//            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
-//            [blueType enqueueImport];
-//            Report *report = [store attemptToImportReportFromResource:baseDir];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
-//
-//            expect(report.title).to.equal(@"Title From Descriptor");
-//            expect(report.summary).to.equal(@"Summary from descriptor");
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusMovingContent;
+            report.importStateToEnter = ReportImportStatusDigesting;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"blue_base.dice_import" isDirectory:YES];
+            report.reportTypeId = blueType.reportTypeId;
+            report.baseDirName = @"blue_base";
+            report.title = source.lastPathComponent;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            [blueType enqueueImport];
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusSuccess));
+
+            expect(report.title).to.equal(@"Title From Descriptor");
+            expect(report.summary).to.equal(@"Summary from descriptor");
         });
 
         it(@"parses the report descriptor if present in base dir as dice.json", ^{
 
-            failure(@"todo");
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
+            [fileManager setWorkingDirChildren:@"blue_base.dice_import/blue_base/index.blue", nil];
+            NSString *jsonDescriptor = @"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}";
+            [fileManager createFilePath:@"blue_base.dice_import/blue_base/dice.json" contents:[jsonDescriptor dataUsingEncoding:NSUTF8StringEncoding]];
 
-//            [fileManager setWorkingDirChildren:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", nil];
-//            [fileManager createFilePath:@"blue_base/dice.json" contents:
-//                [@"{\"title\": \"Title From Descriptor\", \"description\": \"Summary from descriptor\"}"
-//                    dataUsingEncoding:NSUTF8StringEncoding]];
-//            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
-//            [blueType enqueueImport];
-//            Report *report = [store attemptToImportReportFromResource:baseDir];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
-//
-//            expect(report.title).to.equal(@"Title From Descriptor");
-//            expect(report.summary).to.equal(@"Summary from descriptor");
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusMovingContent;
+            report.importStateToEnter = ReportImportStatusDigesting;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"blue_base.dice_import" isDirectory:YES];
+            report.reportTypeId = blueType.reportTypeId;
+            report.baseDirName = @"blue_base";
+            report.title = source.lastPathComponent;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            [blueType enqueueImport];
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusSuccess));
+
+            expect(report.title).to.equal(@"Title From Descriptor");
+            expect(report.summary).to.equal(@"Summary from descriptor");
         });
 
         it(@"prefers dice.json to metadata.json", ^{
 
-            failure(@"todo");
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
+            [fileManager setWorkingDirChildren:@"blue_base.dice_import/blue_base/index.blue", nil];
+            [fileManager createFilePath:@"blue_base.dice_import/blue_base/dice.json" contents:
+                [@"{\"title\": \"Title From dice.json\", \"description\": \"Summary from dice.json\"}"
+                    dataUsingEncoding:NSUTF8StringEncoding]];
+            [fileManager createFilePath:@"blue_base.dice_import/blue_base/metadata.json" contents:
+                [@"{\"title\": \"Title From metadata.json\", \"description\": \"Summary from metadata.json\"}"
+                    dataUsingEncoding:NSUTF8StringEncoding]];
 
-//            [fileManager setWorkingDirChildren:@"blue_base/", @"blue_base/index.blue", @"blue_base/metadata.json", @"blue_base/dice.json", nil];
-//            [fileManager createFilePath:@"blue_base/dice.json" contents:
-//                [@"{\"title\": \"Title From dice.json\", \"description\": \"Summary from dice.json\"}"
-//                    dataUsingEncoding:NSUTF8StringEncoding]];
-//            [fileManager createFilePath:@"blue_base/metadata.json" contents:
-//                [@"{\"title\": \"Title From metadata.json\", \"description\": \"Summary from metadata.json\"}"
-//                    dataUsingEncoding:NSUTF8StringEncoding]];
-//            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
-//            [blueType enqueueImport];
-//            Report *report = [store attemptToImportReportFromResource:baseDir];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
-//
-//            expect(report.title).to.equal(@"Title From dice.json");
-//            expect(report.summary).to.equal(@"Summary from dice.json");
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusMovingContent;
+            report.importStateToEnter = ReportImportStatusDigesting;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"blue_base.dice_import" isDirectory:YES];
+            report.reportTypeId = blueType.reportTypeId;
+            report.baseDirName = @"blue_base";
+            report.title = source.lastPathComponent;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            [blueType enqueueImport];
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusSuccess));
+
+            expect(report.title).to.equal(@"Title From dice.json");
+            expect(report.summary).to.equal(@"Summary from dice.json");
         });
 
         it(@"sets a nil summary if the report descriptor is unavailable", ^{
