@@ -426,15 +426,19 @@ ReportStore *_sharedInstance;
 {
     ReportImportStatus next;
     if (report.sourceFile) {
+        report.title = report.sourceFile.lastPathComponent;
+        report.summary = [NSString stringWithFormat:@"Added from file %@", report.dateAdded];
         next = ReportImportStatusInspectingSourceFile;
     }
     else if (report.remoteSource) {
+        report.title = @"Downloading";
+        report.summary = [NSString stringWithFormat:@"Downloaded %@ from %@", report.dateAdded, report.remoteSource];
         next = ReportImportStatusDownloading;
     }
     else {
         [NSException raise:NSInternalInconsistencyException format:@"report has no source url:\n%@", report];
     }
-    
+
     _transientImportContext[report.objectID] = [[ReportImportContext alloc] init];
     [self saveReport:report enteringState:next];
 }
@@ -457,9 +461,6 @@ ReportStore *_sharedInstance;
         return;
     }
 
-    report.statusMessage = @"Inspecting new content";
-    report.title = report.sourceFile.lastPathComponent;
-
     if (report.uti == nil || [self.utiExpert isDynamicUti:(__bridge CFStringRef)report.uti]) {
         CFStringRef uti = [self.utiExpert preferredUtiForExtension:report.sourceFile.pathExtension conformingToUti:NULL];
         if (uti && ![self.utiExpert isDynamicUti:uti]) {
@@ -479,13 +480,13 @@ ReportStore *_sharedInstance;
         next = ReportImportStatusInspectingContent;
     }
 
+    report.statusMessage = @"Inspecting content";
     [self saveReport:report enteringState:next];
 }
 
 - (void)enterDownloadingRemoteSourceOfReport:(Report *)report
 {
-    report.title = @"Downloading...";
-    report.statusMessage = [NSString stringWithFormat:@"downloading %@", report.remoteSourceUrl];
+    report.statusMessage = [@"Downloading " stringByAppendingString:report.remoteSourceUrl];
     [self saveReport:report enteringState:report.importState];
     [self.downloadManager downloadUrl:report.remoteSource];
 }

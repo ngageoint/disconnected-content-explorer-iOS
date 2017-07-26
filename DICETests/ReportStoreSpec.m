@@ -470,6 +470,7 @@ describe(@"ReportStore", ^{
             Report *report = verifyResults.fetchedObjects.lastObject;
 
             expect(report.title).to.equal(source.lastPathComponent);
+            expect(report.summary).to.equal([NSString stringWithFormat:@"Added from file %@", report.dateAdded]);
             expect(report.importState).to.equal(ReportImportStatusNew);
             expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
         });
@@ -484,6 +485,8 @@ describe(@"ReportStore", ^{
 
             Report *report = verifyResults.fetchedObjects.lastObject;
 
+            expect(report.title).to.equal(@"Downloading");
+            expect(report.summary).to.equal([NSString stringWithFormat:@"Downloaded %@ from %@", report.dateAdded, report.remoteSource]);
             expect(report.importState).to.equal(ReportImportStatusNew);
             expect(report.importStateToEnter).to.equal(ReportImportStatusDownloading);
         });
@@ -1055,20 +1058,6 @@ describe(@"ReportStore", ^{
 
             expect(report.title).to.equal(@"Title From dice.json");
             expect(report.summary).to.equal(@"Summary from dice.json");
-        });
-
-        it(@"sets a nil summary if the report descriptor is unavailable", ^{
-
-            failure(@"todo");
-
-//            [fileManager setWorkingDirChildren:@"blue_base/", @"blue_base/index.blue", nil];
-//            NSURL *baseDir = [reportsDir URLByAppendingPathComponent:@"blue_base" isDirectory:YES];
-//            [blueType enqueueImport];
-//            Report *report = [store attemptToImportReportFromResource:baseDir];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
-//
-//            expect(report.summary).to.beNil();
         });
 
         it(@"creates import dir and record for downloads on first progress update", ^{
