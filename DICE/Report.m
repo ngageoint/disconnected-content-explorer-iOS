@@ -42,7 +42,7 @@
 - (NSURL *)rootFile
 {
     NSURL *baseDir = self.baseDir;
-    if (baseDir) {
+    if (baseDir && self.rootFilePath) {
         return [baseDir URLByAppendingPathComponent:self.rootFilePath];
     }
     return nil;

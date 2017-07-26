@@ -770,6 +770,15 @@ describe(@"Report", ^{
         expect(report.rootFile).to.beNil();
     });
 
+    it(@"returns nil root file if root file path is nil", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+        report.importDir = [NSURL fileURLWithPath:@"/dice/test.dice_import" isDirectory:YES];
+        report.baseDirName = @"dice_content";
+
+        expect(report.rootFile).to.beNil();
+    });
+
     it(@"appends thumbnail path to base dir for thumbnail url", ^{
 
         Report *report = [Report MR_createEntityInContext:context];
