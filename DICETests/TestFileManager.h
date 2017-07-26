@@ -16,6 +16,11 @@
  * of the given items fails.
  */
 - (nonnull instancetype)setWorkingDirChildren:(nonnull NSString *)path, ... NS_REQUIRES_NIL_TERMINATION;
+
+/**
+ * Create the file or directory for the given path.  The path may end with slash (/) to denote a
+ * directory.  If the path is relative, create it in the current working directory.
+ */
 - (nonnull instancetype)createFilePath:(nonnull NSString *)path contents:(nullable NSData *)data;
 
 @end
