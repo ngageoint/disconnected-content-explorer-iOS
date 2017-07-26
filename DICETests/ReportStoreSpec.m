@@ -1043,6 +1043,26 @@ describe(@"ReportStore", ^{
 
     describe(@"importing report archives from the documents directory", ^{
 
+        it(@"transitions from inspecting source file to inspecting archive", ^{
+
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"test.zip" isDirectory:NO];
+            verifyResults.fetchRequest.predicate = [Report predicateForSourceUrl:source];
+            [verifyResults performFetch:NULL];
+            [fileManager setWorkingDirChildren:@"test.zip", nil];
+            [store attemptToImportReportFromResource:source];
+
+            assertWithTimeout(1.0, thatEventually(verifyResults.fetchedObjects), hasCountOf(1));
+
+            Report *report = verifyResults.fetchedObjects.firstObject;
+
+            expect(report.importState).to.equal(ReportImportStatusNew);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingSourceFile);
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusInspectingArchive));
+        });
+
         it(@"creates an import dir for the archive", ^{
 
             failure(@"todo");
