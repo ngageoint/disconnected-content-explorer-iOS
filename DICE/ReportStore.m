@@ -521,7 +521,6 @@ ReportStore *_sharedInstance;
 
 - (void)enterExtractingSourceFileArchiveOfReport:(Report *)report
 {
-    id<ReportType> type = [self reportTypeForId:report.reportTypeId];
     ReportImportContext *importContext = _transientImportContext[report.objectID];
     id<DICEArchive> archive = importContext.archive;
     if (archive == nil) {
@@ -539,7 +538,7 @@ ReportStore *_sharedInstance;
         }
     }
     DICEExtractReportOperation *extract = [[DICEExtractReportOperation alloc]
-        initWithReport:report reportType:type archive:archive extractToDir:extractToDir fileManager:self.fileManager];
+        initWithReport:report archive:archive extractToDir:extractToDir fileManager:self.fileManager];
     extract.delegate = self;
     [self.importQueue addOperation:extract];
 }
@@ -937,44 +936,38 @@ ReportStore *_sharedInstance;
 
 - (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent
 {
-    assert(false);
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        Report *report = [self reportForUrl:op.archive.archiveUrl];
-//        report.summary = [NSString stringWithFormat:@"Extracting - %@%%", @(percent)];
-//    });
+    // TODO: is this going to be a performance problem? 100 saves to persistent store
+    DICEExtractReportOperation *extract = (DICEExtractReportOperation *)op;
+    Report *report = extract.report;
+    [self.reportDb performBlock:^{
+        report.extractPercent = percent;
+        report.statusMessage = [NSString stringWithFormat:@"Extracting - %@%%", @(percent)];
+        [self saveReport:report enteringState:report.importState];
+    }];
 }
 
 - (void)unzipOperationDidFinish:(UnzipOperation *)op
 {
-    assert(false);
-//    DICEExtractReportOperation *extract = (DICEExtractReportOperation *)op;
-//    BOOL success = op.wasSuccessful;
-//    Report *report = extract.report;
-//    id<ReportType> reportType = extract.reportType;
-//    NSURL *baseDir = extract.extractedReportBaseDir;
-//
-//    vlog(@"finished extracting contents of report archive %@", report);
-//
-//    if (!success) {
-//        NSLog(@"extraction of archive %@ was not successful", report.sourceFile);
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            report.summary = report.statusMessage = @"Failed to extract archive contents";
-//            report.importStatus = ReportImportStatusFailed;
-//            [self finishBackgroundTaskIfImportsFinished];
-//        });
-//        return;
-//    }
-//
-//    NSBlockOperation *createImportProcess = [NSBlockOperation blockOperationWithBlock:^{
-//        [self importReport:report asReportType:reportType];
-//    }];
-//    DeleteFileOperation *deleteArchive = [[DeleteFileOperation alloc] initWithFileUrl:extract.archive.archiveUrl fileManager:self.fileManager];
-//
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        report.baseDir = baseDir;
-//        [self.importQueue addOperation:createImportProcess];
-//        [self.importQueue addOperation:deleteArchive];
-//    });
+    DICEExtractReportOperation *extract = (DICEExtractReportOperation *)op;
+    Report *report = extract.report;
+
+    vlog(@"extract operation finished for archive %@", op.archive.archiveUrl);
+
+    if (op.wasSuccessful) {
+        DeleteFileOperation *deleteArchive = [[DeleteFileOperation alloc] initWithFileUrl:extract.archive.archiveUrl fileManager:self.fileManager];
+        [self.importQueue addOperation:deleteArchive];
+        [self.reportDb performBlock:^{
+            [self saveReport:report enteringState:ReportImportStatusDigesting];
+        }];
+    }
+    else {
+        [self.reportDb performBlock:^{
+            NSLog(@"extraction of archive %@ was not successful", report.sourceFile);
+            report.summary = @"Error extracting archive contents";
+            report.statusMessage = @"Import failed";
+            [self saveReport:report enteringState:ReportImportStatusFailed];
+        }];
+    }
 }
 
 #pragma mark - background handling

@@ -41,7 +41,7 @@
     }
 
     if (archive == nil) {
-        [NSException raise:@"IllegalArgumentException" format:@"archive is nil"];
+        [NSException raise:NSInvalidArgumentException format:@"archive is nil"];
     }
 
     _archive = archive;
