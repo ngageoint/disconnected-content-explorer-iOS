@@ -1148,87 +1148,119 @@ describe(@"ReportStore", ^{
 
             [store advancePendingImports];
 
-            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusInspectingArchive));
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusInspectingArchive));
+
+            expect(report.uti).to.equal((__bridge NSString *)kUTTypeZipArchive);
         });
 
-        it(@"creates an import dir for the archive", ^{
+        it(@"transitions from inspecting archive to extracting", ^{
 
-            failure(@"todo");
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            [fileManager setWorkingDirChildren:@"blue.zip", nil];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"blue_base/" sizeInArchive:0 sizeExtracted:0],
+                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:source archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:source withUti:kUTTypeZipArchive]) willReturn:archive];
 
-//            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
-//            [fileManager setWorkingDirChildren:@"blue.zip", nil];
-//            TestImportProcess *blueImport = [[blueType enqueueImport] block];
-//            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
-//                [TestDICEArchiveEntry entryWithName:@"blue_base/" sizeInArchive:0 sizeExtracted:0],
-//                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
-//            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
-//            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-//
-//            NSURL *importDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dice_import" isDirectory:YES];
-//            __block Report *report;
-//            __block BOOL createdImportDir = NO;
-//            fileManager.onCreateDirectoryAtPath = ^BOOL(NSString *path, BOOL createIntermediates, NSError *__autoreleasing *error) {
-//                if ([path isEqualToString:importDir.path]) {
-//                    createdImportDir = [report.importDir isEqual:importDir] && NSThread.isMainThread;
-//                }
-//                return YES;
-//            };
-//
-//            report = [store attemptToImportReportFromResource:archiveUrl];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusExtracting));
-//
-//            expect(report.sourceFile).to.equal(archiveUrl);
-//            expect(report.importDir).to.equal(importDir);
-//            expect(createdImportDir).to.beTruthy();
-//
-//            [blueImport unblock];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusInspectingSourceFile;
+            report.importStateToEnter = ReportImportStatusInspectingArchive;
+            report.uti = (__bridge NSString *)kUTTypeZipArchive;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusExtractingContent));
+
+            expect(report.importDir).to.equal([reportsDir URLByAppendingPathComponent:@"blue.zip.dice_import" isDirectory:YES]);
+            expect(report.baseDirName).to.equal(@"blue_base");
+            expect(report.reportTypeId).to.equal(blueType.reportTypeId);
+            expect([fileManager isDirectoryAtUrl:report.importDir]).to.beTruthy();
+            expect([fileManager isDirectoryAtUrl:report.baseDir]).to.beFalsy();
+        });
+
+        it(@"transitions from extracting content to digesting", ^{
+
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            [fileManager setWorkingDirChildren:@"blue.zip", nil];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"blue_base/" sizeInArchive:0 sizeExtracted:0],
+                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:source archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:source withUti:kUTTypeZipArchive]) willReturn:archive];
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusInspectingArchive;
+            report.importStateToEnter = ReportImportStatusExtractingContent;
+            report.uti = (__bridge NSString *)kUTTypeZipArchive;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dice_import" isDirectory:YES];
+            report.baseDirName = @"blue_base";
+            report.reportTypeId = blueType.reportTypeId;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            __block DICEExtractReportOperation *extractOp;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:DICEExtractReportOperation.class]) {
+                    extractOp = (DICEExtractReportOperation *)op;
+                }
+            };
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusDigesting));
+
+            expect([fileManager isDirectoryAtUrl:report.baseDir]);
+            expect([fileManager isRegularFileAtUrl:[report.baseDir URLByAppendingPathComponent:@"index.blue"]]).to.beTruthy();
+            expect(extractOp).toNot.beNil();
+            expect(extractOp.reportType).to.beIdenticalTo(blueType);
+            expect(extractOp.archive.archiveUrl).to.equal(source);
+            expect(extractOp.destDir).to.equal(report.importDir);
+            Report *extractedReport = [extractOp.report MR_inContext:verifyDb];
+            expect(extractedReport).to.equal(report);
         });
 
         it(@"creates a base dir if the archive has no base dir", ^{
 
-            failure(@"todo");
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            [fileManager setWorkingDirChildren:@"blue.zip", nil];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:0 sizeExtracted:0],
+                [TestDICEArchiveEntry entryWithName:@"images/thumb.png" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:source archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:source withUti:kUTTypeZipArchive]) willReturn:archive];
 
-//            [fileManager setWorkingDirChildren:@"blue.zip", nil];
-//            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
-//            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
-//                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
-//            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
-//            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-//            TestImportProcess *blueImport = [[blueType enqueueImport] block];
-//            NSURL *importDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dice_import" isDirectory:YES];
-//            NSURL *baseDir = [importDir URLByAppendingPathComponent:@"dice_content" isDirectory:YES];
-//            __block BOOL createdBaseDir = NO;
-//            __block Report *report;
-//            fileManager.onCreateDirectoryAtPath = ^BOOL(NSString *path, BOOL intermediates, NSError **error) {
-//                createdBaseDir = [path isEqualToString:baseDir.path];
-//                return YES;
-//            };
-//
-//            NSFileHandle *handle = mock([NSFileHandle class]);
-//            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
-//                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
-//                    return handle;
-//                };
-//            }];
-//
-//            report = [store attemptToImportReportFromResource:archiveUrl];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusExtracting));
-//
-//            expect(createdBaseDir).to.beTruthy();
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusImporting));
-//
-//            expect(report.baseDir).to.equal(baseDir);
-//
-//            [blueImport unblock];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isEnabled)), isTrue());
-//
-//            [NSFileHandle deswizzleAllClassMethods];
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusInspectingArchive;
+            report.importStateToEnter = ReportImportStatusExtractingContent;
+            report.uti = (__bridge NSString *)kUTTypeZipArchive;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dice_import"];
+            report.baseDirName = nil;
+            report.reportTypeId = blueType.reportTypeId;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            __block DICEExtractReportOperation *extractOp;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:DICEExtractReportOperation.class]) {
+                    extractOp = (DICEExtractReportOperation *)op;
+                }
+            };
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusDigesting));
+
+            expect(report.baseDirName).to.equal(@"dice_content");
+            expect([fileManager isDirectoryAtUrl:report.importDir]).to.beTruthy();
+            expect([fileManager isDirectoryAtUrl:report.baseDir]).to.beTruthy();
+            expect(extractOp).toNot.beNil();
+            expect(extractOp.archive.archiveUrl).to.equal(source);
+            expect(extractOp.destDir).to.equal(report.baseDir);
+            Report *extractedReport = [extractOp.report MR_inContext:verifyDb];
+            expect(extractedReport).to.equal(report);
         });
 
         it(@"does not create a new base dir if archive has base dir", ^{
