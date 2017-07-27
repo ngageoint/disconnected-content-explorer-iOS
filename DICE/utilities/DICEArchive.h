@@ -14,7 +14,7 @@
 - (nonnull NSString *)archiveEntryPath;
 - (uint64_t)archiveEntrySizeExtracted;
 - (uint64_t)archiveEntrySizeInArchive;
-- (NSDate *)archiveEntryDate;
+- (nullable NSDate *)archiveEntryDate;
 
 @end
 
@@ -39,11 +39,11 @@
  * @param buffer an NSMutableData to store the bytes read
  * @return the number of bytes read; 0 if the end of the current entry has been reached
  */
-- (NSUInteger)readCurrentArchiveEntryToBuffer:(NSMutableData *)buffer error:(NSError **)error;
+- (NSUInteger)readCurrentArchiveEntryToBuffer:(NSMutableData * _Nonnull)buffer error:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL)closeCurrentArchiveEntryWithError:(NSError **)error;
+- (BOOL)closeCurrentArchiveEntryWithError:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL)closeArchiveWithError:(NSError **)error;
+- (BOOL)closeArchiveWithError:(NSError * _Nullable * _Nullable)error;
 
 @end
 
