@@ -1329,48 +1329,47 @@ describe(@"ReportStore", ^{
 
         it(@"does not delete the archive file if the extract fails", ^{
 
-            failure(@"todo");
+            NSURL *source = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            [fileManager setWorkingDirChildren:@"blue.zip", nil];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"blue_base/" sizeInArchive:0 sizeExtracted:0],
+                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
+            ] archiveUrl:source archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:source withUti:kUTTypeZipArchive]) willReturn:archive];
 
-//            [fileManager setWorkingDirChildren:@"blue.zip", nil];
-//            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
-//            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
-//                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
-//            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
-//            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-//
-//            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
-//                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
-//                    return nil;
-//                };
-//            }];
-//
-//            __block DICEExtractReportOperation *extract;
-//            __block DeleteFileOperation *deleteArchive;
-//            importQueue.onAddOperation = ^(NSOperation *op) {
-//                if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
-//                    extract = (DICEExtractReportOperation *)op;
-//                    [extract cancel];
-//                }
-//                else if ([op isKindOfClass:[DeleteFileOperation class]]) {
-//                    deleteArchive = (DeleteFileOperation *)op;
-//                }
-//            };
-//
-//            expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.equal(YES);
-//
-//            Report *report = [store attemptToImportReportFromResource:archiveUrl];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            [importQueue waitUntilAllOperationsAreFinished];
-//
-//            expect(extract).toNot.beNil();
-//            expect(extract.wasSuccessful).to.beFalsy();
-//            expect(report.importState).to.equal(ReportImportStatusFailed);
-//            expect([fileManager fileExistsAtPath:[reportsDir URLByAppendingPathComponent:@"blue.zip"].path]).to.equal(YES);
-//            expect(deleteArchive).to.beNil();
-//            
-//            [NSFileHandle deswizzleAllClassMethods];
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = source;
+            report.importState = ReportImportStatusInspectingArchive;
+            report.importStateToEnter = ReportImportStatusExtractingContent;
+            report.uti = (__bridge NSString *)kUTTypeZipArchive;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dice_import" isDirectory:YES];
+            report.baseDirName = @"blue_base";
+            report.reportTypeId = blueType.reportTypeId;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            __block DeleteFileOperation *deleteArchive;
+            importQueue.onAddOperation = ^(NSOperation *op) {
+                if ([op isKindOfClass:DeleteFileOperation.class]) {
+                    deleteArchive = (DeleteFileOperation *)op;
+                }
+            };
+
+            __block NSError *fileHandleError = [NSError errorWithDomain:@"DICETest" code:999 userInfo:nil];
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    *errOut = fileHandleError;
+                    return nil;
+                };
+            }];
+            
+            [store advancePendingImports];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToUnsignedInteger(ReportImportStatusFailed));
+
+            expect(deleteArchive).to.beNil();
+            expect([fileManager isRegularFileAtUrl:source]).to.beTruthy();
+            
+            [NSFileHandle deswizzleAllClassMethods];
         });
 
         it(@"changes import status to extracting and posts update notification", ^{
