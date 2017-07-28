@@ -1584,28 +1584,23 @@ describe(@"ReportStore", ^{
 
     describe(@"load all reports", ^{
 
-        beforeEach(^{
-        });
-
         it(@"creates reports for each file in reports directory", ^{
 
-            failure(@"todo");
+            [verifyResults performFetch:NULL];
+            [fileManager setWorkingDirChildren:@"report1.red", @"report2.blue", @"something.else", nil];
 
-            //            [fileManager setWorkingDirChildren:@"report1.red", @"report2.blue", @"something.else", nil];
-            //
-            //            [redType enqueueImport];
-            //            [blueType enqueueImport];
-            //
-            //            NSArray *reports = [store loadReports];
-            //
-            //            expect(reports).to.haveCountOf(3);
-            //            assertThat(reports, hasItems(
-            //                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report1.red"]),
-            //                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report2.blue"]),
-            //                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"something.else"]),
-            //                nil));
-            //
-            //            assertWithTimeout(1.0, thatEventually(reports), everyItem(hasProperty(@"isImportFinished", isTrue())));
+            [store loadContentFromReportsDir];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(3);
+
+            assertThat(verifyResults.fetchedObjects, hasItems(
+                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report1.red"]),
+                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report2.blue"]),
+                hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"something.else"]),
+                nil));
         });
 
         it(@"removes reports with path that does not exist and are not importing", ^{
@@ -1633,51 +1628,6 @@ describe(@"ReportStore", ^{
             //            expect(reports.firstObject.sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
         });
 
-        it(@"leaves imported and importing reports in order of discovery", ^{
-
-            failure(@"todo");
-
-            //            [fileManager setWorkingDirChildren:@"report1.red", @"report2.blue", @"report3.red", nil];
-            //
-            //            TestImportProcess *blueImport = [blueType.enqueueImport block];
-            //            TestImportProcess *redImport1 = [redType enqueueImport];
-            //            TestImportProcess *redImport2 = [redType enqueueImport];
-            //
-            //            NSArray<Report *> *reports1 = [[store loadReports] copy];
-            //
-            //            expect(reports1).to.haveCountOf(3);
-            //            expect(reports1[0].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
-            //            expect(reports1[1].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
-            //            expect(reports1[2].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
-            //
-            //            assertWithTimeout(1.0, thatEventually(@(redImport1.isFinished && redImport2.isFinished)), isTrue());
-            //
-            //            expect(store.reports[0].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
-            //            expect(store.reports[1].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
-            //            expect(store.reports[2].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report3.red"]);
-            //
-            //            [fileManager removeItemAtURL:store.reports[0].importDir error:nil];
-            //            [fileManager createFilePath:@"report11.red" contents:nil];
-            //            redImport1 = [redType enqueueImport];
-            //
-            //            NSArray<Report *> *reports2 = [[store loadReports] copy];
-            //
-            //            NSIndexSet *bluePos = [reports2 indexesOfObjectsPassingTest:^BOOL(Report * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            //                return [obj.sourceFile isEqual:[reportsDir URLByAppendingPathComponent:@"report2.blue"]];
-            //            }];
-            //
-            //            expect(bluePos).to.haveCountOf(1);
-            //            expect(reports2).to.haveCountOf(3);
-            //            expect(reports2[0].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
-            //            assertThat(reports1, hasItem(sameInstance(reports2[0])));
-            //            assertThat(reports2, hasItem(hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report3.red"])));
-            //            assertThat(reports2, hasItem(hasProperty(@"sourceFile", [reportsDir URLByAppendingPathComponent:@"report11.red"])));
-            //
-            //            [blueImport unblock];
-            //
-            //            assertWithTimeout(1.0, thatEventually(reports2), everyItem(hasProperty(@"isEnabled", isTrue())));
-        });
-
         it(@"leaves failed download reports", ^{
 
             failure(@"todo");
@@ -1699,41 +1649,11 @@ describe(@"ReportStore", ^{
             //            expect(store.reports).to.haveCountOf(1);
             //            expect(store.reports).to.contain(failedDownload);
         });
-
-        it(@"sends notifications about added reports", ^{
-
-            failure(@"todo");
-
-            //            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportAdded on:notifications from:store withBlock:nil];
-            //
-            //            [fileManager setWorkingDirChildren:@"report1.red", @"report2.blue", nil];
-            //
-            //            [[redType enqueueImport] cancelAll];
-            //            [[blueType enqueueImport] cancelAll];
-            //
-            //            NSArray *reports = [store loadReports];
-            //
-            //            assertWithTimeout(1.0, thatEventually(observer.received), hasCountOf(2));
-            //
-            //            [observer.received enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            //                NSNotification *note = [obj notification];
-            //                Report *report = note.userInfo[@"report"];
-            //
-            //                expect(note.name).to.equal(ReportNotification.reportAdded);
-            //                expect(report).to.beIdenticalTo(reports[idx]);
-            //            }];
-            //
-            //            [notifications removeObserver:observer];
-        });
         
         it(@"posts a reports loaded notification", ^{
             
-            failure(@"todo");
-            
-            //            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportsLoaded on:notifications from:store withBlock:nil];
-            //            [store loadReports];
-            //
-            //            assertWithTimeout(1.0, thatEventually(observer.received), hasCountOf(1));
+            failure(@"todo: maybe a callback or don't save until all files have been processed so the next fetched results update is basically the load-complete notification");
+
         });
         
     });
