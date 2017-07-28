@@ -1372,92 +1372,52 @@ describe(@"ReportStore", ^{
             [NSFileHandle deswizzleAllClassMethods];
         });
 
-        it(@"changes import status to extracting and posts update notification", ^{
+        it(@"updates extract progress", ^{
 
-            failure(@"todo");
+            [fileManager setWorkingDirChildren:@"blue.zip", nil];
+            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
+            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
+                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:(1 << 20)]
+            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
+            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
 
-//            [fileManager setWorkingDirChildren:@"blue.zip", nil];
-//            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
-//            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
-//                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:200]
-//            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
-//            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-//            TestImportProcess *blueImport = [blueType enqueueImport];
-//
-//            NSFileHandle *handle = mock([NSFileHandle class]);
-//            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
-//                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
-//                    return handle;
-//                };
-//            }];
-//
-//            __block DICEExtractReportOperation *extract;
-//            importQueue.onAddOperation = ^(NSOperation *op) {
-//                if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
-//                    if (extract != nil) {
-//                        failure(@"multiple extract operations queued for the same report archive");
-//                        return;
-//                    }
-//                    extract = (DICEExtractReportOperation *)op;
-//                    [extract block];
-//                    [fileManager createDirectoryAtURL:[reportsDir URLByAppendingPathComponent:@"blue_base"] withIntermediateDirectories:YES attributes:nil error:NULL];
-//                }
-//            };
-//
-//            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportExtractProgress on:notifications from:store withBlock:nil];
-//
-//            Report *report = [store attemptToImportReportFromResource:archiveUrl];
-//
-//            assertWithTimeout(1.0, thatEventually(@(observer.received.count)), equalToUnsignedInteger(1));
-//
-//            ReceivedNotification *received = observer.received.firstObject;
-//            NSNotification *note = received.notification;
-//
-//            expect(received.wasMainThread).to.equal(YES);
-//            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importState).to.equal(ReportImportStatusExtracting);
-//
-//            [extract unblock];
-//
-//            assertWithTimeout(1.0, thatEventually(@(blueImport.report.isEnabled)), isTrue());
-//            
-//            [NSFileHandle deswizzleAllClassMethods];
-        });
+            NSFileHandle *handle = mock([NSFileHandle class]);
+            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
+                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
+                    return handle;
+                };
+            }];
 
-        it(@"posts notifications about extract progress", ^{
+            NSMutableArray<NSNumber *> *percents = [NSMutableArray array];
+            [reportDb observe:NSManagedObjectContextWillSaveNotification withBlock:^(NSNotification *note) {
+                Report *extracting = [reportDb.updatedObjects reportWithSourceUrl:archiveUrl];
+                if (extracting == nil) {
+                    return;
+                }
+                NSNumber *oldPercent = extracting.changedValues[@"extractPercent"];
+                if (oldPercent) {
+                    [percents addObject:oldPercent];
+                }
+            }];
 
-            failure(@"todo");
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.sourceFile = archiveUrl;
+            report.importState = ReportImportStatusInspectingArchive;
+            report.importStateToEnter = ReportImportStatusExtractingContent;
+            report.uti = (__bridge NSString *)kUTTypeZipArchive;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"blue.zip.dice_import"];
+            report.baseDirName = nil;
+            report.reportTypeId = blueType.reportTypeId;
+            [verifyDb MR_saveToPersistentStoreAndWait];
 
-//            [fileManager setWorkingDirChildren:@"blue.zip", nil];
-//            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
-//            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
-//                [TestDICEArchiveEntry entryWithName:@"index.blue" sizeInArchive:100 sizeExtracted:(1 << 20)]
-//            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
-//            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-//            [blueType enqueueImport];
-//            NSFileHandle *handle = mock([NSFileHandle class]);
-//            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
-//                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
-//                    return handle;
-//                };
-//            }];
-//            NSMutableArray<NSNotification *> *extractUpdates = [NSMutableArray array];
-//            __block NSNotification *finished = nil;
-//            [store.notifications addObserverForName:ReportNotification.reportExtractProgress object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-//                [extractUpdates addObject:note];
-//            }];
-//            [store.notifications addObserverForName:ReportNotification.reportImportFinished object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-//                finished = note;
-//            }];
-//
-//            [store attemptToImportReportFromResource:archiveUrl];
-//
-//            assertWithTimeout(2.0, thatEventually(finished), notNilValue());
-//
-//            expect(extractUpdates.count).to.beGreaterThan(10);
-//            expect(extractUpdates.lastObject.userInfo[@"percentExtracted"]).to.equal(@100);
-//
-//            [NSFileHandle deswizzleAllClassMethods];
+            [store advancePendingImports ];
+
+            assertWithTimeout(2.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusDigesting));
+
+            assertThat(percents, hasCount(greaterThan(@10)));
+            expect(percents.lastObject).to.equal(@100);
+
+            [NSFileHandle deswizzleAllClassMethods];
         });
 
         it(@"load reports does not create multiple reports while the archive is extracting", ^{
@@ -1584,110 +1544,6 @@ describe(@"ReportStore", ^{
 //
 //            [NSFileHandle deswizzleAllClassMethods];
         });
-
-        it(@"does not start an import process if the extraction fails", ^{
-
-            failure(@"todo");
-
-//            [fileManager setWorkingDirChildren:@"blue.zip", nil];
-//            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
-//            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
-//                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
-//            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
-//            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-//
-//            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
-//                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
-//                    *errOut = [[NSError alloc] initWithDomain:@"dice.test" code:1 userInfo:@{NSLocalizedDescriptionKey: @"error for test"}];
-//                    return nil;
-//                };
-//            }];
-//
-//            // intentionally do not enqueue import process to force failure if attempted
-//            // TestImportProcess *blueImport = [blueType enqueueImport];
-//
-//            __block DICEExtractReportOperation *extract;
-//            __block BOOL multipleExtracts = NO;
-//            importQueue.onAddOperation = ^(NSOperation *op) {
-//                if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
-//                    if (!NSThread.isMainThread) {
-//                        [NSException raise:NSInternalInconsistencyException format:@"added extract operation from background thread"];
-//                    }
-//                    if (extract != nil) {
-//                        multipleExtracts = YES;
-//                        return;
-//                    }
-//                    extract = (DICEExtractReportOperation *)op;
-//                }
-//            };
-//
-//            Report *report = [store attemptToImportReportFromResource:archiveUrl];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusFailed));
-//
-//            expect(extract.isFinished).to.equal(YES);
-//            expect(extract.wasSuccessful).to.equal(NO);
-//            expect(multipleExtracts).to.beFalsy();
-//
-//            [NSFileHandle deswizzleAllClassMethods];
-        });
-
-        it(@"posts failure notification if extract fails", ^{
-
-            failure(@"todo");
-
-//            [fileManager setWorkingDirChildren:@"blue.zip", nil];
-//            NSURL *archiveUrl = [reportsDir URLByAppendingPathComponent:@"blue.zip"];
-//            TestDICEArchive *archive = [TestDICEArchive archiveWithEntries:@[
-//                [TestDICEArchiveEntry entryWithName:@"blue_base/index.blue" sizeInArchive:100 sizeExtracted:200]
-//            ] archiveUrl:archiveUrl archiveUti:kUTTypeZipArchive];
-//            [given([archiveFactory createArchiveForResource:archiveUrl withUti:kUTTypeZipArchive]) willReturn:archive];
-//
-//            [NSFileHandle swizzleClassMethod:@selector(fileHandleForWritingToURL:error:) withReplacement:JGMethodReplacementProviderBlock {
-//                return JGMethodReplacement(NSFileHandle *, const Class *, NSURL *url, NSError **errOut) {
-//                    *errOut = [[NSError alloc] initWithDomain:@"dice.test" code:1 userInfo:@{NSLocalizedDescriptionKey: @"error for test"}];
-//                    return nil;
-//                };
-//            }];
-//
-//            // intentionally do not enqueue import process to force failure if attempted
-//            // TestImportProcess *blueImport = [blueType enqueueImport];
-//
-//            __block DICEExtractReportOperation *extract;
-//            __block BOOL multipleExtracts = NO;
-//            importQueue.onAddOperation = ^(NSOperation *op) {
-//                if (!NSThread.isMainThread) {
-//                    [NSException raise:NSInternalInconsistencyException format:@"queued extract operation from background thread"];
-//                }
-//                if ([op isKindOfClass:[DICEExtractReportOperation class]]) {
-//                    if (extract != nil) {
-//                        multipleExtracts = YES;
-//                        return;
-//                    }
-//                    extract = (DICEExtractReportOperation *)op;
-//                }
-//            };
-//
-//            NotificationRecordingObserver *observer = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:notifications from:store withBlock:nil];
-//
-//            Report *report = [store attemptToImportReportFromResource:archiveUrl];
-//
-//            assertWithTimeout(1.0, thatEventually(observer.received), hasCountOf(1));
-//            
-//            expect(extract.isFinished).to.equal(YES);
-//            expect(extract.wasSuccessful).to.equal(NO);
-//            expect(report.importState).to.equal(ReportImportStatusFailed);
-//            expect(report.summary).to.equal(@"Failed to extract archive contents");
-//
-//            ReceivedNotification *received = observer.received.lastObject;
-//            NSNotification *note = received.notification;
-//
-//            expect(received.wasMainThread).to.equal(YES);
-//            expect(note.userInfo[@"report"]).to.beIdenticalTo(report);
-//            
-//            [NSFileHandle deswizzleAllClassMethods];
-        });
-
     });
 
     describe(@"load all reports", ^{
