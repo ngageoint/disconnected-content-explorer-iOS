@@ -1455,7 +1455,7 @@ describe(@"ReportStore", ^{
             };
 
             [store resumePendingImports];
-            [store loadContentFromReportsDir];
+            [store loadContentFromReportsDir:nil];
 
             assertWithTimeout(1.0, thatEventually(@(extract && extract.isExecuting)), isTrue());
 
@@ -1473,7 +1473,7 @@ describe(@"ReportStore", ^{
 
             expect(verifyResults.fetchedObjects).to.haveCountOf(1);
 
-            [store loadContentFromReportsDir];
+            [store loadContentFromReportsDir:nil];
             [reportDb waitForQueueToDrain];
             [verifyDb waitForQueueToDrain];
 
@@ -1589,7 +1589,7 @@ describe(@"ReportStore", ^{
             [verifyResults performFetch:NULL];
             [fileManager setWorkingDirChildren:@"report1.red", @"report2.blue", @"something.else", nil];
 
-            [store loadContentFromReportsDir];
+            [store loadContentFromReportsDir:nil];
 
             [reportDb waitForQueueToDrain];
             [verifyDb waitForQueueToDrain];
@@ -1640,7 +1640,7 @@ describe(@"ReportStore", ^{
             [verifyDb MR_saveToPersistentStoreAndWait];
 
             [fileManager setWorkingDirChildren:report1.rootFile.path, report2.rootFile.path, report3.rootFile.path, nil];
-            [store loadContentFromReportsDir];
+            [store loadContentFromReportsDir:nil];
             [reportDb waitForQueueToDrain];
             [verifyDb waitForQueueToDrain];
 
@@ -1653,7 +1653,7 @@ describe(@"ReportStore", ^{
             expect(report3.isEnabled).to.beTruthy();
 
             [fileManager removeItemAtURL:report1.importDir error:nil];
-            [store loadContentFromReportsDir];
+            [store loadContentFromReportsDir:nil];
             [reportDb waitForQueueToDrain];
             [verifyDb waitForQueueToDrain];
 
@@ -1668,7 +1668,7 @@ describe(@"ReportStore", ^{
             expect(report3.isEnabled).to.beTruthy();
 
             [fileManager removeItemAtURL:report2.baseDir error:NULL];
-            [store loadContentFromReportsDir];
+            [store loadContentFromReportsDir:nil];
             [reportDb waitForQueueToDrain];
             [verifyDb waitForQueueToDrain];
 
@@ -1685,7 +1685,7 @@ describe(@"ReportStore", ^{
             expect(report3.isEnabled).to.beTruthy();
 
             [fileManager removeItemAtURL:report3.importDir error:NULL];
-            [store loadContentFromReportsDir];
+            [store loadContentFromReportsDir:nil];
             [reportDb waitForQueueToDrain];
             [verifyDb waitForQueueToDrain];
 
@@ -1704,34 +1704,38 @@ describe(@"ReportStore", ^{
             expect(report3.isEnabled).to.beFalsy();
         });
 
-        it(@"leaves failed download reports", ^{
+        it(@"saves and calls completion block only once for the entire load operation", ^{
 
-            failure(@"todo");
+            NSMutableArray<NSNotification *> *saves = [NSMutableArray array];
+            [reportDb observe:NSManagedObjectContextDidSaveNotification withBlock:^(NSNotification *note) {
+                [saves addObject:note];
+            }];
 
-            //            Report *failedDownload = [store attemptToImportReportFromResource:[NSURL URLWithString:@"http://dice.com/leavemebe"]];
-            //            DICEDownload *download = [[DICEDownload alloc] initWithUrl:failedDownload.remoteSource];
-            //            download.wasSuccessful = NO;
-            //            [store downloadManager:downloadManager didFinishDownload:download];
-            //
-            //            assertWithTimeout(1.0, thatEventually(@(failedDownload.isImportFinished)), isTrue());
-            //
-            //            expect(failedDownload.importState).to.equal(ReportImportStatusFailed);
-            //            expect(store.reports).to.contain(failedDownload);
-            //
-            //            NSArray<Report *> *loaded = [store loadReports];
-            //
-            //            expect(loaded).to.haveCountOf(1);
-            //            expect(loaded).to.contain(failedDownload);
-            //            expect(store.reports).to.haveCountOf(1);
-            //            expect(store.reports).to.contain(failedDownload);
+            Report *defunct = [Report MR_createEntityInContext:verifyDb];
+            defunct.sourceFile = [reportsDir URLByAppendingPathComponent:@"defunct.red"];
+            defunct.importDir = [reportsDir URLByAppendingPathComponent:@"defunct.red.dice_import"];
+            defunct.baseDirName = @"dice_content";
+            defunct.rootFilePath = @"defunct.red";
+            defunct.uti = UTI_RED;
+            defunct.importState = defunct.importStateToEnter = ReportImportStatusSuccess;
+            defunct.statusMessage = @"Import complete";
+            defunct.isEnabled = YES;
+            [verifyDb save:NULL];
+
+            [verifyResults performFetch:NULL];
+            [fileManager setWorkingDirChildren:@"report1.red", @"report2.red", @"report3.red", nil];
+            __block NSUInteger completed = 0;
+            [store loadContentFromReportsDir:^{
+                completed += 1;
+            }];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(4);
+            expect(saves.count).to.equal(1);
+            expect(completed).to.equal(1);
         });
-        
-        it(@"posts a reports loaded notification", ^{
-            
-            failure(@"todo: maybe a callback or don't save until all files have been processed so the next fetched results update is basically the load-complete notification");
-
-        });
-        
     });
 
     describe(@"autonomous operation", ^{

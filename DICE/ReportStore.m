@@ -227,7 +227,7 @@ ReportStore *_sharedInstance;
     _reportsDirExclusions = [NSCompoundPredicate orPredicateWithSubpredicates:subpredicates];
 }
 
-- (void)loadContentFromReportsDir
+- (void)loadContentFromReportsDir:(void(^)())afterLoadCompletes
 {
     ensureMainThread();
 
@@ -261,6 +261,13 @@ ReportStore *_sharedInstance;
         NSURL *reportUrl = [self.reportsDir URLByAppendingPathComponent:fileName isDirectory:isDir];
 
         [self attemptToImportReportFromResource:reportUrl];
+    }
+
+    // queue the callback on the moc queue to run after other import blocks finish
+    if (afterLoadCompletes != nil) {
+        [self.reportDb performBlock:^{
+            dispatch_async(dispatch_get_main_queue(), afterLoadCompletes);
+        }];
     }
 }
 

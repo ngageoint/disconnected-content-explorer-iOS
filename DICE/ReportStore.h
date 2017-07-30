@@ -64,7 +64,7 @@
  Most of the work of loading reports will be done asynchronously, so this method
  will return quickly.
  */
-- (void)loadContentFromReportsDir;
+- (void)loadContentFromReportsDir:(void(^_Nullable)())afterLoadCompletes;
 
 /**
  Import the resource the given URL references as a Report.  The import will occur
