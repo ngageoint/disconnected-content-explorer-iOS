@@ -63,23 +63,23 @@ void ensureMainThread() {
 /*
  The import state machine:
 
- new                -> readyToInspect|downloading
- readyToInspect     -> inspectingArchive|inspectingContent
- inspectingContent  -> readyToImport|failed(inspection)
- readyToImport      -> importing
- importing          -> success|failed(import)
- inspectingArchive  -> extracting|failed(inspection)
- extracting         -> readyToImport|failed(extraction)
- downloading        -> readyToInspect|failed(download)
+ new                        -> inspecting_source_file | downloading
+ inspecting_source_file     -> inspecting_archive | inspecting_content
+ inspecting_content         -> moving_content | failed(inspecting_content)
+ inspecting_archive         -> extracting | failed(inspecting_archive)
+ moving_content             -> digesting | failed(moving_content)
+ digesting                  -> success | failed(digesting)
+ extracting                 -> digesting | failed(extracting)
+ downloading                -> inspecting_source_file | failed(downloading)
 
  all states:
  0: new
- 1: readyToInspect
- 2: inspectingArchive
+ 1: inspecting_source_file
+ 2: inspecting_archive
  3: extracting
- 4: inspectingContent
- 5: readyToImport
- 6: importing
+ 4: inspecting_content
+ 5: moving_content
+ 6: digesting
  7: downloading
  8: success
  9: failed
@@ -230,6 +230,16 @@ ReportStore *_sharedInstance;
 - (void)loadContentFromReportsDir
 {
     ensureMainThread();
+
+    [self.reportDb performBlock:^{
+        NSFetchRequest *fetchAllComplete = [Report fetchRequest];
+        fetchAllComplete.predicate = [NSPredicate predicateWithFormat:
+            @"importStateToEnter = importState AND importState = %@", @(ReportImportStatusSuccess)];
+        NSArray<Report *> *completed = [self.reportDb executeFetchRequest:fetchAllComplete error:NULL];
+        for (Report *report in completed) {
+            [self ensureContentOfReport:report];
+        }
+    }];
 
     NSArray *files = [self.fileManager contentsOfDirectoryAtURL:self.reportsDir includingPropertiesForKeys:@[NSURLFileResourceTypeKey] options:0 error:nil];
     for (NSURL *file in files) {
@@ -774,6 +784,23 @@ ReportStore *_sharedInstance;
     }
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     return json;
+}
+
+- (BOOL)ensureContentOfReport:(Report *)report
+{
+    if (!report.isImportFinished) {
+        return YES;
+    }
+    else if ([self.fileManager fileExistsAtPath:report.rootFile.path]) {
+        return YES;
+    }
+
+    NSString *relPath = [report.rootFile.path pathRelativeToPath:_reportsDir.path];
+    report.statusMessage = [@"Main resource does not exist: " stringByAppendingString:relPath];
+    report.importState = ReportImportStatusFailed;
+    report.isEnabled = NO;
+    [self saveReport:report enteringState:ReportImportStatusFailed];
+    return NO;
 }
 
 #pragma mark - import delegate methods

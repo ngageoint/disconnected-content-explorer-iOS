@@ -1603,29 +1603,105 @@ describe(@"ReportStore", ^{
                 nil));
         });
 
-        it(@"removes reports with path that does not exist and are not importing", ^{
+        it(@"updates status of reports whose content has been deleted", ^{
 
-            failure(@"todo");
+            [verifyResults performFetch:NULL];
 
-            //            [fileManager setWorkingDirChildren:@"report1.red", @"report2.blue", nil];
-            //
-            //            [redType enqueueImport];
-            //            [blueType enqueueImport];
-            //
-            //            NSArray<Report *> *reports = [store loadReports];
-            //
-            //            assertWithTimeout(1.0, thatEventually(reports), everyItem(hasProperty(@"isEnabled", isTrue())));
-            //
-            //            expect(reports).to.haveCountOf(2);
-            //            expect(reports[0].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report1.red"]);
-            //            expect(reports[1].sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
-            //
-            //            [fileManager removeItemAtURL:reports[0].importDir error:nil];
-            //
-            //            reports = [store loadReports];
-            //
-            //            expect(reports).to.haveCountOf(1);
-            //            expect(reports.firstObject.sourceFile).to.equal([reportsDir URLByAppendingPathComponent:@"report2.blue"]);
+            Report *report1 = [Report MR_createEntityInContext:verifyDb];
+            report1.sourceFile = [reportsDir URLByAppendingPathComponent:@"report1.red"];
+            report1.importDir = [reportsDir URLByAppendingPathComponent:@"report1.red.dice_import"];
+            report1.baseDirName = @"dice_content";
+            report1.rootFilePath = @"report1.red";
+            report1.uti = UTI_RED;
+            report1.importState = report1.importStateToEnter = ReportImportStatusSuccess;
+            report1.statusMessage = @"Import complete";
+            report1.isEnabled = YES;
+
+            Report *report2 = [Report MR_createEntityInContext:verifyDb];
+            report2.sourceFile = [reportsDir URLByAppendingPathComponent:@"report2.red"];
+            report2.importDir = [reportsDir URLByAppendingPathComponent:@"report2.red.dice_import"];
+            report2.baseDirName = @"dice_content";
+            report2.rootFilePath = @"report2.red";
+            report2.uti = UTI_RED;
+            report2.importState = report2.importStateToEnter = ReportImportStatusSuccess;
+            report2.statusMessage = @"Import complete";
+            report2.isEnabled = YES;
+
+            Report *report3 = [Report MR_createEntityInContext:verifyDb];
+            report3.sourceFile = [reportsDir URLByAppendingPathComponent:@"report3.red"];
+            report3.importDir = [reportsDir URLByAppendingPathComponent:@"report3.red.dice_import"];
+            report3.baseDirName = @"dice_content";
+            report3.rootFilePath = @"report3.red";
+            report3.uti = UTI_RED;
+            report3.importState = report3.importStateToEnter = ReportImportStatusSuccess;
+            report3.statusMessage = @"Import complete";
+            report3.isEnabled = YES;
+
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            [fileManager setWorkingDirChildren:report1.rootFile.path, report2.rootFile.path, report3.rootFile.path, nil];
+            [store loadContentFromReportsDir];
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(3);
+            expect(report1.importState).to.equal(ReportImportStatusSuccess);
+            expect(report1.isEnabled).to.beTruthy();
+            expect(report2.importState).to.equal(ReportImportStatusSuccess);
+            expect(report2.isEnabled).to.beTruthy();
+            expect(report3.importState).to.equal(ReportImportStatusSuccess);
+            expect(report3.isEnabled).to.beTruthy();
+
+            [fileManager removeItemAtURL:report1.importDir error:nil];
+            [store loadContentFromReportsDir];
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(3);
+            expect(report1.importState).to.equal(ReportImportStatusFailed);
+            expect(report1.importStateToEnter).to.equal(ReportImportStatusFailed);
+            expect(report1.statusMessage).to.equal(@"Main resource does not exist: report1.red.dice_import/dice_content/report1.red");
+            expect(report1.isEnabled).to.beFalsy();
+            expect(report2.importState).to.equal(ReportImportStatusSuccess);
+            expect(report2.isEnabled).to.beTruthy();
+            expect(report3.importState).to.equal(ReportImportStatusSuccess);
+            expect(report3.isEnabled).to.beTruthy();
+
+            [fileManager removeItemAtURL:report2.baseDir error:NULL];
+            [store loadContentFromReportsDir];
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(3);
+            expect(report1.importState).to.equal(ReportImportStatusFailed);
+            expect(report1.importStateToEnter).to.equal(ReportImportStatusFailed);
+            expect(report1.statusMessage).to.equal(@"Main resource does not exist: report1.red.dice_import/dice_content/report1.red");
+            expect(report1.isEnabled).to.beFalsy();
+            expect(report2.importState).to.equal(ReportImportStatusFailed);
+            expect(report2.importStateToEnter).to.equal(ReportImportStatusFailed);
+            expect(report2.statusMessage).to.equal(@"Main resource does not exist: report2.red.dice_import/dice_content/report2.red");
+            expect(report2.isEnabled).to.beFalsy();
+            expect(report3.importState).to.equal(ReportImportStatusSuccess);
+            expect(report3.isEnabled).to.beTruthy();
+
+            [fileManager removeItemAtURL:report3.importDir error:NULL];
+            [store loadContentFromReportsDir];
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(3);
+            expect(report1.importState).to.equal(ReportImportStatusFailed);
+            expect(report1.importStateToEnter).to.equal(ReportImportStatusFailed);
+            expect(report1.statusMessage).to.equal(@"Main resource does not exist: report1.red.dice_import/dice_content/report1.red");
+            expect(report1.isEnabled).to.beFalsy();
+            expect(report2.importState).to.equal(ReportImportStatusFailed);
+            expect(report2.importStateToEnter).to.equal(ReportImportStatusFailed);
+            expect(report2.statusMessage).to.equal(@"Main resource does not exist: report2.red.dice_import/dice_content/report2.red");
+            expect(report2.isEnabled).to.beFalsy();
+            expect(report3.importState).to.equal(ReportImportStatusFailed);
+            expect(report3.importStateToEnter).to.equal(ReportImportStatusFailed);
+            expect(report3.statusMessage).to.equal(@"Main resource does not exist: report3.red.dice_import/dice_content/report3.red");
+            expect(report3.isEnabled).to.beFalsy();
         });
 
         it(@"leaves failed download reports", ^{

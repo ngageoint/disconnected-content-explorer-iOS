@@ -471,8 +471,9 @@
         va_list args;
         va_start(args, relPath);
         for(NSString *pathArg = relPath; pathArg != nil; pathArg = va_arg(args, NSString *)) {
-            if (pathArg.isAbsolutePath) {
-                [NSException raise:NSInvalidArgumentException format:@"attempt to set non-relative path as working dir child: %@", pathArg];
+            if (pathArg.isAbsolutePath && ![pathArg descendsFromPath:self.workingDir]) {
+                [NSException raise:NSInvalidArgumentException format:
+                    @"attempt to create working dir child from absolute path not does not descend from working dir: %@", pathArg];
             }
             NSString *stdPath = [self absolutify:pathArg];
             NSString *parentPath = stdPath.stringByDeletingLastPathComponent;
