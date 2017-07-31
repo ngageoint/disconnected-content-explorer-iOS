@@ -20,7 +20,7 @@
 -(id) initWithName: (NSString *) name{
     if (self = [super init]) {
         self.name = name;
-        self.projection = [GPKGProjectionFactory getProjectionWithInt:PROJ_EPSG_WORLD_GEODETIC_SYSTEM];
+        self.projection = [GPKGProjectionFactory projectionWithEpsgInt:PROJ_EPSG_WORLD_GEODETIC_SYSTEM];
     }
     
     return self;
