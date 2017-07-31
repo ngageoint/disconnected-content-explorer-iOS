@@ -1756,50 +1756,29 @@ describe(@"ReportStore", ^{
 
     describe(@"downloading content", ^{
 
-        it(@"starts a download when importing from an http url", ^{
+        it(@"starts a download when entering the downloading state", ^{
 
-            failure(@"todo");
+            [verifyResults performFetch:NULL];
+            NSURL *remoteSource = [NSURL URLWithString:@"https://dice.com/report"];
+            [store attemptToImportReportFromResource:remoteSource];
 
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report"];
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            [verify(downloadManager) downloadUrl:url];
-//            expect(report.importState).to.equal(ReportImportStatusDownloading);
-//            expect(store.reports).to.contain(report);
-        });
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
 
-        it(@"starts a download when importing from an https url", ^{
+            expect(verifyResults.fetchedObjects).to.haveCountOf(1);
+            Report *report = verifyResults.fetchedObjects.firstObject;
+            expect(report.importState).to.equal(ReportImportStatusNew);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusDownloading);
 
-            failure(@"todo");
+            [store advancePendingImports];
 
-//            NSURL *url = [NSURL URLWithString:@"https://dice.com/report"];
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            [verify(downloadManager) downloadUrl:url];
-//            expect(report.importState).to.equal(ReportImportStatusDownloading);
-//            expect(store.reports).to.contain(report);
-        });
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
 
-        it(@"saves a report before the download begins", ^{
-            failure(@"do it");
-        });
+            expect(report.importState).to.equal(ReportImportStatusDownloading);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusDownloading);
 
-        it(@"posts a report added notification before the download begins", ^{
-
-            failure(@"todo");
-
-//            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportAdded on:store.notifications from:store withBlock:nil];
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            assertWithTimeout(1.0, thatEventually(obs.received), hasCountOf(1));
-//
-//            ReceivedNotification *received = obs.received.firstObject;
-//            NSNotification *note = received.notification;
-//            NSDictionary *userInfo = note.userInfo;
-//
-//            expect(userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.importState).to.equal(ReportImportStatusDownloading);
+            [verify(downloadManager) downloadUrl:remoteSource];
         });
 
         it(@"posts download progress notifications", ^{
@@ -1822,35 +1801,6 @@ describe(@"ReportStore", ^{
 //
 //            expect(userInfo[@"report"]).to.beIdenticalTo(report);
 //            expect(report.downloadProgress).to.equal(1);
-        });
-
-        it(@"posts download finished notification", ^{
-
-            failure(@"todo");
-
-//            TestImportProcess *import = [blueType enqueueImport];
-//            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportDownloadComplete on:store.notifications from:store withBlock:nil];
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
-//            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
-//            download.bytesExpected = 999999;
-//            download.bytesReceived = 999999;
-//            download.downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            [store downloadManager:store.downloadManager willFinishDownload:download movingToFile:download.downloadedFile];
-//            download.wasSuccessful = YES;
-//            [fileManager createFilePath:download.downloadedFile.path contents:nil];
-//            [store downloadManager:store.downloadManager didFinishDownload:download];
-//
-//            assertWithTimeout(1.0, thatEventually(@(import.isFinished)), isTrue());
-//
-//            ReceivedNotification *received = obs.received.firstObject;
-//            NSNotification *note = received.notification;
-//            NSDictionary *userInfo = note.userInfo;
-//
-//            expect(obs.received).to.haveCountOf(1);
-//            expect(userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.downloadProgress).to.equal(100);
         });
 
         it(@"does not post a progress notification if the percent complete did not change", ^{
