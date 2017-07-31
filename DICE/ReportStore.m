@@ -872,11 +872,16 @@ ReportStore *_sharedInstance;
     ensureMainThread();
 
     Report *report = [self reportForDownload:download];
-    if (download.percentComplete == report.downloadProgress) {
+    if (report == nil) {
         return;
     }
-    report.title = [NSString stringWithFormat:@"Downloading... %li%%", (long)download.percentComplete];
-    report.downloadProgress = (NSUInteger) download.percentComplete;
+
+    [self.reportDb performBlock:^{
+        report.title = [NSString stringWithFormat:@"Downloading... %li%%", (long)download.percentComplete];
+        report.downloadSize = download.bytesExpected;
+        report.downloadProgress = download.bytesReceived;
+        [self saveReport:report enteringState:report.importState];
+    }];
 }
 
 - (NSURL *)downloadManager:(DICEDownloadManager *)downloadManager willFinishDownload:(DICEDownload *)download movingToFile:(NSURL *)destFile
@@ -945,8 +950,6 @@ ReportStore *_sharedInstance;
  */
 - (Report *)reportForDownload:(DICEDownload *)download
 {
-    ensureMainThread();
-
     Report *report = [self reportForUrl:download.url];
     if (report) {
         return report;

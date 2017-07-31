@@ -21,7 +21,7 @@
 
 - (NSUInteger)downloadPercent
 {
-    return (NSUInteger)((double)self.downloadProgress / (double)self.downloadSize);
+    return (NSUInteger)((double)self.downloadProgress / (double)self.downloadSize * 100.0);
 }
 
 - (BOOL)isImportFinished

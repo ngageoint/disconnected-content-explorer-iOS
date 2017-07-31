@@ -1781,31 +1781,30 @@ describe(@"ReportStore", ^{
             [verify(downloadManager) downloadUrl:remoteSource];
         });
 
-        it(@"posts download progress notifications", ^{
+        it(@"updates download progress", ^{
 
-            failure(@"todo");
+            NSURL *remoteSource = [NSURL URLWithString:@"http://dice.com/test"];
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.remoteSource = remoteSource;
+            report.importStateToEnter = report.importState = ReportImportStatusDownloading;
+            [verifyDb MR_saveToPersistentStoreAndWait];
 
-//            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:nil];
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
-//            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
-//            download.bytesExpected = 999999;
-//            download.bytesReceived = 12345;
-//            Report *report = [store attemptToImportReportFromResource:url];
-//            [store downloadManager:store.downloadManager didReceiveDataForDownload:download];
-//
-//            expect(obs.received).to.haveCountOf(1);
-//
-//            ReceivedNotification *received = obs.received.firstObject;
-//            NSNotification *note = received.notification;
-//            NSDictionary *userInfo = note.userInfo;
-//
-//            expect(userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.downloadProgress).to.equal(1);
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:remoteSource];
+            download.bytesExpected = 999999;
+            download.bytesReceived = 33333;
+            [store downloadManager:store.downloadManager didReceiveDataForDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.downloadSize).to.equal(999999);
+            expect(report.downloadProgress).to.equal(33333);
+            expect(report.downloadPercent).to.equal(3);
         });
 
-        it(@"does not post a progress notification if the percent complete did not change", ^{
+        it(@"does not save the record if the download percent did not change", ^{
 
-            failure(@"todo");
+            failure(@"todo: maybe change from percentage to some change threshold, like 1MB, or whatever's smaller");
 
 //            __block NSInteger lastProgress = 0;
 //            NotificationRecordingObserver *obs = [[NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:^(NSNotification *notification) {
