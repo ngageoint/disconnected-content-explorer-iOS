@@ -85,16 +85,6 @@ void ensureMainThread() {
  9: failed
  */
 
-@protocol StateTransition <NSObject>
-
-- (NSNumber *)from;
-- (NSNumber *)to;
-- (BOOL)perform;
-- (NSError *)error;
-
-@end
-
-
 static NSString *const ImportDirSuffix = @".dice_import";
 
 
@@ -123,6 +113,8 @@ static NSString *const ImportDirSuffix = @".dice_import";
     dispatch_queue_t _sync;
     NSPredicate *_pendingImportPredicate;
     NSPredicate *_readyForShutdownPredicate;
+    // be sure this var is always accessed on the moc's serial queue, i.e., in a performBlock
+    BOOL _deferSaveForBulkChange;
 }
 
 dispatch_once_t _sharedInstanceOnce;
@@ -189,6 +181,7 @@ ReportStore *_sharedInstance;
     _readyForShutdownPredicate = [NSPredicate predicateWithFormat:
         @"NOT(importState IN %@)",
         @[@(ReportImportStatusDownloading), @(ReportImportStatusSuccess), @(ReportImportStatusFailed)]];
+    _deferSaveForBulkChange = NO;
 
     if (exclusions == nil) {
         exclusions = [NSMutableArray array];
@@ -232,6 +225,7 @@ ReportStore *_sharedInstance;
     ensureMainThread();
 
     [self.reportDb performBlock:^{
+        _deferSaveForBulkChange = YES;
         NSFetchRequest *fetchAllComplete = [Report fetchRequest];
         fetchAllComplete.predicate = [NSPredicate predicateWithFormat:
             @"importStateToEnter = importState AND importState = %@", @(ReportImportStatusSuccess)];
@@ -262,6 +256,14 @@ ReportStore *_sharedInstance;
 
         [self attemptToImportReportFromResource:reportUrl];
     }
+
+    [self.reportDb performBlock:^{
+        NSError *error;
+        if (![self.reportDb save:&error]) {
+            vlog(@"error saving after loading content: %@", error);
+        }
+        _deferSaveForBulkChange = NO;
+    }];
 
     // queue the callback on the moc queue to run after other import blocks finish
     if (afterLoadCompletes != nil) {
@@ -379,6 +381,10 @@ ReportStore *_sharedInstance;
 {
     report.importStateToEnter = enteringState;
 
+    if (_deferSaveForBulkChange) {
+        return;
+    }
+    
     NSError *error;
     if (![self.reportDb save:&error]) {
         vlog(@"error saving report before transition from state %d to %d\n%@", report.importState, enteringState, report);

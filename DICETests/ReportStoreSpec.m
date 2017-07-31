@@ -1706,11 +1706,6 @@ describe(@"ReportStore", ^{
 
         it(@"saves and calls completion block only once for the entire load operation", ^{
 
-            NSMutableArray<NSNotification *> *saves = [NSMutableArray array];
-            [reportDb observe:NSManagedObjectContextDidSaveNotification withBlock:^(NSNotification *note) {
-                [saves addObject:note];
-            }];
-
             Report *defunct = [Report MR_createEntityInContext:verifyDb];
             defunct.sourceFile = [reportsDir URLByAppendingPathComponent:@"defunct.red"];
             defunct.importDir = [reportsDir URLByAppendingPathComponent:@"defunct.red.dice_import"];
@@ -1721,6 +1716,14 @@ describe(@"ReportStore", ^{
             defunct.statusMessage = @"Import complete";
             defunct.isEnabled = YES;
             [verifyDb save:NULL];
+
+            [verifyDb waitForQueueToDrain];
+            [reportDb waitForQueueToDrain];
+
+            NSMutableArray<NSNotification *> *saves = [NSMutableArray array];
+            [reportDb observe:NSManagedObjectContextDidSaveNotification withBlock:^(NSNotification *note) {
+                [saves addObject:note];
+            }];
 
             [verifyResults performFetch:NULL];
             [fileManager setWorkingDirChildren:@"report1.red", @"report2.red", @"report3.red", nil];
