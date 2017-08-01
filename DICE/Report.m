@@ -21,6 +21,9 @@
 
 - (NSUInteger)downloadPercent
 {
+    if (self.downloadSize <= 0) {
+        return 0;
+    }
     return (NSUInteger)((double)self.downloadProgress / (double)self.downloadSize * 100.0);
 }
 

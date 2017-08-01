@@ -801,6 +801,27 @@ describe(@"Report", ^{
         expect(report.tileThumbnailPath).to.equal(@"images/thumbnail.png");
     });
 
+    it(@"calculates download percent", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+        report.downloadSize = 1000000;
+        report.downloadProgress = 123400;
+
+        expect(report.downloadPercent).to.equal(12);
+    });
+
+    it(@"does not cause a divide-by-zero error when calculating download percent", ^{
+
+        Report *report = [Report MR_createEntityInContext:context];
+
+        expect(report.downloadPercent).to.equal(0);
+
+        report.downloadSize = 0;
+        report.downloadProgress = 12345;
+
+        expect(report.downloadPercent).to.equal(0);
+    });
+
     it(@"intializes cache files", ^{
 
         Report *report = [Report MR_createEntityInContext:context];
