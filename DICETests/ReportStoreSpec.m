@@ -1875,50 +1875,62 @@ describe(@"ReportStore", ^{
             expect(report.downloadPercent).to.equal(1);
         });
 
-        it(@"posts a progress notification about a url that did not match a report", ^{
+        it(@"ignores download messages about a url that does not match a report", ^{
 
-            failure(@"todo");
+            [verifyResults performFetch:NULL];
 
-//            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:nil];
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
-//            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
-//            download.bytesExpected = 999999;
-//            download.bytesReceived = 999999;
-//            [store attemptToImportReportFromResource:url];
-//            DICEDownload *foreignDownload = [[DICEDownload alloc] initWithUrl:[NSURL URLWithString:@"http://not.a.report/i/know/about.blue"]];
-//
-//            [store downloadManager:store.downloadManager didReceiveDataForDownload:foreignDownload];
-//            [store downloadManager:store.downloadManager didReceiveDataForDownload:download];
-//
-//            expect(obs.received).to.haveCountOf(2);
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:[NSURL URLWithString:@"http://dice.com/mystery"]];
+            download.bytesExpected = 123456789;
+            download.bytesReceived = 123456000;
+
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(0);
+
+            download.bytesReceived = download.bytesExpected;
+            NSURL *file = [reportsDir URLByAppendingPathComponent:@"mystery.zip"];
+            [store downloadManager:downloadManager willFinishDownload:download movingToFile:file];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(0);
+
+            download.fileName = file.lastPathComponent;
+            download.downloadedFile = file;
+            [store downloadManager:downloadManager didFinishDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(verifyResults.fetchedObjects).to.haveCountOf(0);
         });
 
-        it(@"begins an import for the same report after the download is complete", ^{
+        it(@"transitions from downloading to inspecting source file", ^{
 
-            failure(@"todo");
+            NSURL *remoteSource = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.remoteSource = remoteSource;
+            report.importState = report.importStateToEnter = ReportImportStatusDownloading;
 
-//            TestImportProcess *blueImport = [[blueType enqueueImport] block];
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
-//            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
-//            download.bytesExpected = 999999;
-//            Report *report = [store attemptToImportReportFromResource:url];
-//            download.bytesReceived = 555555;
-//            [store downloadManager:store.downloadManager didReceiveDataForDownload:download];
-//            download.bytesReceived = 999999;
-//            url = [reportsDir URLByAppendingPathComponent:@"report.blue"];
-//            [store downloadManager:store.downloadManager willFinishDownload:download movingToFile:url];
-//            [fileManager createFileAtPath:url.path contents:nil attributes:@{NSFileType: NSFileTypeRegular}];
-//            download.wasSuccessful = YES;
-//            download.downloadedFile = url;
-//            [store downloadManager:store.downloadManager didFinishDownload:download];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToInteger(ReportImportStatusImporting));
-//
-//            expect(blueImport.report).to.beIdenticalTo(report);
-//
-//            [blueImport unblock];
-//
-//            assertWithTimeout(1.0, thatEventually(@(blueImport.isFinished)), isTrue());
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"report.blue" isDirectory:NO];
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:remoteSource];
+            download.bytesReceived = download.bytesExpected = 9999999;
+            download.fileName = sourceFile.lastPathComponent;
+
+            [store downloadManager:downloadManager willFinishDownload:download movingToFile:sourceFile];
+
+            download.wasSuccessful = YES;
+            download.downloadedFile = sourceFile;
+
+            [store downloadManager:store.downloadManager didFinishDownload:download];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusInspectingSourceFile));
         });
 
         it(@"responds to failed downloads", ^{
