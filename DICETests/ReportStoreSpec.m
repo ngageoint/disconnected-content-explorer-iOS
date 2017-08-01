@@ -1802,53 +1802,77 @@ describe(@"ReportStore", ^{
             expect(report.downloadPercent).to.equal(3);
         });
 
-        it(@"does not save the record if the download percent did not change", ^{
+        it(@"only saves progress updates at intervals of 750KB after initial udpate", ^{
 
-            failure(@"todo: maybe change from percentage to some change threshold, like 1MB, or whatever's smaller");
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.remoteSource = [NSURL URLWithString:@"http://dice.com/test/progress"];
+            report.importStateToEnter = report.importState = ReportImportStatusDownloading;
 
-//            __block NSInteger lastProgress = 0;
-//            NotificationRecordingObserver *obs = [[NotificationRecordingObserver observe:ReportNotification.reportDownloadProgress on:store.notifications from:store withBlock:^(NSNotification *notification) {
-//                if (![ReportNotification.reportDownloadProgress isEqualToString:notification.name]) {
-//                    return;
-//                }
-//                Report *report = notification.userInfo[@"report"];
-//                if (lastProgress == report.downloadProgress) {
-//                    failure([NSString stringWithFormat:@"duplicate progress notifications: %@", @(lastProgress)]);
-//                }
-//                lastProgress = report.downloadProgress;
-//            }] observe:ReportNotification.reportDownloadComplete on:store.notifications from:store];
-//
-//            TestImportProcess *import = [blueType enqueueImport];
-//            import.steps = @[[NSBlockOperation blockOperationWithBlock:^{}]];
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
-//            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
-//            download.bytesExpected = 999999;
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            download.bytesReceived = 12345;
-//            [store downloadManager:downloadManager didReceiveDataForDownload:download];
-//            download.bytesReceived = 12500;
-//            [store downloadManager:downloadManager didReceiveDataForDownload:download];
-//            download.bytesReceived = 99999;
-//            [store downloadManager:downloadManager didReceiveDataForDownload:download];
-//            download.bytesReceived = 999999;
-//            [store downloadManager:downloadManager didReceiveDataForDownload:download];
-//
-//            download.downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
-//            [store downloadManager:downloadManager willFinishDownload:download movingToFile:download.downloadedFile];
-//            download.wasSuccessful = YES;
-//            [store downloadManager:downloadManager didFinishDownload:download];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            ReceivedNotification *received = obs.received.lastObject;
-//            NSNotification *note = received.notification;
-//            NSDictionary *userInfo = note.userInfo;
-//
-//            expect(obs.received).to.haveCountOf(4);
-//            expect(obs.received.lastObject.notification.name).to.equal(ReportNotification.reportDownloadComplete);
-//            expect(userInfo[@"report"]).to.beIdenticalTo(report);
-//            expect(report.downloadProgress).to.equal(100);
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:report.remoteSource];
+            download.bytesExpected = 1000000;
+            download.bytesReceived = 100000;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.downloadProgress).to.equal(100000);
+
+            download.bytesReceived += 250000;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.downloadProgress).to.equal(100000);
+
+            download.bytesReceived += 500000;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.downloadProgress).to.equal(850000);
+        });
+
+        it(@"only saves download progress when the download percent changes", ^{
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.remoteSource = [NSURL URLWithString:@"http://dice.com/test/progress"];
+            report.importStateToEnter = report.importState = ReportImportStatusDownloading;
+
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:report.remoteSource];
+            download.bytesExpected = 100000000;
+            download.bytesReceived = 100000;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.downloadProgress).to.equal(100000);
+            expect(report.downloadPercent).to.equal(0);
+
+            download.bytesReceived += 750000;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.downloadProgress).to.equal(100000);
+            expect(report.downloadPercent).to.equal(0);
+
+            download.bytesReceived += 150000;
+            [store downloadManager:downloadManager didReceiveDataForDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.downloadProgress).to.equal(1000000);
+            expect(report.downloadPercent).to.equal(1);
         });
 
         it(@"posts a progress notification about a url that did not match a report", ^{

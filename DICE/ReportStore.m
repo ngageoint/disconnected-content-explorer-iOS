@@ -877,6 +877,14 @@ ReportStore *_sharedInstance;
     }
 
     [self.reportDb performBlock:^{
+        if (download.bytesExpected <= 75000000) {
+            if (report.downloadProgress > 0 && download.bytesReceived - report.downloadProgress < 750000) {
+                return;
+            }
+        }
+        else if (download.percentComplete == report.downloadPercent) {
+            return;
+        }
         report.title = [NSString stringWithFormat:@"Downloading... %li%%", (long)download.percentComplete];
         report.downloadSize = download.bytesExpected;
         report.downloadProgress = download.bytesReceived;
