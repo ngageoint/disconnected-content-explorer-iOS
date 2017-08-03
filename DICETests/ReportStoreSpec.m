@@ -28,6 +28,25 @@
 #import <stdatomic.h>
 #import <objc/runtime.h>
 
+/*
+ NOTE: The reason for all of the [Report willAccessValueForKey:] calls is
+ to ensure an explicitly saved object is not a fault.  This requirement
+ became apparent when writing the "transitions from downloading to inspecting
+ source file" test.  The test called [ReportStore downloadManager:willFinishDownload:movingToFile:]
+ which used [NSManagedObjectContext performBlock:] to asyncronously set the
+ sourceFile on the Report and save the Report.  At the time, the test then
+ sequentially attempted to assert that the main-thread instance of the Report had the
+ proper sourceFile value, which should have failed.  However, the test was
+ passing because the Report that was created at the beginng of the test and persisted
+ on the main context was still a fault.  When the assertion on the sourceFile accessed
+ the sourceFile property, core data's fault mechanism activated to fetch the entity.
+ Debugging showed that the within the willAccessValueForKey: method, the main thread 
+ was blocked on a semaphore wait, invoked as a result of submitting a block of work to
+ the private queue context.  The main thread then waited until the background block
+ finished before returning from firing the fault and the sourceFile property accessor, 
+ so main context entity was able to fetch the value the background block had assigned.
+ See the "core data concurrency" tests at the end as well.
+ */
 
 
 /**
@@ -554,6 +573,7 @@ describe(@"ReportStore", ^{
             report.uti = UTI_RED;
 
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             [store advancePendingImports];
 
@@ -581,6 +601,7 @@ describe(@"ReportStore", ^{
             report.importDir = [reportsDir URLByAppendingPathComponent:@"report.red.dice_import" isDirectory:YES];
 
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             __block BOOL movedOnImportQueue = NO;
             __block NSString *movedSourceFileTo;
@@ -626,6 +647,7 @@ describe(@"ReportStore", ^{
             report.rootFilePath = @"report.red";
 
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             TestImportProcess *importProcess = [redType enqueueImport];
             [store advancePendingImports];
@@ -739,6 +761,7 @@ describe(@"ReportStore", ^{
             report.importState = ReportImportStatusInspectingContent;
             report.importStateToEnter = ReportImportStatusMovingContent;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             [fileManager setWorkingDirChildren:@"test.red", @"test.red.dice_import/", nil];
             fileManager.onMoveItemAtPath = ^BOOL(NSString * _Nonnull sourcePath, NSString * _Nonnull destPath, NSError *__autoreleasing  _Nullable * _Nullable error) {
@@ -910,6 +933,7 @@ describe(@"ReportStore", ^{
             report.importStateToEnter = ReportImportStatusInspectingContent;
             report.importDir = [reportsDir URLByAppendingPathComponent:@"test_report.dice_import" isDirectory:YES];
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             [store advancePendingImports];
 
@@ -930,6 +954,7 @@ describe(@"ReportStore", ^{
             report.importDir = [reportsDir URLByAppendingPathComponent:@"test_report.dice_import" isDirectory:YES];
             report.reportTypeId = redType.reportTypeId;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             __block BOOL movedSourceFileOnImportQueue = NO;
             NSString *baseDirPath = [report.importDir.path stringByAppendingPathComponent:@"test_report"];
@@ -965,6 +990,7 @@ describe(@"ReportStore", ^{
             report.reportTypeId = blueType.reportTypeId;
             report.baseDirName = @"test_report";
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             TestImportProcess *importProcess = [blueType enqueueImport];
             [store advancePendingImports];
@@ -996,6 +1022,7 @@ describe(@"ReportStore", ^{
             report.baseDirName = @"blue_base";
             report.title = source.lastPathComponent;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             [blueType enqueueImport];
             [store advancePendingImports];
@@ -1022,6 +1049,7 @@ describe(@"ReportStore", ^{
             report.baseDirName = @"blue_base";
             report.title = source.lastPathComponent;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             [blueType enqueueImport];
             [store advancePendingImports];
@@ -1052,6 +1080,7 @@ describe(@"ReportStore", ^{
             report.baseDirName = @"blue_base";
             report.title = source.lastPathComponent;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             [blueType enqueueImport];
             [store advancePendingImports];
@@ -1171,6 +1200,7 @@ describe(@"ReportStore", ^{
             report.importStateToEnter = ReportImportStatusInspectingArchive;
             report.uti = (__bridge NSString *)kUTTypeZipArchive;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             [store advancePendingImports];
 
@@ -1202,6 +1232,7 @@ describe(@"ReportStore", ^{
             report.baseDirName = @"blue_base";
             report.reportTypeId = blueType.reportTypeId;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             __block DICEExtractReportOperation *extractOp;
             importQueue.onAddOperation = ^(NSOperation *op) {
@@ -1251,6 +1282,7 @@ describe(@"ReportStore", ^{
             report.baseDirName = nil;
             report.reportTypeId = blueType.reportTypeId;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             __block DICEExtractReportOperation *extractOp;
             importQueue.onAddOperation = ^(NSOperation *op) {
@@ -1301,6 +1333,7 @@ describe(@"ReportStore", ^{
             report.baseDirName = @"blue_base";
             report.reportTypeId = blueType.reportTypeId;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             __block DeleteFileOperation *deleteArchive;
             importQueue.onAddOperation = ^(NSOperation *op) {
@@ -1348,6 +1381,7 @@ describe(@"ReportStore", ^{
             report.baseDirName = @"blue_base";
             report.reportTypeId = blueType.reportTypeId;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             __block DeleteFileOperation *deleteArchive;
             importQueue.onAddOperation = ^(NSOperation *op) {
@@ -1411,6 +1445,7 @@ describe(@"ReportStore", ^{
             report.baseDirName = nil;
             report.reportTypeId = blueType.reportTypeId;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             [store advancePendingImports ];
 
@@ -1638,6 +1673,9 @@ describe(@"ReportStore", ^{
             report3.isEnabled = YES;
 
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report1 willAccessValueForKey:nil];
+            [report2 willAccessValueForKey:nil];
+            [report3 willAccessValueForKey:nil];
 
             [fileManager setWorkingDirChildren:report1.rootFile.path, report2.rootFile.path, report3.rootFile.path, nil];
             [store loadContentFromReportsDir:nil];
@@ -1788,6 +1826,7 @@ describe(@"ReportStore", ^{
             report.remoteSource = remoteSource;
             report.importStateToEnter = report.importState = ReportImportStatusDownloading;
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             DICEDownload *download = [[DICEDownload alloc] initWithUrl:remoteSource];
             download.bytesExpected = 999999;
@@ -1809,6 +1848,7 @@ describe(@"ReportStore", ^{
             report.importStateToEnter = report.importState = ReportImportStatusDownloading;
 
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             DICEDownload *download = [[DICEDownload alloc] initWithUrl:report.remoteSource];
             download.bytesExpected = 1000000;
@@ -1837,13 +1877,16 @@ describe(@"ReportStore", ^{
             expect(report.downloadProgress).to.equal(850000);
         });
 
-        it(@"only saves download progress when the download percent changes", ^{
+        it(@"only saves download progress when the download percent changes when the download size is larger than 75000000", ^{
 
+            [verifyResults performFetch:NULL];
+            
             Report *report = [Report MR_createEntityInContext:verifyDb];
             report.remoteSource = [NSURL URLWithString:@"http://dice.com/test/progress"];
             report.importStateToEnter = report.importState = ReportImportStatusDownloading;
 
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             DICEDownload *download = [[DICEDownload alloc] initWithUrl:report.remoteSource];
             download.bytesExpected = 100000000;
@@ -1853,7 +1896,7 @@ describe(@"ReportStore", ^{
             [reportDb waitForQueueToDrain];
             [verifyDb waitForQueueToDrain];
 
-            expect(report.downloadProgress).to.equal(100000);
+            expect(report.downloadProgress).to.equal(0);
             expect(report.downloadPercent).to.equal(0);
 
             download.bytesReceived += 750000;
@@ -1862,7 +1905,7 @@ describe(@"ReportStore", ^{
             [reportDb waitForQueueToDrain];
             [verifyDb waitForQueueToDrain];
 
-            expect(report.downloadProgress).to.equal(100000);
+            expect(report.downloadProgress).to.equal(0);
             expect(report.downloadPercent).to.equal(0);
 
             download.bytesReceived += 150000;
@@ -1917,6 +1960,7 @@ describe(@"ReportStore", ^{
             report.importState = report.importStateToEnter = ReportImportStatusDownloading;
 
             [verifyDb MR_saveToPersistentStoreAndWait];
+            [report willAccessValueForKey:nil];
 
             NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"report.blue" isDirectory:NO];
             DICEDownload *download = [[DICEDownload alloc] initWithUrl:remoteSource];
@@ -1924,6 +1968,9 @@ describe(@"ReportStore", ^{
             download.fileName = sourceFile.lastPathComponent;
 
             [store downloadManager:downloadManager willFinishDownload:download movingToFile:sourceFile];
+
+            NSURL *reportSourceFile = report.sourceFile;
+            expect(reportSourceFile).to.equal(sourceFile);
 
             download.wasSuccessful = YES;
             download.downloadedFile = sourceFile;
@@ -2677,6 +2724,74 @@ describe(@"ReportStore", ^{
 //            expect([fileManager isRegularFileAtUrl:sourceFile]).to.beFalsy();
         });
 
+    });
+
+    xdescribe(@"core data concurrency", ^{
+
+        it(@"blocks the main thread when firing a fault on the main thread context and a block is waiting to run on the parent private context", ^{
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.remoteSource = [NSURL URLWithString:@"http://dice.com/concurrency"];
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            expect(report.isFault).to.beTruthy();
+
+            NSCondition *blocked = [[NSCondition alloc] init];
+            NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"concurrency.zip"];
+            [reportDb performBlock:^{
+                [blocked lock];
+                [blocked waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+                [blocked unlock];
+                Report *bgReport = [reportDb executeFetchRequest:[Report fetchRequest] error:NULL].firstObject;
+                bgReport.sourceFile = sourceFile;
+            }];
+
+            NSTimeInterval start = NSDate.timeIntervalSinceReferenceDate;
+            NSURL *mainSourceFile = report.sourceFile;
+            NSTimeInterval finish = NSDate.timeIntervalSinceReferenceDate;
+
+            expect(mainSourceFile).to.equal(sourceFile);
+            expect(finish).toNot.beCloseToWithin(start, 0.8);
+        });
+
+        it(@"does not block the main thread when accessing a property on a non-fault entity while a block is running on a parent private context", ^{
+
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.remoteSource = [NSURL URLWithString:@"http://dice.com/concurrency"];
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            // comment the following line to see that having a fault entity will deadlock the test
+            // because accessing sourceFile on the main thread will cause the main thread to block
+            // on a mutext wait while the background block is running; hence the main thread will
+            // never get to unlocking with the MAIN_ACCESSED_ENTITY condition, which means background
+            // block will never acquire the lock with that condiition, deadlocking the threads.
+            [report willAccessValueForKey:nil];
+            expect(report.isFault).to.beFalsy();
+
+            NSInteger MAIN_WAITING = 0, BG_BLOCK_RUNNING = 1, BG_BLOCK_FINISHED = 2, MAIN_ACCESSED_ENTITY = 3;
+            NSConditionLock *canProceed = [[NSConditionLock alloc] initWithCondition:MAIN_WAITING];
+
+            NSURL *sourceFile = [reportsDir URLByAppendingPathComponent:@"concurrency.zip"];
+            [reportDb performBlock:^{
+                [canProceed lockWhenCondition:MAIN_WAITING];
+                [canProceed unlockWithCondition:BG_BLOCK_RUNNING];
+                [canProceed lockWhenCondition:MAIN_ACCESSED_ENTITY];
+
+                Report *bgReport = [reportDb executeFetchRequest:[Report fetchRequest] error:NULL].firstObject;
+                bgReport.sourceFile = sourceFile;
+
+                [canProceed unlockWithCondition:BG_BLOCK_FINISHED];
+            }];
+
+            [canProceed lockWhenCondition:BG_BLOCK_RUNNING];
+
+            NSURL *mainSourceFile = report.sourceFile;
+            expect(mainSourceFile).to.beNil();
+
+            [canProceed unlockWithCondition:MAIN_ACCESSED_ENTITY];
+            [canProceed lockWhenCondition:BG_BLOCK_FINISHED];
+            [canProceed unlock];
+        });
     });
 
     describe(@"notifications", ^{
