@@ -1977,10 +1977,17 @@ describe(@"ReportStore", ^{
 
             download.wasSuccessful = YES;
             download.downloadedFile = sourceFile;
-
+            [fileManager createFilePath:sourceFile.path contents:nil];
             [store downloadManager:store.downloadManager didFinishDownload:download];
 
             assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusInspectingSourceFile));
+
+            [store advancePendingImports];
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.importState).to.equal(ReportImportStatusInspectingSourceFile);
+            expect(report.importStateToEnter).to.equal(ReportImportStatusInspectingContent);
         });
 
         it(@"handles failed downloads", ^{
