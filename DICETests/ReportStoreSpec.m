@@ -1983,34 +1983,32 @@ describe(@"ReportStore", ^{
             assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusInspectingSourceFile));
         });
 
-        it(@"responds to failed downloads", ^{
+        it(@"handles failed downloads", ^{
 
-            failure(@"todo");
+            NSURL *remoteSource = [NSURL URLWithString:@"http://dice.com/report.blue"];
 
-//            TestImportProcess *import = [blueType enqueueImport];
-//            import.steps = @[[NSBlockOperation blockOperationWithBlock:^{
-//                failure(@"erroneously started import process for failed download");
-//            }]];
-//            NotificationRecordingObserver *obs = [NotificationRecordingObserver observe:ReportNotification.reportImportFinished on:store.notifications from:store withBlock:nil];
-//            [obs observe:ReportNotification.reportDownloadComplete on:store.notifications from:store];
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
-//            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
-//            download.bytesExpected = 999999;
-//            download.bytesReceived = 0;
-//            download.downloadedFile = nil;
-//            download.wasSuccessful = NO;
-//            download.httpResponseCode = 503;
-//
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            [store downloadManager:store.downloadManager didFinishDownload:download];
-//
-//            assertWithTimeout(1.0, thatEventually(obs.received.lastObject.notification.name), equalTo(ReportNotification.reportImportFinished));
-//
-//            expect(obs.received).to.haveCountOf(1);
-//            expect(obs.received.lastObject.notification.name).to.equal(ReportNotification.reportImportFinished);
-//            expect(report.importState).to.equal(ReportImportStatusFailed);
-//            expect(report.isEnabled).to.beFalsy();
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.remoteSource = remoteSource;
+            report.importState = report.importStateToEnter = ReportImportStatusDownloading;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:remoteSource];
+            download.bytesExpected = 999999;
+            download.bytesReceived = 0;
+            download.wasSuccessful = NO;
+            download.downloadedFile = nil;
+            download.httpResponseCode = 503;
+            download.error = [NSError errorWithDomain:@"dice.test" code:123 userInfo:@{NSLocalizedDescriptionKey: @"epic fail"}];
+
+            [store downloadManager:store.downloadManager didFinishDownload:download];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.importStateToEnter).to.equal(ReportImportStatusFailed);
+            expect(report.isEnabled).to.beFalsy();
+            expect(report.statusMessage).to.equal(download.error.description);
+            expect(report.title).to.equal(@"Download failed");
         });
 
         it(@"can import a downloaded archive file", ^{

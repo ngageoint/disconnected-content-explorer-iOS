@@ -924,7 +924,12 @@ ReportStore *_sharedInstance;
         if (!download.wasSuccessful || download.downloadedFile == nil) {
             // TODO: mechanism to retry
             report.title = @"Download failed";
-            report.statusMessage = download.error.localizedDescription;
+            if (download.error) {
+                report.statusMessage = download.error.description;
+            }
+            else {
+                report.statusMessage = [NSHTTPURLResponse localizedStringForStatusCode:download.httpResponseCode];
+            }
             [self saveReport:report enteringState:ReportImportStatusFailed];
             return;
         }
