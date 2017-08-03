@@ -954,8 +954,11 @@ ReportStore *_sharedInstance;
         if (uti == NULL || [self.utiExpert uti:uti isEqualToUti:kUTTypeData]) {
             uti = kUTTypeZipArchive;
         }
-        if (uti == NULL) {
-            uti = kUTTypeItem;
+        if (uti != NULL && ![self.utiExpert isDynamicUti:uti]) {
+            report.uti = (__bridge NSString *)uti;
+        }
+        else {
+            report.uti = nil;
         }
         
         // TODO: fail on null or dynamic uti?
