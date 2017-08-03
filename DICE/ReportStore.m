@@ -897,14 +897,18 @@ ReportStore *_sharedInstance;
     ensureMainThread();
 
     Report *report = [self reportForDownload:download];
-    report.sourceFile = destFile;
+    if (report == nil) {
+        return nil;
+    }
+    [self.reportDb performBlock:^{
+        report.sourceFile = destFile;
+        [self saveReport:report enteringState:report.importState];
+    }];
     return nil;
 }
 
 - (void)downloadManager:(DICEDownloadManager *)downloadManager didFinishDownload:(DICEDownload *)download
 {
-    assert(false);
-
     if (downloadManager.isFinishingBackgroundEvents) {
         // the app was launched into the background to finish background downloads, so defer expensive
         // import of downloaded files until the user next launches the application
@@ -912,43 +916,46 @@ ReportStore *_sharedInstance;
     }
 
     Report *report = [self reportForDownload:download];
-
-    if (!download.wasSuccessful || download.downloadedFile == nil) {
-        // TODO: mechanism to retry
-        report.title = @"Download failed";
-        report.importState = ReportImportStatusFailed;
-        report.statusMessage = download.error.localizedDescription;
-        report.isEnabled = NO;
+    if (report == nil) {
         return;
     }
 
-    report.title = download.downloadedFile.lastPathComponent;
-    report.importState = ReportImportStatusInspectingSourceFile;
-    report.statusMessage = @"Download complete";
-    report.downloadProgress = 100;
-    /*
-     * TODO: better utilise the uti expert to make a more intelligent decision based on the best, most specific
-     * information available from mime type and file name, and predetermine if a report type might support a uti.
-     * e.g., the example report from https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/metromap.zip
-     * has a mime type of application/octet-stream and the resulting uti is public.data.  given that, it is
-     * more optimal to use the file name to determine the uti.  however, not all downloads might provide a useful
-     * file name either, so there should also be a mechanism to make an attempt to import a resource given only a uti
-     * like public.data, possibly even user intervention.  this will require some static prioritization of preferred
-     * utis, e.g.,
-     */
-    CFStringRef uti = [self.utiExpert probableUtiForResource:report.sourceFile conformingToUti:NULL];
-    if ((uti == NULL || [self.utiExpert isDynamicUti:uti]) && download.mimeType) {
-        uti = [self.utiExpert preferredUtiForMimeType:download.mimeType conformingToUti:NULL];
-    }
-    if (uti == NULL || [self.utiExpert uti:uti isEqualToUti:kUTTypeData]) {
-        uti = kUTTypeZipArchive;
-    }
-    if (uti == NULL) {
-        uti = kUTTypeItem;
-    }
+    [self.reportDb performBlock:^{
+        if (!download.wasSuccessful || download.downloadedFile == nil) {
+            // TODO: mechanism to retry
+            report.title = @"Download failed";
+            report.statusMessage = download.error.localizedDescription;
+            [self saveReport:report enteringState:ReportImportStatusFailed];
+            return;
+        }
 
-    // TODO: fail on null or dynamic uti?
-    [self enterInspectingSourceFileForReport:report];
+        report.title = download.downloadedFile.lastPathComponent;
+        report.statusMessage = @"Download complete";
+        report.downloadProgress = report.downloadSize;
+        /*
+         * TODO: better utilise the uti expert to make a more intelligent decision based on the best, most specific
+         * information available from mime type and file name, and predetermine if a report type might support a uti.
+         * e.g., the example report from https://github.com/ngageoint/disconnected-content-explorer-examples/raw/master/reportzips/metromap.zip
+         * has a mime type of application/octet-stream and the resulting uti is public.data.  given that, it is
+         * more optimal to use the file name to determine the uti.  however, not all downloads might provide a useful
+         * file name either, so there should also be a mechanism to make an attempt to import a resource given only a uti
+         * like public.data, possibly even user intervention.  this will require some static prioritization of preferred
+         * utis, e.g.,
+         */
+        CFStringRef uti = [self.utiExpert probableUtiForResource:report.sourceFile conformingToUti:NULL];
+        if ((uti == NULL || [self.utiExpert isDynamicUti:uti]) && download.mimeType) {
+            uti = [self.utiExpert preferredUtiForMimeType:download.mimeType conformingToUti:NULL];
+        }
+        if (uti == NULL || [self.utiExpert uti:uti isEqualToUti:kUTTypeData]) {
+            uti = kUTTypeZipArchive;
+        }
+        if (uti == NULL) {
+            uti = kUTTypeItem;
+        }
+        
+        // TODO: fail on null or dynamic uti?
+        [self saveReport:report enteringState:ReportImportStatusInspectingSourceFile];
+    }];
 }
 
 /**

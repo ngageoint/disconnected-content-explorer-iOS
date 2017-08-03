@@ -1969,6 +1969,9 @@ describe(@"ReportStore", ^{
 
             [store downloadManager:downloadManager willFinishDownload:download movingToFile:sourceFile];
 
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
             NSURL *reportSourceFile = report.sourceFile;
             expect(reportSourceFile).to.equal(sourceFile);
 
