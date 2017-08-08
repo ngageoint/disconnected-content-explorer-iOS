@@ -2045,56 +2045,77 @@ describe(@"ReportStore", ^{
             expect(report.uti).to.equal((__bridge NSString *)kUTTypeZipArchive);
         });
 
-        it(@"can re-download the same url after failing to import a downloaded file", ^{
+        it(@"can download a url again after failing to import a downloaded file", ^{
 
-            failure(@"todo");
+            [verifyResults fetchRequest];
 
-//            TestImportProcess *importProcess = [blueType enqueueImport];
-//            importProcess.steps = @[[NSBlockOperation blockOperationWithBlock:^{
-//                importProcess.failed = YES;
-//            }]];
-//
-//            NSURL *url = [NSURL URLWithString:@"http://dice.com/report.blue"];
-//            NSURL *downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
-//            DICEDownload *download = [[DICEDownload alloc] initWithUrl:url];
-//            download.bytesExpected = 999999;
-//            download.bytesReceived = 999999;
-//            download.downloadedFile = downloadedFile;
-//            download.wasSuccessful = YES;
-//            download.httpResponseCode = 200;
-//
-//            Report *report = [store attemptToImportReportFromResource:url];
-//
-//            [verify(downloadManager) downloadUrl:report.remoteSource];
-//
-//            [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
-//            [fileManager createFilePath:downloadedFile.path contents:nil];
-//            [store downloadManager:downloadManager didFinishDownload:download];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            expect(store.reports).to.contain(report);
-//            expect(report.importState).to.equal(ReportImportStatusFailed);
-//            expect(report.sourceFile).to.equal(downloadedFile);
-//
-//            [store retryImportingReport:report];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.importState)), equalToUnsignedInteger(ReportImportStatusDownloading));
-//
-//            [verify(downloadManager) downloadUrl:report.remoteSource];
-//            expect([fileManager fileExistsAtPath:downloadedFile.path]).to.beFalsy();
-//            expect([fileManager isDirectoryAtUrl:report.importDir]).to.beTruthy();
-//            expect([fileManager isRegularFileAtUrl:[report.importDir URLByAppendingPathComponent:@"dice.obj"]]).to.beTruthy();
-//
-//            [blueType enqueueImport];
-//
-//            [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
-//            [fileManager createFilePath:downloadedFile.path contents:nil];
-//            [store downloadManager:downloadManager didFinishDownload:download];
-//
-//            assertWithTimeout(1.0, thatEventually(@(report.isImportFinished)), isTrue());
-//
-//            expect(report.importState).to.equal(ReportImportStatusSuccess);
+            NSURL *remoteSource = [NSURL URLWithString:@"http://dice.com/report.blue"];
+            NSURL *downloadedFile = [reportsDir URLByAppendingPathComponent:@"report.blue"];
+            Report *report = [Report MR_createEntityInContext:verifyDb];
+            report.remoteSource = remoteSource;
+            report.downloadSize = 9999999;
+            report.downloadProgress = 9999999;
+            report.sourceFile = downloadedFile;
+            report.reportTypeId = blueType.reportTypeId;
+            report.uti = UTI_BLUE;
+            report.importDir = [reportsDir URLByAppendingPathComponent:@"report.blue.dice_import"];
+            report.baseDirName = @"dice_content";
+            report.rootFilePath = @"report.blue";
+            report.importState = ReportImportStatusMovingContent;
+            report.importStateToEnter = ReportImportStatusDigesting;
+            [verifyDb MR_saveToPersistentStoreAndWait];
+
+            [fileManager createFilePath:report.rootFile.path contents:nil];
+            TestImportProcess *importProcess = [blueType enqueueImport];
+            importProcess.steps = @[[NSBlockOperation blockOperationWithBlock:^{
+                importProcess.failed = YES;
+            }]];
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1000.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusFailed));
+
+            [store advancePendingImports];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.isImportFinished).to.beTruthy();
+            expect(report.importState).to.equal(ReportImportStatusFailed);
+
+            [store retryImportingReport:report];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            expect(report.importStateToEnter).to.equal(ReportImportStatusRetryingDownload);
+            expect(report.downloadSize).to.equal(0);
+            expect(report.downloadProgress).to.equal(0);
+
+            [store advancePendingImports];
+
+            assertWithTimeout(1000.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusDownloading));
+
+            [store advancePendingImports];
+
+            [reportDb waitForQueueToDrain];
+            [verifyDb waitForQueueToDrain];
+
+            [verify(downloadManager) downloadUrl:report.remoteSource];
+            expect([fileManager fileExistsAtPath:downloadedFile.path]).to.beFalsy();
+            expect([fileManager isDirectoryAtUrl:report.importDir]).to.beTruthy();
+
+            DICEDownload *download = [[DICEDownload alloc] initWithUrl:remoteSource];
+            download.bytesExpected = 999999;
+            download.bytesReceived = download.bytesExpected;
+            download.fileName = downloadedFile.lastPathComponent;
+            download.wasSuccessful = YES;
+            [store downloadManager:downloadManager willFinishDownload:download movingToFile:downloadedFile];
+            download.downloadedFile = downloadedFile;
+            [fileManager createFilePath:downloadedFile.path contents:nil];
+            [store downloadManager:downloadManager didFinishDownload:download];
+
+            assertWithTimeout(1.0, thatEventually(@(report.importStateToEnter)), equalToInt(ReportImportStatusInspectingSourceFile));
         });
 
         it(@"can re-download the same url after a download fails", ^{

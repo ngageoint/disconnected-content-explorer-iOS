@@ -175,9 +175,7 @@ ReportStore *_sharedInstance;
     _application = application;
     _importBackgroundTaskId = UIBackgroundTaskInvalid;
     _trashDir = [_reportsDir URLByAppendingPathComponent:@"dice.trash" isDirectory:YES];
-    _pendingImportPredicate = [NSPredicate predicateWithFormat:
-        @"NOT(importState IN %@) AND importState != importStateToEnter",
-        @[@(ReportImportStatusSuccess), @(ReportImportStatusFailed)]];
+    _pendingImportPredicate = [NSPredicate predicateWithFormat:@"importState != importStateToEnter"];
     _readyForShutdownPredicate = [NSPredicate predicateWithFormat:
         @"NOT(importState IN %@)",
         @[@(ReportImportStatusDownloading), @(ReportImportStatusSuccess), @(ReportImportStatusFailed)]];
@@ -306,13 +304,17 @@ ReportStore *_sharedInstance;
 {
     ensureMainThread();
 
-    if (!report.isImportFinished) {
-        return;
-    }
-
-    if (report.remoteSource) {
-        [self clearAndRetryDownloadForReport:report];
-    }
+    [self.reportDb performBlock:^{
+        Report *retry = [report MR_inContext:self.reportDb];
+        if (!(retry.isImportFinished && retry.importState == ReportImportStatusFailed && retry.remoteSource)) {
+            return;
+        }
+        retry.title = retry.statusMessage = @"Retrying download";
+        retry.summary = retry.remoteSource.absoluteString;
+        retry.downloadSize = 0;
+        retry.downloadProgress = 0;
+        [self saveReport:retry enteringState:ReportImportStatusRetryingDownload];
+    }];
 }
 
 - (Report *)reportForContentId:(NSString *)contentId
@@ -425,6 +427,9 @@ ReportStore *_sharedInstance;
     else if (enteringState == ReportImportStatusDigesting) {
         transitionSel = @selector(enterDigestingContentOfReport:);
     }
+    else if (enteringState == ReportImportStatusRetryingDownload) {
+        transitionSel = @selector(enterRetryingDownloadOfReport:);
+    }
     else if (enteringState == ReportImportStatusSuccess || enteringState == ReportImportStatusFailed) {
         transitionSel = @selector(enterFinishedStateOfReport:);
     }
@@ -468,14 +473,7 @@ ReportStore *_sharedInstance;
 
 - (void)enterInspectingSourceFileForReport:(Report *)report
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // TODO: identify the task name for the report, or just use one task for all pending imports?
-        if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
-            _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice.background_import" expirationHandler:^{
-                [self suspendAndClearPendingImports];
-            }];
-        }
-    });
+    [self beginBackgroundTaskIfNecessary];
 
     if (![self.fileManager fileExistsAtPath:report.sourceFile.path]) {
         report.statusMessage = @"Import failed";
@@ -606,7 +604,7 @@ ReportStore *_sharedInstance;
 {
     vlog(@"creating import process for report %@", report);
     id<ReportType> type = [self reportTypeForId:report.reportTypeId];
-    // TODO: farm this out to import queue
+    // TODO: create process on import queue
     ImportProcess *importProcess = [type createProcessToImportReport:report];
     // TODO: check nil importProcess
     importProcess.delegate = self;
@@ -618,6 +616,16 @@ ReportStore *_sharedInstance;
         [_pendingImports addObject:importProcess];
         [self.importQueue addOperations:importProcess.steps waitUntilFinished:NO];
     });
+}
+
+- (void)enterRetryingDownloadOfReport:(Report *)report
+{
+    [self beginBackgroundTaskIfNecessary];
+    [self saveReport:report enteringState:report.importState];
+    DICEDeleteReportProcess *startFresh = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:YES fileManager:self.fileManager];
+    [_pendingImports addObject:startFresh];
+    startFresh.delegate = self;
+    [self.importQueue addOperations:startFresh.steps waitUntilFinished:NO];
 }
 
 - (void)enterFinishedStateOfReport:(Report *)report
@@ -826,43 +834,45 @@ ReportStore *_sharedInstance;
 - (void)importDidFinishForImportProcess:(ImportProcess *)importProcess
 {
     if ([importProcess isKindOfClass:[DICEDeleteReportProcess class]]) {
-        vlog(@"delete process finished for report %@", importProcess.report);
+        Report *report = importProcess.report;
+        [self.reportDb performBlock:^{
+            if (report.importState == ReportImportStatusRetryingDownload) {
+                [self saveReport:report enteringState:ReportImportStatusDownloading];
+            }
+        }];
         // TODO: core data delete from persistent store
         // TODO: what if it failed?
-        // TODO: worry about background task? we didn't begin one for this import process
-        dispatch_sync(_sync, ^{
-            [_pendingImports removeObject:importProcess];
-        });
-        return;
+    }
+    else {
+        [self.reportDb performBlock:^{
+            vlog(@"import did finish for report %@", importProcess.report);
+            NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:importProcess.report];
+            Report *report = importProcess.report;
+            ReportImportStatus finishState;
+            if (importProcess.wasSuccessful) {
+                if (descriptor) {
+                    [report setPropertiesFromJsonDescriptor:descriptor];
+                }
+                if (report.rootFile && !report.uti) {
+                    CFStringRef uti = [self.utiExpert probableUtiForResource:report.rootFile conformingToUti:NULL];
+                    if (![self.utiExpert isDynamicUti:uti]) {
+                        report.uti = (__bridge NSString *)uti;
+                    }
+                }
+                // TODO: check rootFile uti
+                report.statusMessage = @"Import complete";
+                finishState = ReportImportStatusSuccess;
+            }
+            else {
+                vlog(@"disabling report %@ after unsuccessful import", report);
+                report.statusMessage = @"Failed to import content";
+                finishState = ReportImportStatusFailed;
+            }
+            [self saveReport:report enteringState:finishState];
+        }];
     }
 
-    [self.reportDb performBlock:^{
-        vlog(@"import did finish for report %@", importProcess.report);
-        NSDictionary *descriptor = [self parseJsonDescriptorIfAvailableForReport:importProcess.report];
-        Report *report = importProcess.report;
-        ReportImportStatus finishState;
-        if (importProcess.wasSuccessful) {
-            if (descriptor) {
-                [report setPropertiesFromJsonDescriptor:descriptor];
-            }
-            if (report.rootFile && !report.uti) {
-                CFStringRef uti = [self.utiExpert probableUtiForResource:report.rootFile conformingToUti:NULL];
-                if (![self.utiExpert isDynamicUti:uti]) {
-                    report.uti = (__bridge NSString *)uti;
-                }
-            }
-            // TODO: check rootFile uti
-            report.statusMessage = @"Import complete";
-            finishState = ReportImportStatusSuccess;
-        }
-        else {
-            vlog(@"disabling report %@ after unsuccessful import", report);
-            report.statusMessage = @"Failed to import content";
-            finishState = ReportImportStatusFailed;
-        }
-        [self clearPendingImport:importProcess];
-        [self saveReport:report enteringState:finishState];
-    }];
+    [self clearPendingImport:importProcess];
 }
 
 #pragma mark - download delegate methods
@@ -982,22 +992,6 @@ ReportStore *_sharedInstance;
     return nil;
 }
 
-- (void)clearAndRetryDownloadForReport:(Report *)report
-{
-    assert(false);
-//    ensureMainThread();
-//
-//    report.isEnabled = NO;
-//    report.importStatus = ReportImportStatusNewRemote;
-//    report.title = report.statusMessage = @"Retrying download";
-//    report.summary = report.remoteSource.absoluteString;
-//    // TODO: leave import dir and persisted record? option on DICEDeleteReportProcess? maybe just manually delete base dir and source file?
-//    DICEDeleteReportProcess *startFresh = [[DICEDeleteReportProcess alloc] initWithReport:report trashDir:_trashDir preservingMetaData:YES fileManager:self.fileManager];
-//    [_pendingImports addObject:startFresh];
-//    startFresh.delegate = self;
-//    [self.importQueue addOperations:startFresh.steps waitUntilFinished:NO];
-}
-
 #pragma mark - archives
 
 - (void)unzipOperation:(UnzipOperation *)op didUpdatePercentComplete:(NSUInteger)percent
@@ -1038,10 +1032,21 @@ ReportStore *_sharedInstance;
 
 #pragma mark - background handling
 
+- (void)beginBackgroundTaskIfNecessary
+{
+    dispatch_async(_sync, ^{
+        // TODO: identify the task name for the report, or just use one task for all pending imports?
+        if (_importBackgroundTaskId == UIBackgroundTaskInvalid) {
+            _importBackgroundTaskId = [self.application beginBackgroundTaskWithName:@"dice.background_import" expirationHandler:^{
+                [self suspendAndClearPendingImports];
+            }];
+        }
+    });
+}
+
 - (void)clearPendingImport:(ImportProcess *)importProcess
 {
     dispatch_sync(_sync, ^{
-        vlog(@"clearing pending import for report %@, pending imports remainging %lu", importProcess.report, (unsigned long) _pendingImports.count);
         NSUInteger pos = [_pendingImports indexOfObject:importProcess];
         if (pos == NSNotFound) {
             if (_importBackgroundTaskId != UIBackgroundTaskInvalid) {
@@ -1137,20 +1142,12 @@ ReportStore *_sharedInstance;
 
 - (void)filesDidMoveToTrashByDeleteReportProcess:(DICEDeleteReportProcess *)process
 {
-    // TODO: handle move failure
-    NSAssert(false, @"TODO");
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        Report *report = process.report;
-//        if (report.importStatus == ReportImportStatusNewRemote) {
-//            // it's a retry
-//            [self initializeReport:report forSourceUrl:report.remoteSource];
-//            [self beginImportingNewReport:report];
-//        }
-//        else {
-//            process.report.importStatus = ReportImportStatusDeleted;
-//            [_reports removeObject:process.report];
-//        }
-//    });
+    Report *report = process.report;
+    [self.reportDb performBlock:^{
+        if (report.importState == ReportImportStatusRetryingDownload) {
+            return;
+        }
+    }];
 }
 
 - (void)noFilesFoundToDeleteByDeleteReportProcess:(DICEDeleteReportProcess *)process
