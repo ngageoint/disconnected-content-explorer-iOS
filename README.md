@@ -23,15 +23,15 @@ https://itunes.apple.com/us/app/disconnected-interactive-content/id966026588?ls=
 You can add new content to the app by copying a URL to a DICE report, and then opening the app. A prompt will be shown asking if you would like to download the report.
 
 If you have a lot of content to load, you can plug the device into a computer and open iTunes, select DICE in File Sharing and drag and drop the zips into the DICE Documents list.
-![iTunes] (https://raw.githubusercontent.com/ngageoint/disconnected-content-explorer-examples/master/DICEUserGuide/img/itunes-load.png)
+![iTunes](https://raw.githubusercontent.com/ngageoint/disconnected-content-explorer-examples/master/DICEUserGuide/img/itunes-load.png)
 
-![DICE1] (https://cloud.githubusercontent.com/assets/3793883/4208915/476b4274-3864-11e4-895b-78053f83563e.png)
+![DICE1](https://cloud.githubusercontent.com/assets/3793883/4208915/476b4274-3864-11e4-895b-78053f83563e.png)
 
 Content can include any HTML, CSS, and Javascript packaged in a zip file and loaded onto the device. It can also include local data such as tiles for interactive maps, like the Leaflet map below.
-![DICE3] (https://cloud.githubusercontent.com/assets/3793883/4208912/476148dc-3864-11e4-8855-1e7c8891ad7c.png)
+![DICE3](https://cloud.githubusercontent.com/assets/3793883/4208912/476148dc-3864-11e4-8855-1e7c8891ad7c.png)
 
 Data for features on maps can also be included locally to allow users to query data on an interactive map.
-![DICE4] (https://cloud.githubusercontent.com/assets/3793883/4208914/476681da-3864-11e4-9b6c-8dbd24b866fe.png)
+![DICE4](https://cloud.githubusercontent.com/assets/3793883/4208914/476681da-3864-11e4-9b6c-8dbd24b866fe.png)
 
 Additionally, users can add notes to be saved with the content.
-![DICE5] (https://cloud.githubusercontent.com/assets/3793883/4208913/476638ec-3864-11e4-8842-5d66cc70445d.png)
+![DICE5](https://cloud.githubusercontent.com/assets/3793883/4208913/476638ec-3864-11e4-8842-5d66cc70445d.png)
