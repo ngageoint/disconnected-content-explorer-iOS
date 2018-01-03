@@ -19,12 +19,13 @@ https://itunes.apple.com/us/app/disconnected-interactive-content/id966026588?ls=
 
 [NGA Press Release on DICE](https://www1.nga.mil/MediaRoom/PressReleases/Pages/2015-06.aspx)
 
-### Screenshots
-You can add new content on the device by copying a URL to a DICE report and opening the app, it will offer to download it for you. If you have a lot of content to load, you can plug the device into iTunes, select DICE in File Sharing and drag and drop the zips into the window.
+### Content
+You can add new content to the app by copying a URL to a DICE report, and then opening the app. A prompt will be shown asking if you would like to download the report.
+
+If you have a lot of content to load, you can plug the device into a computer and open iTunes, select DICE in File Sharing and drag and drop the zips into the DICE Documents list.
 ![iTunes] (https://raw.githubusercontent.com/ngageoint/disconnected-content-explorer-examples/master/DICEUserGuide/img/itunes-load.png)
 
 ![DICE1] (https://cloud.githubusercontent.com/assets/3793883/4208915/476b4274-3864-11e4-895b-78053f83563e.png)
-![DICE2] (https://cloud.githubusercontent.com/assets/3793883/4208916/476c0c18-3864-11e4-83da-840ac31bede6.png)
 
 Content can include any HTML, CSS, and Javascript packaged in a zip file and loaded onto the device. It can also include local data such as tiles for interactive maps, like the Leaflet map below.
 ![DICE3] (https://cloud.githubusercontent.com/assets/3793883/4208912/476148dc-3864-11e4-8855-1e7c8891ad7c.png)
