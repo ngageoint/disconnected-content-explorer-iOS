@@ -14,7 +14,7 @@ If you'd like to contribute to this project, please make a pull request. We'll r
 Software source code previously released under an open source license and then modified by NGA staff is considered a "joint work" (see 17 USC § 101); it is partially copyrighted, partially public domain, and as a whole is protected by the copyrights of the non-government authors and must be released according to the terms of the original open source license.
 
 ### Download the app
-![Download DICE on the App Store](https://itunes.apple.com/us/app/disconnected-interactive-content/id966026588?ls=1&mt=8)
+[Download DICE on the App Store](https://itunes.apple.com/us/app/disconnected-interactive-content/id966026588?ls=1&mt=8)
 
 [NGA Press Release on DICE](https://www1.nga.mil/MediaRoom/PressReleases/Pages/2015-06.aspx)
 
