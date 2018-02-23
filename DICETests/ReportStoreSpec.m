@@ -116,7 +116,7 @@
 @end
 
 
-@interface NSManagedObjectContext (ReportStoreSpect)
+@interface NSManagedObjectContext (ReportStoreSpec)
 
 - (id)observe:(NSString *)name withBlock:(void ((^)(NSNotification *note)))block;
 - (void)removeNotificationObserver:(id)observer;
