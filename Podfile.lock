@@ -1,0 +1,66 @@
+PODS:
+  - AFNetworking (3.2.1):
+    - AFNetworking/NSURLSession (= 3.2.1)
+    - AFNetworking/Reachability (= 3.2.1)
+    - AFNetworking/Security (= 3.2.1)
+    - AFNetworking/Serialization (= 3.2.1)
+    - AFNetworking/UIKit (= 3.2.1)
+  - AFNetworking/NSURLSession (3.2.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (3.2.1)
+  - AFNetworking/Security (3.2.1)
+  - AFNetworking/Serialization (3.2.1)
+  - AFNetworking/UIKit (3.2.1):
+    - AFNetworking/NSURLSession
+  - Expecta (1.0.6)
+  - geopackage-ios (1.1.11):
+    - AFNetworking (~> 3.1)
+    - proj4 (~> 4.8)
+    - wkb-ios (~> 1.0.6)
+  - objective-zip (0.8.3)
+  - OCHamcrest (4.3.0)
+  - OCMockito (1.4.0):
+    - OCHamcrest (~> 4.0)
+  - proj4 (4.8.0)
+  - Specta (1.0.7)
+  - WebViewJavascriptBridge (4.1.4)
+  - wkb-ios (1.0.9)
+
+DEPENDENCIES:
+  - Expecta (~> 1.0)
+  - geopackage-ios (~> 1.1.11)
+  - objective-zip (= 0.8.3)
+  - OCMockito (~> 1.4)
+  - Specta (~> 1.0)
+  - WebViewJavascriptBridge (= 4.1.4)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - AFNetworking
+    - Expecta
+    - geopackage-ios
+    - objective-zip
+    - OCHamcrest
+    - OCMockito
+    - proj4
+    - Specta
+    - WebViewJavascriptBridge
+    - wkb-ios
+
+SPEC CHECKSUMS:
+  AFNetworking: b6f891fdfaed196b46c7a83cf209e09697b94057
+  Expecta: 3b6bd90a64b9a1dcb0b70aa0e10a7f8f631667d5
+  geopackage-ios: 01f6a8d06161d3a94f8a0bbd9fa14c7d6122d512
+  objective-zip: a27d4b3c060eead4325159e49178e7f0ad5ee808
+  OCHamcrest: cd63d27f48a266d4412c0b295b01b8f0940efa81
+  OCMockito: 4981140c9a9ec06c31af40f636e3c0f25f27e6b2
+  proj4: 234525105d05a33b2ae9a90a6fe3935f7a246f7e
+  Specta: 3e1bd89c3517421982dc4d1c992503e48bd5fe66
+  WebViewJavascriptBridge: f10ac16f2cd3adf2b941bd79477c55a8f6e01044
+  wkb-ios: 7a2678852f9c4d166048a7277df37d4d2af5436b
+
+PODFILE CHECKSUM: 74c666913f330299a68c5de5c1fcbcb53b19e55c
+
+COCOAPODS: 1.5.3
